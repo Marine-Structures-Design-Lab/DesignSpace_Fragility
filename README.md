@@ -1,1 +1,3 @@
 # DesignSpace_Fragility
+
+This space will be used to build and test how a fragility framework and entropy metrics on the new Set-Based Design Problem.  The new Set-Based Design problem...
