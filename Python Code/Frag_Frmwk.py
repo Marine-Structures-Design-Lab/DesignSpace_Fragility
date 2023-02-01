@@ -18,8 +18,6 @@ the size of the proposed reduction to alleviate some of that risk.
 [Further Description]
 """
 
-
-
 """
 ELEMENTS WITHIN SCRIPT FILE:
 
@@ -41,26 +39,14 @@ ELEMENTS WITHIN SCRIPT FILE:
     - The exact equations and/or marine design programs used to sample areas
       of each discipline's design space
 
-
-
-
-
 """
-
-
-
 
 """
 ELEMENTS OUTSIDE OF SCRIPT FILE:
     
 1) Calls to mathematical functions (or actual marine program functions)
 
-
 """
-
-
-
-
 
 """
 CHRONOLOGICAL COMMANDS OF SCRIPT FILE:
@@ -95,14 +81,7 @@ CHRONOLOGICAL COMMANDS OF SCRIPT FILE:
 7) Compare the entropy level differences before of step 4 before and after
    introducing the proposed space reduction(s)
 
-
-
 """
-
-
-
-
-
 
 """
 WHERE TO FOCUS RESEARCH ATTENTION:
@@ -112,6 +91,94 @@ WHERE TO FOCUS RESEARCH ATTENTION:
 
 
 """
+
+
+
+
+
+
+
+
+"""
+SCRIPT
+"""
+
+# -------------Automated Exploration & Space Reduction Proposition-------------
+
+# ALL OF THE CODE FOR ANALYZING DATA AND PROPOSING REDUCTIONS BEFORE
+# INCORPORATING ANY SORT OF A FRAGILITY FRAMEWORK --> This section and the last
+# section will actually probably be better off in a "Script" file that is bound
+# to call the fragility framework...a level up so to say
+
+
+
+# -----------------------------Fragility Framework-----------------------------
+
+
+# Gather all the proposed space reductions for that point in time into a list
+
+# Loop through each proposed reduction in the list
+
+    # Determine disciplines that are involved for the particular reduction
+    ### If it is a proposed reduction for a single variable (i.e. eliminate all
+    ### designs for x1 that are less than 5), then every discipline containing
+    ### that variable are involved in the reduction.  If it is a proposed
+    ### reduction involving multiple variables (i.e. eliminate all designs
+    ### where the sum of x1 and x2 are less than 5), then every discipline
+    ### containing ALL off the variables are involved in the reduction.
+    
+    # Record the disciplines involved in each particular reduction
+    
+# Stop looping through each proposed reduction in the list
+
+# Loop through each discipline of the problem
+
+    # Reflect on the specific reductions that affect the particular discipline
+    
+    # If the discipline is not involved in any proposed reduction, then
+    # continue to the next discipline of the for loop
+    
+    # Calculate the entropy of the particular discipline's remaining design
+    # space before factoring in any of its proposed reductions
+    ### 1) Need to figure out exactly how the entropy is going to look.  I will
+    ###    likely start out with some sort of Shannon Entropy, but I need to
+    ###    determine exactly how that gets calculated for a design space having
+    ###    many design variables.  I also need to figure out exactly how I want
+    ###    the entropy to characterize the design space.  Do I want a single
+    ###    entropy value encompassing the entire design space?  Do I want some
+    ###    sort of an entropy contour map tracking levels of design space
+    ###    entropy between the minimum and maximum amounts of the design space?
+    ###    Do I want to attach a particular entropy value to each discrete
+    ###    point in the design space based on the outcomes of the design space
+    ###    sampled in that point's vicinity/the perceived feasible/dominated
+    ###    boundaries?
+    ### 2) This entropy calculation will probably involve some sort of function
+    ###    call to an entropy calculator.  That function will require the
+    ###    following information: COME BACK AND MOVE THESE BULLET POINTS!
+    ###        - If the entropy is only concerned with the feasibility of the
+    ###          specific discipline (as it is in this stage of the code), then
+    ###          the locations of the discrete points tested, the pass/fail
+    ###          success of each point tested, the current extreme bounds of
+    ###          the design space (?)
+    ###        - If the entropy is also concerned with the dominance of the
+    ###          specific discipline, then the entropy calculating function
+    ###          will also need pass/fail success of points and/or perceived
+    ###          feasible regions of disciplines with interdependent spaces
+    ###        - If the entropy is also concerned with the preferences of the
+    ###          specific discipline, then the entropy calculating function
+    ###          will also need information on the extent to which each tested
+    ###          design point of the particular discipline is passing/failing
+    
+    # Perturb the data of the particular discipline's remaining design space
+    # before factoring in any of its proposed reductions
+    
+
+
+
+
+# -------Comparison of Design Results with & without Fragility Framework-------
+
+
 
 
 
