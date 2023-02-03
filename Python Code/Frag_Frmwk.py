@@ -1,89 +1,56 @@
-# -*- coding: utf-8 -*-
 """
-Created on Tue Jan 24 18:28:57 2023
-
-@author: Joseph B. Van Houten (joeyvan@umich.edu)
-
-This is going to act as a script(?) file for the assessment of design space
-fragility.  For now, this script file is only going to focus on comparing the
+DESCRIPTION:
+This is going to act as a function/class(?) for the assessment of design space
+fragility.  For now, this function is only going to focus on comparing the
 fragility of a design space for any proposed space reduction to the fragility
 of the design space without that reduction to quantify reduction risk, so
-project time and/or budget does not need to be incorporated yet.  Reduction
+project time and/or budget does not need to be incorporated here.  Reduction
 risks do not yet need to be put into the scope of project time/budget remaining
 to try to determine what exactly is a high-risk reduction.  Nor does the
-program need to focus on guiding any further exploration or condensing of
-the size of the proposed reduction to alleviate some of that risk.
+function need to focus on guiding any further exploration or condensing of the
+size of the proposed reduction to alleviate some of that risk.
 
-[Further Description/Revision of what is written above]
+This function will receive input on all of the proposed space reductions at a
+particular point in time, the discipline's involved in a problem, the variables
+that are associated with each discipline, the points that have been tested in
+each discipline's design space, the resulting output points, the requirements
+each variable need to meet, and (eventually?) the preferences for each design
+variable as a whole (i.e. speed needs to be at least 40 knots, but we want the
+vessel to go as fast as possible).
+
+This function will produce entropy results, fragility results, and reduction
+risk results.  The entropy results will likely be tabular because of the
+possibility of those design spaces to have more than three-dimensions.  But
+another function can be created with these entropy results that fixes certain
+values of a discipline and returns two- or three-dimensional entropy figures.
+There will be fragility values returned for each possible combination of space
+reductions at a particular moment in time so they can be compared against each
+other.  And there will be some sort of risk value returned based on carrying
+out all of the proposed reductions at once versus not carrying any of them out.
+
+CREATOR:
+Joseph B. Van Houten
+joeyvan@umich.edu
 """
-
-"""
-ELEMENTS WITHIN SCRIPT FILE:
-
-1) User needs to input characteristics for particular aspects of the problem
-    - Symbols (?) for all of the design variables involved
-    - Acceptable bounds for each variable (input or output)
-
-2) User needs to gather information
-    - The exact locations of each discipline's design space that have been
-      sampled at a particular point in time
-    - The areas of each design space that the design manager wants to reduce
-      at a particular point in time
-      -- Individual variable reductions (i.e. x1 < 5) will impact every design
-         space that contains that variable
-      -- Shared variable reductions (i.e. x1 + x2 < 5) will impact every design
-         space that contains all of the variables involved
-
-3) The program will need to establish information to be able to run simulations
-    - The exact equations and/or marine design programs used to sample areas
-      of each discipline's design space
-
-"""
-
-"""
-ELEMENTS OUTSIDE OF SCRIPT FILE:
-    
-1) Calls to mathematical functions (or actual marine program functions)
-
-"""
-
-"""
-WHERE TO FOCUS RESEARCH ATTENTION:
-
-1) How to use entropy to calculate uncertainty associated with perceptions of a
-   sampled design space
-
-"""
-
-
-
-
-
-
-
 
 """
 COMMANDS
 """
 
 # -------------Automated Exploration & Space Reduction Proposition-------------
+# SBD PROBLEM SCRIPT?
 
 # ALL OF THE CODE FOR ANALYZING DATA AND PROPOSING REDUCTIONS BEFORE
 # INCORPORATING ANY SORT OF A FRAGILITY FRAMEWORK --> This section will
 # actually probably be better off in a "Script" file that is bound to call the
-# fragility framework file...a level up so to say
-
-
-
-
-
-
-
+# fragility framework file.  But I can make arbitrary reduction proposals to
+# just test out the framework before incorporating it into an actual SBD
+# process.
 
 
 
 # -----------------------------Fragility Framework-----------------------------
-
+# FUNCTION CONTAINING CLASSES WITH OTHER FUNCTIONS?
 
 # Gather all the proposed space reductions for that point in time into a list
 
@@ -238,23 +205,21 @@ COMMANDS
 # list
 
 
-
-
-# -------Comparison of Design Results with & without Fragility Framework-------
-
 # ALL OF THE CODE FOR ANALYZING HOW THE DESIGN SPACES WITHOUT ANY OF THE
 # PROPOSED SPACE REDUCTIONS HANDLE THE PERTURBATIONS COMPARED TO HOW THE DESIGN
 # SPACES WITH EACH POSSIBLE COMBINATION OF THE PROPOSED SPACE REDUCTIONS HANDLE
 # THE PERTURBATIONS TO DETERMINE HOW FRAGILE EACH OF THOSE POSSIBLE
-# COMBINATIONS OF SPACE REDUCTIONS WOULD END UP MAKING EACH DESIGN SPACE -->
-# This section may also be better off in its own "Script" file, taking the
-# results for the proposed reductions with the fragility framework and creating
-# observations tables and graphs for the proposed reductions at this particular
-# moment in time.  Could actually quantify the risk of reduction in this
-# section.
+# COMBINATIONS OF SPACE REDUCTIONS WOULD END UP MAKING EACH DESIGN SPACE.
+# QUANTIFY THE RISK OF THE PROPOSED SPACE REDUCTIONS IN REFERENCE TO ITSELF.
+# SAVE COMPARISONS OF RISK TO PROJECT TIME AND/OR BUDGET FOR NEXT SECTION.
+
+
+
+
 
 
 # -------Next Steps for Design Manager to Make Based on Risk Assessment--------
+# SEPARATE FUNCTION CALL?
 
 # Compare the risk to the project time remaining to either suggest not making
 # the proposed reduction at that point in time (step 1), condensing the
@@ -267,17 +232,29 @@ COMMANDS
 
 
 # -------------Automated Exploration & Space Reduction Continuation------------
+# BACK TO SBD PROBLEM SCRIPT?
 
 # JUMP BACK INTO THE SCRIPT FILE THAT IS USED TO ANALYZE THE SET-BASED DESIGN
 # PROBLEM OF CONCERN, EXPLORE THE SPACE, AND PROPOSE REDUCTIONS.  EVENTUALLY
 # THIS SCRIPT WILL BE USED TO TEST A SBD PROCESS WITH THE FRAGILITY FRAMEWORK
 # AGAINST ONE THAT DOES NOT USE IT, AND WE WILL OBSERVE HOW EFFECTIVE A SBD
 # PROCESS IS WITH THE FRAMEWORK COMPARED TO WITHOUT THE FRAMEWORK.  AS THE
-# EXPLORATION AND REDUCTION PROCESS CONTINUES, WE WILL CAN HAVE EXPERIMENTS OF
+# EXPLORATION AND REDUCTION PROCESS CONTINUES, WE WILL HAVE EXPERIMENTS WITH
 # THE FRAMEWORK WHEN IT PLANS FOR POSSIBLE DESIGN CHANGES BUT NO DESIGN CHANGES
 # ACTUALLY OCCUR, AS WELL AS EXPERIMENTS THAT ACTUALLY INTRODUCE RANDOM DESIGN
 # CHANGES AND RUN A BUNCH OF MONTE CARLO BASED EXPERIMENTS WITH THESE RANDOM
-# DESIGN CHANGES THAT POP UP
+# DESIGN CHANGES THAT POP UP.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
