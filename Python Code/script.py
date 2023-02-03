@@ -25,3 +25,32 @@ Joseph B. Van Houten
 joeyvan@umich.edu
 """
 
+"""
+LIBRARIES
+"""
+from vars_def import setProblem
+
+
+"""
+USER INPUTS
+"""
+# List the name of the problem on which the design team is working
+### OPTIONS: SBD1,...
+problem_name = "SBD1"
+
+
+"""
+COMMANDS
+"""
+# Establish dictionaries for the design problem of interest
+prob = setProblem()
+discip = prob.SBD1()
+print(discip)
+
+
+
+
+
+
+
+
