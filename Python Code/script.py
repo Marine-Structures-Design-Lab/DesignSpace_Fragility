@@ -29,6 +29,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from vars_def import setProblem
+from input_vals import getInput
 
 
 """
@@ -38,14 +39,56 @@ USER INPUTS
 ### OPTIONS: SBD1,...
 problem_name = "SBD1"
 
+# Establish a timeline for exploring the design problem
+### This value determines the number of loop iterations that will be executed,
+### but it does not necessarily mean each point tested will only take one
+### iteration to complete.
+iters = 2
+
+# Actually assign a random interval with the other disciplines where each discipline will
+# propose a reduction...or assign a Joint preference criterion for when a discipline is allowed
+# to request a reduction...and then see if other disciplines might also want to propose
+# reductions too, just for a lower criterion?
+
 
 """
 COMMANDS
 """
 # Establish dictionaries for the design problem of interest
 prob = setProblem()
-discip = prob.SBD1()
-print(discip)
+Problem = prob.SBD1()
+
+# Set the total project exploration and reduction timeline - change to while loop?
+for i in range(0,iters):
+        
+    # Get random inputs for each input variable
+    random = getInput(Problem)
+    Problem = random.getUniform()
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Randomly sample each design space...track points in discipline dictionary?
+
+
+
+# Randomly request a reduction at a point in time?
+
+
+
+# Randomly propose a certain number of reductions?
 
 
 

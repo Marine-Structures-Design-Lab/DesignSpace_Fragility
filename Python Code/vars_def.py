@@ -39,26 +39,44 @@ class setProblem:
         
         # Create dictionary for Discipline 1
         discip1 = {
-            "vars": [x[0], x[1], x[2], y[0]],
+            "ins": [x[0], x[1], x[2]],
+            "outs": y[0],
             "fcns": 0.8*x[0]**2 + 2*x[1]**2 - x[2] - y[0]
         }
         
         # Create dictionary for Discipline 2
         discip2 = {
-            "vars": [x[2], x[3], x[4], y[1], y[2]],
+            "ins": [x[2], x[3], x[4]],
+            "outs": [y[1], y[2]],
             "fcns": [1.25*x[4] - 12.5*x[2]**3 + 6.25*x[2]**2 - y[1],
                      (x[3]**3 + x[4])**2 - y[2]]
         }
         
         # Create dictionary for Discipline 3
         discip3 = {
-            "vars": [x[0], x[4], x[5], y[3], y[4]],
+            "ins": [x[0], x[4], x[5]],
+            "outs": [y[3], y[4]],
             "fcns": [2*x[4] + 0.2*sp.sin(25*x[5]) - x[0]**(1/5) - y[3],
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]]
         }
         
+        # Create dictionary containing initial bounds for each variable
+        bounds = {
+            x[0]: [0.0,1.0],
+            x[1]: [0.0,1.0],
+            x[2]: [0.0,1.0],
+            x[3]: [0.0,1.0],
+            x[4]: [0.0,1.0],
+            x[5]: [0.0,1.0],
+            y[0]: [[0.0,0.4],[1.2,1.6]],
+            y[1]: [0.5,0.7],
+            y[2]: [0.2,0.5],
+            y[3]: [0.0,0.5],
+            y[4]: [0.8,1.6]
+        }
+        
         # Return each discipline's dictionary for SBD1 problem
-        return discip1, discip2, discip3
+        return discip1, discip2, discip3, bounds
     
     # Can define other problems similar to as was done for the SBD1 problem...
     
