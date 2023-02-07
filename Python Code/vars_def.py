@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 DESCRIPTION:
 Establishes the disciplines and variables associated with each discipline

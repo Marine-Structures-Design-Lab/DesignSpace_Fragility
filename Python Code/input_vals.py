@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 DESCRIPTION:
 Provides different algorithms for producing random points to be tested in a

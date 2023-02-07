@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 DESCRIPTION:
 Main script file for simulating the space reduction process of a convergent
@@ -64,6 +63,10 @@ for i in range(0,iters):
     # Get random inputs for each input variable
     random = getInput(Problem)
     Problem = random.getUniform()
+    print(Problem[0])
+    
+    # Calculate and record outputs for each design point in the input space
+    
     
     
 
