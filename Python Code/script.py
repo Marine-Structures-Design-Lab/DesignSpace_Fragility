@@ -55,13 +55,13 @@ COMMANDS
 """
 # Establish dictionaries for the design problem of interest
 prob = setProblem()
-Problem = prob.SBD1()
+Problem, Set_rules = prob.SBD1()
 
 # Set the total project exploration and reduction timeline - change to while loop?
 for i in range(0,iters):
         
     # Get random inputs for each input variable
-    random = getInput(Problem)
+    random = getInput(Problem,Set_rules,iters)
     Problem = random.getUniform()
     print(Problem[0])
     
