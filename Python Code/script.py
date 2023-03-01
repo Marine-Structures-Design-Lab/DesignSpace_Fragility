@@ -29,6 +29,8 @@ LIBRARIES
 """
 from vars_def import setProblem
 from input_vals import getInput
+from get_constraints import getConstraints
+import numpy as np
 
 
 """
@@ -36,7 +38,7 @@ USER INPUTS
 """
 # List the name of the problem on which the design team is working
 ### OPTIONS: SBD1,...
-problem_name = "SBD1"
+problem_name = 'SBD1'
 
 # Establish a timeline for exploring the design problem
 ### This value determines the number of loop iterations that will be executed,
@@ -44,10 +46,9 @@ problem_name = "SBD1"
 ### iteration to complete.
 iters = 2
 
-# Actually assign a random interval with the other disciplines where each discipline will
-# propose a reduction...or assign a Joint preference criterion for when a discipline is allowed
-# to request a reduction...and then see if other disciplines might also want to propose
-# reductions too, just for a lower criterion?
+# Decide on the strategy for producing random input values
+### OPTIONS: Uniform, LHS (eventually),...
+sample = 'uniform'
 
 
 """
@@ -55,15 +56,56 @@ COMMANDS
 """
 # Establish dictionaries for the design problem of interest
 prob = setProblem()
-Problem, Set_rules = prob.SBD1()
+Discips, Set_rules = prob.SBD1()
 
 # Set the total project exploration and reduction timeline - change to while loop?
 for i in range(0,iters):
+    
+    # Loop through each discipline (maintaining each of their independence)
+    for j in range(0,len(Discips)):
         
-    # Get random inputs for each input variable
-    random = getInput(Problem,Set_rules,iters)
-    Problem = random.getUniform()
-    print(Problem[0])
+        # Determine the current input value rules for the discipline to meet
+        input_rules = getConstraints(Discips[j]['ins'],Set_rules)  
+        print(input_rules)
+        
+        # Create a key for tested inputs of discipline if does not exist
+        if 'tested_ins' in Discips[j]:
+            continue
+        else:
+            Discips[j]['tested_ins'] = []
+        
+        # Get input points according to the desired strategy
+        
+        
+        
+        # While loop for point creation
+        ### (Failed attempts for random point creation should not count
+        ###  against iteration time)
+        
+            
+                
+                # Prevent infinite while loop from occurring with error message
+                
+                # Get temporary random inputs for each input
+                
+                # Check that temporary random inputs meet the current rules
+                
+                # Add temporary random inputs to tested inputs or 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    # Get random inputs for each input variable of the discipline
+    # random = getInput(Discips,Set_rules,iters)
+    # Problem = random.getUniform()
+    # print(Discips[0])
     
     # Calculate and record outputs for each design point in the input space
     

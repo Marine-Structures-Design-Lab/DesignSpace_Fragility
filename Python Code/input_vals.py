@@ -1,8 +1,8 @@
 """
 DESCRIPTION:
 Provides different algorithms for producing random points to be tested in a
-discipline's input space.  All input variables must be normalized over its own
-range such that the input spaces only consist of values between 0 and 1.
+discipline's input space.  All input values must fall within the presently
+allowed constraints.
 
 CREATOR:
 Joseph B. Van Houten
