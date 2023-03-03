@@ -4,10 +4,10 @@ Establishes the disciplines and variables associated with each discipline
 depending on the title of the problem being solved.  Problems involving
 mathematical equations will have functions and variables defined.  Problems
 involving black-box marine design programs will only have variables defined.
-The functions defined in the dictionaries of discipline's involving
-mathematical functions may only be used to produce an output based on inputs
-for exploration purposes.  In other words, the designers should still treat
-these mathematical functions as black-box programs.
+The functions defined in the dictionaries of disciplines involving mathematical
+functions may only be used to produce an output based on inputs for exploration
+purposes.  In other words, the designers should still treat these mathematical
+functions as black-box programs.
 
 CREATOR:
 Joseph B. Van Houten
@@ -20,7 +20,7 @@ LIBRARIES
 import sympy as sp
 
 """
-CLASSES
+CLASS
 """
 # Create dictionaries for each discipline of the specific problem
 class setProblem:

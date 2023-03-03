@@ -15,15 +15,15 @@ LIBRARIES
 import numpy as np
 
 """
-COMMANDS
+CLASS
 """
 # Get random inputs for the independent variables
 class getInput:
     
     # Initialize the class
-    def __init__(self,Problem,Set_rules,iters):
-        self.P = Problem
-        self.sr = Set_rules
+    def __init__(self,Discips,input_rules,iters):
+        self.D = Discips
+        self.ir = input_rules
         self.i = iters
         return
     
@@ -31,7 +31,7 @@ class getInput:
     def getUniform(self):
         
         # Loop through each discipline
-        for i in range(0,len(self.P)-1):
+        for i in range(0,len(self.D)-1):
             
             # Initialize counting variables
             count1 = 0
@@ -51,7 +51,7 @@ class getInput:
                 count2 = count2 + 1
                 
                 # Create a new input point in the normalized value bounds (0 to 1)
-                point = np.random.rand(1,len(self.P[i]['ins']))
+                point = np.random.rand(1,len(self.D[i]['ins']))
                 
                 # Check if input point abides by all of the current set_rules
                 ### SHOULD PROBABLY TURN THIS INTO SOME SORT OF FUNCTION
@@ -59,18 +59,18 @@ class getInput:
                 
                 
                 # Append new points to test if discipline has already tested points
-                if 'tested_ins' in self.P[i]:
-                    self.P[i]['tested_ins'] = np.append\
-                        (self.P[i]['tested_ins'],\
-                         np.random.rand(1,len(self.P[i]['ins'])),\
+                if 'tested_ins' in self.D[i]:
+                    self.D[i]['tested_ins'] = np.append\
+                        (self.D[i]['tested_ins'],\
+                         np.random.rand(1,len(self.D[i]['ins'])),\
                          axis = 0)
                 # Create a new tested_ins key if no points have been tested yet
                 else:
-                    self.P[i]['tested_ins'] = np.random.rand\
-                        (1,len(self.P[i]['ins']))
+                    self.D[i]['tested_ins'] = np.random.rand\
+                        (1,len(self.D[i]['ins']))
                 
                 
                 #### MAKE SURE I BRING THE COUNT1 UP ONE!
                 
         # Return new dictionary with uniform random input points to be tested
-        return self.P
+        return self.D

@@ -30,8 +30,8 @@ LIBRARIES
 from vars_def import setProblem
 from input_vals import getInput
 from get_constraints import getConstraints
-import numpy as np
-
+from exploration_check import checkSpace
+from exploration_amount import exploreSpace
 
 """
 USER INPUTS
@@ -40,13 +40,15 @@ USER INPUTS
 ### OPTIONS: SBD1,...
 problem_name = 'SBD1'
 
-# Establish a timeline for exploring the design problem
+# Establish the allowed timeline for exploring the design problem
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters = 2
+iters_max = 2
 
-# Decide on the strategy for producing random input values
+# Decide on the strategy for producing random input values - may want to change
+### this decision process up and have many selections in user inputs according
+### to how the project is going
 ### OPTIONS: Uniform, LHS (eventually),...
 sample = 'uniform'
 
@@ -56,89 +58,79 @@ COMMANDS
 """
 # Establish dictionaries for the design problem of interest
 prob = setProblem()
-Discips, Set_rules = prob.SBD1()
+Discips, Set_rules = getattr(prob,problem_name)()
 
-# Set the total project exploration and reduction timeline - change to while loop?
-for i in range(0,iters):
+# Establish a counting variable that keeps track of the amount time passed
+iters = 1
+
+# Begin the design exploration and reduction process with allotted timeline - 
+# NEED TO ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN SPACES HAVE BEEN
+# SUFFICIENTLY REDUCED
+while iters <= iters_max:
+        
+        
+    temp_amount = 0
     
-    # Loop through each discipline (maintaining each of their independence)
-    for j in range(0,len(Discips)):
+    # Continue to explore each discipline's design case while condition(s) met
+    ### - exploration_check.py - True is a placeholder right now
+    temp_bool = True
+    space_check = checkSpace() # Establish the first space_check here...but
+    # later may want to reinitialize and call a different method depending on
+    # the results at the end of the while loop below
+    while(temp_bool):
         
-        # Determine the current input value rules for the discipline to meet
-        input_rules = getConstraints(Discips[j]['ins'],Set_rules)  
-        print(input_rules)
+        # Determine the amount of time/iterations for disciplines to go through
+        ### this go around when generating points - exploration_amount.py
+        space_amount = exploreSpace() # Also establishing first space_amount
+        # here...but later may want to reinitialize and call a different method
+        # depending on the results at the end of the while loop above
+        temp_amount += iters_max # This will change to a method call from the
+        # exploreSpace class
         
-        # Create a key for tested inputs of discipline if does not exist
-        if 'tested_ins' in Discips[j]:
-            continue
-        else:
-            Discips[j]['tested_ins'] = []
+        # Loop through each discipline (maintaining each of their independence)
+        for i in range(0,len(Discips)):
+            
+            # Determine current input value rules for the discipline to meet
+            input_rules = getConstraints(Discips[i]['ins'],Set_rules)  
+            
+            # Create a key for tested inputs of discipline if does not exist
+            if 'tested_ins' in Discips[i]:
+                continue
+            else:
+                Discips[i]['tested_ins'] = []
+            
+            # Loop through each time iteration
+            for j in range(0,temp_amount):
+                
+                # Get input points according to the desired strategy
+                inppts = getInput(Discips[i],input_rules,temp_amount)
+                ### (Failed attempts for random point creation should not count
+                ###  against iteration time)
         
-        # Get input points according to the desired strategy
-        
-        
-        
-        # While loop for point creation
-        ### (Failed attempts for random point creation should not count
-        ###  against iteration time)
-        
+        temp_bool = False
             
                 
-                # Prevent infinite while loop from occurring with error message
-                
-                # Get temporary random inputs for each input
-                
-                # Check that temporary random inputs meet the current rules
-                
-                # Add temporary random inputs to tested inputs or 
+                    
+                    # Prevent infinite while loop from occurring with error message
+                    
+                    # Get temporary random inputs for each input
+                    
+                    # Check that temporary random inputs meet the current rules
+                    
+                    # Add temporary random inputs to tested inputs or 
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    # Get random inputs for each input variable of the discipline
-    # random = getInput(Discips,Set_rules,iters)
-    # Problem = random.getUniform()
-    # print(Discips[0])
+    ###### CODE TO PROPOSE SPACE REDUCTIONS ######
     
-    # Calculate and record outputs for each design point in the input space
+    
+    ###### OPTIONAL CODE TO BRING FRAGILITY FRAMEWORK INTO PLAY ######
+    
+    
+    ###### OPTIONAL CODE TO INTRODUCE DESIGN CHANGES THAT DO ACTUALLY OCCUR
+    ###### AND ARE NOT JUST SIMULATED AS A POSSIBILITY IN FRAGILITY FRAMEWORK
     
     
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Randomly sample each design space...track points in discipline dictionary?
-
-
-
-# Randomly request a reduction at a point in time?
-
-
-
-# Randomly propose a certain number of reductions?
-
-
-
-
-
-
-
+    
+    # Increase the time count - THE 1 WILL NEED TO CHANGE DEPENDING ON EXPLORATION TYPE AND AMOUNT
+    iters += temp_amount
 

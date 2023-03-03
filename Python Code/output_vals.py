@@ -17,7 +17,7 @@ import numpy as np
 import sympy as sp
 
 """
-COMMANDS
+CLASS
 """
 # Get calculated outputs from the input values
 class getOutput:

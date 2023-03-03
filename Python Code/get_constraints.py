@@ -1,9 +1,8 @@
 """
 DESCRIPTION:
-A function that converts the string of rules into sympy inequalities and
-returns the current list of these inequalities that need to be met as it
-pertains to rules involving independent and shared variables of a particular
-discipline.
+Converts the string of rules into sympy inequalities and returns the current
+list of these inequalities that need to be met as it pertains to rules
+involving independent and shared variables of a particular discipline.
 
 CREATOR:
 Joseph B. Van Houten
