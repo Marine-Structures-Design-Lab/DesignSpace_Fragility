@@ -1,5 +1,5 @@
 """
-DESCRIPTION:
+SUMMARY:
 Establishes the disciplines and variables associated with each discipline
 depending on the title of the problem being solved.  Problems involving
 mathematical equations will have functions and variables defined.  Problems
@@ -22,15 +22,32 @@ import sympy as sp
 """
 CLASS
 """
-# Create dictionaries for each discipline of the specific problem
 class setProblem:
     
-    # Initialize the class
     def __init__(self):
         pass
     
-    # Create dictionary for SBD1 problem
     def SBD1(self):
+        '''
+        Description
+        -----------
+        Creates the list of dictionaries and set of rules for Set-Based Design
+        Problem 1
+        
+        Parameters
+        ----------
+        None.
+        
+        Returns
+        -------
+        [discip1, discip2, discip3] : List of dictionaries
+            Contains sympy inputs, outputs, and expressions for each individual
+            discipline of the particular design problem
+        set_rules : Set containing strings
+            The initial set of constraints/rules that each discipline must
+            abide by when determining designs to test in the input space and
+            if those tested designs produce passing outputs
+        '''
         
         # Create sympy input and output variables
         x = sp.symbols('x1 x2 x3 x4 x5 x6')

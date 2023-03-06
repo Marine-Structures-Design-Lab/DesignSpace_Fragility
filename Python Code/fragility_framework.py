@@ -1,5 +1,5 @@
 """
-DESCRIPTION:
+SUMMARY:
 This is going to act as a function/class(?) for the assessment of design space
 fragility.  For now, this function is only going to focus on comparing the
 fragility of a design space for any proposed space reduction to the fragility

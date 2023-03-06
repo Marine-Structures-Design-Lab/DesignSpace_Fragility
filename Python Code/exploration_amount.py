@@ -1,5 +1,5 @@
 """
-DESCRIPTION:
+SUMMARY:
 Contains methods with different logic and calculations for determining the
 amount of time (iterations) that each discipline should take to explore their
 design space before considering (but not necessarily proposing) space

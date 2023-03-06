@@ -1,5 +1,5 @@
 """
-DESCRIPTION:
+SUMMARY:
 Contains methods with different strategies for checking a design space and
 determining an automated point in time for either one or several disciplines
 to propose a space reduction before the fragility framework has the option to

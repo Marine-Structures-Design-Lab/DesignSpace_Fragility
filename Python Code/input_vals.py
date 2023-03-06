@@ -1,8 +1,9 @@
 """
-DESCRIPTION:
+SUMMARY:
 Provides different algorithms for producing random points to be tested in a
 discipline's input space.  All input values must fall within the presently
-allowed constraints.
+allowed constraints.  All input points of this class are assumed to be
+normalized variables initially falling within the 0 to 1 range.
 
 CREATOR:
 Joseph B. Van Houten
@@ -20,57 +21,99 @@ CLASS
 # Get random inputs for the independent variables
 class getInput:
     
-    # Initialize the class
-    def __init__(self,Discips,input_rules,iters):
-        self.D = Discips
+    def __init__(self,discip,input_rules,iters,i):
+        self.d = discip
         self.ir = input_rules
-        self.i = iters
+        self.it = iters
+        self.i = i
         return
     
-    # Assign uniform random values to each input variable - THIS SHOULD BE REPLACED WITH AN ACTUAL SAMPLING LIBRARY...SEE scipy.stats.qmc
     def getUniform(self):
+        '''
+        Description
+        -----------
+        Produces uniform random values for each normalized input variable and
+        commits to the point produced when it is determined that it abides by
+        the current set of all set rules/constraints
         
-        # Loop through each discipline
-        for i in range(0,len(self.D)-1):
+        Parameters
+        ----------
+        self.d : Dictionary
+            The complete dictionary of sympy inputs, sympy outputs, sympy
+            expressions, and an empty or partially filled list of tested input
+            points
+        self.ir : List of symbolic inequalities
+            A condensed list of rules that the particular discipline passed
+            to this method must consider
+        self.it : Integer
+            The desired amount of input points to be produced
+        self.i : Integer
+            Identification of the discipline number for which input points are
+            being produced
+
+        Returns
+        -------
+        self.d : Dictionary
+            The complete dictionary of sympy inputs, sympy outputs, sympy
+            expressions, and a partially or completely filled list of tested
+            input points
+        '''
+        
+        # Initialize counting variables
+        count1 = 0
+        count2 = 0
+        
+        # Loop through potential uniform test points to add to discipline
+        while count1 < self.it:
             
-            # Initialize counting variables
-            count1 = 0
-            count2 = 0
+            # Prevent an infinite loop from occurring (change value being
+            # multiplied by self.it, if desired)
+            if count2 >= 100*self.it:
+                print("Only created " + str(count1) + \
+                      " new input point(s) for Discipline " + str(self.i+1) + \
+                      " instead of " + str(self.it))
+                break
             
-            # Loop through potential uniform test points to add to discipline
-            while count1 < self.i:
+            # Increase the second counting variable by 1
+            count2 += 1
+            
+            # Create a new input point in the normalized value bounds (0 to 1)
+            point = np.random.rand(len(self.d['ins']))
+            
+            # Create a copy of the list of rules
+            rules_copy = self.ir.copy()
+            
+            # Loop through each rule
+            for j in range(0,len(self.ir)):
                 
-                # Prevent an infinite loop from occurring (change value being
-                # multiplied by self.i if desired)
-                if count2 >= 100*self.i:
-                    print("Only created " + count1 + \
-                          " new input point(s) instead of " + self.i)
-                    break
+                # Gather free symbol(s) of the rule
+                symbs = list(self.ir[j].free_symbols)
                 
-                # Increase the second counting variable by 1
-                count2 = count2 + 1
+                # Loop through each symbol of the rule
+                for k in range(0,len(symbs)):
+                    
+                    # Gather index of the symbol in the discipline's inputs
+                    index = self.d['ins'].index(symbs[k])
+                    
+                    # Substitute proper index value from point into the rule
+                    rules_copy[j] = \
+                        self.ir[j].subs(self.d['ins'][index],point[index])
+            
+            # Check if each value in the copy of the rules list is true
+            if all(rules_copy):
                 
-                # Create a new input point in the normalized value bounds (0 to 1)
-                point = np.random.rand(1,len(self.D[i]['ins']))
+                # Append new points to the tested inputs
+                self.d['tested_ins'] = \
+                    np.append(self.d['tested_ins'],point,axis=0)
                 
-                # Check if input point abides by all of the current set_rules
-                ### SHOULD PROBABLY TURN THIS INTO SOME SORT OF FUNCTION
-                ###### This is going to be tricky and may required nested functions
-                
-                
-                # Append new points to test if discipline has already tested points
-                if 'tested_ins' in self.D[i]:
-                    self.D[i]['tested_ins'] = np.append\
-                        (self.D[i]['tested_ins'],\
-                         np.random.rand(1,len(self.D[i]['ins'])),\
-                         axis = 0)
-                # Create a new tested_ins key if no points have been tested yet
-                else:
-                    self.D[i]['tested_ins'] = np.random.rand\
-                        (1,len(self.D[i]['ins']))
-                
-                
-                #### MAKE SURE I BRING THE COUNT1 UP ONE!
-                
+                # Increase the first counting variable by 1
+                count1 += 1
+            
+        # Reshape the numpy array of tested input points
+        self.d['tested_ins'] = \
+            np.reshape(self.d['tested_ins'],(-1,len(self.d['ins'])))
+        
         # Return new dictionary with uniform random input points to be tested
-        return self.D
+        return self.d
+    
+    # ACTUAL SAMPLING LIBRARIES...SEE scipy.stats.qmc

@@ -1,5 +1,5 @@
 """
-DESCRIPTION:
+SUMMARY:
 Calculates output value(s) for each design point in the input space that is
 provided.  For now, this class is geared towards mathematical equations.
 Later, this class may be more geared towards simply calling on and/or setting

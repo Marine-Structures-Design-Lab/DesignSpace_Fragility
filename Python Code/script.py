@@ -28,10 +28,10 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from vars_def import setProblem
-from input_vals import getInput
 from get_constraints import getConstraints
 from exploration_check import checkSpace
 from exploration_amount import exploreSpace
+from input_vals import getInput
 
 """
 USER INPUTS
@@ -44,7 +44,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 2
+iters_max = 200
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -67,7 +67,6 @@ iters = 1
 # NEED TO ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN SPACES HAVE BEEN
 # SUFFICIENTLY REDUCED
 while iters <= iters_max:
-        
         
     temp_amount = 0
     
@@ -99,13 +98,21 @@ while iters <= iters_max:
             else:
                 Discips[i]['tested_ins'] = []
             
-            # Loop through each time iteration
-            for j in range(0,temp_amount):
+            # Get input points according to the desired strategy
+            ### (Failed attempts for random point creation should not count
+            ###  against iteration time)
+            inppts = getInput(Discips[i],input_rules,temp_amount,i)
+            Discips[i] = inppts.getUniform()
+            
+            # Create a key for tested outputs of discipline if does not exist
+            if 'tested_outs' in Discips[i]:
+                continue
+            else:
+                Discips[i]['tested_outs'] = []
+            
+            # Get output points from equations or black-box programs
+            
                 
-                # Get input points according to the desired strategy
-                inppts = getInput(Discips[i],input_rules,temp_amount)
-                ### (Failed attempts for random point creation should not count
-                ###  against iteration time)
         
         temp_bool = False
             
