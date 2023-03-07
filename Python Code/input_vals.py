@@ -18,7 +18,6 @@ import numpy as np
 """
 CLASS
 """
-# Get random inputs for the independent variables
 class getInput:
     
     def __init__(self,discip,input_rules,iters,i):
@@ -64,6 +63,8 @@ class getInput:
         count2 = 0
         
         # Loop through potential uniform test points to add to discipline
+        ### MAY WANT TO REVISIT THIS WHEN IT IS DETERMINED THAT EACH FUNCTION
+        ### EVALUATION TAKES MORE THAN ONE TIME ITERATION TO COMPLETE
         while count1 < self.it:
             
             # Prevent an infinite loop from occurring (change value being
@@ -104,7 +105,7 @@ class getInput:
                 
                 # Append new points to the tested inputs
                 self.d['tested_ins'] = \
-                    np.append(self.d['tested_ins'],point,axis=0)
+                    np.append(self.d['tested_ins'],point)
                 
                 # Increase the first counting variable by 1
                 count1 += 1

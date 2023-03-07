@@ -32,6 +32,7 @@ from get_constraints import getConstraints
 from exploration_check import checkSpace
 from exploration_amount import exploreSpace
 from input_vals import getInput
+from output_vals import getOutput
 
 """
 USER INPUTS
@@ -44,7 +45,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 200
+iters_max = 2
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -61,12 +62,12 @@ prob = setProblem()
 Discips, Set_rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount time passed
-iters = 1
+iters = 0
 
 # Begin the design exploration and reduction process with allotted timeline - 
 # NEED TO ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN SPACES HAVE BEEN
 # SUFFICIENTLY REDUCED
-while iters <= iters_max:
+while iters < iters_max:
         
     temp_amount = 0
     
@@ -111,6 +112,8 @@ while iters <= iters_max:
                 Discips[i]['tested_outs'] = []
             
             # Get output points from equations or black-box programs
+            outpts = getOutput(Discips[i],iters)
+            Discips[i] = outpts.getValues()
             
                 
         

@@ -32,7 +32,8 @@ class setProblem:
         Description
         -----------
         Creates the list of dictionaries and set of rules for Set-Based Design
-        Problem 1
+        Problem 1.  Important to make sure that all dictionary values are
+        contained within a list regardless of it it is only a single value.
         
         Parameters
         ----------
@@ -56,8 +57,8 @@ class setProblem:
         # Create dictionary for Discipline 1
         discip1 = {
             "ins": [x[0], x[1], x[2]],
-            "outs": y[0],
-            "fcns": 0.8*x[0]**2 + 2*x[1]**2 - x[2] - y[0]
+            "outs": [y[0]],
+            "fcns": [0.8*x[0]**2 + 2*x[1]**2 - x[2] - y[0]]
         }
         
         # Create dictionary for Discipline 2
