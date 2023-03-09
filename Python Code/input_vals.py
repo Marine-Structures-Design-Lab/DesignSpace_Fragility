@@ -39,13 +39,13 @@ class getInput:
         ----------
         self.d : Dictionary
             The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, and an empty or partially filled list of tested input
-            points
+            expressions, execution time, and an empty or partially filled list
+            of tested input points
         self.ir : List of symbolic inequalities
             A condensed list of rules that the particular discipline passed
             to this method must consider
         self.it : Integer
-            The desired amount of input points to be produced
+            The desired amount of time iteration to produce input points
         self.i : Integer
             Identification of the discipline number for which input points are
             being produced
@@ -54,8 +54,8 @@ class getInput:
         -------
         self.d : Dictionary
             The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, and a partially or completely filled list of tested
-            input points
+            expressions, execution time, and a partially or completely filled
+            list of tested input points
         '''
         
         # Initialize counting variables
@@ -63,53 +63,54 @@ class getInput:
         count2 = 0
         
         # Loop through potential uniform test points to add to discipline
-        ### MAY WANT TO REVISIT THIS WHEN IT IS DETERMINED THAT EACH FUNCTION
-        ### EVALUATION TAKES MORE THAN ONE TIME ITERATION TO COMPLETE
-        while count1 < self.it:
+        while count1 < self.it//self.d['time']:
             
             # Prevent an infinite loop from occurring (change value being
             # multiplied by self.it, if desired)
-            if count2 >= 100*self.it:
+            if count2 >= 100*self.it*self.d['time']:
                 print("Only created " + str(count1) + \
                       " new input point(s) for Discipline " + str(self.i+1) + \
-                      " instead of " + str(self.it))
+                      " instead of " + str(self.it//self.d['time']))
                 break
             
             # Increase the second counting variable by 1
             count2 += 1
             
-            # Create a new input point in the normalized value bounds (0 to 1)
-            point = np.random.rand(len(self.d['ins']))
-            
-            # Create a copy of the list of rules
-            rules_copy = self.ir.copy()
-            
-            # Loop through each rule
-            for j in range(0,len(self.ir)):
+            # Only try creating a point when the time iteration allows for it
+            if count2 % self.d['time'] == 0:
                 
-                # Gather free symbol(s) of the rule
-                symbs = list(self.ir[j].free_symbols)
+                # Create a new input point in the normalized value bounds (0 to 1)
+                point = np.random.rand(len(self.d['ins']))
                 
-                # Loop through each symbol of the rule
-                for k in range(0,len(symbs)):
+                # Create a copy of the list of rules
+                rules_copy = self.ir.copy()
+                
+                # Loop through each rule
+                for j in range(0,len(self.ir)):
                     
-                    # Gather index of the symbol in the discipline's inputs
-                    index = self.d['ins'].index(symbs[k])
+                    # Gather free symbol(s) of the rule
+                    symbs = list(self.ir[j].free_symbols)
                     
-                    # Substitute proper index value from point into the rule
-                    rules_copy[j] = \
-                        self.ir[j].subs(self.d['ins'][index],point[index])
-            
-            # Check if each value in the copy of the rules list is true
-            if all(rules_copy):
+                    # Loop through each symbol of the rule
+                    for k in range(0,len(symbs)):
+                        
+                        # Gather index of the symbol in the discipline's inputs
+                        index = self.d['ins'].index(symbs[k])
+                        
+                        # Substitute proper index value from point into the rule
+                        rules_copy[j] = \
+                            self.ir[j].subs(self.d['ins'][index],point[index])
                 
-                # Append new points to the tested inputs
-                self.d['tested_ins'] = \
-                    np.append(self.d['tested_ins'],point)
+                # Check if each value in the copy of the rules list is true
+                if all(rules_copy):
+                    
+                    # Append new points to the tested inputs
+                    self.d['tested_ins'] = \
+                        np.append(self.d['tested_ins'],point)
+                    
+                    # Increase the first counting variable by 1
+                    count1 += 1
                 
-                # Increase the first counting variable by 1
-                count1 += 1
-            
         # Reshape the numpy array of tested input points
         self.d['tested_ins'] = \
             np.reshape(self.d['tested_ins'],(-1,len(self.d['ins'])))

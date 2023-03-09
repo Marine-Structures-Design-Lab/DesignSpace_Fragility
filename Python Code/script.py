@@ -45,7 +45,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 2
+iters_max = 15
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -61,7 +61,7 @@ COMMANDS
 prob = setProblem()
 Discips, Set_rules = getattr(prob,problem_name)()
 
-# Establish a counting variable that keeps track of the amount time passed
+# Establish a counting variable that keeps track of the amount of time passed
 iters = 0
 
 # Begin the design exploration and reduction process with allotted timeline - 
