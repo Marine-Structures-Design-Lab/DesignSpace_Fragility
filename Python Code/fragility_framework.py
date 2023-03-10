@@ -37,16 +37,6 @@ joeyvan@umich.edu
 COMMANDS
 """
 
-# -------------Automated Exploration & Space Reduction Proposition-------------
-# SBD PROBLEM SCRIPT?
-
-# ALL OF THE CODE FOR ANALYZING DATA AND PROPOSING REDUCTIONS BEFORE
-# INCORPORATING ANY SORT OF A FRAGILITY FRAMEWORK --> This section will
-# actually probably be better off in a "Script" file that is bound to call the
-# fragility framework file.  But I can make arbitrary reduction proposals to
-# just test out the framework before incorporating it into an actual SBD
-# process.
-
 
 
 # -----------------------------Fragility Framework-----------------------------
@@ -228,43 +218,6 @@ COMMANDS
 # reduction (step 3)
 
 
-
-
-
-# -------------Automated Exploration & Space Reduction Continuation------------
-# BACK TO SBD PROBLEM SCRIPT?
-
-# JUMP BACK INTO THE SCRIPT FILE THAT IS USED TO ANALYZE THE SET-BASED DESIGN
-# PROBLEM OF CONCERN, EXPLORE THE SPACE, AND PROPOSE REDUCTIONS.  EVENTUALLY
-# THIS SCRIPT WILL BE USED TO TEST A SBD PROCESS WITH THE FRAGILITY FRAMEWORK
-# AGAINST ONE THAT DOES NOT USE IT, AND WE WILL OBSERVE HOW EFFECTIVE A SBD
-# PROCESS IS WITH THE FRAMEWORK COMPARED TO WITHOUT THE FRAMEWORK.  AS THE
-# EXPLORATION AND REDUCTION PROCESS CONTINUES, WE WILL HAVE EXPERIMENTS WITH
-# THE FRAMEWORK WHEN IT PLANS FOR POSSIBLE DESIGN CHANGES BUT NO DESIGN CHANGES
-# ACTUALLY OCCUR, AS WELL AS EXPERIMENTS THAT ACTUALLY INTRODUCE RANDOM DESIGN
-# CHANGES AND RUN A BUNCH OF MONTE CARLO BASED EXPERIMENTS WITH THESE RANDOM
-# DESIGN CHANGES THAT POP UP.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# --How can all of this be similarly applied to an Iterative Design Process?---
-
-# See design notebook dated 1/27/23 for current notes/ideas on this...
 
 
 
