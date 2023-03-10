@@ -53,6 +53,12 @@ iters_max = 15
 ### OPTIONS: Uniform, LHS (eventually),...
 sample = 'uniform'
 
+# Decide on the run time (iterations) for each discipline's analysis
+### Important to make sure that the length of the list coincides with the
+### number of disciplines/equations there are in the design problem
+run_time = [2, 3, 4]
+
+
 
 """
 COMMANDS
@@ -63,6 +69,10 @@ Discips, Set_rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
+
+# Assign the user inputted run time to each discipline
+for i in range(0,len(run_time)):
+    Discips[i]['time'] = run_time[i]
 
 # Begin the design exploration and reduction process with allotted timeline - 
 # NEED TO ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN SPACES HAVE BEEN

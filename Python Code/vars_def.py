@@ -42,8 +42,8 @@ class setProblem:
         Returns
         -------
         [discip1, discip2, discip3] : List of dictionaries
-            Contains sympy inputs, outputs, expressions, and execution time for
-            each individual discipline of the particular design problem
+            Contains sympy inputs, outputs, and expressions for each individual
+            discipline of the particular design problem
         set_rules : Set containing strings
             The initial set of constraints/rules that each discipline must
             abide by when determining designs to test in the input space and
@@ -59,7 +59,6 @@ class setProblem:
             "ins": [x[0], x[1], x[2]],
             "outs": [y[0]],
             "fcns": [0.8*x[0]**2 + 2*x[1]**2 - x[2] - y[0]],
-            "time": 2
         }
         
         # Create dictionary for Discipline 2
@@ -68,7 +67,6 @@ class setProblem:
             "outs": [y[1], y[2]],
             "fcns": [1.25*x[4] - 12.5*x[2]**3 + 6.25*x[2]**2 - y[1],
                      (x[3]**3 + x[4])**2 - y[2]],
-            "time": 3
         }
         
         # Create dictionary for Discipline 3
@@ -77,7 +75,6 @@ class setProblem:
             "outs": [y[3], y[4]],
             "fcns": [2*x[4] + 0.2*sp.sin(25*x[5]) - x[0]**(1/5) - y[3],
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]],
-            "time": 4
         }
         
         # Create a set containing the initial rules for the design problem

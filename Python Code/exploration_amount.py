@@ -24,3 +24,8 @@ class exploreSpace:
     # Initialize the class
     def __init__(self):
         return
+    
+    # Commit a fixed amount of time to exploration based on time remaining...
+    ### but make it fixed after a certain point
+    
+    # Ask the design manager in a pop-up box?
