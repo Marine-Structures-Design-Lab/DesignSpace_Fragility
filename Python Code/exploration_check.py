@@ -33,4 +33,9 @@ class checkSpace:
     
     # Should eventually return a true or false boolean value (for every discipline?)
     
+    # Some sort of clustering algorithms that changes its parameter based on iterations
+    ### and iterations that remain
+    
+    # Some sort of rough set theory algorithm?
+    
     

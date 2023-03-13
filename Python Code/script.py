@@ -45,7 +45,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 15
+iters_max = 100
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -91,11 +91,9 @@ while iters < iters_max:
         
         # Determine the amount of time/iterations for disciplines to go through
         ### this go around when generating points - exploration_amount.py
-        space_amount = exploreSpace() # Also establishing first space_amount
-        # here...but later may want to reinitialize and call a different method
-        # depending on the results at the end of the while loop above
-        temp_amount += iters_max # This will change to a method call from the
-        # exploreSpace class
+        space_amount = exploreSpace(iters,iters_max,run_time) # Also establishing first space_amount
+        temp_amount = space_amount.fixedExplore()
+        print(temp_amount)
         
         # Loop through each discipline (maintaining each of their independence)
         for i in range(0,len(Discips)):
@@ -104,9 +102,7 @@ while iters < iters_max:
             input_rules = getConstraints(Discips[i]['ins'],Set_rules)  
             
             # Create a key for tested inputs of discipline if does not exist
-            if 'tested_ins' in Discips[i]:
-                continue
-            else:
+            if 'tested_ins' not in Discips[i]:
                 Discips[i]['tested_ins'] = []
             
             # Get input points according to the desired strategy
@@ -116,17 +112,13 @@ while iters < iters_max:
             Discips[i] = inppts.getUniform()
             
             # Create a key for tested outputs of discipline if does not exist
-            if 'tested_outs' in Discips[i]:
-                continue
-            else:
+            if 'tested_outs' not in Discips[i]:
                 Discips[i]['tested_outs'] = []
             
             # Get output points from equations or black-box programs
             outpts = getOutput(Discips[i],iters)
             Discips[i] = outpts.getValues()
             
-                
-        
         temp_bool = False
             
                 
