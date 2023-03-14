@@ -47,10 +47,10 @@ class exploreSpace:
         Returns
         -------
         "Exploration time" : Integer
-            An integer returned for the amount of time iterations to commit to
-            exploration at the particular moment in time that is based on the
-            time remaining in the project and the amount of time it takes each
-            discipline to execute its analysis
+            The amount of time iterations to commit to exploration at the
+            particular moment in time that is based on the time remaining in
+            the project and the amount of time it takes each discipline to
+            execute its analysis
         """
         
         # Calculate the time remaining
