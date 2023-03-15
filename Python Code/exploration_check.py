@@ -28,6 +28,9 @@ class checkSpace:
     def __init__(self):
         return
     
+    # I need to run a separate clustering algorithm on groups of input data that
+    ### definitely pass, kind of pass/fail, and definitely fail
+    
     # Various checking methods that can be called upon for different reasons
     ### in the main script's while loop
     

@@ -29,10 +29,13 @@ LIBRARIES
 """
 from vars_def import setProblem
 from get_constraints import getConstraints
+from create_key import createKey
 from exploration_check import checkSpace
 from exploration_amount import exploreSpace
 from input_vals import getInput
 from output_vals import getOutput
+from output_success import checkOutput
+
 
 """
 USER INPUTS
@@ -99,11 +102,10 @@ while iters < iters_max:
         for i in range(0,len(Discips)):
             
             # Determine current input value rules for the discipline to meet
-            input_rules = getConstraints(Discips[i]['ins'],Set_rules)  
+            input_rules = getConstraints(Discips[i]['ins'],Set_rules)
             
             # Create a key for tested inputs of discipline if does not exist
-            if 'tested_ins' not in Discips[i]:
-                Discips[i]['tested_ins'] = []
+            Discips[i] = createKey('tested_ins',Discips[i])
             
             # Get input points according to the desired strategy
             ### (Failed attempts for random point creation should not count
@@ -112,12 +114,23 @@ while iters < iters_max:
             Discips[i] = inppts.getUniform()
             
             # Create a key for tested outputs of discipline if does not exist
-            if 'tested_outs' not in Discips[i]:
-                Discips[i]['tested_outs'] = []
+            Discips[i] = createKey('tested_outs',Discips[i])
             
             # Get output points from equations or black-box programs
             outpts = getOutput(Discips[i],iters)
             Discips[i] = outpts.getValues()
+            
+            # Determine current output value rules for the discipline to meet
+            output_rules = getConstraints(Discips[i]['outs'],Set_rules)
+            
+            # Create a key for passing and failing of outputs if does not exist
+            ### TURN THESE INTO A FUNCTION CALL
+            Discips[i] = createKey('pass?',Discips[i])
+            
+            # Create a key for extent of passing/failing if does not exist?
+            
+            # Check whether the output points pass or fail (and by how much?)
+            outchk = checkOutput(Discips[i],output_rules)
             
         temp_bool = False
             
