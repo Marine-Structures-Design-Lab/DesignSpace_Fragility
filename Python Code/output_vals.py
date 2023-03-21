@@ -15,20 +15,20 @@ LIBRARIES
 """
 import numpy as np
 import sympy as sp
+from output_start import outputStart
 
 """
 CLASS
 """
 class getOutput:
     
-    def __init__(self,discip,iters):
+    def __init__(self,discip):
         self.d = discip
-        self.it = iters
         return
     
     # Calculate the outputs of each input point with provided equation(s)
     def getValues(self):
-        '''
+        """
         Description
         -----------
         Calculates the output values based on the provided input values and
@@ -41,9 +41,6 @@ class getOutput:
             The complete dictionary of sympy inputs, sympy outputs, sympy
             expressions, execution time, tested input points, and an empty or
             partially filled list of calculated output points
-        self.it : Integer
-            Tracks the number of time iterations that have been conducted thus
-            far so it is known what inputs have not been tested yet
             
         Returns
         -------
@@ -51,16 +48,11 @@ class getOutput:
             The complete dictionary of sympy inputs, sympy outputs, sympy
             expressions, execution time, and a completely filled list of tested
             output points that coincides with the input points
-        '''
-        
-        # Determine where to start output value calculations for input points
-        if len(self.d['tested_outs']) == 0:
-            start = 0
-        else:
-            start = np.shape(self.d['tested_outs'])[0]
+        """
         
         # Loop through each NEW design point in the input space
-        for i in range(start,np.shape(self.d['tested_ins'])[0]):
+        for i in range(outputStart(self.d,'tested_outs'),\
+                       np.shape(self.d['tested_ins'])[0]):
             
             # Make a copy of the analysis equation(s) before replacement
             expr = self.d['fcns'].copy()

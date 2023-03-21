@@ -13,52 +13,37 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import sympy as sp
+from var_rule import varRule
+
 
 """
 FUNCTION
 """
-def getConstraints(var,set_rules):
-    '''
-    Description
-    -----------
-    Takes strings of all the design rules and converts them into arithmetic
-    equations so that sympy can identify the list of rules that a discipline
-    needs to consider based on the "free symbols"
-    
-    Parameters
-    ----------
-    var : Sympy symbols
-        Variables that the discipline wants to be considered when determining
-        what rules/constraints they are impacted by
-    set_rules : Set containing strings
-        The set of constraints/rules that each discipline must abide by when
-        determining designs to test in the input space and if those tested
-        designs produce passing outputs
-
-    Returns
-    -------
-    temp_list : TYPE
-        The condensed list of rules/constraints that the particular discipline
-        needs to satisfy
-    '''
-    
-    # Convert set of rules to a list
-    rules_list = list(set_rules)
+# Return the rules list that the discipline must consider
+### depending on the input or output variable provided
+def getConstraints(var,rules):
     
     # Create a temporary empty list
     temp_list = []
     
     # Loop through the list of rules
-    for i in range(0,len(rules_list)):
+    for i in range(0,len(rules)):
         
-        # Turn the rule consisting of a string into an expression for sympy
-        temp_rule = sp.sympify(rules_list[i])
+        # Determine every free symbol in the rule
+        temp_rule = rules[i].breakup()
         
-        # Determine every free symbol in the expression
-        temp_exp = temp_rule.free_symbols
+        # Create a temporary set of variables
+        temp_set = set()
         
-        # Check if any symbols in set of the rule do not match up with variables
-        if all(item in var for item in temp_exp):
+        # Loop through the temporary rule list
+        for j in range(0,len(temp_rule)):
+            for k in range(0,len(temp_rule[j])):
+                
+                # Add variable(s) to the set if it does not already exist there
+                temp_set.update(temp_rule[j][k].free_symbols)
+        
+        # Check if any symbols in rule set do not match up with variables
+        if all(item in var for item in temp_set):
             
             # Append rule to the temporary list
             temp_list.append(temp_rule)

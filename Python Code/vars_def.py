@@ -18,6 +18,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import sympy as sp
+from var_rule import varRule
 
 """
 CLASS
@@ -77,23 +78,26 @@ class setProblem:
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]],
         }
         
-        # Create a set containing the initial rules for the design problem
-        set_rules = {
-            'x1 >= 0.0', 'x1 <= 1.0',
-            'x2 >= 0.0', 'x2 <= 1.0',
-            'x3 >= 0.0', 'x3 <= 1.0',
-            'x4 >= 0.0', 'x4 <= 1.0',
-            'x5 >= 0.0', 'x5 <= 1.0',
-            'x6 >= 0.0', 'x6 <= 1.0',
-            'y1 >= 0.0', 'y1 <= 0.4', 'y1 >= 1.2', 'y1 <= 1.6',
-            'y2 >= 0.5', 'y2 <= 0.7',
-            'y3 >= 0.2', 'y3 <= 0.5',
-            'y4 >= 0.0', 'y4 <= 0.5',
-            'y5 >= 0.8', 'y5 <= 1.6',
-        }
+        # Create a list containing the initial rules for the design problem
+        ### Put rules that go together with an "and" in the same string
+        ### Put rules that go together with an "or" into separate strings
+        ### All rules must be in a list even if only a single string
+        ### Use comma to separate rules in a string along with no spaces at all
+        rules = []
+        rules.append(varRule(['x1>=0.0,x1<=1.0']))
+        rules.append(varRule(['x2>=0.0,x2<=1.0']))
+        rules.append(varRule(['x3>=0.0,x3<=1.0']))
+        rules.append(varRule(['x4>=0.0,x4<=1.0']))
+        rules.append(varRule(['x5>=0.0,x5<=1.0']))
+        rules.append(varRule(['x6>=0.0,x6<=1.0']))
+        rules.append(varRule(['y1>=0.0,y1<=0.4','y1>=1.2,y1<=1.6']))
+        rules.append(varRule(['y2>=0.5,y2<=0.7']))
+        rules.append(varRule(['y3>=0.2,y3<=0.5']))
+        rules.append(varRule(['y4>=0.0,y4<=0.5']))
+        rules.append(varRule(['y5>=0.8,y5<=1.6']))
         
         # Return each discipline's dictionary for SBD1 problem
-        return [discip1, discip2, discip3], set_rules
+        return [discip1, discip2, discip3], rules
     
     # Can define other problems similar to as was done for the SBD1 problem...
     

@@ -11,7 +11,6 @@ joeyvan@umich.edu
 """
 FUNCTION
 """
-
 def createKey(key,Dict):
     
     """

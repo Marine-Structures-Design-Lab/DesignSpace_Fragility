@@ -14,6 +14,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import numpy as np
+import copy
 
 """
 CLASS
@@ -28,7 +29,7 @@ class getInput:
         return
     
     def getUniform(self):
-        '''
+        """
         Description
         -----------
         Produces uniform random values for each normalized input variable and
@@ -45,7 +46,7 @@ class getInput:
             A condensed list of rules that the particular discipline passed
             to this method must consider
         self.it : Integer
-            The desired amount of time iteration to produce input points
+            The desired amount of time iterations to produce input points
         self.i : Integer
             Identification of the discipline number for which input points are
             being produced
@@ -56,7 +57,7 @@ class getInput:
             The complete dictionary of sympy inputs, sympy outputs, sympy
             expressions, execution time, and a partially or completely filled
             list of tested input points
-        '''
+        """
         
         # Initialize counting variables
         count1 = 0
@@ -77,32 +78,68 @@ class getInput:
             count2 += 1
             
             # Only try creating a point when the time iteration allows for it
-            if count2 % self.d['time'] == 0:
+            if (count2 % self.d['time'] == 0):
                 
-                # Create a new input point in the normalized value bounds (0 to 1)
+                # Create new input point in normalized value bounds (0 to 1)
                 point = np.random.rand(len(self.d['ins']))
                 
                 # Create a copy of the list of rules
-                rules_copy = self.ir.copy()
+                rules_copy = copy.deepcopy(self.ir)
                 
                 # Loop through each rule
                 for j in range(0,len(self.ir)):
                     
-                    # Gather free symbol(s) of the rule
-                    symbs = list(self.ir[j].free_symbols)
+                    # Create an empty set of variables
+                    symbs = set()
                     
+                    # Loop through each part of the rule
+                    for k in range(0,len(self.ir[j])):
+                        for l in range(0,len(self.ir[j][k])):
+                    
+                            # Gather free symbol(s) of the rule
+                            symbs.update(self.ir[j][k][l].free_symbols)
+                    
+                    # Convert set of variables to a list
+                    symbs = list(symbs)
+
                     # Loop through each symbol of the rule
                     for k in range(0,len(symbs)):
                         
                         # Gather index of the symbol in the discipline's inputs
                         index = self.d['ins'].index(symbs[k])
                         
-                        # Substitute proper index value from point into the rule
-                        rules_copy[j] = \
-                            self.ir[j].subs(self.d['ins'][index],point[index])
+                        # Loop through each part of the rule
+                        for l in range(0,len(rules_copy[j])):
+                            for m in range(0,len(rules_copy[j][l])):
+                            
+                                # Substitute index value from point to rule
+                                rules_copy[j][l][m] = self.ir[j][l][m].subs\
+                                    (self.d['ins'][index],point[index])
+                        
+                # Create boolean variable for tracking
+                all_good = True
                 
-                # Check if each value in the copy of the rules list is true
-                if all(rules_copy):
+                # Loop through each rule
+                for j in range(0,len(rules_copy)):
+                    
+                    # Create boolean variable for tracking
+                    good = False
+                    
+                    # Loop through each "or" list of rule
+                    for k in range(0,len(rules_copy[j])):
+                        
+                        # Check if all rules in "and" list are true
+                        if all(rules_copy[j][k]):
+                            good = True
+                            break
+                    
+                    # Perform actions if any of the "or" list are not true
+                    if (not good):
+                        all_good = False
+                        break
+                    
+                # Check if necessary value(s) in the rules list copy is true
+                if (all_good):
                     
                     # Append new points to the tested inputs
                     self.d['tested_ins'] = \

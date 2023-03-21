@@ -36,7 +36,6 @@ from input_vals import getInput
 from output_vals import getOutput
 from output_success import checkOutput
 
-
 """
 USER INPUTS
 """
@@ -48,7 +47,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 500
+iters_max = 100
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -68,7 +67,7 @@ COMMANDS
 """
 # Establish dictionaries for the design problem of interest
 prob = setProblem()
-Discips, Set_rules = getattr(prob,problem_name)()
+Discips, Rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
@@ -83,6 +82,7 @@ for i in range(0,len(run_time)):
 while iters < iters_max:
         
     temp_amount = 0
+    full_amount = 0
     
     # Continue to explore each discipline's design case while condition(s) met
     ### - exploration_check.py - True is a placeholder right now
@@ -94,7 +94,7 @@ while iters < iters_max:
         
         # Determine the amount of time/iterations for disciplines to go through
         ### this go around when generating points - exploration_amount.py
-        space_amount = exploreSpace(iters,iters_max,run_time) # Also establishing first space_amount
+        space_amount = exploreSpace(iters,iters_max,run_time)
         temp_amount = space_amount.fixedExplore()
         print(temp_amount)
         
@@ -102,7 +102,7 @@ while iters < iters_max:
         for i in range(0,len(Discips)):
             
             # Determine current input value rules for the discipline to meet
-            input_rules = getConstraints(Discips[i]['ins'],Set_rules)
+            input_rules = getConstraints(Discips[i]['ins'],Rules)
             
             # Create a key for tested inputs of discipline if does not exist
             Discips[i] = createKey('tested_ins',Discips[i])
@@ -117,11 +117,11 @@ while iters < iters_max:
             Discips[i] = createKey('tested_outs',Discips[i])
             
             # Get output points from equations or black-box programs
-            outpts = getOutput(Discips[i],iters)
+            outpts = getOutput(Discips[i])
             Discips[i] = outpts.getValues()
             
             # Determine current output value rules for the discipline to meet
-            output_rules = getConstraints(Discips[i]['outs'],Set_rules)
+            output_rules = getConstraints(Discips[i]['outs'],Rules)
             
             # Create a key for passing and failing of outputs if does not exist
             ### TURN THESE INTO A FUNCTION CALL
@@ -131,7 +131,9 @@ while iters < iters_max:
             
             # Check whether the output points pass or fail (and by how much?)
             outchk = checkOutput(Discips[i],output_rules)
-            
+            Discips[i] = outchk.basicCheck()
+        
+        full_amount += temp_amount
         temp_bool = False
             
                 
@@ -156,6 +158,6 @@ while iters < iters_max:
     
     
     
-    # Increase the time count - THE 1 WILL NEED TO CHANGE DEPENDING ON EXPLORATION TYPE AND AMOUNT
-    iters += temp_amount
+    # Increase the time count
+    iters += full_amount
 
