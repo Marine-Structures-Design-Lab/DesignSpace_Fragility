@@ -45,7 +45,7 @@ class setProblem:
         [discip1, discip2, discip3] : List of dictionaries
             Contains sympy inputs, outputs, and expressions for each individual
             discipline of the particular design problem
-        set_rules : Set containing strings
+        rules : List of class objects
             The initial set of constraints/rules that each discipline must
             abide by when determining designs to test in the input space and
             if those tested designs produce passing outputs
@@ -81,8 +81,8 @@ class setProblem:
         # Create a list containing the initial rules for the design problem
         ### Put rules that go together with an "and" in the same string
         ### Put rules that go together with an "or" into separate strings
-        ### All rules must be in a list even if only a single string
-        ### Use comma to separate rules in a string along with no spaces at all
+        ### All rules must be within a list even if only a single string
+        ### Use comma to separate rules in a string along with no spaces
         rules = []
         rules.append(varRule(['x1>=0.0,x1<=1.0']))
         rules.append(varRule(['x2>=0.0,x2<=1.0']))
@@ -96,7 +96,7 @@ class setProblem:
         rules.append(varRule(['y4>=0.0,y4<=0.5']))
         rules.append(varRule(['y5>=0.8,y5<=1.6']))
         
-        # Return each discipline's dictionary for SBD1 problem
+        # Return each discipline's dictionary for SBD1 problem and rules list
         return [discip1, discip2, discip3], rules
     
     # Can define other problems similar to as was done for the SBD1 problem...

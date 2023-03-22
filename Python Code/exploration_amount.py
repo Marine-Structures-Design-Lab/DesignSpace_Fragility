@@ -20,6 +20,18 @@ CLASS
 class exploreSpace:
     
     def __init__(self,iters,iters_max,run_time):
+        """
+        Parameters
+        ----------
+        iters : Integer
+            The amount of time iterations that have been completed for the
+            design problem thus far
+        iters_max : Integer
+            The amount of time iterations that the design problem will last for
+        run_time : List of integers
+            The amount of time iterations that each discipline's analysis takes
+            to execute
+        """
         self.it = iters
         self.itm = iters_max
         self.rt = run_time
@@ -30,20 +42,13 @@ class exploreSpace:
         """
         Description
         -----------
-        Commits a fixed amount of time to exploration based on the time that
+        Commits a fixed amount of time for exploration based on the time that
         remains
         
         Parameters
         ----------
-        self.it : Integer
-            The amount of time iterations that have been completed for the
-            design problem thus far
-        self.itm : Integer
-            The amount of time iterations that the design problem will last for
-        self.rt : List of integers
-            The amount of time iterations that each discipline's analysis takes
-            to execute
-
+        None.
+        
         Returns
         -------
         "Exploration time" : Integer

@@ -22,6 +22,22 @@ CLASS
 class getInput:
     
     def __init__(self,discip,input_rules,iters,i):
+        """
+        Parameters
+        ----------
+        discip : Dictionary
+            The complete dictionary of sympy inputs, sympy outputs, sympy
+            expressions, execution time, and an empty or partially filled list
+            of tested input points
+        input_rules : List of symbolic inequalities
+            A condensed list of rules that the particular discipline passed
+            to this method must consider
+        iters : Integer
+            The desired amount of time iterations to produce input points
+        i : Integer
+            Identification of the discipline number for which input points are
+            being produced
+        """
         self.d = discip
         self.ir = input_rules
         self.it = iters
@@ -38,19 +54,8 @@ class getInput:
         
         Parameters
         ----------
-        self.d : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, and an empty or partially filled list
-            of tested input points
-        self.ir : List of symbolic inequalities
-            A condensed list of rules that the particular discipline passed
-            to this method must consider
-        self.it : Integer
-            The desired amount of time iterations to produce input points
-        self.i : Integer
-            Identification of the discipline number for which input points are
-            being produced
-
+        None.
+        
         Returns
         -------
         self.d : Dictionary

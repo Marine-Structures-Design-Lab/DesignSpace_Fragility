@@ -1,8 +1,7 @@
 """
 SUMMARY:
-Converts the string of rules into sympy inequalities and returns the current
-list of these inequalities that need to be met as it pertains to rules
-involving independent and shared variables of a particular discipline.
+Returns a list of sympy rules that need to be met based on the the variables
+passed to the function.
 
 CREATOR:
 Joseph B. Van Houten
@@ -10,29 +9,41 @@ joeyvan@umich.edu
 """
 
 """
-LIBRARIES
-"""
-import sympy as sp
-from var_rule import varRule
-
-
-"""
 FUNCTION
 """
-# Return the rules list that the discipline must consider
-### depending on the input or output variable provided
 def getConstraints(var,rules):
+    """
+    Description
+    -----------
+    Gathers a list of constraints/rules that must be considered according to
+    the variables passed along
     
-    # Create a temporary empty list
-    temp_list = []
+    Parameters
+    ----------
+    var : List of sympy symbols
+        The particular variables for which rules/constraints must be gathered
+    rules : List of class objects
+        The current set of constraints/rules that each discipline must abide by
+        when determining designs to test in the input space and if those tested
+        designs produce passing outputs
     
-    # Loop through the list of rules
+    Returns
+    -------
+    temp_list : Nested list of sympy expressions
+        A condensed list of rules that a discipline must consider according to
+        input or output variables within their control
+    """
+    
+    # Create an empty list
+    rule_list = []
+    
+    # Loop through the full list of rules
     for i in range(0,len(rules)):
         
         # Determine every free symbol in the rule
         temp_rule = rules[i].breakup()
         
-        # Create a temporary set of variables
+        # Create a temporary empty set of variables
         temp_set = set()
         
         # Loop through the temporary rule list
@@ -46,7 +57,7 @@ def getConstraints(var,rules):
         if all(item in var for item in temp_set):
             
             # Append rule to the temporary list
-            temp_list.append(temp_rule)
+            rule_list.append(temp_rule)
     
     # Return the list of rules for discipline to consider
-    return temp_list
+    return rule_list

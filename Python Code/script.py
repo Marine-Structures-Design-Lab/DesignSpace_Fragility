@@ -28,9 +28,9 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from vars_def import setProblem
+from exploration_check import checkSpace
 from get_constraints import getConstraints
 from create_key import createKey
-from exploration_check import checkSpace
 from exploration_amount import exploreSpace
 from input_vals import getInput
 from output_vals import getOutput
@@ -77,23 +77,22 @@ for i in range(0,len(run_time)):
     Discips[i]['time'] = run_time[i]
 
 # Begin the design exploration and reduction process with allotted timeline - 
-# NEED TO ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN SPACES HAVE BEEN
-# SUFFICIENTLY REDUCED
+# NEED TO POTENTIALLY ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN
+# SPACES HAVE BEEN SUFFICIENTLY REDUCED
 while iters < iters_max:
-        
+    
+    # Establish variables for keeping track of total iteration time
     temp_amount = 0
     full_amount = 0
     
     # Continue to explore each discipline's design case while condition(s) met
-    ### - exploration_check.py - True is a placeholder right now
     temp_bool = True
     space_check = checkSpace() # Establish the first space_check here...but
     # later may want to reinitialize and call a different method depending on
     # the results at the end of the while loop below
     while(temp_bool):
         
-        # Determine the amount of time/iterations for disciplines to go through
-        ### this go around when generating points - exploration_amount.py
+        # Determine the amount of time/iterations for disciplines to explore
         space_amount = exploreSpace(iters,iters_max,run_time)
         temp_amount = space_amount.fixedExplore()
         print(temp_amount)
@@ -108,8 +107,6 @@ while iters < iters_max:
             Discips[i] = createKey('tested_ins',Discips[i])
             
             # Get input points according to the desired strategy
-            ### (Failed attempts for random point creation should not count
-            ###  against iteration time)
             inppts = getInput(Discips[i],input_rules,temp_amount,i)
             Discips[i] = inppts.getUniform()
             
@@ -124,7 +121,6 @@ while iters < iters_max:
             output_rules = getConstraints(Discips[i]['outs'],Rules)
             
             # Create a key for passing and failing of outputs if does not exist
-            ### TURN THESE INTO A FUNCTION CALL
             Discips[i] = createKey('pass?',Discips[i])
             
             # Create a key for extent of passing/failing if does not exist?

@@ -23,6 +23,14 @@ CLASS
 class getOutput:
     
     def __init__(self,discip):
+        """
+        Parameters
+        ----------
+        discip : Dictionary
+            The complete dictionary of sympy inputs, sympy outputs, sympy
+            expressions, execution time, tested input points, and an empty or
+            partially filled list of calculated output points
+        """
         self.d = discip
         return
     
@@ -37,11 +45,8 @@ class getOutput:
         
         Parameters
         ----------
-        self.d : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, tested input points, and an empty or
-            partially filled list of calculated output points
-            
+        None.
+        
         Returns
         -------
         self.d : Dictionary
