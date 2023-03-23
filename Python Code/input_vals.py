@@ -13,6 +13,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
+from rule_check import ruleCheck
 import numpy as np
 import copy
 
@@ -88,10 +89,10 @@ class getInput:
                 # Create new input point in normalized value bounds (0 to 1)
                 point = np.random.rand(len(self.d['ins']))
                 
-                # Create a copy of the list of rules
+                # Create a copy of the list of input rules
                 rules_copy = copy.deepcopy(self.ir)
                 
-                # Loop through each rule
+                # Loop through each input rule
                 for j in range(0,len(self.ir)):
                     
                     # Create an empty set of variables
@@ -120,28 +121,9 @@ class getInput:
                                 # Substitute index value from point to rule
                                 rules_copy[j][l][m] = self.ir[j][l][m].subs\
                                     (self.d['ins'][index],point[index])
-                        
-                # Create boolean variable for tracking
-                all_good = True
                 
-                # Loop through each rule
-                for j in range(0,len(rules_copy)):
-                    
-                    # Create boolean variable for tracking
-                    good = False
-                    
-                    # Loop through each "or" list of rule
-                    for k in range(0,len(rules_copy[j])):
-                        
-                        # Check if all rules in "and" list are true
-                        if all(rules_copy[j][k]):
-                            good = True
-                            break
-                    
-                    # Perform actions if any of the "or" list are not true
-                    if (not good):
-                        all_good = False
-                        break
+                # Check whether all input values meet necessary rules
+                all_good = ruleCheck(rules_copy)
                     
                 # Check if necessary value(s) in the rules list copy is true
                 if (all_good):

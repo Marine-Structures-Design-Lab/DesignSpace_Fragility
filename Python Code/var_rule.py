@@ -1,9 +1,8 @@
 """
 SUMMARY:
 Takes class objects containing strings of various rules that disciplines need
-to meet and converts these strings into actually sympy expressions that can be 
-utilized.  Consider adding other methods for gathering the variables and/or
-evaluating the rules!
+to meet and converts these strings into actual sympy expressions that can be 
+utilized.
 
 CREATOR:
 Joseph B. Van Houten
