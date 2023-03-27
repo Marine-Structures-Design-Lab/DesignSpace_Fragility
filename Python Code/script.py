@@ -47,7 +47,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 100
+iters_max = 1
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -102,6 +102,7 @@ while iters < iters_max:
             
             # Determine current input value rules for the discipline to meet
             input_rules = getConstraints(Discips[i]['ins'],Rules)
+            print(input_rules)
             
             # Create a key for tested inputs of discipline if does not exist
             Discips[i] = createKey('tested_ins',Discips[i])
@@ -119,6 +120,7 @@ while iters < iters_max:
             
             # Determine current output value rules for the discipline to meet
             output_rules = getConstraints(Discips[i]['outs'],Rules)
+            print(output_rules)
             
             # Create a key for passing and failing of outputs if does not exist
             Discips[i] = createKey('pass?',Discips[i])
