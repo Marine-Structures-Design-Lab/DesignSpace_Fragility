@@ -102,7 +102,6 @@ while iters < iters_max:
             
             # Determine current input value rules for the discipline to meet
             input_rules = getConstraints(Discips[i]['ins'],Rules)
-            print(input_rules)
             
             # Create a key for tested inputs of discipline if does not exist
             Discips[i] = createKey('tested_ins',Discips[i])
@@ -120,7 +119,6 @@ while iters < iters_max:
             
             # Determine current output value rules for the discipline to meet
             output_rules = getConstraints(Discips[i]['outs'],Rules)
-            print(output_rules)
             
             # Create a key for passing and failing of outputs if does not exist
             Discips[i] = createKey('pass?',Discips[i])
