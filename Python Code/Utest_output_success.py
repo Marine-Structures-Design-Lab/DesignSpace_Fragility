@@ -16,12 +16,19 @@ import unittest
 """
 CLASSES
 """
-class test_output_success(unittest.TestCase):      
+class test_output_success(unittest.TestCase):
+
+    def setUp(self):
+        
     
     def test_check_output(self):
         """
         Unit tests for the checkOutput method
         """
+        
+        # Check that only testing new output points
+        
+        # Check there is not rewriting of previous "pass?" values
         
     
     # Other methods
