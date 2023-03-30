@@ -84,7 +84,6 @@ class test_input_vals(unittest.TestCase):
         """
         Unit tests for the getUniform method
         """
-        
         # Loop through each discipline
         for i in range(0,len(self.Discips1)):
             
