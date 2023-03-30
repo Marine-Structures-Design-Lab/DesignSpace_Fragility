@@ -47,7 +47,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 10
+iters_max = 10    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -58,7 +58,7 @@ sample = 'uniform'
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
 ### number of disciplines/equations there are in the design problem
-run_time = [2, 3, 4]
+run_time = [2, 3, 4]    # Must all be positive integers!
 
 
 
@@ -76,9 +76,18 @@ iters = 0
 for i in range(0,len(run_time)):
     Discips[i]['time'] = run_time[i]
 
+
+
+
+
+
+
+
+
+
 # Begin the design exploration and reduction process with allotted timeline - 
-# NEED TO POTENTIALLY ADD A BOOLEAN CLASS TO THIS FOR ASSESSING IF DESIGN
-# SPACES HAVE BEEN SUFFICIENTLY REDUCED
+### Later I may want to also end exploration if happy design spaces have been
+### sufficiently reduced
 while iters < iters_max:
     
     # Establish variables for keeping track of total iteration time
@@ -128,8 +137,14 @@ while iters < iters_max:
             # Check whether the output points pass or fail (and by how much?)
             outchk = checkOutput(Discips[i],output_rules)
             Discips[i] = outchk.basicCheck()
+            
+            # Determine what (if any) space reductions the discipline proposes
         
+        # Add time spent exploring to the count
         full_amount += temp_amount
+        
+        # Determine if any disciplines want to propose a space reduction
+        
         temp_bool = False
             
                 
@@ -157,3 +172,7 @@ while iters < iters_max:
     # Increase the time count
     iters += full_amount
 
+
+
+
+# Choose the final design or the final group of desings

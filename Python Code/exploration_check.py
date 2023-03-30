@@ -42,3 +42,7 @@ class checkSpace:
     # Some sort of rough set theory algorithm?
     
     
+    
+    # Return a list with None if no space reductions to propose
+    
+    
