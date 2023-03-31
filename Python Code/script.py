@@ -47,7 +47,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 10    # Must be a positive integer!
+iters_max = 100    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -76,19 +76,44 @@ iters = 0
 for i in range(0,len(run_time)):
     Discips[i]['time'] = run_time[i]
 
-
-
-
-
-
-
-
-
-
 # Begin the design exploration and reduction process with allotted timeline - 
 ### Later I may want to also end exploration if happy design spaces have been
 ### sufficiently reduced
 while iters < iters_max:
+    
+    ################### WHILE LOOP WITH CONTINUE STATEMENTS ###################
+    # Determine if any disciplines want to propose a space reduction
+    # Call to exploration_check method and return a true or false value
+    ### If yes, collect proposed reduction(s) from each discipline and merge
+    ### them together into a cohesive group
+    ### Call to merge constraints class/method
+    ##### Determine if design manager wants to run a fragility assessment
+    ##### (probably with just a true or false user input value?)
+    ####### If yes, insert fragility framework here and try different methods!
+    ######### If fragility all good, continue with proposed reduction and
+    ######### update the rules by calling the new constraints class/method
+    ######### If fragility not good and the reduction was not forced, forgo the
+    ######### reduction and continue to asking if a reduction should be forced
+    ######### If fragility not good and the reduction was forced, then need to
+    ######### revise the proposed reduction and check fragility again...will
+    ######### need to fail safe here for ensuring an infinite while loop does
+    ######### not occur
+    ####### If no, continue with the proposed reduction and update the rules by
+    ####### calling the new constraints class/method
+    ### If not, determine if the time remaining paired with the design space
+    ### remaining warrants a space reduction to be forced
+    ### Call to different method in exploration_check
+    ##### If yes, adjust each discipline's criteria for proposing a space
+    ##### reduction and return to the top of this sequence
+    ##### Call to another different method in exploration check
+    ##### If no, continue on to exploring the design space for a determined
+    ##### amount of time with a exploration amount method
+
+    
+    ######## UPDATE THE FLOWCHART WITH ALL OF THE ABOVE!!!!!!########
+    ######## SCRIPT FILE WILL NEED A UTEST TO MAKE SURE ALL OF THE DIFFERENT
+    ######## BRANCHES ARE GOING IN THE CORRECT DIRECTION
+    
     
     # Establish variables for keeping track of total iteration time
     temp_amount = 0
@@ -139,28 +164,14 @@ while iters < iters_max:
             Discips[i] = outchk.basicCheck()
             
             # Determine what (if any) space reductions the discipline proposes
+            
         
         # Add time spent exploring to the count
         full_amount += temp_amount
-        
-        # Determine if any disciplines want to propose a space reduction
-        
         temp_bool = False
-            
-                
-                    
-                    # Prevent infinite while loop from occurring with error message
-                    
-                    # Get temporary random inputs for each input
-                    
-                    # Check that temporary random inputs meet the current rules
-                    
-                    # Add temporary random inputs to tested inputs or 
         
-    ###### CODE TO PROPOSE SPACE REDUCTIONS ######
-    
-    
-    ###### OPTIONAL CODE TO BRING FRAGILITY FRAMEWORK INTO PLAY ######
+        
+        
     
     
     ###### OPTIONAL CODE TO INTRODUCE DESIGN CHANGES THAT DO ACTUALLY OCCUR

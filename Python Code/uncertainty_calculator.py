@@ -19,6 +19,7 @@ LIBRARIES
 """
 CLASS
 """
+# THIS WILL BE APART OF THE FRAGILITY FRAMEWORK!
 class getUncertainty:
     
     def __init__(self):

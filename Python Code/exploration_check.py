@@ -21,12 +21,19 @@ LIBRARIES
 """
 CLASS
 """
-# Assess each discipline's design space for potential of space reductions
+# Have each discipline assess design space for potential space reductions
 class checkSpace:
     
     # Initialize the class
     def __init__(self):
         return
+    
+    # Another method for setting the criteria for reducing a design space?
+    
+    
+    
+    
+    
     
     # I need to run a separate clustering algorithm on groups of input data that
     ### definitely pass, kind of pass/fail, and definitely fail
@@ -41,8 +48,21 @@ class checkSpace:
     
     # Some sort of rough set theory algorithm?
     
+    # Need to establish some sort of criteria for what is enough to actually propose a reduction
+    
     
     
     # Return a list with None if no space reductions to propose
+    
+    
+    
+    
+    # Another method in this class that is called if no reductions to determine
+    # if design manager thinks it is necessary to actually have a reduction
+    
+    
+    
+    
+    # Another method for reducing the criteria for a reduction
     
     
