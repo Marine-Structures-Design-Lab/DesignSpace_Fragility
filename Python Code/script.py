@@ -88,7 +88,7 @@ while iters < iters_max:
     ### them together into a cohesive group
     ### Call to merge constraints class/method
     ##### Determine if design manager wants to run a fragility assessment
-    ##### (probably with just a true or false user input value?)
+    ##### (probably with just a true or false user input value and a counter)
     ####### If yes, insert fragility framework here and try different methods!
     ######### If fragility all good, continue with proposed reduction and
     ######### update the rules by calling the new constraints class/method
