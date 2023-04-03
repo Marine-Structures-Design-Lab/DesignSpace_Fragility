@@ -81,6 +81,9 @@ for i in range(0,len(run_time)):
 ### sufficiently reduced
 while iters < iters_max:
     
+    ############ SPACE REDUCTIONS / FRAGILITY ##############
+    
+    
     ################### WHILE LOOP WITH CONTINUE STATEMENTS ###################
     # Determine if any disciplines want to propose a space reduction
     # Call to exploration_check method and return a true or false value
@@ -107,83 +110,54 @@ while iters < iters_max:
     ##### reduction and return to the top of this sequence
     ##### Call to another different method in exploration check
     ##### If no, continue on to exploring the design space for a determined
-    ##### amount of time with a exploration amount method
-
-    
-    ######## UPDATE THE FLOWCHART WITH ALL OF THE ABOVE!!!!!!########
-    ######## SCRIPT FILE WILL NEED A UTEST TO MAKE SURE ALL OF THE DIFFERENT
-    ######## BRANCHES ARE GOING IN THE CORRECT DIRECTION
+    ##### amount of time with an exploration amount method
     
     
-    # Establish variables for keeping track of total iteration time
-    temp_amount = 0
-    full_amount = 0
     
-    # Continue to explore each discipline's design case while condition(s) met
-    temp_bool = True
-    space_check = checkSpace() # Establish the first space_check here...but
-    # later may want to reinitialize and call a different method depending on
-    # the results at the end of the while loop below
-    while(temp_bool):
+    
+    
+    ############ EXPLORATION ##############
+    # Determine the amount of time/iterations for disciplines to explore
+    space_amount = exploreSpace(iters,iters_max,run_time)
+    temp_amount = space_amount.fixedExplore()
+    print(temp_amount)
+    
+    # Loop through each discipline (maintaining each of their independence)
+    for i in range(0,len(Discips)):
         
-        # Determine the amount of time/iterations for disciplines to explore
-        space_amount = exploreSpace(iters,iters_max,run_time)
-        temp_amount = space_amount.fixedExplore()
-        print(temp_amount)
+        # Determine current input value rules for the discipline to meet
+        input_rules = getConstraints(Discips[i]['ins'],Rules)
         
-        # Loop through each discipline (maintaining each of their independence)
-        for i in range(0,len(Discips)):
-            
-            # Determine current input value rules for the discipline to meet
-            input_rules = getConstraints(Discips[i]['ins'],Rules)
-            
-            # Create a key for tested inputs of discipline if does not exist
-            Discips[i] = createKey('tested_ins',Discips[i])
-            
-            # Get input points according to the desired strategy
-            inppts = getInput(Discips[i],input_rules,temp_amount,i)
-            Discips[i] = inppts.getUniform()
-            
-            # Create a key for tested outputs of discipline if does not exist
-            Discips[i] = createKey('tested_outs',Discips[i])
-            
-            # Get output points from equations or black-box programs
-            outpts = getOutput(Discips[i])
-            Discips[i] = outpts.getValues()
-            
-            # Determine current output value rules for the discipline to meet
-            output_rules = getConstraints(Discips[i]['outs'],Rules)
-            
-            # Create a key for passing and failing of outputs if does not exist
-            Discips[i] = createKey('pass?',Discips[i])
-            
-            # Create a key for extent of passing/failing if does not exist?
-            
-            # Check whether the output points pass or fail (and by how much?)
-            outchk = checkOutput(Discips[i],output_rules)
-            Discips[i] = outchk.basicCheck()
-            
-            # Determine what (if any) space reductions the discipline proposes
-            
+        # Create a key for tested inputs of discipline if does not exist
+        Discips[i] = createKey('tested_ins',Discips[i])
         
-        # Add time spent exploring to the count
-        full_amount += temp_amount
-        temp_bool = False
+        # Get input points according to the desired strategy
+        inppts = getInput(Discips[i],input_rules,temp_amount,i)
+        Discips[i] = inppts.getUniform()
         
+        # Create a key for tested outputs of discipline if does not exist
+        Discips[i] = createKey('tested_outs',Discips[i])
         
+        # Get output points from equations or black-box programs
+        outpts = getOutput(Discips[i])
+        Discips[i] = outpts.getValues()
         
-    
-    
-    ###### OPTIONAL CODE TO INTRODUCE DESIGN CHANGES THAT DO ACTUALLY OCCUR
-    ###### AND ARE NOT JUST SIMULATED AS A POSSIBILITY IN FRAGILITY FRAMEWORK
-    
-    
-    
+        # Determine current output value rules for the discipline to meet
+        output_rules = getConstraints(Discips[i]['outs'],Rules)
+        
+        # Create a key for passing and failing of outputs if does not exist
+        Discips[i] = createKey('pass?',Discips[i])
+        
+        # Create a key for extent of passing/failing if does not exist?
+        
+        # Check whether the output points pass or fail (and by how much?)
+        outchk = checkOutput(Discips[i],output_rules)
+        Discips[i] = outchk.basicCheck()
     
     # Increase the time count
-    iters += full_amount
+    iters += temp_amount
 
 
 
 
-# Choose the final design or the final group of desings
+# Choose the final design or the final group of designs
