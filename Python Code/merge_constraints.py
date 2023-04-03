@@ -18,14 +18,15 @@ CLASS
 """
 class mergeConstraints:
     
-    def __init__(self):
+    def __init__(self,rules_new):
+        self.rn = rules_new
         return
     
-    # One cohesive method for merging all reduction requests together 
-    
-    # A method for evaluating how well other disciplines may perceived reduction
-    ### requests of another discipline
+    # A method for evaluating how well other disciplines may perceive reduction
+    ### requests of another discipline?
     
     # Different methods/strategies for how the design manager may want to
-    ### merge all of the constraint requests into one cohesive bunch especially when
-    ### there is conflict of propositions or same variable propositions
+    ### merge all of the constraint requests into one cohesive bunch especially
+    ### when there is conflict of propositions or same variable propositions
+    
+    # Returns the combined list of cohesive rules

@@ -28,10 +28,13 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from vars_def import setProblem
+from new_constraints import newConstraints
 from exploration_check import checkSpace
+from merge_constraints import mergeConstraints
+from fragility_check import checkFragility
+from exploration_amount import exploreSpace
 from get_constraints import getConstraints
 from create_key import createKey
-from exploration_amount import exploreSpace
 from input_vals import getInput
 from output_vals import getOutput
 from output_success import checkOutput
@@ -60,7 +63,10 @@ sample = 'uniform'
 ### number of disciplines/equations there are in the design problem
 run_time = [2, 3, 4]    # Must all be positive integers!
 
-
+# Decide if the fragility of proposed reductions is to be assessed and the
+# number of fragility assessments to before accepting a fragile space reduction
+fragility = True    # True = yes, False = no
+fragility_max = 5   # Must be a positive integer!
 
 """
 COMMANDS
@@ -76,41 +82,98 @@ iters = 0
 for i in range(0,len(run_time)):
     Discips[i]['time'] = run_time[i]
 
-# Begin the design exploration and reduction process with allotted timeline - 
-### Later I may want to also end exploration if happy design spaces have been
-### sufficiently reduced
+# Create an empty list of object calls for new rules to be added
+rules_new = []
+
+# Set the initial forced reduction value to false
+force_reduction = False # Need to add this to the proper branches
+## CHANGE BACK TO FALSE WHEN A REDUCTION HAS BEEN MADE OR SPACES WERE EXPLORED!
+
+# Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
     
     ############ SPACE REDUCTIONS / FRAGILITY ##############
+    # Add to or update the current list of rules
+    Rules = newConstraints(Rules,rules_new)
     
+    # Reset the new rules to an empty list
+    rules_new = []
     
-    ################### WHILE LOOP WITH CONTINUE STATEMENTS ###################
+    ################## WHILE(?) LOOP WITH CONTINUE STATEMENTS #################
     # Determine if any disciplines want to propose a space reduction
-    # Call to exploration_check method and return a true or false value
-    ### If yes, collect proposed reduction(s) from each discipline and merge
-    ### them together into a cohesive group
+    # Call to exploration_check method and return list of all proposed
+    # reductions without having merged any together
+    space_check = checkSpace()
+    rules_new = [] # Placeholder...change empty list to checkSpace method call
+    
+    ### If yes (list not empty), merge proposed reduction(s) together into a
+    ### cohesive group
     ### Call to merge constraints class/method
-    ##### Determine if design manager wants to run a fragility assessment
-    ##### (probably with just a true or false user input value and a counter)
-    ####### If yes, insert fragility framework here and try different methods!
-    ######### If fragility all good, continue with proposed reduction and
-    ######### update the rules by calling the new constraints class/method
+    if rules_new:
+        merger = mergeConstraints(rules_new)
+        rules_new = [] # Placeholder...change empty list to mergeConstraints method call
+        
+        # Initialize a fragility counter
+        fragility_counter = 0
+        
+        ##### Determine if design manager wants to run a fragility assessment
+        ####### If yes, insert fragility framework here and try different methods!
+        if fragility and fragility_counter < fragility_max:
+            # Call fragility framework methods...returns a (fragile) boolean with basic method
+            fragile = checkFragility()
+            isfragile = fragile.basicCheck()
+            
+            # Increase the fragility counter by 1
+            fragility_counter += 1
+            
+            ######### If fragility all good, continue with proposed reduction
+            if not isfragile:
+                force_reduction = False
+                continue
+            
+            ######### Check if reduction forced or not
+            else:
+                
+                pass
+            
+            
+        ####### If no, continue with the proposed reduction
+        else:
+            continue
+    
+    ### If not, determine if the time remaining paired with the design space
+    ### remaining warrants a space reduction to be forced
+    ### Call to different method in exploration_check
+    else:
+        force_reduction = False # Placeholder...change boolean to checkSpace method call
+        
+        ##### If yes, adjust each discipline's criteria for proposing a space
+        ##### reduction and return to the top of this sequence
+        if force_reduction:
+            pass # Placeholder...change to checkSpace method call
+            # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
+            continue
+        ##### If no, continue on to exploring the design space for a determined
+        ##### amount of time with an exploration amount method
+        ##### Don't need anything here, just let code continue on to the
+        ##### exploration section below
+            
+        
+        
+    
+
+    
+    
+    
     ######### If fragility not good and the reduction was not forced, forgo the
     ######### reduction and continue to asking if a reduction should be forced
     ######### If fragility not good and the reduction was forced, then need to
     ######### revise the proposed reduction and check fragility again...will
     ######### need to fail safe here for ensuring an infinite while loop does
     ######### not occur
-    ####### If no, continue with the proposed reduction and update the rules by
-    ####### calling the new constraints class/method
-    ### If not, determine if the time remaining paired with the design space
-    ### remaining warrants a space reduction to be forced
-    ### Call to different method in exploration_check
-    ##### If yes, adjust each discipline's criteria for proposing a space
-    ##### reduction and return to the top of this sequence
-    ##### Call to another different method in exploration check
-    ##### If no, continue on to exploring the design space for a determined
-    ##### amount of time with an exploration amount method
+    
+    
+
     
     
     

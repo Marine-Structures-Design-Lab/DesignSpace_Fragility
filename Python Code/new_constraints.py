@@ -15,12 +15,18 @@ LIBRARIES
 """
 FUNCTION
 """
+# Both of these parameters need to be a list of objects taking string parameters
+### (as the old rules are currently)
 def newConstraints(old_rules,new_rules):
     
-    # Add method
+    updated_rules = old_rules # Placeholder
+    
+    
+    # Add/update
+    
+    
+    # If new_rules is empty, then nothing should change
     
     
     
-    # Update method
-    
-    return
+    return updated_rules
