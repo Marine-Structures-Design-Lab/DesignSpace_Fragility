@@ -86,8 +86,7 @@ for i in range(0,len(run_time)):
 rules_new = []
 
 # Set the initial forced reduction value to false
-force_reduction = False # Need to add this to the proper branches
-## CHANGE BACK TO FALSE WHEN A REDUCTION HAS BEEN MADE OR SPACES WERE EXPLORED!
+force_reduction = False
 
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
@@ -96,81 +95,91 @@ while iters < iters_max:
     # Add to or update the current list of rules
     Rules = newConstraints(Rules,rules_new)
     
-    # Reset the new rules to an empty list
+    # Reset the new rules to an empty list, if not empty already
     rules_new = []
     
-    ################## WHILE(?) LOOP WITH CONTINUE STATEMENTS #################
     # Determine if any disciplines want to propose a space reduction
     # Call to exploration_check method and return list of all proposed
     # reductions without having merged any together
     space_check = checkSpace()
     rules_new = [] # Placeholder...change empty list to checkSpace method call
     
-    ### If yes (list not empty), merge proposed reduction(s) together into a
-    ### cohesive group
-    ### Call to merge constraints class/method
+    # Check if new rules list is empty or not
     if rules_new:
+        
+        # If list not empty, merge proposed reduction(s) together into a
+        # cohesive group
         merger = mergeConstraints(rules_new)
         rules_new = [] # Placeholder...change empty list to mergeConstraints method call
         
         # Initialize a fragility counter
         fragility_counter = 0
         
-        ##### Determine if design manager wants to run a fragility assessment
-        ####### If yes, insert fragility framework here and try different methods!
-        if fragility and fragility_counter < fragility_max:
-            # Call fragility framework methods...returns a (fragile) boolean with basic method
+        # Run a fragility assessment if desired and while the fragility counter
+        # is not maxed out
+        while fragility and fragility_counter < fragility_max:
+            
+            # Execute fragility assessment and increase fragility counter by 1
             fragile = checkFragility()
             isfragile = fragile.basicCheck()
-            
-            # Increase the fragility counter by 1
             fragility_counter += 1
             
-            ######### If fragility all good, continue with proposed reduction
+            # If fragility is all good, break fragility loop
             if not isfragile:
-                force_reduction = False
-                continue
+                break
             
-            ######### Check if reduction forced or not
+            # If fragility bad, but reduction not forced, break fragility loop
+            elif not force_reduction:
+                break
+            
+            # If fragility bad, and reduction forced, revise and try again
             else:
-                
+                # Call another method from checkFragility for determining why fragile
+                # Call another method from checkFragility for revising the rules_new reduction
                 pass
             
-            
-        ####### If no, continue with the proposed reduction
-        else:
+        # If no fragility check, fragility counter maxed out, or not fragile,
+        # continue with the proposed/last revised reduction
+        if not fragility or fragility_counter>=fragility_max or not isfragile:
+            force_reduction = False
             continue
+            
+        # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
+        elif not force_reduction:
+            force_reduction = False # Placeholder...change boolean to checkSpace method call
+            
+            # Adjust criteria for proposing space reduction if should be forced...ADD COUNTER TO IF CONDITION!
+            if force_reduction:
+                pass # Placeholder...change to checkSpace method call to adjust criteria
+                # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
+                continue
+         
+        ##### If reduction is not to be forced, continue on to exploring the design space for a determined
+        ##### amount of time with an exploration amount method
+        ##### Don't need anything here, just let code continue on to the
+        ##### exploration section below
+                
     
     ### If not, determine if the time remaining paired with the design space
     ### remaining warrants a space reduction to be forced
     ### Call to different method in exploration_check
     else:
+        
+        # If list is empty, determine if a space reduction should be forced
+        # based on the time and design spaces that remain
         force_reduction = False # Placeholder...change boolean to checkSpace method call
         
-        ##### If yes, adjust each discipline's criteria for proposing a space
-        ##### reduction and return to the top of this sequence
+        ##### If space reduction should be forced, adjust each discipline's criteria for proposing a space
+        ##### reduction and return to the top of this sequence...ADD COUNTER TO IF CONDITION!
         if force_reduction:
             pass # Placeholder...change to checkSpace method call
             # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
             continue
-        ##### If no, continue on to exploring the design space for a determined
+        ##### If no, move on to exploring the design space for a determined
         ##### amount of time with an exploration amount method
         ##### Don't need anything here, just let code continue on to the
         ##### exploration section below
             
-        
-        
-    
-
-    
-    
-    
-    ######### If fragility not good and the reduction was not forced, forgo the
-    ######### reduction and continue to asking if a reduction should be forced
-    ######### If fragility not good and the reduction was forced, then need to
-    ######### revise the proposed reduction and check fragility again...will
-    ######### need to fail safe here for ensuring an infinite while loop does
-    ######### not occur
     
     
 
@@ -219,6 +228,8 @@ while iters < iters_max:
     
     # Increase the time count
     iters += temp_amount
+    
+    # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
 
 
 
