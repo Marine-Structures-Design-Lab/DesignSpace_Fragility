@@ -64,9 +64,13 @@ sample = 'uniform'
 run_time = [2, 3, 4]    # Must all be positive integers!
 
 # Decide if the fragility of proposed reductions is to be assessed and the
-# number of fragility assessments to before accepting a fragile space reduction
+# number of fragility assessments to allow before accepting a fragile space
+# reduction
 fragility = True    # True = yes, False = no
 fragility_max = 5   # Must be a positive integer!
+
+# Decide the number of forced reductions to be attempted before minimizing any
+# criteria for a space reduction to be proposed
 
 """
 COMMANDS
@@ -85,8 +89,9 @@ for i in range(0,len(run_time)):
 # Create an empty list of object calls for new rules to be added
 rules_new = []
 
-# Set the initial forced reduction value to false
+# Set the initial forced reduction value to false and establish a counter
 force_reduction = False
+force_reduction_counter = 5
 
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
@@ -142,16 +147,20 @@ while iters < iters_max:
         # continue with the proposed/last revised reduction
         if not fragility or fragility_counter>=fragility_max or not isfragile:
             force_reduction = False
+            force_reduction_counter = 0
+            # Reset criteria for space reduction?
             continue
             
         # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
+        # ADD COUNTER TO IF CONDITION!
         elif not force_reduction:
             force_reduction = False # Placeholder...change boolean to checkSpace method call
             
-            # Adjust criteria for proposing space reduction if should be forced...ADD COUNTER TO IF CONDITION!
+            # Adjust criteria for proposing space reduction if should be forced
             if force_reduction:
                 pass # Placeholder...change to checkSpace method call to adjust criteria
                 # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
+                # DO NOT INCREASE FORCE REDUCTION COUNTER BY 1 HERE
                 continue
          
         ##### If reduction is not to be forced, continue on to exploring the design space for a determined
@@ -170,10 +179,13 @@ while iters < iters_max:
         force_reduction = False # Placeholder...change boolean to checkSpace method call
         
         ##### If space reduction should be forced, adjust each discipline's criteria for proposing a space
-        ##### reduction and return to the top of this sequence...ADD COUNTER TO IF CONDITION!
+        ##### reduction and return to the top of this sequence
         if force_reduction:
-            pass # Placeholder...change to checkSpace method call
-            # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
+            pass # Placeholder...change to checkSpace method call to adjust criteria
+            # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
+            force_reduction_counter += 1 # This counter is not needed in the fragility loop
+            # because a forced reduction will not leave the fragility loop until
+            # a space reduction is actually made and committed to 
             continue
         ##### If no, move on to exploring the design space for a determined
         ##### amount of time with an exploration amount method
@@ -228,6 +240,9 @@ while iters < iters_max:
     
     # Increase the time count
     iters += temp_amount
+    
+    # Reset the reduction count to 0
+    force_reduction_counter = 0
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
 
