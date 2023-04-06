@@ -1,8 +1,8 @@
 """
 SUMMARY:
 Takes class objects containing strings of various rules that disciplines need
-to meet and converts these strings into actual sympy expressions that can be 
-utilized.
+to meet and converts these strings into actual sympy expressions and variable
+sets that can be utilized.
 
 CREATOR:
 Joseph B. Van Houten
@@ -31,7 +31,6 @@ class varRule:
         self.r = rule
         return
     
-    # Organize the variable string and return the sympified rule
     def breakup(self):
         """
         Description
@@ -65,3 +64,35 @@ class varRule:
         
         # Return the sympified (nested) list of the particular rule
         return rule_list
+    
+    def findVars(self,rule):
+        """
+        Description
+        -----------
+        Determines all of the sympy variables that are prevalent in a
+        particular nested rule
+        
+        Parameters
+        ----------
+        rule : Nested list of sympy expressions
+            The list of expressions broken up from their strings and converted
+            into sympy expressions
+        
+        Returns
+        -------
+        var_set : Set
+            All of the sympy variables occurring in the nested rule
+        """
+        
+        # Create a temporary empty set of variables
+        var_set = set()
+        
+        # Loop through the nested rule list
+        for i in range(0,len(rule)):
+            for j in range(0,len(rule[i])):
+                
+                # Add variable(s) to the set if it does not already exist there
+                var_set.update(rule[i][j].free_symbols)
+        
+        # Return the set of variables
+        return var_set

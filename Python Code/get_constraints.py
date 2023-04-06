@@ -40,18 +40,11 @@ def getConstraints(var,rules):
     # Loop through the full list of rules
     for i in range(0,len(rules)):
         
-        # Determine every free symbol in the rule
+        # Break the rule up into a sympified (nested) list
         temp_rule = rules[i].breakup()
         
-        # Create a temporary empty set of variables
-        temp_set = set()
-        
-        # Loop through the temporary rule list
-        for j in range(0,len(temp_rule)):
-            for k in range(0,len(temp_rule[j])):
-                
-                # Add variable(s) to the set if it does not already exist there
-                temp_set.update(temp_rule[j][k].free_symbols)
+        # Determine the variables of the rule
+        temp_set = rules[i].findVars(temp_rule)
         
         # Check if any symbols in rule set do not match up with variables
         if all(item in var for item in temp_set):

@@ -97,11 +97,20 @@ force_reduction_counter = 5
 while iters < iters_max:
     
     ############ SPACE REDUCTIONS / FRAGILITY ##############
-    # Add to or update the current list of rules
-    Rules = newConstraints(Rules,rules_new)
+    # Check if any new rules to add/update
+    if rules_new:
     
-    # Reset the new rules to an empty list, if not empty already
-    rules_new = []
+        # Gather indices of rules that need to be updated
+        ruler = newConstraints(Rules,rules_new)
+        Rules_ind = ruler.getIndex()
+        
+        # Update new rules that already exist
+        
+        # Add new rules that do not already exist
+        
+        
+        # Reset the new rules to an empty list, if not empty already
+        rules_new = []
     
     # Determine if any disciplines want to propose a space reduction
     # Call to exploration_check method and return list of all proposed
@@ -155,6 +164,7 @@ while iters < iters_max:
         # ADD COUNTER TO IF CONDITION!
         elif not force_reduction:
             force_reduction = False # Placeholder...change boolean to checkSpace method call
+            rules_new = []
             
             # Adjust criteria for proposing space reduction if should be forced
             if force_reduction:
