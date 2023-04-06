@@ -31,7 +31,7 @@ class test_input_vals(unittest.TestCase):
         """
         # Set up the initial list of dictionaries for each discipline and rules
         prob = setProblem()
-        self.Discips1, self.Rules = prob.SBD1()
+        self.Discips1, self.Input_Rules, self.Output_Rules = prob.SBD1()
         
         # Add time to each discipline
         for i in range(0,len(self.Discips1)):
@@ -47,13 +47,13 @@ class test_input_vals(unittest.TestCase):
                                                 len(self.Discips2[i]['ins'])))
         
         # Create an impossible list of rules to satisfy
-        self.Rules_bad = []
-        self.Rules_bad.append(varRule(['x1<0.0,x1>1.0']))
-        self.Rules_bad.append(varRule(['x2<0.0,x2>1.0']))
-        self.Rules_bad.append(varRule(['x3<0.0,x3>1.0']))
-        self.Rules_bad.append(varRule(['x4<0.0,x4>1.0']))
-        self.Rules_bad.append(varRule(['x5<0.0,x5>1.0']))
-        self.Rules_bad.append(varRule(['x6<0.0,x6>1.0']))
+        self.Input_Rules_bad = []
+        self.Input_Rules_bad.append(varRule(['x1<0.0,x1>1.0']))
+        self.Input_Rules_bad.append(varRule(['x2<0.0,x2>1.0']))
+        self.Input_Rules_bad.append(varRule(['x3<0.0,x3>1.0']))
+        self.Input_Rules_bad.append(varRule(['x4<0.0,x4>1.0']))
+        self.Input_Rules_bad.append(varRule(['x5<0.0,x5>1.0']))
+        self.Input_Rules_bad.append(varRule(['x6<0.0,x6>1.0']))
         
         # Initialize test disciplines
         self.Dtest1 = [None]*len(self.Discips1)
@@ -65,8 +65,8 @@ class test_input_vals(unittest.TestCase):
         for i in range(0,len(self.Discips1)):
             
             # Get the input value rules
-            ir1 = getConstraints(self.Discips1[i]['ins'],self.Rules)
-            ir2 = getConstraints(self.Discips1[i]['ins'],self.Rules_bad)
+            ir1 = getConstraints(self.Discips1[i]['ins'],self.Input_Rules)
+            ir2 = getConstraints(self.Discips1[i]['ins'],self.Input_Rules_bad)
             
             # Initialize different objects for each discipline and rules combo
             inppts1 = getInput(copy.deepcopy(self.Discips1[i]),ir1,20,i)

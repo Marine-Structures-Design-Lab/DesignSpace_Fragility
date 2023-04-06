@@ -30,7 +30,7 @@ class test_output_vals(unittest.TestCase):
         """
         # Set up the initial list of dictionaries for each discipline and rules
         prob = setProblem()
-        self.Discips, self.Rules = prob.SBD1()
+        self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
         
         # Loop through each discipline
         for i in range(0,len(self.Discips)):

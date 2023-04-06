@@ -45,10 +45,13 @@ class setProblem:
         [discip1, discip2, discip3] : List of dictionaries
             Contains sympy inputs, outputs, and expressions for each individual
             discipline of the particular design problem
-        rules : List of class objects
-            The initial set of constraints/rules that each discipline must
-            abide by when determining designs to test in the input space and
-            if those tested designs produce passing outputs
+        input_rules : List of class objects
+            The initial set of input constraints/rules that each discipline
+            must abide by when determining designs to test in the input space
+        output_rules : List of class objects
+            The initial set of output constraints/rules that each discipline
+            must abide by when determining if tested designs produce passing
+            outputs in the objective space
         '''
         
         # Create sympy input and output variables
@@ -78,26 +81,27 @@ class setProblem:
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]],
         }
         
-        # Create a list containing the initial rules for the design problem
+        # Create lists containing the initial rules for the design problem
         ### Put rules that go together with an "and" in the same string
         ### Put rules that go together with an "or" into separate strings
         ### All rules must be within a list even if only a single string
         ### Use comma to separate rules in a string along with no spaces
-        rules = []
-        rules.append(varRule(['x1>=0.0,x1<=1.0']))
-        rules.append(varRule(['x2>=0.0,x2<=1.0']))
-        rules.append(varRule(['x3>=0.0,x3<=1.0']))
-        rules.append(varRule(['x4>=0.0,x4<=1.0']))
-        rules.append(varRule(['x5>=0.0,x5<=1.0']))
-        rules.append(varRule(['x6>=0.0,x6<=1.0']))
-        rules.append(varRule(['y1>=0.0,y1<=0.4','y1>=1.2,y1<=1.6']))
-        rules.append(varRule(['y2>=0.5,y2<=0.7']))
-        rules.append(varRule(['y3>=0.2,y3<=0.5']))
-        rules.append(varRule(['y4>=0.0,y4<=0.5']))
-        rules.append(varRule(['y5>=0.8,y5<=1.6']))
+        input_rules = []
+        input_rules.append(varRule(['x1>=0.0,x1<=1.0']))
+        input_rules.append(varRule(['x2>=0.0,x2<=1.0']))
+        input_rules.append(varRule(['x3>=0.0,x3<=1.0']))
+        input_rules.append(varRule(['x4>=0.0,x4<=1.0']))
+        input_rules.append(varRule(['x5>=0.0,x5<=1.0']))
+        input_rules.append(varRule(['x6>=0.0,x6<=1.0']))
+        output_rules = []
+        output_rules.append(varRule(['y1>=0.0,y1<=0.4','y1>=1.2,y1<=1.6']))
+        output_rules.append(varRule(['y2>=0.5,y2<=0.7']))
+        output_rules.append(varRule(['y3>=0.2,y3<=0.5']))
+        output_rules.append(varRule(['y4>=0.0,y4<=0.5']))
+        output_rules.append(varRule(['y5>=0.8,y5<=1.6']))
         
-        # Return each discipline's dictionary for SBD1 problem and rules list
-        return [discip1, discip2, discip3], rules
+        # Return each discipline's dictionary for SBD1 problem and rules lists
+        return [discip1, discip2, discip3], input_rules, output_rules
     
     # Can define other problems similar to as was done for the SBD1 problem...
     

@@ -30,7 +30,7 @@ class test_output_success(unittest.TestCase):
         """
         # Set up the initial list of dictionaries for each discipline and rules
         prob = setProblem()
-        self.Discips, self.Rules = prob.SBD1()
+        self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
         
         # Loop through each discipline
         for i in range(0,len(self.Discips)):
@@ -52,7 +52,8 @@ class test_output_success(unittest.TestCase):
         for i in range(0,len(self.Discips)):
             
             # Get output rules
-            output_rules = getConstraints(self.Discips1[i]['outs'],self.Rules)
+            output_rules = getConstraints(self.Discips1[i]['outs'],\
+                                          self.Output_Rules)
             
             # Initialize object for each discipline
             outchk = checkOutput(self.Discips1[i],output_rules)

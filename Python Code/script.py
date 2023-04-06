@@ -28,7 +28,6 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from vars_def import setProblem
-from new_constraints import newConstraints
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from fragility_check import checkFragility
@@ -77,7 +76,7 @@ COMMANDS
 """
 # Establish dictionaries for the design problem of interest
 prob = setProblem()
-Discips, Rules = getattr(prob,problem_name)()
+Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
@@ -87,7 +86,7 @@ for i in range(0,len(run_time)):
     Discips[i]['time'] = run_time[i]
 
 # Create an empty list of object calls for new rules to be added
-rules_new = []
+irules_new = []
 
 # Set the initial forced reduction value to false and establish a counter
 force_reduction = False
@@ -97,34 +96,25 @@ force_reduction_counter = 5
 while iters < iters_max:
     
     ############ SPACE REDUCTIONS / FRAGILITY ##############
-    # Check if any new rules to add/update
-    if rules_new:
+    # Add any new input rules to the list
+    Input_Rules += irules_new
     
-        # Gather indices of rules that need to be updated
-        ruler = newConstraints(Rules,rules_new)
-        Rules_ind = ruler.getIndex()
-        
-        # Update new rules that already exist
-        
-        # Add new rules that do not already exist
-        
-        
-        # Reset the new rules to an empty list, if not empty already
-        rules_new = []
+    # Reset the input rules to an empty list
+    irules_new = []
     
     # Determine if any disciplines want to propose a space reduction
     # Call to exploration_check method and return list of all proposed
     # reductions without having merged any together
     space_check = checkSpace()
-    rules_new = [] # Placeholder...change empty list to checkSpace method call
+    irules_new = [] # Placeholder...change empty list to checkSpace method call
     
-    # Check if new rules list is empty or not
-    if rules_new:
+    # Check if new input rules list is empty or not
+    if irules_new:
         
         # If list not empty, merge proposed reduction(s) together into a
         # cohesive group
-        merger = mergeConstraints(rules_new)
-        rules_new = [] # Placeholder...change empty list to mergeConstraints method call
+        merger = mergeConstraints(irules_new)
+        irules_new = [] # Placeholder...change empty list to mergeConstraints method call
         
         # Initialize a fragility counter
         fragility_counter = 0
@@ -149,7 +139,7 @@ while iters < iters_max:
             # If fragility bad, and reduction forced, revise and try again
             else:
                 # Call another method from checkFragility for determining why fragile
-                # Call another method from checkFragility for revising the rules_new reduction
+                # Call another method from checkFragility for revising the irules_new reduction
                 pass
             
         # If no fragility check, fragility counter maxed out, or not fragile,
@@ -161,10 +151,9 @@ while iters < iters_max:
             continue
             
         # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
-        # ADD COUNTER TO IF CONDITION!
         elif not force_reduction:
             force_reduction = False # Placeholder...change boolean to checkSpace method call
-            rules_new = []
+            irules_new = []
             
             # Adjust criteria for proposing space reduction if should be forced
             if force_reduction:
@@ -220,7 +209,7 @@ while iters < iters_max:
     for i in range(0,len(Discips)):
         
         # Determine current input value rules for the discipline to meet
-        input_rules = getConstraints(Discips[i]['ins'],Rules)
+        input_rules = getConstraints(Discips[i]['ins'],Input_Rules)
         
         # Create a key for tested inputs of discipline if does not exist
         Discips[i] = createKey('tested_ins',Discips[i])
@@ -237,7 +226,7 @@ while iters < iters_max:
         Discips[i] = outpts.getValues()
         
         # Determine current output value rules for the discipline to meet
-        output_rules = getConstraints(Discips[i]['outs'],Rules)
+        output_rules = getConstraints(Discips[i]['outs'],Output_Rules)
         
         # Create a key for passing and failing of outputs if does not exist
         Discips[i] = createKey('pass?',Discips[i])
