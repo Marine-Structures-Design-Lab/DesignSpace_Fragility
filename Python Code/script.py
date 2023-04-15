@@ -49,7 +49,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 100    # Must be a positive integer!
+iters_max = 4    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -70,6 +70,7 @@ fragility_max = 5   # Must be a positive integer!
 
 # Decide the number of forced reductions to be attempted before minimizing any
 # criteria for a space reduction to be proposed
+force_reduction_max = 10
 
 """
 COMMANDS
@@ -90,7 +91,7 @@ irules_new = []
 
 # Set the initial forced reduction value to false and establish a counter
 force_reduction = False
-force_reduction_counter = 5
+force_reduction_counter = 0
 
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
@@ -105,7 +106,7 @@ while iters < iters_max:
     # Determine if any disciplines want to propose a space reduction
     # Call to exploration_check method and return list of all proposed
     # reductions without having merged any together
-    space_check = checkSpace()
+    space_check = checkSpace(force_reduction_counter,force_reduction_max)
     irules_new = [] # Placeholder...change empty list to checkSpace method call
     
     # Check if new input rules list is empty or not
@@ -209,7 +210,8 @@ while iters < iters_max:
     for i in range(0,len(Discips)):
         
         # Determine current input value rules for the discipline to meet
-        input_rules = getConstraints(Discips[i]['ins'],Input_Rules)
+        input_rules, input_indices = \
+            getConstraints(Discips[i]['ins'],Input_Rules)
         
         # Create a key for tested inputs of discipline if does not exist
         Discips[i] = createKey('tested_ins',Discips[i])
@@ -226,16 +228,19 @@ while iters < iters_max:
         Discips[i] = outpts.getValues()
         
         # Determine current output value rules for the discipline to meet
-        output_rules = getConstraints(Discips[i]['outs'],Output_Rules)
+        output_rules, output_indices = \
+            getConstraints(Discips[i]['outs'],Output_Rules)
         
         # Create a key for passing and failing of outputs if does not exist
         Discips[i] = createKey('pass?',Discips[i])
         
         # Create a key for extent of passing/failing if does not exist?
+        Discips[i] = createKey('RMS_Fail',Discips[i])
         
-        # Check whether the output points pass or fail (and by how much?)
+        # Check whether the output points pass or fail and by how much
         outchk = checkOutput(Discips[i],output_rules)
         Discips[i] = outchk.basicCheck()
+        Discips[i] = outchk.rmsFail(Output_Rules,output_indices)
     
     # Increase the time count
     iters += temp_amount

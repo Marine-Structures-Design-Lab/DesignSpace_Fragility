@@ -86,6 +86,9 @@ class setProblem:
         ### Put rules that go together with an "or" into separate strings
         ### All rules must be within a list even if only a single string
         ### Use comma to separate rules in a string along with no spaces
+        ### Rule within the same string must have same equation (i.e. x1,x1+x2)
+        ### Rules can only have inequality constraints (i.e. >,<,>=,<=)
+        ### Expression must be on left side of inequality and number on right
         input_rules = []
         input_rules.append(varRule(['x1>=0.0,x1<=1.0']))
         input_rules.append(varRule(['x2>=0.0,x2<=1.0']))

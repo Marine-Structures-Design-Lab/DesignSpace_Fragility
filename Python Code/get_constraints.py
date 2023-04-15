@@ -34,8 +34,11 @@ def getConstraints(var,rules):
         input or output variables within their control
     """
     
-    # Create an empty list
+    # Create an empty list for rules
     rule_list = []
+    
+    # Create and empty list for rule indices
+    index_list = []
     
     # Loop through the full list of rules
     for i in range(0,len(rules)):
@@ -49,8 +52,11 @@ def getConstraints(var,rules):
         # Check if any symbols in rule set do not match up with variables
         if all(item in var for item in temp_set):
             
-            # Append rule to the temporary list
+            # Append rule to the temporary rule list
             rule_list.append(temp_rule)
+            
+            # Append index to the temporary index list
+            index_list.append(i)
     
     # Return the list of rules for discipline to consider
-    return rule_list
+    return rule_list, index_list

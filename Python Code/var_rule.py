@@ -12,6 +12,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import sympy as sp
+import re
 
 """
 CLASS
@@ -96,3 +97,50 @@ class varRule:
         
         # Return the set of variables
         return var_set
+    
+    # Find the expressions(s) of each rule
+    def findExpr(self):
+        
+        # Create an empty list
+        expr_list = []
+        
+        # Loop through each string of the rule
+        for i in range(0,len(self.r)):
+            
+            # Split the rule at the inequality symbol and take first string
+            expr_list.append(re.split('>|<',self.r[i])[0])
+        
+        # Return the list of expressions
+        return expr_list
+    
+    # Find the number(s) that the rule needs to meet
+    def findNum(self):
+        
+        # Create empty lists for numbers and rules
+        num_list = []
+        rule_list = []
+        
+        # Loop through each string of the rule
+        for i in range(0,len(self.r)):
+            
+            # Split rule at comma delimiter if it exists
+            rule_list.append(self.r[i].split(','))
+            
+        # Loop through each "or" statement of the rule
+        for i in range(0,len(rule_list)):
+            
+            # Initialize and inner rule list that is empty
+            num_list_inner = []
+            
+            # Loop through each "and" statement of the rule
+            for j in range(0,len(rule_list[i])):
+                
+                # Split the rule at the inequality symbols and take last string
+                num_list_inner.append(re.split('>|<|=',rule_list[i][j])[-1])
+                
+            # Append the inner rule list to the nested rule list
+            num_list.append(num_list_inner)
+                
+        # Return the list of numbers
+        return num_list
+    
