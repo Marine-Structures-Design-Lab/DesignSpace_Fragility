@@ -37,6 +37,7 @@ from create_key import createKey
 from input_vals import getInput
 from output_vals import getOutput
 from output_success import checkOutput
+from save_data import save_dicts_to_files
 
 """
 USER INPUTS
@@ -49,7 +50,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 4    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -106,7 +107,9 @@ while iters < iters_max:
     # Determine if any disciplines want to propose a space reduction
     # Call to exploration_check method and return list of all proposed
     # reductions without having merged any together
-    space_check = checkSpace(force_reduction_counter,force_reduction_max)
+    space_check = checkSpace(Discips)
+    if iters > 0:
+        Clusters = space_check.variousClusters(force_reduction_max)
     irules_new = [] # Placeholder...change empty list to checkSpace method call
     
     # Check if new input rules list is empty or not
@@ -250,7 +253,8 @@ while iters < iters_max:
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
 
-
+# Save my dictionary data
+#save_dicts_to_files(Discips, 'Discip.csv', 'Discip.xlsx')
 
 
 # Choose the final design or the final group of designs
