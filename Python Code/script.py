@@ -37,7 +37,7 @@ from create_key import createKey
 from input_vals import getInput
 from output_vals import getOutput
 from output_success import checkOutput
-from save_data import save_dicts_to_files
+#from save_data import save_dicts_to_files
 
 """
 USER INPUTS
@@ -109,7 +109,7 @@ while iters < iters_max:
     # reductions without having merged any together
     space_check = checkSpace(Discips)
     if iters > 0:
-        Clusters = space_check.variousClusters(force_reduction_max)
+        Clusters = space_check.createClusters(force_reduction_max)
     irules_new = [] # Placeholder...change empty list to checkSpace method call
     
     # Check if new input rules list is empty or not
@@ -233,17 +233,18 @@ while iters < iters_max:
         # Determine current output value rules for the discipline to meet
         output_rules, output_indices = \
             getConstraints(Discips[i]['outs'],Output_Rules)
-        
+
         # Create a key for passing and failing of outputs if does not exist
         Discips[i] = createKey('pass?',Discips[i])
         
         # Create a key for extent of passing/failing if does not exist?
-        Discips[i] = createKey('RMS_Fail',Discips[i])
+        Discips[i] = createKey('Fail_Amount',Discips[i])
         
         # Check whether the output points pass or fail and by how much
         outchk = checkOutput(Discips[i],output_rules)
         Discips[i] = outchk.basicCheck()
-        Discips[i] = outchk.rmsFail(Output_Rules,output_indices)
+        #Discips[i] = outchk.failAmount()
+        #Discips[i] = outchk.rmsFail(Output_Rules,output_indices)
     
     # Increase the time count
     iters += temp_amount

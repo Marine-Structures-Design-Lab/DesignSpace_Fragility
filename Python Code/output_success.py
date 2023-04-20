@@ -14,7 +14,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from output_start import outputStart
-from rule_check import ruleCheck
+from scipy.optimize import minimize
 import numpy as np
 import sympy as sp
 import copy
@@ -76,23 +76,51 @@ class checkOutput:
                 # Loop through each output variable of the discipline
                 for k in self.d['outs']:
                     
-                    # Loop through each part of the rule
-                    for l in range(0,len(rules_copy[j])):
-                        for m in range(0,len(rules_copy[j][l])):
-                            
-                            # Substitute output value for the variable in rule
-                            rules_copy[j][l][m] = rules_copy[j][l][m].subs(k,\
-                                    self.d['tested_outs'][i,self.d['outs']\
-                                                          .index(k)])
-            
-            # Check whether all output values meet necessary rules
-            all_good = ruleCheck(rules_copy)
-            
+                    # Substitute output value for the variable in rule
+                    rules_copy[j] = rules_copy[j].subs(k,\
+                            self.d['tested_outs'][i,self.d['outs'].index(k)])
+                    
             # Append boolean value to the proper dictionary key
-            self.d['pass?'].append(all_good)
+            self.d['pass?'].append(all(rules_copy))
             
         # Return new dictionary with boolean pass? values
         return self.d
+
+    def failAmount(self):
+        
+        # Loop through each NEW design point in the output space
+        for i in range(outputStart(self.d,'Fail_Amount'),\
+                       np.shape(self.d['tested_outs'])[0]):
+            
+            # Check if output point is already passing
+            if self.d['pass?'][i] == True:
+                
+                self.d['Fail_Amount'].append(0.0)
+                
+            # Peform following commands if the output point is not passing
+            else:
+                
+                i
+                
+        return self.d
+
+
+   
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     # Determine root mean square difference of failed points with relevant output constraints
     def rmsFail(self,Output_Rules,output_indices):

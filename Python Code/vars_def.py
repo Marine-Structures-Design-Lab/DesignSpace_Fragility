@@ -18,7 +18,6 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import sympy as sp
-from var_rule import varRule
 
 """
 CLASS
@@ -81,33 +80,21 @@ class setProblem:
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]],
         }
         
-        # Create lists containing the initial rules for the design problem
-        ### Put rules that go together with an "and" in the same string
-        ### Put rules that go together with an "or" into separate strings
-        ### All rules must be within a list even if only a single string
-        ### Use comma to separate rules in a string along with no spaces
-        ### Rule within the same string must have same equation (i.e. x1,x1+x2)
-        ### Rules can only have inequality constraints (i.e. >,<,>=,<=)
-        ### Expression must be on left side of inequality and number on right
+        # Create initial input rules for the design problem
         input_rules = []
-        input_rules.append(varRule(['x1>=0.0,x1<=1.0']))
-        input_rules.append(varRule(['x2>=0.0,x2<=1.0']))
-        input_rules.append(varRule(['x3>=0.0,x3<=1.0']))
-        input_rules.append(varRule(['x4>=0.0,x4<=1.0']))
-        input_rules.append(varRule(['x5>=0.0,x5<=1.0']))
-        input_rules.append(varRule(['x6>=0.0,x6<=1.0']))
+        for i in range(0,len(x)):
+            input_rules.append((x[i]>=0.0) & (x[i]<=1.0))
+            
+        # Create initial output rules for the design problem
         output_rules = []
-        output_rules.append(varRule(['y1>=0.0,y1<=0.4','y1>=1.2,y1<=1.6']))
-        output_rules.append(varRule(['y2>=0.5,y2<=0.7']))
-        output_rules.append(varRule(['y3>=0.2,y3<=0.5']))
-        output_rules.append(varRule(['y4>=0.0,y4<=0.5']))
-        output_rules.append(varRule(['y5>=0.8,y5<=1.6']))
+        output_rules.append(((y[0]>=0.0) & (y[0]<=0.4)) | ((y[0]>=1.2) & (y[0]<=1.6)))
+        output_rules.append((y[1]>=0.5) & (y[1]<=0.7))
+        output_rules.append((y[2]>=0.2) & (y[2]<=0.5))
+        output_rules.append((y[3]>=0.0) & (y[3]<=0.5))
+        output_rules.append((y[4]>=0.8) & (y[4]<=1.6))
         
         # Return each discipline's dictionary for SBD1 problem and rules lists
         return [discip1, discip2, discip3], input_rules, output_rules
     
     # Can define other problems similar to as was done for the SBD1 problem...
-    
-    
-    
     

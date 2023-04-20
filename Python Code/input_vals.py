@@ -13,7 +13,6 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from rule_check import ruleCheck
 import numpy as np
 import copy
 
@@ -93,40 +92,29 @@ class getInput:
                 rules_copy = copy.deepcopy(self.ir)
                 
                 # Loop through each input rule
-                for j in range(0,len(self.ir)):
+                for i in range(0,len(self.ir)):
                     
                     # Create an empty set of variables
                     symbs = set()
                     
-                    # Loop through each part of the rule
-                    for k in range(0,len(self.ir[j])):
-                        for l in range(0,len(self.ir[j][k])):
-                    
-                            # Gather free symbol(s) of the rule
-                            symbs.update(self.ir[j][k][l].free_symbols)
+                    # Gather free symbol(s) of the rule
+                    symbs.update(self.ir[i].free_symbols)
                     
                     # Convert set of variables to a list
                     symbs = list(symbs)
 
                     # Loop through each symbol of the rule
-                    for k in range(0,len(symbs)):
+                    for j in range(0,len(symbs)):
                         
                         # Gather index of the symbol in the discipline's inputs
-                        index = self.d['ins'].index(symbs[k])
+                        index = self.d['ins'].index(symbs[j])
                         
-                        # Loop through each part of the rule
-                        for l in range(0,len(rules_copy[j])):
-                            for m in range(0,len(rules_copy[j][l])):
-                            
-                                # Substitute index value from point to rule
-                                rules_copy[j][l][m] = self.ir[j][l][m].subs\
-                                    (self.d['ins'][index],point[index])
-                
-                # Check whether all input values meet necessary rules
-                all_good = ruleCheck(rules_copy)
+                        # Substitute index value from point to rule
+                        rules_copy[i] = rules_copy[i].subs\
+                            (self.d['ins'][index],point[index])
                     
                 # Check if necessary value(s) in the rules list copy is true
-                if (all_good):
+                if all(rules_copy):
                     
                     # Append new points to the tested inputs
                     self.d['tested_ins'] = \
