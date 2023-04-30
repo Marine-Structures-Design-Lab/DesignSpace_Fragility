@@ -54,8 +54,8 @@ class setProblem:
         '''
         
         # Create sympy input and output variables
-        x = sp.symbols('x1 x2 x3 x4 x5 x6')
-        y = sp.symbols('y1 y2 y3 y4 y5')
+        x = sp.symbols('x:6')
+        y = sp.symbols('y:5')
         
         # Create dictionary for Discipline 1
         discip1 = {
@@ -80,18 +80,21 @@ class setProblem:
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]],
         }
         
+        ### ALL VARIABLES OF RULE MUST BE ON LEFT HAND SIDE OF INEQUALITY
+        ### FREE-STANDING NUMBERS SHOULD BE ON THE RIGHT HAND SIDE
+        ### CAN ONLY HAVE SYMPY AND, OR RELATIONALS
         # Create initial input rules for the design problem
         input_rules = []
         for i in range(0,len(x)):
-            input_rules.append((x[i]>=0.0) & (x[i]<=1.0))
+            input_rules.append(sp.And(x[i]>=0.0,x[i]<=1.0))
             
         # Create initial output rules for the design problem
         output_rules = []
-        output_rules.append(((y[0]>=0.0) & (y[0]<=0.4)) | ((y[0]>=1.2) & (y[0]<=1.6)))
-        output_rules.append((y[1]>=0.5) & (y[1]<=0.7))
-        output_rules.append((y[2]>=0.2) & (y[2]<=0.5))
-        output_rules.append((y[3]>=0.0) & (y[3]<=0.5))
-        output_rules.append((y[4]>=0.8) & (y[4]<=1.6))
+        output_rules.append(sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4), sp.And(y[0]>=1.2,y[0]<=1.6)))
+        output_rules.append(sp.And(y[1]>=0.5,y[1]<=0.7))
+        output_rules.append(sp.And(y[2]>=0.2,y[2]<=0.5))
+        output_rules.append(sp.And(y[3]>=0.0,y[3]<=0.5))
+        output_rules.append(sp.And(y[4]>=0.8,y[4]<=1.6))
         
         # Return each discipline's dictionary for SBD1 problem and rules lists
         return [discip1, discip2, discip3], input_rules, output_rules

@@ -16,9 +16,12 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import numpy as np
+import sympy as sp
+import math
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering
 from sklearn.decomposition import PCA
+from scipy.optimize import minimize
 
 """
 CLASS
@@ -30,6 +33,51 @@ class checkSpace:
     def __init__(self,Discips):
         self.d = Discips
         return
+    
+    # Partition the design space for possible space reductions
+    def getPartitions(self):
+        
+        
+        
+        # Propose zero order partitions first and then first order ones
+        # Second order ones can be added later if really necessary
+        
+        # Return the list of all the rules being proposed
+        return
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     def createClusters(self, n_clusters=2):
         """

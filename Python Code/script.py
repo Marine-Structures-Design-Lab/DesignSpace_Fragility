@@ -50,7 +50,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 4    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -108,8 +108,9 @@ while iters < iters_max:
     # Call to exploration_check method and return list of all proposed
     # reductions without having merged any together
     space_check = checkSpace(Discips)
-    if iters > 0:
-        Clusters = space_check.createClusters(force_reduction_max)
+    #if iters > 0:
+        #Clusters = space_check.createClusters(force_reduction_max)
+        
     irules_new = [] # Placeholder...change empty list to checkSpace method call
     
     # Check if new input rules list is empty or not
@@ -244,7 +245,7 @@ while iters < iters_max:
         outchk = checkOutput(Discips[i],output_rules)
         Discips[i] = outchk.basicCheck()
         #Discips[i] = outchk.failAmount()
-        #Discips[i] = outchk.rmsFail(Output_Rules,output_indices)
+        Discips[i] = outchk.rmsFail()
     
     # Increase the time count
     iters += temp_amount
