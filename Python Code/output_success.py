@@ -14,11 +14,11 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from output_start import outputStart
-from scipy.optimize import minimize
 import numpy as np
 import sympy as sp
 import copy
 import math
+
 
 """
 CLASS
@@ -42,6 +42,7 @@ class checkOutput:
         self.d = discip
         self.outr = output_rules
         return
+    
     
     def basicCheck(self):
         """
@@ -87,134 +88,103 @@ class checkOutput:
         # Return new dictionary with boolean pass? values
         return self.d
     
-    
-    # Normalized RMSD of calculated output from constraints
+    # Determine the normalized rmsd of output points that fail from each rule
     def rmsFail(self):
         
-        # Get difference in calculated output to proper constraint
+        # Get difference in calculated outputs to failing rule
         def get_output_diff(rule,i):
             
             # Check if rule is an Or or And relational
             if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
                 
-                # Create a numpy zero vector for the length of the arguments
+                # Create a numpy zero array for the length of the arguments
                 diff_vector = np.zeros(len(rule.args))
                 
                 # Loop through each argument of the rule
                 for arg in rule.args:
                     
-                    # Loop back through the function and assign the rule
-                    # difference to the proper index in the vector
+                    # Call the function again and assign its value to vector
                     diff_vector[rule.args.index(arg)] = get_output_diff(arg,i)
-                    
-                # Set base rule tracker to True
-                base_rule = True
                 
-                # Loop through each argument of the rule
-                for arg in rule.args:
-                    
-                    # Check if argument is an Or or And relational
-                    if not isinstance(arg,sp.Or) and\
-                        not isinstance(arg,sp.And):
-                        
-                        # Continue to check next argument of rule
-                        continue
-                    
-                    # Perform commands if argument is an Or or And relational
-                    else:
-                        
-                        # Change base rule tracker to true
-                        base_rule = False
-                        
-                        # Stop checking arguments of the rule
-                        break
+                # Return min of difference array for each point of Or rule
+                if isinstance(rule, sp.Or):
+                    return np.nanmin(diff_vector)
                 
-                # Check that no arguments of rule are an Or or And relational
-                if base_rule:
-                    
-                    # Return the minimum of the difference vector for rule
-                    return min(diff_vector)
+                # Return max of difference array for each point of And rule
+                else: 
+                    return np.nanmax(diff_vector)
+            
+            # Perform following commands if rule is not an Or or And relational
+            else:
                 
-                # Peform the following commands if at least one argument is an
-                # Or or And relational
+                # Make a copy of the inequality
+                rule_copy = copy.deepcopy(rule)
+                
+                # Gather free symbols of the inequality
+                symbs = rule.free_symbols
+                
+                # Loop through each free symbol
+                for symb in symbs:
+                    
+                    # Get index in the discipline's outputs of the free symbol
+                    ind = self.d['outs'].index(symb)
+                    
+                    # Substitute output value into free symbol of rule copy
+                    rule_copy=rule_copy.subs(symb,self.d['tested_outs'][i,ind])
+                
+                # Check if the rule copy is true
+                if rule_copy:
+                    
+                    # Return a not a number value
+                    return np.nan
+                
+                # Perform the following commands if the rule copy is not true
                 else:
                     
-                    # Return the minimum of the difference vector for Or rule
-                    if isinstance(rule, sp.Or): return min(diff_vector)
+                    # Determine difference between lhs and rhs of rule
+                    diff = abs(self.d['out_ineqs'][rule][i] - rule.rhs)
                     
-                    # Return the maximum of the difference vector for And rule
-                    else: return max(diff_vector)
-                
-            # Perform commands to find the difference of actual expression
-            else:
-                
-                # Gather left- and right-hand side of inequality
-                lhs = rule.lhs
-                rhs = rule.rhs
-                
-                # Loop through each output variable of the discipline
-                for var in self.d['outs']:
+                    # Check if normalized difference is complex
+                    if np.ptp(self.d['out_ineqs'][rule]) == 0:
+                        
+                        # Return the non-normalized difference
+                        return diff
                     
-                    # Gather index of the symbol in the discipline's outputs
-                    index = self.d['outs'].index(var)
-                    
-                    # Substitute output value of variable into lhs inequality
-                    lhs = lhs.subs(var,self.d['tested_outs'][i,index])
-                
-                # Assign distance to propper index of argument vector
-                diff = abs(lhs - rhs)
-                
-                # Return the difference of the output from the rule
-                return diff
+                    # Normalize difference w/range of all values seen by rule
+                    ndiff = diff / np.ptp(self.d['out_ineqs'][rule])
+                        
+                    # Return normalized absolute difference of lhs and rhs
+                    return ndiff
         
-        # Loop through each NEW design point in the output space
-        for i in range(outputStart(self.d,'Fail_Amount'),\
-                       np.shape(self.d['tested_outs'])[0]):
+        # Loop through each NEW design point
+        for i in range(outputStart(self.d,'Fail_Amount'),len(self.d['pass?'])):
             
-            # Check if output point is already passing
+            # Check if point is already passing
             if self.d['pass?'][i] == True:
                 
-                self.d['Fail_Amount'].append(0.0)
-                
-            # Peform following commands if the output point is not passing
+                # Append 0 to the failure amount vector
+                self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'],0.0)
+            
+            # Perform the following commands if the point is not passing
             else:
                 
-                # Create a numpy vector the same length as the output rules
+                # Initialize a numpy vector the same length as the rules
                 true_val_diff = np.zeros(len(self.outr))
                 
                 # Loop through each output rule
                 for rule in self.outr:
                     
-                    # Get difference between calculated value and rule
-                    true_val_diff[self.outr.index(rule)] = \
-                        get_output_diff(rule,i)
+                    # Determine the normalized difference that point fails rule
+                    true_val_diff[self.outr.index(rule)]=get_output_diff(rule,i)
                 
-                # Calculate the RMSD for the set of relevant output rules
-                ### Need to normalize this eventually!!!
-                rmsd = math.sqrt(sum(np.square(true_val_diff))/len(true_val_diff))
+                # Calculate the NRMSD for the set of relevant output rules
+                nrmsd = np.sqrt(np.sum(np.square(true_val_diff))/len(true_val_diff))
                 
-                # Append the RMSD value to the fail amount list
-                self.d['Fail_Amount'].append(rmsd)
-        
-        # Return the discipline's dictionary with updated failure amount values
+                # Append the NRMSD value to the failure amount vector
+                self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'],nrmsd)
+                
+        # Return updated dictionary with normalized failure amounts
         return self.d
     
-    
-    # Distance of point from passing constraints
-    def failAmount(self):
-        
-        # Loop through each NEW design point in the output space
-        for i in range(outputStart(self.d,'Fail_Amount'),\
-                       np.shape(self.d['tested_outs'])[0]):
-            
-            # Check if output point is already passing
-            if self.d['pass?'][i] == True:
-                
-                self.d['Fail_Amount'].append(0.0)
-                
-            # Peform following commands if the output point is not passing
-            else:
-                
-                i
-                
-        return self.d
+
+

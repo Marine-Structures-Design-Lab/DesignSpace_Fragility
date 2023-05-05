@@ -46,39 +46,6 @@ class checkSpace:
         return
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     def createClusters(self, n_clusters=2):
         """
         Clusters the data in a dictionary using various clustering methods,
@@ -150,7 +117,9 @@ class checkSpace:
                 # Graph in the objective space...add objective rules as lines?
                 if np.shape(self.d[i]['tested_outs'])[1] >= 2:
                     fig, ax = plt.subplots(figsize=(8, 6))
-                    ax.scatter(reduced_data[:, 0], reduced_data[:, 1], c=labels[j], cmap='nipy_spectral', label=label_names[j])
+                    ax.scatter(reduced_data[:, 0], reduced_data[:, 1],\
+                               c=labels[j], cmap='nipy_spectral',\
+                                   label=label_names[j])
                     if np.shape(self.d[i]['tested_outs'])[1] == 2:
                         ax.set_xlabel(self.d[i]['outs'][0], fontsize=12)
                         ax.set_ylabel(self.d[i]['outs'][1], fontsize=12)
@@ -161,25 +130,32 @@ class checkSpace:
                     plt.tick_params(axis='y', which='major', labelsize=12)
                 else:
                     fig, ax = plt.subplots(figsize=(8, 2))
-                    ax.scatter(reduced_data[:, 0], np.zeros_like(reduced_data[:, 0]), c=labels[j], cmap='nipy_spectral', label=label_names[j])
+                    ax.scatter(reduced_data[:, 0],\
+                               np.zeros_like(reduced_data[:, 0]), c=labels[j],\
+                                   cmap='nipy_spectral', label=label_names[j])
                     plt.gca().axes.get_yaxis().set_visible(False)
                     ax.set_xlabel(self.d[i]['outs'][0], fontsize=12)
                     plt.tick_params(axis='x', which='major', labelsize=12)
                 
                 plt.grid(True)
-                plt.title("Discipline "+str(i+1)+" Failed Outputs - "+label_names[j])
+                plt.title("Discipline "+str(i+1)+" Failed Outputs - "+\
+                          label_names[j])
                 plt.show()
                 
                 # Graph in the input space - Need to adjust above for 3D space
-                # and have scatter plot 1 2 or 3 depend on the data provided - Check that axis labels are correct for each discipline
+                # and have scatter plot 1 2 or 3 depend on the data provided - 
+                # Check that axis labels are correct for each discipline
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection='3d')
-                ax.scatter(reduced_data_in[:, 0], reduced_data_in[:, 1], reduced_data_in[:,2], c=labels[j], cmap='nipy_spectral', label=label_names[j])
+                ax.scatter(reduced_data_in[:, 0], reduced_data_in[:, 1],\
+                           reduced_data_in[:,2], c=labels[j],\
+                               cmap='nipy_spectral', label=label_names[j])
                 ax.set_xlabel(self.d[i]['ins'][0], fontsize=12)
                 ax.set_ylabel(self.d[i]['ins'][1], fontsize=12)
                 ax.set_zlabel(self.d[i]['ins'][2], fontsize=12)
                 plt.grid(True)
-                plt.title("Discipline "+str(i+1)+" Failed Inputs - "+label_names[j])
+                plt.title("Discipline "+str(i+1)+" Failed Inputs - "+\
+                          label_names[j])
         
         # Return a dictionary of the clustered results
         return dict_clusters
@@ -189,6 +165,20 @@ class checkSpace:
 
         
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

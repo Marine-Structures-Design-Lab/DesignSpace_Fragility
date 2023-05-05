@@ -9,7 +9,13 @@ joeyvan@umich.edu
 """
 
 """
-FUNCTION
+LIBRARIES
+"""
+import numpy as np
+
+
+"""
+FUNCTIONS
 """
 def createKey(key,Dict):
     """
@@ -32,5 +38,19 @@ def createKey(key,Dict):
     
     if key not in Dict:
         Dict[key] = []
+    
+    return Dict
+
+def createDict(key,Dict):
+    
+    if key not in Dict:
+        Dict[key] = {}
+    
+    return Dict
+
+def createNumpy(key,Dict):
+    
+    if key not in Dict:
+        Dict[key] = np.array([])
     
     return Dict

@@ -36,7 +36,6 @@ class exploreSpace:
         self.rt = run_time
         return
     
-    # Commit a fixed amount of time to exploration based on time remaining
     def fixedExplore(self):
         """
         Description

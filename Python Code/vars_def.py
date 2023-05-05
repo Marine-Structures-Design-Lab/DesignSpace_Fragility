@@ -19,6 +19,7 @@ LIBRARIES
 """
 import sympy as sp
 
+
 """
 CLASS
 """
@@ -28,12 +29,12 @@ class setProblem:
         pass
     
     def SBD1(self):
-        '''
+        """
         Description
         -----------
         Creates the list of dictionaries and set of rules for Set-Based Design
         Problem 1.  Important to make sure that all dictionary values are
-        contained within a list regardless of it it is only a single value.
+        contained within a list regardless of if it is only a single value.
         
         Parameters
         ----------
@@ -44,14 +45,14 @@ class setProblem:
         [discip1, discip2, discip3] : List of dictionaries
             Contains sympy inputs, outputs, and expressions for each individual
             discipline of the particular design problem
-        input_rules : List of class objects
+        input_rules : List of sympy relationals
             The initial set of input constraints/rules that each discipline
             must abide by when determining designs to test in the input space
-        output_rules : List of class objects
+        output_rules : List of sympy relationals
             The initial set of output constraints/rules that each discipline
             must abide by when determining if tested designs produce passing
             outputs in the objective space
-        '''
+        """
         
         # Create sympy input and output variables
         x = sp.symbols('x:6')
@@ -80,23 +81,22 @@ class setProblem:
                      x[0]**(1/3) - sp.cos(3*x[4]) - y[4]],
         }
         
-        ### ALL VARIABLES OF RULE MUST BE ON LEFT HAND SIDE OF INEQUALITY
-        ### FREE-STANDING NUMBERS SHOULD BE ON THE RIGHT HAND SIDE
-        ### CAN ONLY HAVE SYMPY AND, OR RELATIONALS
-        # Create initial input rules for the design problem
-        input_rules = []
-        for i in range(0,len(x)):
-            input_rules.append(sp.And(x[i]>=0.0,x[i]<=1.0))
-            
-        # Create initial output rules for the design problem
-        output_rules = []
-        output_rules.append(sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4), sp.And(y[0]>=1.2,y[0]<=1.6)))
-        output_rules.append(sp.And(y[1]>=0.5,y[1]<=0.7))
-        output_rules.append(sp.And(y[2]>=0.2,y[2]<=0.5))
-        output_rules.append(sp.And(y[3]>=0.0,y[3]<=0.5))
-        output_rules.append(sp.And(y[4]>=0.8,y[4]<=1.6))
+        # Create a list for the initial input rules
+        ### ALL VARIABLES OF INEQUALITY MUST BE ON LEFT-HAND SIDE
+        ### FREE-STANDING NUMBERS MUST BE ON THE RIGHT HAND SIDE
+        ### CAN ONLY HAVE SYMPY AND/OR RELATIONALS
+        input_rules = [sp.And(x[i] >= 0.0, x[i] <= 1.0) for i in range(len(x))]
         
-        # Return each discipline's dictionary for SBD1 problem and rules lists
+        # Create a list for the initial output rules
+        ### SAME STRUCTURE AS THE OUTPUT RULES
+        output_rules = [sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4),\
+                              sp.And(y[0]>=1.2,y[0]<=1.6)),
+                        sp.And(y[1]>=0.5,y[1]<=0.7),
+                        sp.And(y[2]>=0.2,y[2]<=0.5),
+                        sp.And(y[3]>=0.0,y[3]<=0.5),
+                        sp.And(y[4]>=0.8,y[4]<=1.6)]
+
+        # Return discipline dictionaries for SBD1 problem and rule lists
         return [discip1, discip2, discip3], input_rules, output_rules
     
     # Can define other problems similar to as was done for the SBD1 problem...

@@ -32,10 +32,11 @@ from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
-from get_constraints import getConstraints
-from create_key import createKey
+from get_constraints import getConstraints, getInequalities
+from create_key import createKey, createDict, createNumpy
 from input_vals import getInput
 from output_vals import getOutput
+from calc_rules import calcRules
 from output_success import checkOutput
 #from save_data import save_dicts_to_files
 
@@ -50,7 +51,7 @@ problem_name = 'SBD1'
 ### This value determines the number of loop iterations that will be executed,
 ### but it does not necessarily mean each point tested will only take one
 ### iteration to complete.
-iters_max = 4    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -100,6 +101,7 @@ while iters < iters_max:
     ############ SPACE REDUCTIONS / FRAGILITY ##############
     # Add any new input rules to the list
     Input_Rules += irules_new
+    # THIS IS WHERE I'D MANIPULATE THE INPUT VALUES TOO IF DESIRED
     
     # Reset the input rules to an empty list
     irules_new = []
@@ -108,8 +110,8 @@ while iters < iters_max:
     # Call to exploration_check method and return list of all proposed
     # reductions without having merged any together
     space_check = checkSpace(Discips)
-    #if iters > 0:
-        #Clusters = space_check.createClusters(force_reduction_max)
+    # if iters > 0:
+    #     Clusters = space_check.createClusters(force_reduction_max)
         
     irules_new = [] # Placeholder...change empty list to checkSpace method call
     
@@ -217,34 +219,45 @@ while iters < iters_max:
         input_rules, input_indices = \
             getConstraints(Discips[i]['ins'],Input_Rules)
         
-        # Create a key for tested inputs of discipline if does not exist
+        # Create a key for tested inputs of discipline if it does not exist
         Discips[i] = createKey('tested_ins',Discips[i])
         
         # Get input points according to the desired strategy
         inppts = getInput(Discips[i],input_rules,temp_amount,i)
         Discips[i] = inppts.getUniform()
         
-        # Create a key for tested outputs of discipline if does not exist
+        # Create a key for tested outputs of discipline if it does not exist
         Discips[i] = createKey('tested_outs',Discips[i])
         
         # Get output points from equations or black-box programs
         outpts = getOutput(Discips[i])
         Discips[i] = outpts.getValues()
         
+        # Create a key for the output rule inequalities relevant to discipline
+        Discips[i] = createDict('out_ineqs',Discips[i])
+        
         # Determine current output value rules for the discipline to meet
         output_rules, output_indices = \
             getConstraints(Discips[i]['outs'],Output_Rules)
+        
+        # Gather any new inequalities of relevance to the discipline
+        Discips[i] = getInequalities(Discips[i],output_rules,'out_ineqs')
+        
+        # Calculate left-hand side of output rule inequality for each new point
+        Discips[i]['out_ineqs'] = calcRules(Discips[i],\
+                                            'out_ineqs','tested_outs','outs')
 
-        # Create a key for passing and failing of outputs if does not exist
+        # Create a key for passing and failing of outputs if it does not exist
         Discips[i] = createKey('pass?',Discips[i])
         
-        # Create a key for extent of passing/failing if does not exist?
-        Discips[i] = createKey('Fail_Amount',Discips[i])
-        
-        # Check whether the output points pass or fail and by how much
+        # Check whether the output points pass or fail
         outchk = checkOutput(Discips[i],output_rules)
         Discips[i] = outchk.basicCheck()
-        #Discips[i] = outchk.failAmount()
+        
+        # Create a key for extent of passing/failing if it does not exist?
+        Discips[i] = createNumpy('Fail_Amount',Discips[i])
+        
+        # Determine the extent to which failing points fail
         Discips[i] = outchk.rmsFail()
     
     # Increase the time count

@@ -22,6 +22,7 @@ class test_exploration_amount(unittest.TestCase):
         """
         Unit tests for the fixedExplore method
         """
+        
         ind = exploreSpace(0,100,[2,3,4])
         self.assertEqual(ind.fixedExplore(),20)
         ind = exploreSpace(20,100,[2,3,4])
