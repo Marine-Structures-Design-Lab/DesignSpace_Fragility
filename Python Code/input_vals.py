@@ -1,6 +1,6 @@
 """
 SUMMARY:
-Provides different algorithms for producing random points to be tested in a
+Provides different algorithms for producing points to be tested in a
 discipline's input space.  All input values must fall within the presently
 allowed constraints.  All input points of this class are assumed to be
 normalized variables initially falling within the 0 to 1 range.
@@ -26,16 +26,14 @@ class getInput:
         Parameters
         ----------
         discip : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, and an empty or partially filled list
-            of tested input points
+            Contains various key-value pairs associated with the current 
+            details of the particular discipline
         input_rules : List of symbolic inequalities
-            A condensed list of rules that the particular discipline passed
-            to this method must consider
+            A condensed list of rules that the particular discipline considers
         iters : Integer
             The desired amount of time iterations to produce input points
         i : Integer
-            Identification of the discipline number for which input points are
+            Identification of the discipline index for which input points are
             being produced
         """
         self.d = discip
@@ -50,7 +48,7 @@ class getInput:
         -----------
         Produces uniform random values for each normalized input variable and
         commits to the point produced when it is determined that it abides by
-        the current set of all set rules/constraints
+        the current set of all established input rules
         
         Parameters
         ----------
@@ -59,9 +57,8 @@ class getInput:
         Returns
         -------
         self.d : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, and a partially or completely filled
-            list of tested input points
+            The same dictionary now updated with any new input points from
+            exploration for evaluation
         """
         
         # Initialize counting variables
@@ -127,7 +124,7 @@ class getInput:
         self.d['tested_ins'] = \
             np.reshape(self.d['tested_ins'],(-1,len(self.d['ins'])))
         
-        # Return new dictionary with uniform random input points to be tested
+        # Return new dictionary with uniform random input points
         return self.d
     
     # ACTUAL SAMPLING LIBRARIES...SEE scipy.stats.qmc

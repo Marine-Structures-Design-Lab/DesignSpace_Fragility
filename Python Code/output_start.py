@@ -21,27 +21,34 @@ def outputStart(discip,key):
     """
     Description
     -----------
-    Simple function for returning the beginning index where a loop evaluating
-    output values should begin
+    Returns the beginning index where a loop evaluating output values should
+    begin
 
     Parameters
     ----------
     discip : dictionary
-        The complete dictionary of sympy inputs, sympy outputs, sympy
-        expressions, execution time, and a partially filled list of tested
-        output points that coincides with the input points
+        Contains various key-value pairs associated with the current details of
+        the particular discipline
     key : string
-        The particular key of the discipline to assess for its length
+        The particular key of the discipline to assess for its size
 
     Returns
     -------
     start : integer
-        Index where further output value calculations/assessment should begin
+        Index where further output value assessment should begin
     """
     
+    # Check if discipline values of key are empty
     if len(discip[key]) == 0:
+        
+        # Start assessment at the first index
         start = 0
+        
+    # Perform following command if values of key are not empty
     else:
+        
+        # Start assessment at one index beyond the amound of rows present
         start = np.shape(discip[key])[0]
     
+    # Return the starting index
     return start

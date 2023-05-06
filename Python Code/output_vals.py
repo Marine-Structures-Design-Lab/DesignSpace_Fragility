@@ -27,21 +27,19 @@ class getOutput:
         Parameters
         ----------
         discip : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, tested input points, and an empty or
-            partially filled list of calculated output points
+            Contains various key-value pairs associated with the current 
+            details of the particular discipline
         """
         self.d = discip
         return
     
-    # Calculate the outputs of each input point with provided equation(s)
     def getValues(self):
         """
         Description
         -----------
         Calculates the output values based on the provided input values and
-        equations and then assigns those values to the proper numpy indices as
-        part of the "tested_outs" key
+        equations and then assigns those values to the proper numpy indices in
+        the "tested_outs" key
         
         Parameters
         ----------
@@ -50,9 +48,8 @@ class getOutput:
         Returns
         -------
         self.d : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, and a completely filled list of tested
-            output points that coincides with the input points
+            The same dictionary now updated with new output values as
+            calculated from the input points and provided equations
         """
         
         # Loop through each NEW design point in the input space

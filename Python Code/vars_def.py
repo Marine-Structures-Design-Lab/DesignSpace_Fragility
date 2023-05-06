@@ -19,7 +19,6 @@ LIBRARIES
 """
 import sympy as sp
 
-
 """
 CLASS
 """
@@ -83,12 +82,12 @@ class setProblem:
         
         # Create a list for the initial input rules
         ### ALL VARIABLES OF INEQUALITY MUST BE ON LEFT-HAND SIDE
-        ### FREE-STANDING NUMBERS MUST BE ON THE RIGHT HAND SIDE
+        ### FREE-STANDING NUMBERS MUST BE ON THE RIGHT-HAND SIDE
         ### CAN ONLY HAVE SYMPY AND/OR RELATIONALS
         input_rules = [sp.And(x[i] >= 0.0, x[i] <= 1.0) for i in range(len(x))]
         
         # Create a list for the initial output rules
-        ### SAME STRUCTURE AS THE OUTPUT RULES
+        ### SAME STRUCTURE AS THE INPUT RULES
         output_rules = [sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4),\
                               sp.And(y[0]>=1.2,y[0]<=1.6)),
                         sp.And(y[1]>=0.5,y[1]<=0.7),

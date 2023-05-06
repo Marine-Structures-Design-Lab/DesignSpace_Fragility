@@ -13,11 +13,11 @@ LIBRARIES
 from input_vals import getInput
 from vars_def import setProblem
 from create_key import createKey
-from var_rule import varRule
 from get_constraints import getConstraints
 import unittest
 import copy
 import numpy as np
+import sympy as sp
 
 """
 CLASSES
@@ -29,6 +29,7 @@ class test_input_vals(unittest.TestCase):
         Establish dictionaries for each discipline and rules as object
         definitions
         """
+        
         # Set up the initial list of dictionaries for each discipline and rules
         prob = setProblem()
         self.Discips1, self.Input_Rules, self.Output_Rules = prob.SBD1()
@@ -37,8 +38,8 @@ class test_input_vals(unittest.TestCase):
         for i in range(0,len(self.Discips1)):
             self.Discips1[i]['time'] = i+2
         
-        # Create a copy of each discipline and give the copy a partially filled
-        ### list of input values
+        # Create copy of each discipline and give it a partially filled list of
+        # inputs
         self.Discips2 = copy.deepcopy(self.Discips1)
         for i in range(0,len(self.Discips2)):
             self.Discips1[i] = createKey('tested_ins',self.Discips1[i])
@@ -47,13 +48,9 @@ class test_input_vals(unittest.TestCase):
                                                 len(self.Discips2[i]['ins'])))
         
         # Create an impossible list of rules to satisfy
-        self.Input_Rules_bad = []
-        self.Input_Rules_bad.append(varRule(['x1<0.0,x1>1.0']))
-        self.Input_Rules_bad.append(varRule(['x2<0.0,x2>1.0']))
-        self.Input_Rules_bad.append(varRule(['x3<0.0,x3>1.0']))
-        self.Input_Rules_bad.append(varRule(['x4<0.0,x4>1.0']))
-        self.Input_Rules_bad.append(varRule(['x5<0.0,x5>1.0']))
-        self.Input_Rules_bad.append(varRule(['x6<0.0,x6>1.0']))
+        x = sp.symbols('x:6')
+        self.Input_Rules_bad =\
+            [sp.And(x[i] < 0.0, x[i] > 1.0) for i in range(len(x))]
         
         # Initialize test disciplines
         self.Dtest1 = [None]*len(self.Discips1)
@@ -84,6 +81,7 @@ class test_input_vals(unittest.TestCase):
         """
         Unit tests for the getUniform method
         """
+        
         # Loop through each discipline
         for i in range(0,len(self.Discips1)):
             

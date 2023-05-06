@@ -2,8 +2,7 @@
 SUMMARY:
 Takes the calculated output values and assesses whether or not they meet the
 current set of constraints/rules.  If they do not meet the rules, then it
-provides different methods for assessing the extent to which this failure
-occurs.
+provides the opportunity to assess the extent to which this failure occurs.
 
 CREATOR:
 Joseph B. Van Houten
@@ -17,8 +16,6 @@ from output_start import outputStart
 import numpy as np
 import sympy as sp
 import copy
-import math
-
 
 """
 CLASS
@@ -30,14 +27,11 @@ class checkOutput:
         Parameters
         ----------
         discip : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, tested input points, calculated
-            output points, and an empty or partially filled boolean list that
-            checks whether output rules/constraints are passed
+            Contains various key-value pairs associated with the current 
+            details of the particular discipline
         output_rules : List of symbolic inequalities
             A condensed list of rules that will dictate whether the output
-            values of the particular discipline passed to this method pass or
-            fail
+            values of the particular discipline pass or fail
         """
         self.d = discip
         self.outr = output_rules
@@ -59,10 +53,8 @@ class checkOutput:
         Returns
         -------
         self.d : Dictionary
-            The complete dictionary of sympy inputs, sympy outputs, sympy
-            expressions, execution time, tested input points, calculated
-            output points, and a completely filled boolean list that checks
-            whether output rules/constraints are passed
+            The same dictionary now updated with new boolean values indicating
+            passing or failing based on the corresponding output values
         """
         
         # Loop through each NEW design point in the output space
@@ -85,7 +77,7 @@ class checkOutput:
             # Append boolean value to the proper dictionary key
             self.d['pass?'].append(all(rules_copy))
             
-        # Return new dictionary with boolean pass? values
+        # Return new dictionary with boolean values
         return self.d
     
     # Determine the normalized rmsd of output points that fail from each rule

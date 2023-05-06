@@ -13,7 +13,6 @@ LIBRARIES
 from output_vals import getOutput
 from vars_def import setProblem
 from create_key import createKey
-from get_constraints import getConstraints
 import unittest
 import copy
 import numpy as np
@@ -28,6 +27,7 @@ class test_output_vals(unittest.TestCase):
         Establish dictionaries for each discipline and rules as object
         definitions
         """
+        
         # Set up the initial list of dictionaries for each discipline and rules
         prob = setProblem()
         self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
@@ -77,6 +77,7 @@ class test_output_vals(unittest.TestCase):
         """
         Unit tests for the getValues method
         """
+        
         # Loop through each discipline
         for i in range(0,len(self.Discips)):
             

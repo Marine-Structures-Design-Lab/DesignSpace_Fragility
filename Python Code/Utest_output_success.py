@@ -28,6 +28,7 @@ class test_output_success(unittest.TestCase):
         Establish dictionaries for each discipline and rules as object
         definitions
         """
+        
         # Set up the initial list of dictionaries for each discipline and rules
         prob = setProblem()
         self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
@@ -65,6 +66,7 @@ class test_output_success(unittest.TestCase):
         """
         Unit tests for the basicCheck method
         """
+        
         # Loop through each discipline
         for i in range(0,len(self.Discips)):
         
@@ -78,6 +80,20 @@ class test_output_success(unittest.TestCase):
             # Check that there is NOT determination of old "pass?" values
             self.assertTrue\
                 (all(j is None for j in self.Discips1[i]['pass?'][0:10]))
+    
+    def test_rms_fail(self):
+        """
+        Unit tests for the rmsFail method
+        """
+        
+        return
+    
+    def test_get_output_diff(self):
+        """
+        Unit tests for the get_output_diff nested method
+        """
+        
+        return
             
     # Other methods
         

@@ -12,7 +12,6 @@ LIBRARIES
 """
 from get_constraints import getConstraints
 from vars_def import setProblem
-import sympy as sp
 import unittest
 
 """
@@ -27,8 +26,7 @@ class test_get_constraints(unittest.TestCase):
         """
         
         prob = setProblem()
-        self.Discips, self.Input_Rules, self.Output_Rules = \
-            getattr(prob,'SBD1')()
+        self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
     
     def test_get_constaints(self):
         """
@@ -36,49 +34,51 @@ class test_get_constraints(unittest.TestCase):
         """
         
         self.assertEqual(getConstraints(self.Discips[0]['ins'],\
-                                        self.Input_Rules)[0],\
+                                        self.Input_Rules),\
                          [self.Input_Rules[0],\
                           self.Input_Rules[1],\
                           self.Input_Rules[2]])
-        self.assertEqual(getConstraints(self.Discips[0]['ins'],\
-                                        self.Input_Rules)[1],[0,1,2])
         
         self.assertEqual(getConstraints(self.Discips[1]['ins'],\
-                                        self.Input_Rules)[0],\
+                                        self.Input_Rules),\
                          [self.Input_Rules[2],\
                           self.Input_Rules[3],\
                           self.Input_Rules[4]])
-        self.assertEqual(getConstraints(self.Discips[1]['ins'],\
-                                        self.Input_Rules)[1],[2,3,4])
         
         self.assertEqual(getConstraints(self.Discips[2]['ins'],\
-                                        self.Input_Rules)[0],\
+                                        self.Input_Rules),\
                          [self.Input_Rules[0],\
                           self.Input_Rules[4],\
                           self.Input_Rules[5]])
-        self.assertEqual(getConstraints(self.Discips[2]['ins'],\
-                                        self.Input_Rules)[1],[0,4,5])
         
         self.assertEqual(getConstraints(self.Discips[0]['outs'],\
-                                        self.Output_Rules)[0],\
+                                        self.Output_Rules),\
                          [self.Output_Rules[0]])
-        self.assertEqual(getConstraints(self.Discips[0]['outs'],\
-                                        self.Output_Rules)[1],[0])
         
         self.assertEqual(getConstraints(self.Discips[1]['outs'],\
-                                        self.Output_Rules)[0],\
+                                        self.Output_Rules),\
                          [self.Output_Rules[1],\
                           self.Output_Rules[2]])
-        self.assertEqual(getConstraints(self.Discips[1]['outs'],\
-                                        self.Output_Rules)[1],[1, 2])
         
         self.assertEqual(getConstraints(self.Discips[2]['outs'],\
-                                        self.Output_Rules)[0],\
+                                        self.Output_Rules),\
                          [self.Output_Rules[3],\
                           self.Output_Rules[4]])
-        self.assertEqual(getConstraints(self.Discips[2]['outs'],\
-                                        self.Output_Rules)[1],[3, 4])
+    
+    def test_get_Inequalities(self):
+        """
+        Unit tests for the getInequalities function
+        """
         
+        return
+    
+    def test_extract_inequality(self):
+        """
+        Unit tests for the extract_inequality nested function
+        """
+        
+        return
+
 """
 SCRIPT
 """

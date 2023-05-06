@@ -48,9 +48,9 @@ USER INPUTS
 problem_name = 'SBD1'
 
 # Establish the allowed timeline for exploring the design problem
-### This value determines the number of loop iterations that will be executed,
-### but it does not necessarily mean each point tested will only take one
-### iteration to complete.
+### This value determines the number of time iterations that will be executed,
+### but it does not necessarily mean each explored point tested will only take
+### one iteration to complete.
 iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
@@ -77,18 +77,18 @@ force_reduction_max = 10
 """
 COMMANDS
 """
-# Establish dictionaries for the design problem of interest
+# Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
 
-# Assign the user inputted run time to each discipline
+# Assign the user input run time to each discipline
 for i in range(0,len(run_time)):
     Discips[i]['time'] = run_time[i]
 
-# Create an empty list of object calls for new rules to be added
+# Create an empty list for new rules to be added
 irules_new = []
 
 # Set the initial forced reduction value to false and establish a counter
@@ -101,7 +101,6 @@ while iters < iters_max:
     ############ SPACE REDUCTIONS / FRAGILITY ##############
     # Add any new input rules to the list
     Input_Rules += irules_new
-    # THIS IS WHERE I'D MANIPULATE THE INPUT VALUES TOO IF DESIRED
     
     # Reset the input rules to an empty list
     irules_new = []
@@ -210,14 +209,14 @@ while iters < iters_max:
     # Determine the amount of time/iterations for disciplines to explore
     space_amount = exploreSpace(iters,iters_max,run_time)
     temp_amount = space_amount.fixedExplore()
-    print(temp_amount)
+    print("Current Exploration Time: " + str(temp_amount) +\
+          ", Total Exploration Time: " + str(temp_amount+iters))
     
     # Loop through each discipline (maintaining each of their independence)
     for i in range(0,len(Discips)):
         
         # Determine current input value rules for the discipline to meet
-        input_rules, input_indices = \
-            getConstraints(Discips[i]['ins'],Input_Rules)
+        input_rules = getConstraints(Discips[i]['ins'],Input_Rules)
         
         # Create a key for tested inputs of discipline if it does not exist
         Discips[i] = createKey('tested_ins',Discips[i])
@@ -237,8 +236,7 @@ while iters < iters_max:
         Discips[i] = createDict('out_ineqs',Discips[i])
         
         # Determine current output value rules for the discipline to meet
-        output_rules, output_indices = \
-            getConstraints(Discips[i]['outs'],Output_Rules)
+        output_rules = getConstraints(Discips[i]['outs'],Output_Rules)
         
         # Gather any new inequalities of relevance to the discipline
         Discips[i] = getInequalities(Discips[i],output_rules,'out_ineqs')
