@@ -12,8 +12,9 @@ LIBRARIES
 """
 from output_success import checkOutput
 from vars_def import setProblem
-from create_key import createKey
-from get_constraints import getConstraints
+from create_key import createKey, createDict, createNumpy
+from get_constraints import getConstraints, getInequalities
+from calc_rules import calcRules
 import unittest
 import numpy as np
 import copy
@@ -39,28 +40,53 @@ class test_output_success(unittest.TestCase):
             # Create new keys
             self.Discips[i] = createKey('tested_outs',self.Discips[i])
             self.Discips[i] = createKey('pass?',self.Discips[i])
-            
-            # Add output values to all disciplines in dictionary
-            ### As well as partially filled "pass?" values
-            self.Discips[i]['tested_outs'] = \
-                np.random.rand(20,len(self.Discips[i]['outs']))
-            self.Discips[i]['pass?'] = [None]*10
+        
+        # Add output values to each dictionary
+        self.Discips[0]['tested_outs'] = np.array([[0.1],
+                                                   [0.5]])
+        self.Discips[1]['tested_outs'] = np.array([[0.6, 0.3],
+                                                   [0.65, 1.1]])
+        self.Discips[2]['tested_outs'] = np.array([[0.2, 1.1],
+                                                   [-0.4, 2.2]])
         
         # Create copy of the dictionary
         self.Discips1 = copy.deepcopy(self.Discips)
+        self.Discips2 = copy.deepcopy(self.Discips)
         
         # Loop through each discipline
         for i in range(0,len(self.Discips)):
+            
+            # Add partially filled "pass?" values to dictionary
+            self.Discips1[i]['pass?'] = [None]
+            
+            # Create a key for the output rule inequalities relevant to discipline
+            self.Discips2[i] = createDict('out_ineqs',self.Discips2[i])
             
             # Get output rules
             output_rules = getConstraints(self.Discips1[i]['outs'],\
                                           self.Output_Rules)
             
+            # Gather any new inequalities of relevance to the discipline
+            self.Discips2[i] =\
+                getInequalities(self.Discips2[i],output_rules,'out_ineqs')
+            
+            # Calculate left-hand side of output rule inequality for each point
+            self.Discips2[i]['out_ineqs'] =\
+                calcRules(self.Discips2[i],'out_ineqs','tested_outs','outs')
+            
             # Initialize object for each discipline
             outchk = checkOutput(self.Discips1[i],output_rules)
+            outchk2 = checkOutput(self.Discips2[i],output_rules)
+            
+            # Create a key for extent of passing/failing if it does not exist
+            self.Discips2[i] = createNumpy('Fail_Amount',self.Discips2[i])
             
             # Produce new discipline
             self.Discips1[i] = outchk.basicCheck()
+            self.Discips2[i] = outchk2.basicCheck()
+            
+            # Determine the extent to which failing points fail
+            self.Discips2[i] = outchk2.rmsFail()
             
     def test_basic_check(self):
         """
@@ -71,31 +97,33 @@ class test_output_success(unittest.TestCase):
         for i in range(0,len(self.Discips)):
         
             # Check that there is NOT rewriting of previous "pass?" values
-            self.assertEqual(self.Discips1[i]['pass?'][0:10],\
-                             self.Discips[i]['pass?'])
+            self.assertEqual(self.Discips1[i]['pass?'][0],None)
             
             # Check that there is determination of new "pass?" values
-            self.assertTrue(len(self.Discips1[i]['pass?']) == 20)
+            self.assertTrue(len(self.Discips1[i]['pass?']) == 2)
             
-            # Check that there is NOT determination of old "pass?" values
-            self.assertTrue\
-                (all(j is None for j in self.Discips1[i]['pass?'][0:10]))
+            # Check that the pass? values produced are correct
+            self.assertListEqual(self.Discips2[i]['pass?'],[True,False])
     
     def test_rms_fail(self):
         """
         Unit tests for the rmsFail method
         """
         
-        return
-    
-    def test_get_output_diff(self):
-        """
-        Unit tests for the get_output_diff nested method
-        """
+        # Write out expected normalized root mean square answers
+        exp_ans = [np.array([0.0,0.25]),
+                   np.array([0.0,0.53033008588991]),
+                   np.array([0.0,0.60908337097702])]
+        
+        # Loop through each discipline
+        for i in range(0,len(self.Discips2)):
+            
+            # Check if calculated NRMSD is almost equal to expected values
+            np.testing.assert_array_almost_equal\
+                (self.Discips2[i]['Fail_Amount'],exp_ans[i])
         
         return
-            
-    # Other methods
+    
         
 """
 SCRIPT

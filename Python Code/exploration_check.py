@@ -5,8 +5,6 @@ each discipline, proposing space reductions, and potentially adjusting the
 threshold of criteria that dictate whether a space reduction is ready to be
 proposed.
 
-i.e. clustering, rough sets
-
 CREATOR:
 Joseph B. Van Houten
 joeyvan@umich.edu
@@ -17,32 +15,18 @@ LIBRARIES
 """
 import numpy as np
 import sympy as sp
-import math
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, SpectralClustering, AgglomerativeClustering
 from sklearn.decomposition import PCA
-from scipy.optimize import minimize
 
 """
 CLASS
 """
-# Have each discipline assess design space for potential space reductions
 class checkSpace:
     
     # Initialize the class
     def __init__(self,Discips):
         self.d = Discips
-        return
-    
-    # Partition the design space for possible space reductions
-    def getPartitions(self):
-        
-        
-        
-        # Propose zero order partitions first and then first order ones
-        # Second order ones can be added later if really necessary
-        
-        # Return the list of all the rules being proposed
         return
     
     
@@ -61,6 +45,8 @@ class checkSpace:
 
         Returns:
         None
+        
+        LET IT CHOOSE THE DATA TO CREATE CLUSTERS WITH AS ANOTHER ARGUMENT!!!
         """
         
         # Create an empty list for clustered dictionaries of each dsicipline
@@ -160,88 +146,87 @@ class checkSpace:
         # Return a dictionary of the clustered results
         return dict_clusters
     
+    # Partition the design space for possible space reductions
+    def getPartitions(self):
+        # Create an empty list the same length as the disciplines
+        ineq_list = [None] * len(self.d)
+    
+        # Loop through each discipline
+        for i in range(0, len(self.d)):
+            # Create a nested list within the discipline the same length as the input variables
+            ineq_list[i] = [None] * len(self.d[i]['ins'])
+    
+            # Loop through each input variable of the discipline
+            for var in self.d[i]['ins']:
+                threshold = None
+                max_sum = -np.inf
+    
+                # Convert input points to a numpy array
+                tested_ins = np.array(self.d[i]['tested_ins'])
+    
+                # Loop through each input point of the discipline
+                for j, point in enumerate(tested_ins):
+                    if not self.d[i]['pass?'][j]:
+                        temp_threshold = point[self.d[i]['ins'].index(var)]
+                        mask = tested_ins[:, self.d[i]['ins'].index(var)] > temp_threshold
+                        temp_list = np.array(self.d[i]['pass?'])[mask]
+                        temp_failures = np.array(self.d[i]['Fail_Amount'])[mask]
+    
+                        if not any(temp_list) and sum(temp_failures) > max_sum:
+                            max_sum = sum(temp_failures)
+                            threshold = temp_threshold
+    
+                inequality = sp.Gt(var, threshold)
+                if inequality == NotImplemented:
+                    inequality = None
+    
+                # Add inequality to list
+                ineq_list[i][self.d[i]['ins'].index(var)] = inequality
+    
+        return ineq_list
 
-
-
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            # Allow one more variable to be allowed in the proposed partition(s)
+            # than what the forced reduction counter is currently at
+            
+            # First order equations only
+            
+            # When we have tried all combos of 3 variables in the equations, restart
+            # the process over but allow for a higher percentage of passing
+            # points to be allowed in the space that is going to be reduced
+            
+            
         
+        
+        
+        
+        
+        
+        
+        # What is needed to go through with a reduction after partition(s) found:
+            # - Kernel density function does not fall below a certain value in that space
+            # - Less than a certain percentage of successful points are found in that space
+        
+        
+        
+        
+        
+        
+        
+        
+        # Return the list of all the rules being proposed
+        return []
+    
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # Cluster all data that has been explored
-    ### Find centroid of clusters then create a best fit line between them?
-    ### Create cluster groups for passing data sets and failing data sets that
-    ### create these clusters based on how MUCH (variance) each set passes or fails
-    
-    
-    # Print a graph of clustered data and centroids and zero/first/second order
-    # lines that are dividing the clusters
-    
-    
-    
-    
-    
-    
-    
-    # Manual rule addition
-    
-    # Clustering for reduction propositions...turn clusters into first/second order
-    # rules?
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # Loop through each discipline
-    
-    # Another method for setting the criteria for reducing a design space?
-    
-    # I need to run a separate clustering algorithm on groups of input data that
-    ### definitely pass, kind of pass/fail, and definitely fail
-    
-    # Some sort of clustering algorithms that changes its parameter based on iterations
-    ### and iterations that remain
-    
-    # Some sort of rough set theory algorithm?
-    
-    # Need to establish some sort of criteria for what is enough to actually propose a reduction
-    
-    # Return a list with None if no space reductions to propose
-    
-    # Another method in this class that is called if no reductions to determine
-    # if design manager thinks it is necessary to actually have a reduction
-    
-    # Another method for reducing the criteria for a reduction
     
     

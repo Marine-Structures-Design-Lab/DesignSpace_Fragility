@@ -72,11 +72,14 @@ fragility_max = 5   # Must be a positive integer!
 
 # Decide the number of forced reductions to be attempted before minimizing any
 # criteria for a space reduction to be proposed
-force_reduction_max = 10
+force_reduction_max = 5
 
 """
 COMMANDS
 """
+###############################################################################
+################################ PROBLEM SETUP ################################
+###############################################################################
 # Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
@@ -97,8 +100,9 @@ force_reduction_counter = 0
 
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
-    
-    ############ SPACE REDUCTIONS / FRAGILITY ##############
+    ###########################################################################
+    ####################### SPACE REDUCTIONS / FRAGILITY ######################
+    ###########################################################################
     # Add any new input rules to the list
     Input_Rules += irules_new
     
@@ -110,6 +114,9 @@ while iters < iters_max:
     # reductions without having merged any together
     space_check = checkSpace(Discips)
     # if iters > 0:
+    #     irules_new =\
+    #         space_check.getPartitions()
+    #     print(irules_new)
     #     Clusters = space_check.createClusters(force_reduction_max)
         
     irules_new = [] # Placeholder...change empty list to checkSpace method call
@@ -204,8 +211,9 @@ while iters < iters_max:
     
     
     
-    
-    ############ EXPLORATION ##############
+    ###########################################################################
+    ############################### EXPLORATION ###############################
+    ###########################################################################
     # Determine the amount of time/iterations for disciplines to explore
     space_amount = exploreSpace(iters,iters_max,run_time)
     temp_amount = space_amount.fixedExplore()
@@ -252,7 +260,7 @@ while iters < iters_max:
         outchk = checkOutput(Discips[i],output_rules)
         Discips[i] = outchk.basicCheck()
         
-        # Create a key for extent of passing/failing if it does not exist?
+        # Create a key for extent of passing/failing if it does not exist
         Discips[i] = createNumpy('Fail_Amount',Discips[i])
         
         # Determine the extent to which failing points fail
@@ -266,8 +274,6 @@ while iters < iters_max:
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
 
-# Save my dictionary data
-#save_dicts_to_files(Discips, 'Discip.csv', 'Discip.xlsx')
 
 
 # Choose the final design or the final group of designs

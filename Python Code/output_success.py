@@ -16,6 +16,7 @@ from output_start import outputStart
 import numpy as np
 import sympy as sp
 import copy
+import math
 
 """
 CLASS
@@ -80,11 +81,57 @@ class checkOutput:
         # Return new dictionary with boolean values
         return self.d
     
-    # Determine the normalized rmsd of output points that fail from each rule
+    
     def rmsFail(self):
+        """
+        Description
+        -----------
+        Calculates the normalized root mean square difference of calculated
+        output points to each relevant rule of the discipline and returns those
+        values as part of a numpy vector in the discipline's "Fail_Amount" key
+        
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        self.d : Dictionary
+            The same dictionary now updated with new failure amounts for all of
+            the output points that have been calculated thus far
+        """
         
         # Get difference in calculated outputs to failing rule
         def get_output_diff(rule,i):
+            """
+            Description
+            -----------
+            A recursive function that calls itself until the rule being passed
+            to it is a sympy inequality rather than an And or Or relational so
+            that the normalized difference of a point to the base inequality
+            can be calculated and evaluated further if it rests within a sympy
+            relational before being returned for the root-mean square
+            difference equation
+
+            Parameters
+            ----------
+            rule : Sympy relational/inequality
+                Either a sympy And or Or relational or a sympy inequality
+                depending on how far the function has gotten within the
+                (potentially nested) rule
+            i : Integer
+                Index of design point that is being assessed
+
+            Returns
+            -------
+            np.nan, diff, ndiff, or max/min(diff_vector) : Float
+                All the different values that can be returned depending on
+                where the rule falls within all of the nested if/else
+                statements, where all of these variables (except np.nan)
+                represent a difference of the right-hand side of a rule to the
+                left-hand side of the rule after an output point's values are
+                substituted in for the proper variables
+            """
             
             # Check if rule is an Or or And relational
             if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
@@ -99,12 +146,10 @@ class checkOutput:
                     diff_vector[rule.args.index(arg)] = get_output_diff(arg,i)
                 
                 # Return min of difference array for each point of Or rule
-                if isinstance(rule, sp.Or):
-                    return np.nanmin(diff_vector)
+                if isinstance(rule, sp.Or): return np.nanmin(diff_vector)
                 
                 # Return max of difference array for each point of And rule
-                else: 
-                    return np.nanmax(diff_vector)
+                else: return np.nanmax(diff_vector)
             
             # Perform following commands if rule is not an Or or And relational
             else:
@@ -127,7 +172,7 @@ class checkOutput:
                 # Check if the rule copy is true
                 if rule_copy:
                     
-                    # Return a not a number value
+                    # Return not a number
                     return np.nan
                 
                 # Perform the following commands if the rule copy is not true
@@ -136,8 +181,8 @@ class checkOutput:
                     # Determine difference between lhs and rhs of rule
                     diff = abs(self.d['out_ineqs'][rule][i] - rule.rhs)
                     
-                    # Check if normalized difference is complex
-                    if np.ptp(self.d['out_ineqs'][rule]) == 0:
+                    # Check if calculated rule values have a range of 0
+                    if math.isclose(np.ptp(self.d['out_ineqs'][rule]), 0.0):
                         
                         # Return the non-normalized difference
                         return diff
@@ -154,23 +199,29 @@ class checkOutput:
             # Check if point is already passing
             if self.d['pass?'][i] == True:
                 
-                # Append 0 to the failure amount vector
+                # Append 0.0 to the failure amount vector
                 self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'],0.0)
             
             # Perform the following commands if the point is not passing
             else:
                 
                 # Initialize a numpy vector the same length as the rules
-                true_val_diff = np.zeros(len(self.outr))
+                tv_diff = np.zeros(len(self.outr))
                 
                 # Loop through each output rule
                 for rule in self.outr:
                     
                     # Determine the normalized difference that point fails rule
-                    true_val_diff[self.outr.index(rule)]=get_output_diff(rule,i)
+                    tv_diff[self.outr.index(rule)] = get_output_diff(rule,i)
+                
+                # Identify any instances of not a number
+                nan_mask = np.isnan(tv_diff)
+                
+                # Replace any instance of not a number with 0
+                tv_diff[nan_mask] = 0.0
                 
                 # Calculate the NRMSD for the set of relevant output rules
-                nrmsd = np.sqrt(np.sum(np.square(true_val_diff))/len(true_val_diff))
+                nrmsd = np.sqrt(np.sum(np.square(tv_diff))/len(tv_diff))
                 
                 # Append the NRMSD value to the failure amount vector
                 self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'],nrmsd)
@@ -178,5 +229,3 @@ class checkOutput:
         # Return updated dictionary with normalized failure amounts
         return self.d
     
-
-
