@@ -17,6 +17,7 @@ import numpy as np
 import sympy as sp
 import copy
 import math
+import warnings
 
 """
 CLASS
@@ -144,6 +145,10 @@ class checkOutput:
                     
                     # Call the function again and assign its value to vector
                     diff_vector[rule.args.index(arg)] = get_output_diff(arg,i)
+                
+                # Turn off the warning messages for an all NaN matrix/vector
+                warnings.filterwarnings\
+                    ('ignore', 'All-NaN (slice|axis) encountered')
                 
                 # Return min of difference array for each point of Or rule
                 if isinstance(rule, sp.Or): return np.nanmin(diff_vector)
