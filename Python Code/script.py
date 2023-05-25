@@ -28,8 +28,12 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from vars_def import setProblem
+from uniform_grid import uniformGrid
+from exponential_reduction import plotExponential
+from point_sorter import sortPoints
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
+from reduction_change import changeReduction
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
 from get_constraints import getConstraints, getInequalities
@@ -38,6 +42,9 @@ from input_vals import getInput
 from output_vals import getOutput
 from calc_rules import calcRules
 from output_success import checkOutput
+import numpy as np
+import sympy as sp
+import copy
 
 """
 USER INPUTS
@@ -58,6 +65,12 @@ iters_max = 100    # Must be a positive integer!
 ### OPTIONS: Uniform, LHS (eventually),...
 sample = 'uniform'
 
+# Decide the approximate number of points that you want to use to estimate the
+### space remaining in each discipline - more points will increase execution
+### time of program but provide more accurate approximations of space remaining
+### following any space reductions
+total_points = 1000
+
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
 ### number of disciplines/equations there are in the design problem
@@ -73,6 +86,23 @@ fragility_max = 5   # Must be a positive integer!
 # criteria for a space reduction to be proposed
 force_reduction_max = 5
 
+# Set exponential function parameters dictating minimum space reduction pace
+exp_parameters = np.array(\
+    [0.2,  # p1: x-intercept (0 <= p1 < p3)
+     5.0,  # p2: Steepness (any real, positive number)
+     0.9,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
+     0.9]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
+
+# Set initial values for creating and evaluating the suitability of partitions
+# ERROR ON THE SIDE OF STARTING THESE LOW AND HAVING ADJUST CRITERIA ALTER THEM
+part_params = {
+    "cdf_crit": 0.1,
+    "fail_crit": 0.0,
+    "dist_crit": 0.4,
+    "disc_crit": 0.5
+    }
+
+
 """
 COMMANDS
 """
@@ -86,9 +116,23 @@ Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
 
-# Assign the user input run time to each discipline
-for i in range(0,len(run_time)):
+# Loop through each discipline
+for i in range(0,len(Discips)):
+    
+    # Assign run time to each discipline
     Discips[i]['time'] = run_time[i]
+    
+    # Assign default partition parameters to each discipline
+    Discips[i]['part_params'] = copy.deepcopy(part_params)
+    
+    # Initialize a force reduction boolean value and counter to each discipline
+    Discips[i]['force_reduction'] = [False, 0]
+    
+    # Initialize an array for estimating the space remaining for the discipline
+    Discips[i]['space_remaining'], tp_actual = uniformGrid(total_points,len(Discips[i]['ins']))
+
+# Print a visual of the space reduction goal to see if okay with it...function call
+plotExponential(exp_parameters)
 
 # Create an empty list for new rules to be added
 irules_new = []
@@ -97,40 +141,58 @@ irules_new = []
 force_reduction = False
 force_reduction_counter = 0
 
+irules2_new = []
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
     ###########################################################################
     ####################### SPACE REDUCTIONS / FRAGILITY ######################
     ###########################################################################
     # Add any new input rules to the list
+    if iters > 0 and irules2_new: Discips = sortPoints(Discips, irules2_new)
     Input_Rules += irules_new
+    
+    # Need something to re-sort any tested inputs/outputs that are eliminated
+    # by the space reduction into a disposed of array within the discipline
+    # "available" and "eliminated" START BACK UP HERE!!!! THEN MERGECONSTRAINTS!!!!
     
     # Reset the input rules to an empty list
     irules_new = []
     
     # Determine if any disciplines want to propose a space reduction
-    # Call to exploration_check method and return list of all proposed
-    # reductions without having merged any together
     if iters > 0:
         
         # Loop through each disicipline
         for i in range(0,len(Discips)):
             
             # Initialize and object for the checkSpace class
-            space_check = checkSpace(Discips[i]['ins'], max_depth=4)
+            space_check = checkSpace(Discips[i]['ins'], max_depth=2)
+            
+            # Produce array of "good" and "bad" values based on CDF threshold
+            gb_array = space_check.goodBad(Discips[i]['Fail_Amount'], Discips[i]['part_params']['cdf_crit'])
             
             # Build the decision tree
-            space_check.buildTree(Discips[i]['tested_ins'],Discips[i]['tested_outs'])
+            space_check.buildTree(Discips[i]['tested_ins'], gb_array)
             
-            # Gather the inequalities from the decision tree
-            irules_new = space_check.extract_decision_rules()
-        
-        
+            # Gather inequalitie(s) from the decision tree as a potential rule
+            pot_rules = space_check.extractRules(Discips[i]['tested_ins'], gb_array)
+            
+            # Check if the rule meets the current criteria to be proposed
+            rule_check = space_check.reviewPartitions(\
+                Discips[i]['tested_ins'], pot_rules,\
+                Discips[i]['Fail_Amount'],\
+                Discips[i]['part_params']['fail_crit'],\
+                Discips[i]['part_params']['dist_crit'],\
+                Discips[i]['part_params']['disc_crit'])
+            
+            # Add potential rule to the new rule list if it meets the criteria
+            if rule_check:
+                irules_new.append(space_check.prepareRule(pot_rules))
     
     # Placeholder while I am working on getPartitions
+    if irules_new: irules2_new = copy.deepcopy(irules_new)
     irules_new = []
     
-    # Check if new input rules list is empty or not
+    # Check if new input rules list is filled with any rules
     if irules_new:
         
         # If list not empty, merge proposed reduction(s) together into a
@@ -190,19 +252,27 @@ while iters < iters_max:
         ##### exploration section below
                 
     
-    ### If not, determine if the time remaining paired with the design space
+    ### If no rules, determine if time remaining paired with the design space
     ### remaining warrants a space reduction to be forced
-    ### Call to different method in exploration_check
     else:
         
-        # If list is empty, determine if a space reduction should be forced
-        # based on the time and design spaces that remain
-        force_reduction = False # Placeholder...change boolean to checkSpace method call
+        # Create an object for the changeReduction class
+        red_change = changeReduction(Discips)
         
-        ##### If space reduction should be forced, adjust each discipline's criteria for proposing a space
-        ##### reduction and return to the top of this sequence
-        if force_reduction:
-            pass # Placeholder...change to checkSpace method call to adjust criteria
+        # Estimate the space remaining in each discipline
+        space_rem = red_change.estimateSpace(tp_actual)
+        
+        # Check if a space reduction should be forced
+        Discips = red_change.forceReduction(space_rem, iters, iters_max, exp_parameters)
+        
+        # Perform the following commands if a space reduction should be forced
+        if any(dictionary.get("force_reduction", False)[0] == True\
+               for dictionary in Discips):
+            
+            # Adjust the criteria for the necessary discipline(s)
+            Discips = red_change.adjustCriteria()
+            
+            
             # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
             force_reduction_counter += 1 # This counter is not needed in the fragility loop
             # because a forced reduction will not leave the fragility loop until
@@ -274,11 +344,17 @@ while iters < iters_max:
         
         # Determine the extent to which failing points fail
         Discips[i] = outchk.rmsFail()
+        
+        # Reset discipline's reduction counter to 0 and criteria to defaults
+        Discips[i]['force_reduction'][1] = 0
+        Discips[i]['part_params'] = copy.deepcopy(part_params)
+        
+        # Reset force reduction to False?
     
     # Increase the time count
     iters += temp_amount
     
-    # Reset the reduction count to 0
+    # Reset the reduction counter to 0
     force_reduction_counter = 0
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?

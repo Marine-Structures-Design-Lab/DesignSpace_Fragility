@@ -22,11 +22,27 @@ class mergeConstraints:
         self.rn = rules_new
         return
     
-    # A method for evaluating how well other disciplines may perceive reduction
-    ### requests of another discipline?
+    # Minimum merge method - redundant
     
-    # Different methods/strategies for how the design manager may want to
-    ### merge all of the constraint requests into one cohesive bunch especially
-    ### when there is conflict of propositions or same variable propositions
     
-    # Returns the combined list of cohesive rules
+    
+    
+    
+    
+    
+    
+    
+    
+    # No dominance until at least 50% of spaces have been eliminated
+    ### One option is to have the requests pop up with stats and I decide
+    ### Or program decides with stats
+    ### Stats: How many disciplines are requesting what vs. the other
+    ### How each side would be affected by the other discipline's proposal
+    
+    
+    ### Could call a getInput method here...but not have it be a uniform method
+    ### Could also do this for the fragility or other methods that may need to
+    ### search points further
+    
+    
+    

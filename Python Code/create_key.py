@@ -102,3 +102,11 @@ def createNumpy(key,Dict):
     
     # Return the same dictionary with a potentially new key
     return Dict
+
+def createNumpy2(key,Dict,cols):
+    
+    if key not in Dict:
+        
+        Dict[key] = np.empty((0,cols))
+        
+    return Dict
