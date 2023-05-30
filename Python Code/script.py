@@ -43,7 +43,6 @@ from output_vals import getOutput
 from calc_rules import calcRules
 from output_success import checkOutput
 import numpy as np
-import sympy as sp
 import copy
 
 """
@@ -97,9 +96,9 @@ exp_parameters = np.array(\
 # ERROR ON THE SIDE OF STARTING THESE LOW AND HAVING ADJUST CRITERIA ALTER THEM
 part_params = {
     "cdf_crit": 0.1,
-    "fail_crit": 0.0,
-    "dist_crit": 0.4,
-    "disc_crit": 0.5
+    "fail_crit": 0.4,
+    "dist_crit": 0.8,
+    "disc_crit": 0.8
     }
 
 
@@ -187,6 +186,11 @@ while iters < iters_max:
             # Add potential rule to the new rule list if it meets the criteria
             if rule_check:
                 irules_new.append(space_check.prepareRule(pot_rules))
+    
+    # Use the minimum merger to merge all rule constraints
+    rule_merger = mergeConstraints(irules_new)
+    irules_new = rule_merger.minMerge()
+    print(irules_new)
     
     # Placeholder while I am working on getPartitions
     if irules_new: irules2_new = copy.deepcopy(irules_new)

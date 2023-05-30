@@ -166,6 +166,9 @@ class checkSpace:
     # Check the uniformity of points in the space I am looking at spacifically
     def reviewPartitions(self, X, rules, fail_amount, fail_crit, dist_crit, disc_crit):
         
+        if not rules:
+            return False
+        
         def filter_points_within_bounds(X, fail_amount, inequalities):
             # Initialize a boolean array indicating whether each point is within the bounds
             is_within_bounds = np.ones(X.shape[0], dtype=bool)

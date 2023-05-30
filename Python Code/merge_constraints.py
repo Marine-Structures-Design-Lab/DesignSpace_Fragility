@@ -12,6 +12,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
+import sympy as sp
 
 """
 CLASS
@@ -22,7 +23,32 @@ class mergeConstraints:
         self.rn = rules_new
         return
     
-    # Minimum merge method - redundant
+    # Minimum merge method
+    def minMerge(self):
+        
+        # Convert all rules to Or
+        rules = [rule if rule.func == sp.Or else sp.Or(rule) for rule in self.rn]
+    
+        # Initialize list of non-redundant rules
+        non_redundant_rules = []
+    
+        for i, rule1 in enumerate(rules):
+            redundant = False
+            for j, rule2 in enumerate(rules):
+                if i != j:
+                    # Check if rule1 is implied by rule2
+                    implies = sp.simplify(sp.Implies(rule2, rule1))
+                    if implies is True:
+                        redundant = True
+                        break
+    
+            if not redundant:
+                non_redundant_rules.append(rule1)
+    
+        return non_redundant_rules
+    
+    # Save dominance for the fragility framework???
+    
     
     
     
