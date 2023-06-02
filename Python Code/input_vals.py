@@ -42,6 +42,7 @@ class getInput:
         self.i = i
         return
     
+    
     def getUniform(self):
         """
         Description

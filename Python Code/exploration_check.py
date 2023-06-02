@@ -1,9 +1,6 @@
 """
 SUMMARY:
-Contains methods with different strategies for checking the design spaces of
-each discipline, proposing space reductions, and potentially adjusting the
-threshold of criteria that dictate whether a space reduction is ready to be
-proposed.
+
 
 CREATOR:
 Joseph B. Van Houten
@@ -15,28 +12,347 @@ LIBRARIES
 """
 import numpy as np
 import sympy as sp
-#from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.tree import _tree
 from scipy.stats import qmc
 from scipy.spatial import cKDTree
-#import matplotlib.pyplot as plt
+#from sklearn.model_selection import train_test_split
+# import matplotlib.pyplot as plt
+# from sklearn import tree
+
+"""
+TERTIARY FUNCTION
+"""
+def recurse(tree_, node, cur_p, feature_names, paths, bad_tot, bad_frac, X, y):
+    """
+    Description
+    -----------
+    Cycles through the child nodes of the decision tree until the leaf nodes
+    are reached and creates a list of inequalities defining each branch from
+    the root node to the leaf node while also determing the amount of "bad"
+    points within each branch
+
+    Parameters
+    ----------
+    tree_ : Tree
+        A decision tree that has been trained
+    node : Integer
+        Current node ID of the decision tree
+    cur_p : List of sympy inequalities
+        Represents the current path from the root node to the current node of
+        the decision tree
+    feature_names : List of sympy symbols
+        All of the input variables within the discipline's control
+    paths : List of lists
+        Contains all of the sympy inequalities defining each path
+    bad_tot : List of integers
+        A count of the total number of "bad" points in each leaf node
+    bad_frac : List of floats
+        The fraction of "bad" points to total points in each leaf node
+    X : Numpy array
+        Feature input data for which decision tree rules are being extracted
+    y : Numpy vector
+        Feature output data for which decision tree rules are being extracted
+
+    Returns
+    -------
+    None - Updates the mutable lists of paths, bad_tot, and bad_frac without
+    needing to return any of them
+    """
+    
+    # Check if the current node is not a leaf node (i.e. no child nodes)
+    if tree_.feature[node] != _tree.TREE_UNDEFINED:
+        
+        # Gather x-variable and decision threshold for current decision node
+        feature = feature_names[tree_.feature[node]]
+        threshold = tree_.threshold[node]
+        
+        # Create inequalities using the feature and threshold
+        less_than_or_equal = sp.Le(feature, threshold)
+        greater_than = sp.Gt(feature, threshold)
+        
+        # Call the recurse function on itself for the child nodes
+        recurse(tree_, tree_.children_left[node], \
+                cur_p + [less_than_or_equal], feature_names, paths, \
+                bad_tot, bad_frac, X, y)
+        recurse(tree_, tree_.children_right[node], \
+                cur_p + [greater_than], feature_names, paths, \
+                bad_tot, bad_frac, X, y)
+    
+    # Perform the following commands if the current node is a leaf node
+    else:
+        
+        # Add the current decision path to the list of paths
+        paths.append(cur_p)
+        
+        # Create a boolean array where "True" values indicate samples in X that
+        ### fall within the current leaf node's partition
+        partition_indices = tree_.apply(X) == node
+        
+        # Count the total number of points within the current partition
+        total_count = np.sum(partition_indices)
+        
+        # Count the number of "bad" points in the partition
+        bad_total = np.sum(y[partition_indices] == 'bad')
+        
+        # Append the number of "bad" points in the partition to bad_tot list
+        bad_tot.append(bad_total)
+        
+        # Calculate the fraction of "bad" points in the partition
+        bad_fraction = bad_total / total_count if total_count != 0 else 0
+        
+        # Add the calculated fraction to the bad_counts list
+        bad_frac.append(bad_fraction)
+
+
+"""
+SECONDARY FUNCTIONS
+"""
+# Convert decision tree to a list of sympy inequalities
+def getInequalities(tree, feature_names, X, y):
+    """
+    Description
+    -----------
+    Gathers all of the inequalities for each path of the decision tree along
+    with statistics on the total number and fraction of bad points within the
+    space defined by each path
+    
+    Parameters
+    ----------
+    tree : Tree
+        A decision tree that has been trained
+    feature_names : List of sympy symbols
+        All of the input variables within the discipline's control
+    X : Numpy array
+        Feature input data for which decision tree rules are being extracted
+    y : Numpy vector
+        Feature output data for which decision tree rules are being extracted
+
+    Returns
+    -------
+    paths : Nested list of sympy inequalities
+        Each nested list contains all of the inequalities that define a branch
+        of the decision tree
+    bad_tot : List of integers
+        The total number of "bad" points located in each branch of the decision
+        tree
+    bad_frac : List of floats
+        The fraction of "bad" points to total points in each branch of the
+        decision tree
+    """
+    
+    # Initialize empty lists (mutable objects) for inequalities and bad points
+    paths = []
+    bad_tot = []
+    bad_frac = []
+    
+    # Call the recurse function from the decision tree's initial root node
+    recurse(tree.tree_, 0, [], feature_names, paths, bad_tot, bad_frac, X, y)
+    
+    # Return mutable lists for decision tree paths and "bad" variable counts
+    return paths, bad_tot, bad_frac
+
+
+def redundantIneqs(inequalities):
+    """
+    Description
+    -----------
+    Checks if any inequalities of the decision tree's extracted rule describe
+    any overlapping regions, and if so, simplifies those inequalities into a
+    single inequality describing the redundant space
+
+    Parameters
+    ----------
+    inequalities : List of sympy inequalities
+        The inequalities describing the area of the design space the decision
+        tree is suggesting be removed
+
+    Returns
+    -------
+    unique_ineqs : List of sympy inequalities
+        The same inequalities but with potential redundancies removed
+    """
+    
+    # Create a dictionary for storing max and min thresholds of each variable
+    thresholds = {}
+    
+    # Loop through each inequality in the list of inequalities
+    for inequality in inequalities:
+        
+        # Get the variable and the threshold
+        variable = inequality.lhs
+        threshold = inequality.rhs
+        
+        # Check if variable not already been defined in thresholds dictionary
+        if variable not in thresholds:
+            
+            # Check if inequality has a greater than sign
+            if inequality.rel_op == '>':
+                
+                # Assign the threshold to the maximum value for the variable
+                thresholds[variable] = {'min': None, 'max': threshold}
+                
+            # Perform the following command for the less than or equal to sign
+            else:
+                
+                # Assign the threshold to the minimum value for the variable
+                thresholds[variable] = {'min': threshold, 'max': None}
+        
+        # Perform following commands if variable has been defined in dictionary
+        else:
+            
+            # Check if inequality has a greater than sign and if the max
+            ### threshold is none or the new threshold is greater than the
+            ### current max threshold
+            if inequality.rel_op == '>' and \
+                (thresholds[variable]['max'] is None or \
+                 threshold > thresholds[variable]['max']):
+                    
+                # Assign new threshold to maximum threshold for variable
+                thresholds[variable]['max'] = threshold
+                
+            # Check if inequality has a less than or equal to sign and if the
+            ### min threshold is none or the new threshold is less than the
+            ### current min threshold
+            elif inequality.rel_op == '<=' and \
+                (thresholds[variable]['min'] is None or \
+                 threshold < thresholds[variable]['min']):
+                
+                # Assign new threshold to minimum threshold for variable
+                thresholds[variable]['min'] = threshold
+
+    # Create an empty unique inequalities list
+    unique_ineqs = []
+    
+    # Loop through each variable in the thresholds dictionary
+    for variable, bounds in thresholds.items():
+        
+        # Check if the variable's min bound is not none
+        if bounds['min'] is not None:
+            
+            # Append the new inequality rule to the unique inequalities list
+            unique_ineqs.append(sp.Le(variable, bounds['min']))
+            
+        # Check if the variable's max bound is not none
+        if bounds['max'] is not None:
+            
+            # Append the new inequality rule to the unique inequalities list
+            unique_ineqs.append(sp.Gt(variable, bounds['max']))
+    
+    # Return the nonredundant inequalities list
+    return unique_ineqs
+
+
+def filterPoints(X, fail_amount, inequalities, feature_names):
+    """
+    Description
+    -----------
+    Gather the input locations and failure amounts for all of the tested input
+    points meeting all of the inequalities of the potential rule
+
+    Parameters
+    ----------
+    X : Numpy array
+        Feature input data for which decision tree inequalities are being
+        evaluated
+    fail_amount : Numpy vector
+        Failure amounts of output data to output rules corresponding to
+        featured input data
+    inequalities : List of sympy inequalities
+        The inequalities describing the area of the design space the decision
+        tree is suggesting be removed
+    feature_names : List of sympy symbols
+        All of the input variables within the discipline's control
+
+    Returns
+    -------
+    X_within_bounds : Numpy array
+        Filtered X-data satisfying all the inequalities
+    FA_within_bounds : TYPE
+        Filtered failure amount data satisfying all the inequalities
+    """
+    
+    # Initialize an empty boolean array of True values for points within bounds
+    is_within_bounds = np.ones(X.shape[0], dtype=bool)
+
+    # Loop through each inequality of potential rule
+    for inequality in inequalities:
+        
+        # Determine input variable index and threshold of inequality
+        var_index = feature_names.index(inequality.lhs)
+        threshold = float(inequality.rhs)
+        
+        # Check if inequality has a greater than sign
+        if inequality.rel_op == '>':
+            
+            # Check each remaining True value to see if input point meets the
+            ### bound of the newest greater than inequality
+            is_within_bounds = np.logical_and(is_within_bounds, \
+                                              X[:, var_index] > threshold)
+        
+        # Perform the following command for less than or equal to inequality
+        else:
+            
+            # Check each remaining True value to see if input point meets the
+            ### bound of the newest less than or equal to inequality
+            is_within_bounds = np.logical_and(is_within_bounds, \
+                                              X[:, var_index] <= threshold)
+    
+    
+    # Filter the input points satisfying all inequalities
+    X_within_bounds = X[is_within_bounds]
+    
+    # Filter the failure amount values of points satisfying all inequalities
+    FA_within_bounds = fail_amount[is_within_bounds]
+    
+    # Return the filtered input and output arrays
+    return X_within_bounds, FA_within_bounds
+
 
 """
 CLASS
 """
 class checkSpace:
     
-    # Initialize the class
     def __init__(self, variables, **kwargs):
+        """
+        Parameters
+        ----------
+        variables : List of sympy symbols
+            All of the input variables within the discipline's control
+        **kwargs : Dictionary
+            All of the keyword arguments of the decision tree classifier
+        """
         self.feature_names = variables
         self.classifier = DecisionTreeClassifier(**kwargs)
         self.inequalities = None
         return
     
     
-    # Create an array of "good" and "bad" labels for failure amounts
     def goodBad(self, values, threshold):
+        """
+        Description
+        -----------
+        Create an array of "good" and "bad" labels based on the user-
+        initialized cdf threshold amount for training the decision tree
+        
+        Parameters
+        ----------
+        values : Numpy array
+            The failure amount values being used to make the "good" and "bad"
+            labels for each data point
+        threshold : Float
+            The discipline specific decimal value that determines what fraction
+            of points are to be labeled "bad" vs. "good" at the particular
+            moment in time
+
+        Returns
+        -------
+        labels : Numpy array
+            A one-dimensional vector containing a "good" or "bad" label that
+            corresponds to the same indices of the discipline's tested points
+            thus far
+        """
         
         # Sort the failure amount values
         cdf_values = np.sort(values)
@@ -56,13 +372,38 @@ class checkSpace:
         return labels
     
     
-    # Train and show the decision tree
     def buildTree(self, X, y, test_size=0.3, random_state=1):
+        """
+        Description
+        -----------
+        Builds the decision tree with the data provided while also providing
+        options to separate data into train and testing sets in case the
+        decision tree needs to be tested as well as visualizing the decision
+        tree with a tree diagram
+
+        Parameters
+        ----------
+        X : Numpy array
+            The coordinates of the input points being used as input data to
+            train the decision tree
+        y : Numpy vector
+            The vector of "good" and "bad" values being used as output data to
+            train the decision tree
+        test_size : Float, optional
+            The fraction of the data set to use for testing instead of training
+        random_state : Integer, optional
+            The seed to use for randomization of training vs. testing data to
+            help replicate results
+
+        Returns
+        -------
+        None - The self.classifier variable is reestablished but not returned
+        """
         
         # Assign points to the training and testing lists
-        # X_train, X_test, y_train, y_test =\
-        #     train_test_split(X, y, test_size=test_size, random_state=random_state,)
-            
+        #X_train, X_test, y_train, y_test = train_test_split\
+        #    (X, y, test_size=test_size, random_state=random_state, )
+        
         # Train the decision tree classifier
         self.classifier = self.classifier.fit(X, y)
         # self.classifier = self.classifier.fit(X_train, y_train)
@@ -76,124 +417,68 @@ class checkSpace:
         return
     
     
-    # Extract inequalities from the decision tree for the new rule proposal
     def extractRules(self, X, y):
-        
-        def tree_to_inequalities(tree, feature_names, X, y):
-            
-            def recurse(node, current_path):
-                if tree_.feature[node] != _tree.TREE_UNDEFINED:
-                    feature = feature_symbols[tree_.feature[node]]
-                    threshold = tree_.threshold[node]
-                    
-                    # Create inequalities
-                    less_than_or_equal = sp.Le(feature, threshold)
-                    greater_than = sp.Gt(feature, threshold)
-                    
-                    # Recurse on child nodes
-                    recurse(tree_.children_left[node], current_path + [less_than_or_equal])
-                    recurse(tree_.children_right[node], current_path + [greater_than])
-                else:
-                    paths.append(current_path)
-                    
-                    # Count 'bad' points in the partition
-                    partition_indices = tree.apply(X) == node
-                    bad_count = np.sum(y[partition_indices] == 'bad')
-                    bad_counts.append(bad_count)
-            
-            """ Convert a decision tree to a list of sympy inequalities """
-            tree_ = tree.tree_
-            feature_symbols = self.feature_names
-            
-            paths = []
-            bad_counts = []
-            
-            recurse(0, [])
-            
-            return paths, bad_counts
-        
-        def remove_redundant_inequalities(inequalities):
-            
-            # Create a dictionary to store the maximum and minimum thresholds for each variable
-            thresholds = {}
-        
-            for inequality in inequalities:
-                
-                # Get the variable and the threshold
-                variable = str(inequality.lhs)
-                threshold = inequality.rhs
-        
-                if variable not in thresholds:
-                    if inequality.rel_op == '>':
-                        thresholds[variable] = {'min': None, 'max': threshold}
-                    else:  # inequality.rel_op == '<='
-                        thresholds[variable] = {'min': threshold, 'max': None}
-                else:
-                    if inequality.rel_op == '>' and (thresholds[variable]['max'] is None or threshold > thresholds[variable]['max']):
-                        thresholds[variable]['max'] = threshold
-                    elif inequality.rel_op == '<=' and (thresholds[variable]['min'] is None or threshold < thresholds[variable]['min']):
-                        thresholds[variable]['min'] = threshold
-        
-            # Build the unique inequalities list
-            unique_inequalities = []
-            for variable, bounds in thresholds.items():
-                if bounds['min'] is not None:
-                    unique_inequalities.append(sp.Le(sp.Symbol(variable), bounds['min']))
-                if bounds['max'] is not None:
-                    unique_inequalities.append(sp.Gt(sp.Symbol(variable), bounds['max']))
-        
-            return unique_inequalities
+        """
+        Description
+        -----------
+        Create inequalities from the partitions of the decision tree
+        encompassing the highest fraction of "bad" points without any
+        redundancies that will be used to (potentially) propose a new rule
+
+        Parameters
+        ----------
+        X : Numpy array
+            Feature input data for which decision tree rules are being
+            extracted
+        y : Numpy vector
+            Feature output data for which decision tree rules are being
+            extracted
+
+        Returns
+        -------
+        bad_rule : List of sympy inequalities
+            Inequalities that define the unique branch of the decision tree
+            that the discipline will consider eliminating
+        """
         
         # Gather inequalities of the decision tree's nodes
-        self.inequalities, bad_counts =\
-            tree_to_inequalities(self.classifier, self.feature_names, X, y)
+        self.inequalities, bad_tot, bad_frac = \
+            getInequalities(self.classifier, self.feature_names, X, y)
         
-        # Identify the partition with the most 'bad' points
-        max_bad_index = np.argmax(bad_counts)
-        rules_for_max_bad = self.inequalities[max_bad_index]
+        # Identify the partition(s) with the highest fraction of "bad" points
+        max_index = np.where(bad_frac == np.max(bad_frac))[0].tolist()
+        
+        # Check if multiple indices having the highest fraction of "bad" points
+        if len(max_index) > 1:
+            
+            # Identify the partition with the highest total of "bad" points
+            max_index = np.argmax(np.array(bad_tot)[max_index])
+        
+        # Perform the following commands if one index with highest fraction
+        else:
+            
+            # Remove the one argument from the list
+            max_index = max_index[0]
+        
+        # Isolate the inequalities of the leaf node with the "worst" points
+        bad_rule = self.inequalities[max_index]
         
         # Remove redundant inequalities apart of the rule
-        rules_for_max_bad_unique =\
-            remove_redundant_inequalities(rules_for_max_bad)
-            
-        # Group rules into a
+        bad_rule = redundantIneqs(bad_rule)
         
-        #
-        return rules_for_max_bad_unique
+        # Return the list of non-redundant inequalities describing the rule
+        return bad_rule
+
     
-    
-    # Check the maximum distance of a point to the nearest neighbor (point in the space I am looking at or not)
-    # Check the uniformity of points in the space I am looking at spacifically
-    def reviewPartitions(self, X, rules, fail_amount, fail_crit, dist_crit, disc_crit):
+    def reviewPartitions(self, X, rule, fail_amount, \
+                         fail_crit, dist_crit, disc_crit):
         
-        if not rules:
+        # Return false if no rule being proposed by the discipline
+        if not rule:
             return False
         
-        def filter_points_within_bounds(X, fail_amount, inequalities):
-            # Initialize a boolean array indicating whether each point is within the bounds
-            is_within_bounds = np.ones(X.shape[0], dtype=bool)
-        
-            # Evaluate each inequality
-            for inequality in inequalities:
-                variable_index = self.feature_names.index(inequality.lhs)
-                threshold = float(inequality.rhs)
-        
-                if inequality.rel_op == '>':
-                    is_within_bounds = np.logical_and(is_within_bounds, X[:, variable_index] > threshold)
-                else:  # inequality.rel_op == '<='
-                    is_within_bounds = np.logical_and(is_within_bounds, X[:, variable_index] <= threshold)
-        
-            # Filter the points within the bounds
-            X_within_bounds = X[is_within_bounds]
-            
-            # Gather the "good" or "bad" values of points within bounds
-            FA_within_bounds = fail_amount[is_within_bounds]
-            
-            #
-            return X_within_bounds, FA_within_bounds
-        
         # Gather the points that meet the proposed inequalities
-        X_bounds, FA_within_bounds = filter_points_within_bounds(X, fail_amount, rules)
+        X_bounds, FA_within_bounds = filterPoints(X, fail_amount, rule, self.feature_names)
         
         # Check that fraction of points with a 0.0 failure amount value in bounds does not exceed criterion
         zero_count = np.count_nonzero(FA_within_bounds == 0)

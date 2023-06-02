@@ -83,6 +83,7 @@ fragility_max = 5   # Must be a positive integer!
 
 # Decide the number of forced reductions to be attempted before minimizing any
 # criteria for a space reduction to be proposed
+### NOT TOTALLY SURE IF THIS IS NEEDED ANYMORE!!!
 force_reduction_max = 5
 
 # Set exponential function parameters dictating minimum space reduction pace
@@ -108,6 +109,7 @@ COMMANDS
 ###############################################################################
 ################################ PROBLEM SETUP ################################
 ###############################################################################
+
 # Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
@@ -128,31 +130,32 @@ for i in range(0,len(Discips)):
     Discips[i]['force_reduction'] = [False, 0]
     
     # Initialize an array for estimating the space remaining for the discipline
-    Discips[i]['space_remaining'], tp_actual = uniformGrid(total_points,len(Discips[i]['ins']))
+    Discips[i]['space_remaining'], tp_actual =\
+        uniformGrid(total_points, len(Discips[i]['ins']))
 
-# Print a visual of the space reduction goal to see if okay with it...function call
+# Print a visual of the minimum space reduction vs. time remaining pace
 plotExponential(exp_parameters)
 
 # Create an empty list for new rules to be added
 irules_new = []
+irules2_new = [] # THIS WILL NOT BE NEEDED LATER!!!
 
 # Set the initial forced reduction value to false and establish a counter
+### THESE MAY NOT BE NEEDED LATER
 force_reduction = False
 force_reduction_counter = 0
 
-irules2_new = []
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
+    
     ###########################################################################
     ####################### SPACE REDUCTIONS / FRAGILITY ######################
     ###########################################################################
+    
     # Add any new input rules to the list
+    ### THIS WILL CHANGE LATER!!!
     if iters > 0 and irules2_new: Discips = sortPoints(Discips, irules2_new)
     Input_Rules += irules_new
-    
-    # Need something to re-sort any tested inputs/outputs that are eliminated
-    # by the space reduction into a disposed of array within the discipline
-    # "available" and "eliminated" START BACK UP HERE!!!! THEN MERGECONSTRAINTS!!!!
     
     # Reset the input rules to an empty list
     irules_new = []
@@ -167,17 +170,20 @@ while iters < iters_max:
             space_check = checkSpace(Discips[i]['ins'], max_depth=2)
             
             # Produce array of "good" and "bad" values based on CDF threshold
-            gb_array = space_check.goodBad(Discips[i]['Fail_Amount'], Discips[i]['part_params']['cdf_crit'])
+            gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
+                           Discips[i]['part_params']['cdf_crit'])
             
             # Build the decision tree
             space_check.buildTree(Discips[i]['tested_ins'], gb_array)
             
             # Gather inequalitie(s) from the decision tree as a potential rule
-            pot_rules = space_check.extractRules(Discips[i]['tested_ins'], gb_array)
+            pot_rule = space_check.extractRules(\
+                         Discips[i]['tested_ins'].astype(np.float32), gb_array)
+            print(pot_rule)
             
             # Check if the rule meets the current criteria to be proposed
             rule_check = space_check.reviewPartitions(\
-                Discips[i]['tested_ins'], pot_rules,\
+                Discips[i]['tested_ins'], pot_rule,\
                 Discips[i]['Fail_Amount'],\
                 Discips[i]['part_params']['fail_crit'],\
                 Discips[i]['part_params']['dist_crit'],\
@@ -185,12 +191,12 @@ while iters < iters_max:
             
             # Add potential rule to the new rule list if it meets the criteria
             if rule_check:
-                irules_new.append(space_check.prepareRule(pot_rules))
+                irules_new.append(space_check.prepareRule(pot_rule))
     
     # Use the minimum merger to merge all rule constraints
     rule_merger = mergeConstraints(irules_new)
     irules_new = rule_merger.minMerge()
-    print(irules_new)
+    #print(irules_new)
     
     # Placeholder while I am working on getPartitions
     if irules_new: irules2_new = copy.deepcopy(irules_new)
@@ -297,6 +303,7 @@ while iters < iters_max:
     ###########################################################################
     ############################### EXPLORATION ###############################
     ###########################################################################
+    
     # Determine the amount of time/iterations for disciplines to explore
     space_amount = exploreSpace(iters,iters_max,run_time)
     temp_amount = space_amount.fixedExplore()
