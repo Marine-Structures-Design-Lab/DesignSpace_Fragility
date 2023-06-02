@@ -179,7 +179,6 @@ while iters < iters_max:
             # Gather inequalitie(s) from the decision tree as a potential rule
             pot_rule = space_check.extractRules(\
                          Discips[i]['tested_ins'].astype(np.float32), gb_array)
-            print(pot_rule)
             
             # Check if the rule meets the current criteria to be proposed
             rule_check = space_check.reviewPartitions(\
@@ -193,10 +192,10 @@ while iters < iters_max:
             if rule_check:
                 irules_new.append(space_check.prepareRule(pot_rule))
     
-    # Use the minimum merger to merge all rule constraints
+    # Use the minimum merger to merge any redundant rules from disciplines
     rule_merger = mergeConstraints(irules_new)
     irules_new = rule_merger.minMerge()
-    #print(irules_new)
+    print(irules_new)
     
     # Placeholder while I am working on getPartitions
     if irules_new: irules2_new = copy.deepcopy(irules_new)

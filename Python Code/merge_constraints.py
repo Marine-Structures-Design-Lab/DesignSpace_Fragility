@@ -23,7 +23,7 @@ class mergeConstraints:
         self.rn = rules_new
         return
     
-    # Minimum merge method
+    # Minimum merge method - PROBABLY NEED TO ADJUST THIS AS WAS DONE IN EXPLORATION_CHECK!!
     def minMerge(self):
         
         # Convert all rules to Or

@@ -1,6 +1,15 @@
 """
 SUMMARY:
-
+This file ontains a class with methods that methodically propose an area of a
+discipline's design space for a space reduction by labeling explored points as
+"good" or "bad" depending on their failure amount values, training a decision
+tree classifier to make single-variable partitions in the design space, and
+then extracting those partitions as Sympy inequalities to work with them and
+review them further.  This file also contains secondary and tertiary functions
+located outside of the class to help each of the methods perform their tasks
+more concisely.  Some code is left commented out to allow the programmer to
+divide data into training and testing sets and plot the decision trees if they
+so desire.
 
 CREATOR:
 Joseph B. Van Houten
@@ -16,7 +25,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.tree import _tree
 from scipy.stats import qmc
 from scipy.spatial import cKDTree
-#from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 # import matplotlib.pyplot as plt
 # from sklearn import tree
 
@@ -472,55 +481,111 @@ class checkSpace:
     
     def reviewPartitions(self, X, rule, fail_amount, \
                          fail_crit, dist_crit, disc_crit):
+        """
+        Description
+        -----------
+        Evaluate various criteria within the area of the discipline's design 
+        space to be reduced to ensure that area has been reasonably explored
+        before committing to proposing the reduction
+
+        Parameters
+        ----------
+        X : Numpy array
+            Feature input data for which decision tree partitions are being
+            reviewed
+        rule : List of sympy inequalities
+            Describing the particular area of the design space that is being
+            reviewed for potential reduction
+        fail_amount : Numpy vector
+            Failure amounts of output data to established output rules
+        fail_crit : Float
+            The discipline-specific maximum fraction of feasible input points
+            allowed in the area of the design space being reviewed for removal
+        dist_crit : Float
+            The discipline-specific maximum distance of normalized points
+            within the area of the design space being reviewed for removal to
+            any tested point in the input space
+        disc_crit : Float
+            The discipline-specific maximum uniformity metric of points within
+            the area of the design space being reviewed for removal (where 0.0
+            indicates high uniformity and 1.0 indicates low uniformity)
+
+        Returns
+        -------
+        True or False
+            False returned at any point a criterion is not met, True returned
+            otherwise (meaning all criteria are met)
+        """
         
         # Return false if no rule being proposed by the discipline
         if not rule:
             return False
         
-        # Gather the points that meet the proposed inequalities
-        X_bounds, FA_within_bounds = filterPoints(X, fail_amount, rule, self.feature_names)
+        # Filter points and failure amounts that meet the proposed inequalities
+        X_bounds, FA_bounds = \
+            filterPoints(X, fail_amount, rule, self.feature_names)
         
-        # Check that fraction of points with a 0.0 failure amount value in bounds does not exceed criterion
-        zero_count = np.count_nonzero(FA_within_bounds == 0)
-        fraction = (zero_count / len(FA_within_bounds))
+        # Check that fraction of filtered points with a 0.0 failure amount
+        ### value does not exceed criterion
+        zero_count = np.count_nonzero(FA_bounds == 0.0)
+        fraction = (zero_count / len(FA_bounds))
         if fraction > fail_crit:
             return False
         
-        # Create a KDTree with all points in the design space
-        ### Train this with all passing and failing points, not just passing points at this point in time
+        # Create a KDTree that is trained with ALL points in the design space
         tree = cKDTree(X)
         
-        # Find distances of each point within bounds to nearest point in ENTIRE design space
-        ### This is where I would also want to know points that are in the fail group now
+        # Find distances of points within bounds to nearest one in ENTIRE space
         distances, _ = tree.query(X_bounds, k=2)
         
-        # The maximum distance to the nearest neighbor in the entire design space
+        # Get maximum nearest neighbor distance in the entire design space
         max_distance = np.max(distances[:, 1])
         
         # Check that max distance does not exceed criterion
         if max_distance > dist_crit:
             return False
         
-        # Normalize the input points within the bounded inequality space
+        # Check that max and min values of each input variable in X_bounds is
+        ### far enough apart such that a normalized box can form around points
         if np.any(np.isclose(np.max(X_bounds,axis=0),np.min(X_bounds,axis=0))):
             return False
         else:
+            # Normalize the input points within the bounded inequality space
             X_scaled = (X_bounds - np.min(X_bounds, axis=0)) /\
                 (np.max(X_bounds, axis=0) - np.min(X_bounds, axis=0))
         
         # Determine the uniformity of points meeting the proposed inequalities
         discrepancy = qmc.discrepancy(X_scaled)
-        # MAYBE JUST LOOK AT 
         
         # Check that discrepancy does not exceed criterion
         if discrepancy > disc_crit:
             return False
         
-        # Return True if distance and discrepancy criteria are met
+        # Return True as all criteria are met
         return True
     
     
-    def prepareRule(self, pot_rules):
+    def prepareRule(self, pot_rule):
+        """
+        Description
+        -----------
+        Flip signs of inequalities making up the potential rule and store the
+        inequalities as arguments in an Or relational so that the rule
+        describes the space still open to the discipline rather than the space
+        being eliminated
+
+        Parameters
+        ----------
+        pot_rule : List of sympy inequalities
+            Describes the particular area of the design space that is being
+            manipulated for potential reduction
+
+        Returns
+        -------
+        or_relational : Sympy relational or inequality
+            Describes the area of the design space that will remain open to the
+            discipline after elimination of the pot_rule space
+        """
         
         # Define mapping for inverse inequality signs
         inv_ops = {sp.Gt: sp.Le, sp.Lt: sp.Ge, sp.Ge: sp.Lt, sp.Le: sp.Gt}
@@ -528,8 +593,8 @@ class checkSpace:
         # Define an empty list for the new rules
         new_rules = []
         
-        # Loop through each inequality of the potential rules list
-        for ineq in pot_rules:
+        # Loop through each inequality of the potential rule list
+        for ineq in pot_rule:
             
             # Gather the inverse inequality sign of the original inequality
             inverse_op = inv_ops[type(ineq)]
@@ -537,15 +602,13 @@ class checkSpace:
             # Rewrite the inequality with the inverse inequality sign
             flipped_ineq = inverse_op(ineq.lhs, ineq.rhs)
             
-            # Append the new inequality to the potential rules list
+            # Append the new inequality to the new potential rule list
             new_rules.append(flipped_ineq)
         
         # Assign each inequality of the sub rules list as an Or argument
-        # CONSIDER ONLY DOING THIS IF THERE IS MORE THAN ONE ARGUMENT TO ADD TO OR!!!
+        ### This will simplify to the argument itself if there is only one
+        ### argument being passed to sp.Or in new_rules
         or_relational = sp.Or(*new_rules)
         
-        # Return the new rule as they sympy Or relational
+        # Return the new rule with the flipped inequality signs
         return or_relational
-
-    
-
