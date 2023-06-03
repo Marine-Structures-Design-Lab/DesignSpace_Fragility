@@ -68,7 +68,7 @@ sample = 'uniform'
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
 ### following any space reductions
-total_points = 1000
+total_points = 10000
 
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
@@ -91,7 +91,7 @@ exp_parameters = np.array(\
     [0.2,  # p1: x-intercept (0 <= p1 < p3)
      5.0,  # p2: Steepness (any real, positive number)
      1.0,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
-     0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
+     0.9]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Set initial values for creating and evaluating the suitability of partitions
 # ERROR ON THE SIDE OF STARTING THESE LOW AND HAVING ADJUST CRITERIA ALTER THEM
@@ -371,5 +371,61 @@ while iters < iters_max:
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
 
+####################################TEMPORARY##################################
+# Visualize the points in the space remaining
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
+# Loop through each discipline
+for i in range(0,len(Discips)):
+    
+    # Initialize an empty list for storing numpy arrays
+    l = []
+    
+    # Surface plot
+    j = np.linspace(0, 1, 100)
+    k = np.linspace(0, 1, 100)
+    j, k = np.meshgrid(j, k)
+    if i == 0:
+        l.append(0.8*j**2 + 2*k**2 - 0.0)
+        l.append(0.8*j**2 + 2*k**2 - 0.4)
+        l.append(0.8*j**2 + 2*k**2 - 1.2)
+        l.append(0.8*j**2 + 2*k**2 - 1.6)
+    elif i == 1:
+        l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
+        l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
+        l.append(-k**3+np.sqrt(0.2))
+        l.append(-k**3+np.sqrt(0.5))
+    else:
+        l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
+        l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
+        l.append((np.cos(3*j)+0.8)**3)
+        l.append((np.cos(3*j)+0.8)**3)
+    
+    # Initialize plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Plot every surface
+    for m in range(0,len(l)):
+        ax.plot_surface(j, k, l[m], alpha=0.5, rstride=100, cstride=100)
+    
+    # Accumulate the data
+    ax.scatter(Discips[i]['space_remaining'][:,0], Discips[i]['space_remaining'][:,1], Discips[i]['space_remaining'][:,2])
+    
+    # Set axis limits
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.set_zlim([0, 1])
+    
+    # Set labels and title
+    ax.set_xlabel(Discips[i]['ins'][0])
+    ax.set_ylabel(Discips[i]['ins'][1])
+    ax.set_zlabel(Discips[i]['ins'][2])
+    ax.set_title('Discipline '+ str(i+1) + ' Remaining Input Space')
+    
+    # Show plot
+    plt.show()
+
+###############################################################################
 # Choose the final design or the final group of designs
