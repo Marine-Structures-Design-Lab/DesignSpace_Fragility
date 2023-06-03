@@ -13,20 +13,42 @@ LIBRARIES
 from exponential_reduction import calcExponential
 import numpy as np
 
-
-
 """
 CLASS
 """
 class changeReduction:
     
-    # Initialize the class
     def __init__(self,Discips):
+        """
+        Parameters
+        ----------
+        Discips : List of dictionaries
+            Contains information specific to each discipline including space
+            that has been eliminated thus far, a force reduction counter, and
+            parameters for allowing proposed space reductions
+        """
         self.d = Discips
         return
     
-    # Estimate space remaining for each discipline
+    
     def estimateSpace(self, tp_actual):
+        """
+        Description
+        -----------
+        Approximate the design space remaining in each discipline
+
+        Parameters
+        ----------
+        tp_actual : Integer
+            The number of discretized points evenly spaced throughout a
+            discipline's design space for helping approximate the fraction of
+            space remaining in that discipline
+        
+        Returns
+        -------
+        space_rem : List of floats
+            Fraction of space remaining in each discipline
+        """
         
         # Initialize array for tracking approximate space remaining
         space_rem = np.zeros(len(self.d))
@@ -34,26 +56,50 @@ class changeReduction:
         # Loop through each discipline
         for i in range(0,len(self.d)):
             
-            # Calculate decimal for space remaining
-            space_rem[i] = np.shape(self.d[i]['space_remaining'])[0] / tp_actual
+            # Calculate space remaining relative to space at beginning
+            space_rem[i] = np.shape(self.d[i]['space_remaining'])[0]/tp_actual
             
-        # Return approximate space remaining for each discipline
+        # Return approximate fraction of space remaining for each discipline
         return space_rem
     
     
-    # Determine if any disciplines should force a space reduction
     def forceReduction(self, space_rem, iters, iters_max, p):
+        """
+        Description
+        -----------
+        Determine and indicate if any disciplines should force a space
+        reduction depending on the space that has been eliminated thus far
+        compared to the project time remaining
+        
+        Parameters
+        ----------
+        space_rem : List of floats
+            Fraction of space remaining in each discipline
+        iters : Integer
+            Time spent explorting the design space thus far
+        iters_max : Integer
+            Maximum time allowed for exploring design spaces
+        p : Numpy vector
+            Contains four user-defined parameters used in the exponential
+            function defintion
+        
+        Returns
+        -------
+        self.d : List of dictionaries
+            Contains various information specific to each discipline and now
+            with a potentially updated force reduction indicator
+        """
         
         # Loop through each discipline
         for i in range(0,len(self.d)):
             
-            # Calculate minimum amount of design space that should be eliminated thus far
+            # Calculate minimum design space that should be eliminated thus far
             min_elim = max(calcExponential(iters/iters_max,p),0.0)
             
-            # Set the force reduction value to true or false depending on the
-            # amount of space that has been eliminated thus far
+            # Set the force reduction value to true or false depending on if
+            # the minimum amount of space necessary has been eliminated
             if (1 - space_rem[i]) < min_elim:
-                self.d[i]['force_reduction'][0] = False # Change this back to True later
+                self.d[i]['force_reduction'][0] = True # Change this back to True later
             else:
                 self.d[i]['force_reduction'][0] = False
             
@@ -62,7 +108,6 @@ class changeReduction:
     
     
     def adjustCriteria(self):
-        ### MIGHT NEED TO CAP SOME OF THESE OFF
         
         # Loop through each discipline
         for i in range(0,len(self.d)):
@@ -72,15 +117,19 @@ class changeReduction:
             
             # Adjust criterion based on number of forced reductions thus far
             if self.d[i]['force_reduction'][1] % 4 == 0:
-                self.d[i]['part_params']['cdf_crit'] += 0.1
+                self.d[i]['part_params']['cdf_crit'] = \
+                    min(self.d[i]['part_params']['cdf_crit'] + 0.1, 1.0)
             elif self.d[i]['force_reduction'][1] % 4 == 1:
-                self.d[i]['part_params']['fail_crit'] += 0.05
+                self.d[i]['part_params']['fail_crit'] = \
+                    min(self.d[i]['part_params']['fail_crit'] + 0.05, 1.0)
             elif self.d[i]['force_reduction'][1] % 4 == 2:
-                self.d[i]['part_params']['dist_crit'] += 0.1
+                self.d[i]['part_params']['dist_crit'] = \
+                    min(self.d[i]['part_params']['dist_crit'] + 0.1, 1.0)
             else:
-                self.d[i]['part_params']['disc_crit'] += 0.1
+                self.d[i]['part_params']['disc_crit'] = \
+                    min(self.d[i]['part_params']['disc_crit'] + 0.1, 1.0)
             
-            # THIS MAY GO IN ITS OWN METHOD
+            # THIS MAY GO IN ITS OWN METHOD based on how adjustCriteria is called elsewhere in the script file!!!
             # Increase the discipline's forced reduction counter by 1
             self.d[i]['force_reduction'][1] += 1
         

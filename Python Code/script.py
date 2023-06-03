@@ -90,8 +90,8 @@ force_reduction_max = 5
 exp_parameters = np.array(\
     [0.2,  # p1: x-intercept (0 <= p1 < p3)
      5.0,  # p2: Steepness (any real, positive number)
-     0.9,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
-     0.9]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
+     1.0,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
+     0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Set initial values for creating and evaluating the suitability of partitions
 # ERROR ON THE SIDE OF STARTING THESE LOW AND HAVING ADJUST CRITERIA ALTER THEM
@@ -160,37 +160,38 @@ while iters < iters_max:
     # Reset the input rules to an empty list
     irules_new = []
     
-    # Determine if any disciplines want to propose a space reduction
-    if iters > 0:
+    # Loop through each disicipline
+    for i in range(0,len(Discips)):
         
-        # Loop through each disicipline
-        for i in range(0,len(Discips)):
-            
-            # Initialize and object for the checkSpace class
-            space_check = checkSpace(Discips[i]['ins'], max_depth=2)
-            
-            # Produce array of "good" and "bad" values based on CDF threshold
-            gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
-                           Discips[i]['part_params']['cdf_crit'])
-            
-            # Build the decision tree
-            space_check.buildTree(Discips[i]['tested_ins'], gb_array)
-            
-            # Gather inequalitie(s) from the decision tree as a potential rule
-            pot_rule = space_check.extractRules(\
-                         Discips[i]['tested_ins'].astype(np.float32), gb_array)
-            
-            # Check if the rule meets the current criteria to be proposed
-            rule_check = space_check.reviewPartitions(\
-                Discips[i]['tested_ins'], pot_rule,\
-                Discips[i]['Fail_Amount'],\
-                Discips[i]['part_params']['fail_crit'],\
-                Discips[i]['part_params']['dist_crit'],\
-                Discips[i]['part_params']['disc_crit'])
-            
-            # Add potential rule to the new rule list if it meets the criteria
-            if rule_check:
-                irules_new.append(space_check.prepareRule(pot_rule))
+        # Skip reduction considerations if no tested points with which to work
+        if 'tested_ins' not in Discips[i] or \
+            np.shape(Discips[i]['tested_ins'])[0] == 0: continue
+        
+        # Initialize and object for the checkSpace class
+        space_check = checkSpace(Discips[i]['ins'], max_depth=2)
+        
+        # Produce array of "good" and "bad" values based on CDF threshold
+        gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
+                       Discips[i]['part_params']['cdf_crit'])
+        
+        # Build the decision tree
+        space_check.buildTree(Discips[i]['tested_ins'], gb_array)
+        
+        # Gather inequalitie(s) from the decision tree as a potential rule
+        pot_rule = space_check.extractRules(\
+                     Discips[i]['tested_ins'].astype(np.float32), gb_array)
+        
+        # Check if the rule meets the current criteria to be proposed
+        rule_check = space_check.reviewPartitions(\
+            Discips[i]['tested_ins'], pot_rule,\
+            Discips[i]['Fail_Amount'],\
+            Discips[i]['part_params']['fail_crit'],\
+            Discips[i]['part_params']['dist_crit'],\
+            Discips[i]['part_params']['disc_crit'])
+        
+        # Add potential rule to the new rule list if it meets the criteria
+        if rule_check:
+            irules_new.append(space_check.prepareRule(pot_rule))
     
     # Use the minimum merger to merge any redundant rules from disciplines
     rule_merger = mergeConstraints(irules_new)
@@ -280,6 +281,7 @@ while iters < iters_max:
             
             # Adjust the criteria for the necessary discipline(s)
             Discips = red_change.adjustCriteria()
+            #print([d['part_params'] for d in Discips if 'part_params' in d])
             
             
             # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
