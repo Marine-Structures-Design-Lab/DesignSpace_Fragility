@@ -54,8 +54,8 @@ class setProblem:
         """
         
         # Create sympy input and output variables
-        x = sp.symbols('x:6')
-        y = sp.symbols('y:5')
+        x = sp.symbols('x1:7')
+        y = sp.symbols('y1:6')
         
         # Create dictionary for Discipline 1
         discip1 = {

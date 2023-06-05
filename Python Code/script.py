@@ -56,7 +56,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 100    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -88,18 +88,18 @@ force_reduction_max = 5
 
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
-    [0.2,  # p1: x-intercept (0 <= p1 < p3)
-     5.0,  # p2: Steepness (any real, positive number)
+    [0.3,  # p1: x-intercept (0 <= p1 < p3)
+     8.0,  # p2: Steepness (any real, positive number)
      1.0,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
-     0.9]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
+     0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Set initial values for creating and evaluating the suitability of partitions
 # ERROR ON THE SIDE OF STARTING THESE LOW AND HAVING ADJUST CRITERIA ALTER THEM
 part_params = {
     "cdf_crit": 0.1,
-    "fail_crit": 0.4,
-    "dist_crit": 0.8,
-    "disc_crit": 0.8
+    "fail_crit": 0.0,
+    "dist_crit": 0.2,
+    "disc_crit": 0.2
     }
 
 
@@ -138,7 +138,6 @@ plotExponential(exp_parameters)
 
 # Create an empty list for new rules to be added
 irules_new = []
-irules2_new = [] # THIS WILL NOT BE NEEDED LATER!!!
 
 # Set the initial forced reduction value to false and establish a counter
 ### THESE MAY NOT BE NEEDED LATER
@@ -148,13 +147,23 @@ force_reduction_counter = 0
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
     
+    # Break while loop if any discipline has maxed out partition parameters
+    break_loop = False
+    for dic in Discips:
+        part_params = dic["part_params"]
+        if all(value >= 1.0 for value in part_params.values()):
+            break_loop = True
+            break
+    if break_loop:
+        break
+    
     ###########################################################################
     ####################### SPACE REDUCTIONS / FRAGILITY ######################
     ###########################################################################
     
     # Add any new input rules to the list
     ### THIS WILL CHANGE LATER!!!
-    if iters > 0 and irules2_new: Discips = sortPoints(Discips, irules2_new)
+    if iters > 0 and irules_new: Discips = sortPoints(Discips, irules_new)
     Input_Rules += irules_new
     
     # Reset the input rules to an empty list
@@ -193,14 +202,8 @@ while iters < iters_max:
         if rule_check:
             irules_new.append(space_check.prepareRule(pot_rule))
     
-    # Use the minimum merger to merge any redundant rules from disciplines
-    rule_merger = mergeConstraints(irules_new)
-    irules_new = rule_merger.minMerge()
+    # Check up on new rules
     print(irules_new)
-    
-    # Placeholder while I am working on getPartitions
-    if irules_new: irules2_new = copy.deepcopy(irules_new)
-    irules_new = []
     
     # Check if new input rules list is filled with any rules
     if irules_new:
@@ -208,7 +211,8 @@ while iters < iters_max:
         # If list not empty, merge proposed reduction(s) together into a
         # cohesive group
         merger = mergeConstraints(irules_new)
-        irules_new = [] # Placeholder...change empty list to mergeConstraints method call
+        irules_new = merger.removeContradiction()
+        print(irules_new)
         
         # Initialize a fragility counter
         fragility_counter = 0
@@ -374,18 +378,25 @@ while iters < iters_max:
 ####################################TEMPORARY##################################
 # Visualize the points in the space remaining
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Loop through each discipline
 for i in range(0,len(Discips)):
+    
+    # Print percent of space that remains in discipline
+    print(f"Discipline {i+1} has "
+      f"{round((np.shape(Discips[i]['space_remaining'])[0]/tp_actual)*100, 2)}"
+      f"% of its original design space remaining")
+
+
     
     # Initialize an empty list for storing numpy arrays
     l = []
     
     # Surface plot
-    j = np.linspace(0, 1, 100)
-    k = np.linspace(0, 1, 100)
+    j = np.linspace(0, 1, 4000)
+    k = np.linspace(0, 1, 4000)
     j, k = np.meshgrid(j, k)
+    
     if i == 0:
         l.append(0.8*j**2 + 2*k**2 - 0.0)
         l.append(0.8*j**2 + 2*k**2 - 0.4)
@@ -400,7 +411,10 @@ for i in range(0,len(Discips)):
         l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
         l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
         l.append((np.cos(3*j)+0.8)**3)
-        l.append((np.cos(3*j)+0.8)**3)
+        l.append((np.cos(3*j)+1.6)**3)
+    
+    # Replace out-of-bounds z_values with np.nan
+    l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
     
     # Initialize plot
     fig = plt.figure()

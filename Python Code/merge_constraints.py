@@ -1,8 +1,11 @@
 """
 SUMMARY:
-Produces a base method that merges all of the reduction requests into one list
-and then subsequent methods to negotiate these potentially conflicting
-reduction propositions into one collective, non-repeating, set
+First merges the rule(s) being proposed by each discipline such that there are
+no contradictions by removing any rules apart of a contradiction.  Dominance
+will be saved for consideration in the fragility framework.  There is also
+potential for adding a method that removes any redundancies in the new rules
+being proposed or possibly in all of the rules up to this point if the Input
+Rules list is passed as another argument.
 
 CREATOR:
 Joseph B. Van Houten
@@ -20,34 +23,109 @@ CLASS
 class mergeConstraints:
     
     def __init__(self,rules_new):
+        """
+        Parameters
+        ----------
+        rules_new : List
+            Contains sympy Or relationals and/or inequalities for rules that
+            only consist of one argument
+        """
         self.rn = rules_new
         return
     
-    # Minimum merge method - PROBABLY NEED TO ADJUST THIS AS WAS DONE IN EXPLORATION_CHECK!!
-    def minMerge(self):
+    
+    def removeContradiction(self):
+        """
+        Description
+        -----------
+        Considers the independent rule (consisting of a single inequality or a
+        sympy Or relational containing multiple inequalities) being proposed by
+        one or more disciplines and merges them such that from the top-level,
+        the rule(s) do not contradict each other
         
-        # Convert all rules to Or
-        rules = [rule if rule.func == sp.Or else sp.Or(rule) for rule in self.rn]
-    
-        # Initialize list of non-redundant rules
-        non_redundant_rules = []
-    
-        for i, rule1 in enumerate(rules):
-            redundant = False
-            for j, rule2 in enumerate(rules):
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        noncon_rules : TYPE
+            DESCRIPTION.
+        """
+        
+        # Initialize a noncontradictory rule list
+        noncon_rules = []
+        
+        # Loop through each new rule
+        for i in range(0,len(self.rn)):
+            
+            # Set a boolean variable tracking contradiction to False
+            is_contra = False
+            
+            # Loop through each new rule again
+            for j in range(0,len(self.rn)):
+                
+                # Check that rules being checked for contradiction are not same
                 if i != j:
-                    # Check if rule1 is implied by rule2
-                    implies = sp.simplify(sp.Implies(rule2, rule1))
-                    if implies is True:
-                        redundant = True
+                    
+                    # Place rules inside a sympy And relational
+                    contra = sp.And(self.rn[j], self.rn[i])
+                    
+                    # Check if simplified And relational evaluates to False
+                    if sp.simplify(contra) == False:
+                        
+                        # Change contradiction variable to true and break loop
+                        is_contra = True
                         break
+            
+            # Check if contradiction variable is still false
+            if not is_contra:
+                
+                # Append the rule to the noncontradictory rule list
+                noncon_rules.append(self.rn[i])
+        
+        # Return the noncontradictory rule list
+        return noncon_rules
     
-            if not redundant:
-                non_redundant_rules.append(rule1)
     
-        return non_redundant_rules
     
-    # Save dominance for the fragility framework???
+    
+    # No 'Or' rule redundancies
+    def removeRedundancy(self):
+        # Do i only want to remove redundancies in the new rules?...or do i 
+        # want to do the entire list of rules established thus far?
+        
+        return
+    
+    
+def remove_redundancies(rules):
+    non_redundant_rules = []
+    for i in range(len(rules)):
+        is_redundant = False
+        for j in range(len(rules)):
+            if i != j:
+                implication = sp.Implies(rules[j], rules[i])
+                if sp.simplify(implication) == True:
+                    is_redundant = True
+                    break
+        if not is_redundant:
+            non_redundant_rules.append(rules[i])
+    return non_redundant_rules   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
     
     
     

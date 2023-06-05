@@ -1,6 +1,9 @@
 """
 SUMMARY:
-
+Contains methods for checking the noneliminated space remaining in each
+discipline, determining if a space reduction needs to be forced, and adjusting
+the criteria for allowing a proposed space reduction based on the need to force
+a reduction.
 
 CREATOR:
 Joseph B. Van Houten
@@ -99,7 +102,7 @@ class changeReduction:
             # Set the force reduction value to true or false depending on if
             # the minimum amount of space necessary has been eliminated
             if (1 - space_rem[i]) < min_elim:
-                self.d[i]['force_reduction'][0] = True # Change this back to True later
+                self.d[i]['force_reduction'][0] = True
             else:
                 self.d[i]['force_reduction'][0] = False
             
@@ -108,6 +111,24 @@ class changeReduction:
     
     
     def adjustCriteria(self):
+        """
+        Description
+        -----------
+        Cycles through the established criteria for allowing a space reduction
+        that specifically pertain to the area of a discipline's design space
+        being reduced and relaxes one criterion when a space reduction is being
+        forced for the discipline
+        
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        self.d : List of dictionaries
+            Contains information relevant to each discipline, now with a
+            potentially relaxed criterion for allowing a space reduction
+        """
         
         # Loop through each discipline
         for i in range(0,len(self.d)):
