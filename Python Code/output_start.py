@@ -47,7 +47,7 @@ def outputStart(discip,key):
     # Perform following command if values of key are not empty
     else:
         
-        # Start assessment at one index beyond the amound of rows present
+        # Start assessment at one index beyond the amount of rows present
         start = np.shape(discip[key])[0]
     
     # Return the starting index

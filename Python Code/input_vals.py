@@ -21,7 +21,7 @@ CLASS
 """
 class getInput:
     
-    def __init__(self,discip,input_rules,iters,i):
+    def __init__(self, discip, input_rules, iters, i):
         """
         Parameters
         ----------
@@ -40,7 +40,6 @@ class getInput:
         self.ir = input_rules
         self.it = iters
         self.i = i
-        return
     
     
     def getUniform(self):
@@ -72,16 +71,18 @@ class getInput:
             # Prevent an infinite loop from occurring (change value being
             # multiplied by self.it, if desired)
             if count2 >= 100*self.it*self.d['time']:
-                print("Only created " + str(count1) + \
-                      " new input point(s) for Discipline " + str(self.i+1) + \
-                      " instead of " + str(self.it//self.d['time']))
+                print(
+                    f"Only created {count1} new input point(s) for Discipline "
+                    f"{self.i+1} instead of "
+                    f"{self.it//self.d['time']}"
+                    )
                 break
             
             # Increase the second counting variable by 1
             count2 += 1
             
             # Only try creating a point when the time iteration allows for it
-            if (count2 % self.d['time'] == 0):
+            if count2 % self.d['time'] == 0:
                 
                 # Create new input point in normalized value bounds (0 to 1)
                 point = np.random.rand(len(self.d['ins']))
@@ -92,14 +93,8 @@ class getInput:
                 # Loop through each input rule
                 for i in range(0,len(self.ir)):
                     
-                    # Create an empty set of variables
-                    symbs = set()
-                    
-                    # Gather free symbol(s) of the rule
-                    symbs.update(self.ir[i].free_symbols)
-                    
                     # Convert set of variables to a list
-                    symbs = list(symbs)
+                    symbs = list(self.ir[i].free_symbols)
 
                     # Loop through each symbol of the rule
                     for j in range(0,len(symbs)):
@@ -127,5 +122,6 @@ class getInput:
         
         # Return new dictionary with uniform random input points
         return self.d
-    
+
+
     # ACTUAL SAMPLING LIBRARIES...SEE scipy.stats.qmc

@@ -20,6 +20,76 @@ import math
 import warnings
 
 """
+SECONDARY FUNCTION
+"""
+def get_output_diff(rule, i, d, outr):
+    
+    # Check if rule is an Or or And relational
+    if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
+        
+        # Create a numpy zero array for the length of the arguments
+        diff_vector = np.zeros(len(rule.args))
+        
+        # Loop through each argument of the rule
+        for arg in rule.args:
+            
+            # Call the function again and assign its value to vector
+            diff_vector[rule.args.index(arg)] = get_output_diff(arg,i, d, outr)
+        
+        # Turn off the warning messages for an all NaN matrix/vector
+        warnings.filterwarnings\
+            ('ignore', 'All-NaN (slice|axis) encountered')
+        
+        # Return min of difference array for each point of Or rule
+        if isinstance(rule, sp.Or): return np.nanmin(diff_vector)
+        
+        # Return max of difference array for each point of And rule
+        else: return np.nanmax(diff_vector)
+    
+    # Perform following commands if rule is not an Or or And relational
+    else:
+        
+        # Make a copy of the inequality
+        rule_copy = copy.deepcopy(rule)
+        
+        # Gather free symbols of the inequality
+        symbs = rule.free_symbols
+        
+        # Loop through each free symbol
+        for symb in symbs:
+            
+            # Get index in the discipline's outputs of the free symbol
+            ind = d['outs'].index(symb)
+            
+            # Substitute output value into free symbol of rule copy
+            rule_copy = rule_copy.subs(symb, d['tested_outs'][i,ind])
+        
+        # Check if the rule copy is true
+        if rule_copy:
+            
+            # Return not a number
+            return np.nan
+        
+        # Perform the following commands if the rule copy is not true
+        else:
+            
+            # Determine difference between lhs and rhs of rule
+            diff = abs(d['out_ineqs'][rule][i] - rule.rhs)
+            
+            # Check if calculated rule values have a range of 0.0
+            if math.isclose(np.ptp(d['out_ineqs'][rule]), 0.0):
+                
+                # Return the non-normalized difference
+                return diff
+            
+            # Normalize difference w/range of all values seen by rule
+            ndiff = diff / np.ptp(d['out_ineqs'][rule])
+                
+            # Return normalized absolute difference of lhs and rhs
+            return ndiff
+
+
+"""
 CLASS
 """
 class checkOutput:
@@ -59,9 +129,12 @@ class checkOutput:
             passing or failing based on the corresponding output values
         """
         
+        # Initial definitions to make code more readable
+        start = outputStart(self.d, 'pass?')
+        tested_outs = self.d['tested_outs']
+        
         # Loop through each NEW design point in the output space
-        for i in range(outputStart(self.d,'pass?'),\
-                       np.shape(self.d['tested_outs'])[0]):
+        for i in range(start, tested_outs.shape[0]):
             
             # Make a copy of the output rules
             rules_copy = copy.deepcopy(self.outr)
@@ -74,7 +147,7 @@ class checkOutput:
                     
                     # Substitute output value for the variable in rule
                     rules_copy[j] = rules_copy[j].subs(k,\
-                            self.d['tested_outs'][i,self.d['outs'].index(k)])
+                        tested_outs[i,self.d['outs'].index(k)])
                     
             # Append boolean value to the proper dictionary key
             self.d['pass?'].append(all(rules_copy))
@@ -102,110 +175,18 @@ class checkOutput:
             the output points that have been calculated thus far
         """
         
-        # Get difference in calculated outputs to failing rule
-        def get_output_diff(rule,i):
-            """
-            Description
-            -----------
-            A recursive function that calls itself until the rule being passed
-            to it is a sympy inequality rather than an And or Or relational so
-            that the normalized difference of a point to the base inequality
-            can be calculated and evaluated further if it rests within a sympy
-            relational before being returned for the root-mean square
-            difference equation
-
-            Parameters
-            ----------
-            rule : Sympy relational/inequality
-                Either a sympy And or Or relational or a sympy inequality
-                depending on how far the function has gotten within the
-                (potentially nested) rule
-            i : Integer
-                Index of design point that is being assessed
-
-            Returns
-            -------
-            np.nan, diff, ndiff, or max/min(diff_vector) : Float
-                All the different values that can be returned depending on
-                where the rule falls within all of the nested if/else
-                statements, where all of these variables (except np.nan)
-                represent a difference of the right-hand side of a rule to the
-                left-hand side of the rule after an output point's values are
-                substituted in for the proper variables
-            """
-            
-            # Check if rule is an Or or And relational
-            if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
-                
-                # Create a numpy zero array for the length of the arguments
-                diff_vector = np.zeros(len(rule.args))
-                
-                # Loop through each argument of the rule
-                for arg in rule.args:
-                    
-                    # Call the function again and assign its value to vector
-                    diff_vector[rule.args.index(arg)] = get_output_diff(arg,i)
-                
-                # Turn off the warning messages for an all NaN matrix/vector
-                warnings.filterwarnings\
-                    ('ignore', 'All-NaN (slice|axis) encountered')
-                
-                # Return min of difference array for each point of Or rule
-                if isinstance(rule, sp.Or): return np.nanmin(diff_vector)
-                
-                # Return max of difference array for each point of And rule
-                else: return np.nanmax(diff_vector)
-            
-            # Perform following commands if rule is not an Or or And relational
-            else:
-                
-                # Make a copy of the inequality
-                rule_copy = copy.deepcopy(rule)
-                
-                # Gather free symbols of the inequality
-                symbs = rule.free_symbols
-                
-                # Loop through each free symbol
-                for symb in symbs:
-                    
-                    # Get index in the discipline's outputs of the free symbol
-                    ind = self.d['outs'].index(symb)
-                    
-                    # Substitute output value into free symbol of rule copy
-                    rule_copy=rule_copy.subs(symb,self.d['tested_outs'][i,ind])
-                
-                # Check if the rule copy is true
-                if rule_copy:
-                    
-                    # Return not a number
-                    return np.nan
-                
-                # Perform the following commands if the rule copy is not true
-                else:
-                    
-                    # Determine difference between lhs and rhs of rule
-                    diff = abs(self.d['out_ineqs'][rule][i] - rule.rhs)
-                    
-                    # Check if calculated rule values have a range of 0
-                    if math.isclose(np.ptp(self.d['out_ineqs'][rule]), 0.0):
-                        
-                        # Return the non-normalized difference
-                        return diff
-                    
-                    # Normalize difference w/range of all values seen by rule
-                    ndiff = diff / np.ptp(self.d['out_ineqs'][rule])
-                        
-                    # Return normalized absolute difference of lhs and rhs
-                    return ndiff
+        # Initial definitions to make code more readable
+        start = outputStart(self.d, 'Fail_Amount')
+        pass_ = self.d['pass?']
         
         # Loop through each NEW design point
-        for i in range(outputStart(self.d,'Fail_Amount'),len(self.d['pass?'])):
+        for i in range(start,len(pass_)):
             
             # Check if point is already passing
-            if self.d['pass?'][i] == True:
+            if pass_[i] == True:
                 
                 # Append 0.0 to the failure amount vector
-                self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'],0.0)
+                self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'], 0.0)
             
             # Perform the following commands if the point is not passing
             else:
@@ -217,12 +198,13 @@ class checkOutput:
                 for rule in self.outr:
                     
                     # Determine the normalized difference that point fails rule
-                    tv_diff[self.outr.index(rule)] = get_output_diff(rule,i)
+                    tv_diff[self.outr.index(rule)] = \
+                        get_output_diff(rule, i, self.d, self.outr)
                 
                 # Identify any instances of not a number
                 nan_mask = np.isnan(tv_diff)
                 
-                # Replace any instance of not a number with 0
+                # Replace any instance of not a number with 0.0
                 tv_diff[nan_mask] = 0.0
                 
                 # Calculate the NRMSD for the set of relevant output rules

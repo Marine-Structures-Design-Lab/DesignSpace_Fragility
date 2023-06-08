@@ -52,9 +52,12 @@ class getOutput:
             calculated from the input points and provided equations
         """
         
+        # Initial definitions to make code more readable
+        start = outputStart(self.d, 'tested_outs')
+        tested_ins = self.d['tested_ins']
+        
         # Loop through each NEW design point in the input space
-        for i in range(outputStart(self.d,'tested_outs'),\
-                       np.shape(self.d['tested_ins'])[0]):
+        for i in range(start, tested_ins.shape[0]):
             
             # Make a copy of the analysis equation(s) before replacement
             expr = self.d['fcns'].copy()
@@ -76,10 +79,7 @@ class getOutput:
             temp_array = np.zeros(len(sols))
             
             # Loop through all solutions
-            for j in range(0,len(sols)):
-                
-                # Isolate variable from solution dictionary
-                ind_var = list(sols.keys())[j]
+            for j, ind_var in enumerate(sols.keys()):
                 
                 # Locate index of variable in discipline's outputs
                 ind_num = self.d['outs'].index(ind_var)
@@ -90,9 +90,9 @@ class getOutput:
             # Append new point to the tested outputs
             self.d['tested_outs'] = np.append(self.d['tested_outs'],temp_array)
             
-            # Reshape the numpy array of calculated output points
-            self.d['tested_outs'] = \
-                np.reshape(self.d['tested_outs'],(-1,len(self.d['outs'])))
+        # Reshape the numpy array of calculated output points
+        self.d['tested_outs'] = \
+            self.d['tested_outs'].reshape(-1, len(self.d['outs']))
         
         # Return new dictionary with calculated output points
         return self.d

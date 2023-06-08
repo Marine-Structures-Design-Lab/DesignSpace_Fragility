@@ -17,10 +17,60 @@ import sympy as sp
 import numpy as np
 from iteration_utilities import deepflatten
 
+
 """
-FUNCTIONS
+SECONDARY FUNCTION
 """
-def getConstraints(var,rules):
+def extractInequality(rule):
+    """
+    Description
+    -----------
+    A recursive function that calls itself until the rule being passed to
+    it is a sympy inequality rather than an And or Or relational so that
+    the base inequality can be returned regardless of how nested the
+    relationals are
+
+    Parameters
+    ----------
+    rule : Sympy relational/inequality
+        Either a sympy And or Or relational or a sympy inequality depending
+        on how far the function has gotten within the (potentially nested)
+        rule
+
+    Returns
+    -------
+    arg_list or rule : List of sympy inequalities or single inequality
+        Returns either a (potentially nested) list of inequalities or a
+        single inequality depending on if the rule is a sympy relational or
+        a sympy inequality
+    """
+    
+    # Check if rule is an Or or And relational
+    if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
+        
+        # Create an empty list for the length of the arguments
+        arg_list = [None] * len(rule.args)
+        
+        # Loop through each argument of the rule
+        for arg in rule.args:
+            
+            # Call function again for each argument
+            arg_list[rule.args.index(arg)] = extractInequality(arg)
+        
+        # Return the argument list
+        return arg_list
+    
+    # Perform commands to extract the inequality
+    else:
+        
+        # Return the rule (which should be an inequality)
+        return rule
+
+
+"""
+MAIN FUNCTIONS
+"""
+def getConstraints(var, rules):
     """
     Description
     -----------
@@ -86,52 +136,6 @@ def getInequalities(Discip,rules,dict_name):
         nested dictionary
     """
     
-    # Extract the inequality from each rule
-    def extract_inequality(rule):
-        """
-        Description
-        -----------
-        A recursive function that calls itself until the rule being passed to
-        it is a sympy inequality rather than an And or Or relational so that
-        the base inequality can be returned regardless of how nested the
-        relationals are
-
-        Parameters
-        ----------
-        rule : Sympy relational/inequality
-            Either a sympy And or Or relational or a sympy inequality depending
-            on how far the function has gotten within the (potentially nested)
-            rule
-
-        Returns
-        -------
-        arg_list or rule : List of sympy inequalities or single inequality
-            Returns either a (potentially nested) list of inequalities or a
-            single inequality depending on if the rule is a sympy relational or
-            a sympy inequality
-        """
-        
-        # Check if rule is an Or or And relational
-        if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
-            
-            # Create an empty list for the length of the arguments
-            arg_list = [None] * len(rule.args)
-            
-            # Loop through each argument of the rule
-            for arg in rule.args:
-                
-                # Call function again for each argument
-                arg_list[rule.args.index(arg)] = extract_inequality(arg)
-            
-            # Return the argument list
-            return arg_list
-        
-        # Perform commands to extract the inequality
-        else:
-            
-            # Return the rule (which should be an inequality)
-            return rule
-    
     # Initialize an inequality list
     ineq_list = []
     
@@ -139,7 +143,7 @@ def getInequalities(Discip,rules,dict_name):
     for rule in rules:
         
         # Append inequalities to the inequality list
-        ineq_list.append(extract_inequality(rule))
+        ineq_list.append(extractInequality(rule))
     
     # Flatten the inequality list to get rid of any possible nested lists
     ineq_list = list(deepflatten(ineq_list))

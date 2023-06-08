@@ -81,11 +81,6 @@ run_time = [2, 3, 4]    # Must all be positive integers!
 fragility = True    # True = yes, False = no
 fragility_max = 5   # Must be a positive integer!
 
-# Decide the number of forced reductions to be attempted before minimizing any
-# criteria for a space reduction to be proposed
-### NOT TOTALLY SURE IF THIS IS NEEDED ANYMORE!!!
-force_reduction_max = 5
-
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
     [0.3,  # p1: x-intercept (0 <= p1 < p3)
@@ -130,7 +125,7 @@ for i in range(0,len(Discips)):
     Discips[i]['force_reduction'] = [False, 0]
     
     # Initialize an array for estimating the space remaining for the discipline
-    Discips[i]['space_remaining'], tp_actual =\
+    Discips[i]['space_remaining'], tp_actual = \
         uniformGrid(total_points, len(Discips[i]['ins']))
 
 # Print a visual of the minimum space reduction vs. time remaining pace
@@ -162,7 +157,6 @@ while iters < iters_max:
     ###########################################################################
     
     # Add any new input rules to the list
-    ### THIS WILL CHANGE LATER!!!
     if iters > 0 and irules_new: Discips = sortPoints(Discips, irules_new)
     Input_Rules += irules_new
     
@@ -212,7 +206,6 @@ while iters < iters_max:
         # cohesive group
         merger = mergeConstraints(irules_new)
         irules_new = merger.removeContradiction()
-        print(irules_new)
         
         # Initialize a fragility counter
         fragility_counter = 0
@@ -374,6 +367,15 @@ while iters < iters_max:
     force_reduction_counter = 0
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
+
+
+
+
+
+
+
+
+
 
 ####################################TEMPORARY##################################
 # Visualize the points in the space remaining

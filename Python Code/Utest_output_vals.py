@@ -73,6 +73,7 @@ class test_output_vals(unittest.TestCase):
             elif i == 2:
                 self.answers[i] = np.array([6.567795368,0.8661219879])
         
+        
     def test_get_values(self):
         """
         Unit tests for the getValues method

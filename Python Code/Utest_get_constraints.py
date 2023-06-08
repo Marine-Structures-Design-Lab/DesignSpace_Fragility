@@ -1,6 +1,6 @@
 """
 SUMMARY:
-Unit tests for the getConstraints function from get_constraints.py
+Unit tests for the functions from get_constraints.py
 
 CREATOR:
 Joseph B. Van Houten
@@ -30,7 +30,7 @@ class test_get_constraints(unittest.TestCase):
         # Set up the problem
         prob = setProblem()
         self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
-        self.y = sp.symbols('y:5')
+        self.y = sp.symbols('y1:6')
         
         # Loop through each discipline
         for i in range(0,len(self.Discips)):
