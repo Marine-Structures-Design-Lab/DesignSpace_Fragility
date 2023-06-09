@@ -258,7 +258,7 @@ def filterPoints(X, fail_amount, inequalities, feature_names):
     -----------
     Gather the input locations and failure amounts for all of the tested input
     points meeting all of the inequalities of the potential rule
-
+    
     Parameters
     ----------
     X : Numpy array
@@ -272,12 +272,12 @@ def filterPoints(X, fail_amount, inequalities, feature_names):
         tree is suggesting be removed
     feature_names : List of sympy symbols
         All of the input variables within the discipline's control
-
+    
     Returns
     -------
     X_within_bounds : Numpy array
         Filtered X-data satisfying all the inequalities
-    FA_within_bounds : TYPE
+    FA_within_bounds : Numpy vector
         Filtered failure amount data satisfying all the inequalities
     """
     
@@ -461,7 +461,8 @@ class checkSpace:
         if len(max_index) > 1:
             
             # Identify the partition with the highest total of "bad" points
-            max_index = np.argmax(np.array(bad_tot)[max_index])
+            bad_index = np.argmax(np.array(bad_tot)[max_index])
+            max_index = max_index[bad_index]
         
         # Perform the following commands if one index with highest fraction
         else:
@@ -487,7 +488,7 @@ class checkSpace:
         Evaluate various criteria within the area of the discipline's design 
         space to be reduced to ensure that area has been reasonably explored
         before committing to proposing the reduction
-
+        
         Parameters
         ----------
         X : Numpy array
@@ -509,7 +510,7 @@ class checkSpace:
             The discipline-specific maximum uniformity metric of points within
             the area of the design space being reviewed for removal (where 0.0
             indicates high uniformity and 1.0 indicates low uniformity)
-
+        
         Returns
         -------
         True or False

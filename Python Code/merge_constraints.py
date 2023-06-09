@@ -22,7 +22,7 @@ CLASS
 """
 class mergeConstraints:
     
-    def __init__(self,rules_new):
+    def __init__(self, rules_new):
         """
         Parameters
         ----------
@@ -88,29 +88,27 @@ class mergeConstraints:
         return noncon_rules
     
     
-    
-    
     # No 'Or' rule redundancies
-    def removeRedundancy(self):
-        # Do i only want to remove redundancies in the new rules?...or do i 
-        # want to do the entire list of rules established thus far?
+    # def removeRedundancy(self):
+    #     # Do I only want to remove redundancies in the new rules?...or do I
+    #     # want to do the entire list of rules established thus far?
         
-        return
+    #     return
     
     
-def remove_redundancies(rules):
-    non_redundant_rules = []
-    for i in range(len(rules)):
-        is_redundant = False
-        for j in range(len(rules)):
-            if i != j:
-                implication = sp.Implies(rules[j], rules[i])
-                if sp.simplify(implication) == True:
-                    is_redundant = True
-                    break
-        if not is_redundant:
-            non_redundant_rules.append(rules[i])
-    return non_redundant_rules   
+# def remove_redundancies(rules):
+#     non_redundant_rules = []
+#     for i in range(len(rules)):
+#         is_redundant = False
+#         for j in range(len(rules)):
+#             if i != j:
+#                 implication = sp.Implies(rules[j], rules[i])
+#                 if sp.simplify(implication) == True:
+#                     is_redundant = True
+#                     break
+#         if not is_redundant:
+#             non_redundant_rules.append(rules[i])
+#     return non_redundant_rules   
     
     
     
