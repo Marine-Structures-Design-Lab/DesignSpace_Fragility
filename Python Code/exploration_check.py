@@ -40,7 +40,7 @@ def recurse(tree_, node, cur_p, feature_names, paths, bad_tot, bad_frac, X, y):
     are reached and creates a list of inequalities defining each branch from
     the root node to the leaf node while also determing the amount of "bad"
     points within each branch
-
+    
     Parameters
     ----------
     tree_ : Tree
@@ -62,7 +62,7 @@ def recurse(tree_, node, cur_p, feature_names, paths, bad_tot, bad_frac, X, y):
         Feature input data for which decision tree rules are being extracted
     y : Numpy vector
         Feature output data for which decision tree rules are being extracted
-
+    
     Returns
     -------
     None - Updates the mutable lists of paths, bad_tot, and bad_frac without

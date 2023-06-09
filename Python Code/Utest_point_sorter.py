@@ -153,20 +153,250 @@ class test_point_sorter(unittest.TestCase):
         Unit tests for the elimDicts function
         """
         
+        # Test that discipline does not already contain "eliminated" dictionary
+        self.assertNotIn("eliminated", self.Discips[1])
+        
+        # Execute elimDicts function on second discipline
+        self.Discips[1] = elimDicts(self.Discips[1])
+        
+        # Test that discipline without nested "eliminated" dictionary creates
+        # one with all of the relevant keys
+        self.assertIn("eliminated", self.Discips[1])
+        self.assertIn("Fail_Amount", self.Discips[1]['eliminated'])
+        self.assertIn("pass?", self.Discips[1]['eliminated'])
+        self.assertIn("tested_ins", self.Discips[1]['eliminated'])
+        self.assertIn("tested_outs", self.Discips[1]['eliminated'])
+        self.assertIn("space_remaining", self.Discips[1]['eliminated'])
+        
         
     def test_test_points(self):
         """
         Unit tests for the testPoints function
         """
         
+        # Execute the test points function for the provided rule (x1 >= 0.1)
+        rule = sp.Ge(sp.Symbol('x1'), 0.1)
+        self.Discips[0] = testPoints(self.Discips[0], rule.free_symbols, rule)
         
+        # Determine the expected lists/arrays in the eliminated dictionary
+        array_ins = np.array([[0.0, 0.0, 1.0]])
+        array_outs = np.array([[1.3]])
+        array_FA = np.array([0.3])
+        list_p = [False]
+        array_sr = np.array([[0.0, 0.0, 0.0],
+                             [0.0, 0.0, 0.5],
+                             [0.0, 0.0, 1.0],
+                             [0.0, 0.5, 0.0],
+                             [0.0, 0.5, 0.5],
+                             [0.0, 0.5, 1.0],
+                             [0.0, 1.0, 0.0],
+                             [0.0, 1.0, 0.5],
+                             [0.0, 1.0, 1.0]])
         
+        # Check that "eliminated" arrays and lists are correct
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['tested_ins'], array_ins)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['tested_outs'], array_outs)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
+        self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['space_remaining'], array_sr)
+        
+        # Determine the expected lists/arrays outside the eliminated dictionary
+        array_ins = np.array([[0.1, 0.1, 0.1],
+                              [1.0, 1.0, 1.0],
+                              [0.3, 0.2, 0.4],
+                              [0.5, 1.0, 0.0]])
+        array_outs = np.array([[1.0],
+                               [1.1],
+                               [1.2],
+                               [1.4]])
+        array_FA = np.array([0.0, 0.1, 0.2, 0.4])
+        list_p = [True, False, True, True]
+        array_sr = np.array([[0.5, 0.0, 0.0],
+                             [0.5, 0.0, 0.5],
+                             [0.5, 0.0, 1.0],
+                             [0.5, 0.5, 0.0],
+                             [0.5, 0.5, 0.5],
+                             [0.5, 0.5, 1.0],
+                             [0.5, 1.0, 0.0],
+                             [0.5, 1.0, 0.5],
+                             [0.5, 1.0, 1.0],
+                             [1.0, 0.0, 0.0],
+                             [1.0, 0.0, 0.5],
+                             [1.0, 0.0, 1.0],
+                             [1.0, 0.5, 0.0],
+                             [1.0, 0.5, 0.5],
+                             [1.0, 0.5, 1.0],
+                             [1.0, 1.0, 0.0],
+                             [1.0, 1.0, 0.5],
+                             [1.0, 1.0, 1.0]])
+        
+        # Check that remaining arrays and lists are correct
+        np.testing.assert_array_equal(self.Discips[0]['tested_ins'], array_ins)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['tested_outs'], array_outs)
+        np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
+        self.assertEqual(self.Discips[0]['pass?'], list_p)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['space_remaining'], array_sr)
+        
+    
     def test_sort_points(self):
         """
         Unit tests for the sortPoints function
         """
         
+        # Populate lists/arrays for Discipline 2
+        self.Discips[1]['tested_ins'] = np.array([[0.0, 0.0, 0.0],
+                                                  [0.5, 0.5, 0.5],
+                                                  [1.0, 1.0, 1.0]])
+        self.Discips[1]['tested_outs'] = np.array([[0.0, 0.0],
+                                                   [0.5, 0.5],
+                                                   [1.0, 1.0]])
+        self.Discips[1]['Fail_Amount'] = np.array([0.0, 0.5, 1.0])
+        self.Discips[1]['pass?'] = [True, False, True]
+        self.Discips[1]['space_remaining'], tp_actual  = \
+            uniformGrid(27, len(self.Discips[1]['ins']))
         
+        # Initialize a list of input rules
+        ir1 = sp.Ge(sp.Symbol('x1'), 0.1)
+        ir2 = sp.Or(sp.Le(sp.Symbol('x2'), 0.2), sp.Lt(sp.Symbol('x3'), 0.8))
+        ir3 = sp.Lt(sp.Symbol('x4'), 0.9)
+        irules_new = [ir1, ir2, ir3]
+        
+        # Run the sortPoints function for established disciplines and rules
+        [self.Discips[0], self.Discips[1]] = \
+            sortPoints([self.Discips[0], self.Discips[1]], irules_new)
+        
+        # Determine expected eliminated lists/arrays of Discipline 1
+        array_ins = np.array([[0.0, 0.0, 1.0],
+                              [1.0, 1.0, 1.0]])
+        array_outs = np.array([[1.3],
+                               [1.1]])
+        array_FA = np.array([0.3, 0.1])
+        list_p = [False, False]
+        array_sr = np.array([[0.0, 0.0, 0.0],
+                             [0.0, 0.0, 0.5],
+                             [0.0, 0.0, 1.0],
+                             [0.0, 0.5, 0.0],
+                             [0.0, 0.5, 0.5],
+                             [0.0, 0.5, 1.0],
+                             [0.0, 1.0, 0.0],
+                             [0.0, 1.0, 0.5],
+                             [0.0, 1.0, 1.0],
+                             [0.5, 0.5, 1.0],
+                             [0.5, 1.0, 1.0],
+                             [1.0, 0.5, 1.0],
+                             [1.0, 1.0, 1.0]])
+        
+        # Ensure proper values are moved for Discipline 1
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['tested_ins'], array_ins)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['tested_outs'], array_outs)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
+        self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['space_remaining'], array_sr)
+        
+        # Determine expected remaining lists/arrays of Discipline 1
+        array_ins = np.array([[0.1, 0.1, 0.1],
+                              [0.3, 0.2, 0.4],
+                              [0.5, 1.0, 0.0]])
+        array_outs = np.array([[1.0],
+                               [1.2],
+                               [1.4]])
+        array_FA = np.array([0.0, 0.2, 0.4])
+        list_p = [True, True, True]
+        array_sr = np.array([[0.5, 0.0, 0.0],
+                             [0.5, 0.0, 0.5],
+                             [0.5, 0.0, 1.0],
+                             [0.5, 0.5, 0.0],
+                             [0.5, 0.5, 0.5],
+                             [0.5, 1.0, 0.0],
+                             [0.5, 1.0, 0.5],
+                             [1.0, 0.0, 0.0],
+                             [1.0, 0.0, 0.5],
+                             [1.0, 0.0, 1.0],
+                             [1.0, 0.5, 0.0],
+                             [1.0, 0.5, 0.5],
+                             [1.0, 1.0, 0.0],
+                             [1.0, 1.0, 0.5]])
+        
+        # Ensure proper values remain for Discipline 1
+        np.testing.assert_array_equal(self.Discips[0]['tested_ins'], array_ins)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['tested_outs'], array_outs)
+        np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
+        self.assertEqual(self.Discips[0]['pass?'], list_p)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['space_remaining'], array_sr)
+        
+        # Determine expected eliminated lists/arrays of Discipline 2
+        array_ins = np.array([[1.0, 1.0, 1.0]])
+        array_outs = np.array([[1.0, 1.0]])
+        array_FA = np.array([1.0])
+        list_p = [True]
+        array_sr = np.array([[0.0, 1.0, 0.0],
+                             [0.0, 1.0, 0.5],
+                             [0.0, 1.0, 1.0],
+                             [0.5, 1.0, 0.0],
+                             [0.5, 1.0, 0.5],
+                             [0.5, 1.0, 1.0],
+                             [1.0, 1.0, 0.0],
+                             [1.0, 1.0, 0.5],
+                             [1.0, 1.0, 1.0]])
+        
+        # Ensure proper values are moved for Discipline 2
+        np.testing.assert_array_equal\
+            (self.Discips[1]['eliminated']['tested_ins'], array_ins)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['eliminated']['tested_outs'], array_outs)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['eliminated']['Fail_Amount'], array_FA)
+        self.assertEqual(self.Discips[1]['eliminated']['pass?'], list_p)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['eliminated']['space_remaining'], array_sr)
+        
+        # Determine expected remaining lists/arrays of Discipline 2
+        array_ins = np.array([[0.0, 0.0, 0.0],
+                              [0.5, 0.5, 0.5]])
+        array_outs = np.array([[0.0, 0.0],
+                               [0.5, 0.5]])
+        array_FA = np.array([0.0, 0.5])
+        list_p = [True, False]
+        array_sr = np.array([[0.0, 0.0, 0.0],
+                             [0.0, 0.0, 0.5],
+                             [0.0, 0.0, 1.0],
+                             [0.0, 0.5, 0.0],
+                             [0.0, 0.5, 0.5],
+                             [0.0, 0.5, 1.0],
+                             [0.5, 0.0, 0.0],
+                             [0.5, 0.0, 0.5],
+                             [0.5, 0.0, 1.0],
+                             [0.5, 0.5, 0.0],
+                             [0.5, 0.5, 0.5],
+                             [0.5, 0.5, 1.0],
+                             [1.0, 0.0, 0.0],
+                             [1.0, 0.0, 0.5],
+                             [1.0, 0.0, 1.0],
+                             [1.0, 0.5, 0.0],
+                             [1.0, 0.5, 0.5],
+                             [1.0, 0.5, 1.0]])
+        
+        # Ensure proper values remain for Discipline 2
+        np.testing.assert_array_equal(self.Discips[1]['tested_ins'], array_ins)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['tested_outs'], array_outs)
+        np.testing.assert_array_equal(self.Discips[1]['Fail_Amount'], array_FA)
+        self.assertEqual(self.Discips[1]['pass?'], list_p)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['space_remaining'], array_sr)
+    
     
 """
 SCRIPT
