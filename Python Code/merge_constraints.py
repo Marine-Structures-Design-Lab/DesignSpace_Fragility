@@ -49,8 +49,9 @@ class mergeConstraints:
 
         Returns
         -------
-        noncon_rules : TYPE
-            DESCRIPTION.
+        noncon_rules : List
+            Contains sympy Or relationals and/or inequalities for rules that
+            only consist of one argument without any contradictions
         """
         
         # Initialize a noncontradictory rule list
