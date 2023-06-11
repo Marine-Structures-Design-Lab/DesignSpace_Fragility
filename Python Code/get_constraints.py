@@ -47,22 +47,22 @@ def extractInequality(rule):
     
     # Check if rule is an Or or And relational
     if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
-        
+
         # Create an empty list for the length of the arguments
         arg_list = [None] * len(rule.args)
-        
+
         # Loop through each argument of the rule
-        for arg in rule.args:
-            
+        for idx, arg in enumerate(rule.args):
+
             # Call function again for each argument
-            arg_list[rule.args.index(arg)] = extractInequality(arg)
-        
+            arg_list[idx] = extractInequality(arg)
+
         # Return the argument list
         return arg_list
-    
+
     # Perform commands to extract the inequality
     else:
-        
+
         # Return the rule (which should be an inequality)
         return rule
 

@@ -97,7 +97,7 @@ class changeReduction:
         for i in range(0,len(self.d)):
             
             # Calculate minimum design space that should be eliminated thus far
-            min_elim = max(calcExponential(iters/iters_max,p),0.0)
+            min_elim = max(calcExponential(iters/iters_max, p), 0.0)
             
             # Set the force reduction value to true or false depending on if
             # the minimum amount of space necessary has been eliminated
@@ -150,7 +150,8 @@ class changeReduction:
                 self.d[i]['part_params']['disc_crit'] = \
                     min(self.d[i]['part_params']['disc_crit'] + 0.1, 1.0)
             
-            # THIS MAY GO IN ITS OWN METHOD based on how adjustCriteria is called elsewhere in the script file!!!
+            # THIS MAY GO IN ITS OWN METHOD based on how adjustCriteria is
+            # called elsewhere in the script file!!!
             # Increase the discipline's forced reduction counter by 1
             self.d[i]['force_reduction'][1] += 1
         

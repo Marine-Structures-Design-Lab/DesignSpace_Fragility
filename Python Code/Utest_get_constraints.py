@@ -10,7 +10,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from get_constraints import getConstraints, getInequalities
+from get_constraints import getConstraints, getInequalities, extractInequality
 from vars_def import setProblem
 from create_key import createDict
 import unittest
@@ -37,6 +37,7 @@ class test_get_constraints(unittest.TestCase):
             
             # Create a key for the output rule inequalities
             self.Discips[i] = createDict('out_ineqs',self.Discips[i])
+    
     
     def test_get_constaints(self):
         """
@@ -80,6 +81,7 @@ class test_get_constraints(unittest.TestCase):
                                         self.Output_Rules),\
                          [self.Output_Rules[3],\
                           self.Output_Rules[4]])
+    
     
     def test_get_Inequalities(self):
         """
@@ -130,8 +132,33 @@ class test_get_constraints(unittest.TestCase):
         np.testing.assert_array_equal\
             (self.Discips[0]['out_ineqs'][self.y[0]>=0.0],np.zeros((2,2)))
         
-        return
-
+        
+    def test_extract_inequality(self):
+        
+        # Initialize sympy symbols
+        x = sp.symbols('x1:4')
+        
+        # Create rules for which inequalities are extracted
+        rule1 = x[0] < 0.5
+        rule2 = sp.Or(x[1] < 0.5, x[2] > 0.5, x[0] < 0.5, x[1] > 0.8)
+        rule3 = sp.And(sp.Or(x[1] < 0.5, x[2] > 0.5), x[0] < 0.5)
+        
+        # Call extractInequality on each rule
+        act_list1 = extractInequality(rule1)
+        act_list2 = extractInequality(rule2)
+        act_list3 = extractInequality(rule3)
+        
+        # Establish the expected rules/lists
+        exp_list1 = x[0] < 0.5
+        exp_list2 = [x[1] < 0.5, x[2] > 0.5, x[0] < 0.5, x[1] > 0.8]
+        exp_list3 = [[x[2] > 0.5, x[1] < 0.5], x[0] < 0.5]
+        
+        # Check that the actual lists match the expected lists
+        self.assertEqual(act_list1, exp_list1)
+        self.assertCountEqual(act_list2, exp_list2)
+        self.assertCountEqual(act_list3, exp_list3)
+        
+        
 """
 SCRIPT
 """

@@ -278,8 +278,6 @@ while iters < iters_max:
             
             # Adjust the criteria for the necessary discipline(s)
             Discips = red_change.adjustCriteria()
-            #print([d['part_params'] for d in Discips if 'part_params' in d])
-            
             
             # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
             force_reduction_counter += 1 # This counter is not needed in the fragility loop
