@@ -253,10 +253,6 @@ while iters < iters_max:
                 # DO NOT INCREASE FORCE REDUCTION COUNTER BY 1 HERE
                 continue
          
-        ##### If reduction is not to be forced, continue on to exploring the design space for a determined
-        ##### amount of time with an exploration amount method
-        ##### Don't need anything here, just let code continue on to the
-        ##### exploration section below
                 
     
     ### If no rules, determine if time remaining paired with the design space
@@ -284,10 +280,7 @@ while iters < iters_max:
             # because a forced reduction will not leave the fragility loop until
             # a space reduction is actually made and committed to 
             continue
-        ##### If no, move on to exploring the design space for a determined
-        ##### amount of time with an exploration amount method
-        ##### Don't need anything here, just let code continue on to the
-        ##### exploration section below
+
             
     
     

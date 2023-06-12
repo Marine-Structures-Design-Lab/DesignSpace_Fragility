@@ -10,7 +10,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from output_success import checkOutput
+from output_success import checkOutput, outputDiff
 from vars_def import setProblem
 from create_key import createKey, createDict, createNumpy
 from get_constraints import getConstraints, getInequalities
@@ -45,7 +45,7 @@ class test_output_success(unittest.TestCase):
         self.Discips[0]['tested_outs'] = np.array([[0.1],
                                                    [0.5]])
         self.Discips[1]['tested_outs'] = np.array([[0.6, 0.3],
-                                                   [0.65, 1.1]])
+                                                   [0.6, 1.1]])
         self.Discips[2]['tested_outs'] = np.array([[0.2, 1.1],
                                                    [-0.4, 2.2]])
         
@@ -88,6 +88,7 @@ class test_output_success(unittest.TestCase):
             # Determine the extent to which failing points fail
             self.Discips2[i] = outchk2.rmsFail()
             
+            
     def test_basic_check(self):
         """
         Unit tests for the basicCheck method
@@ -105,25 +106,55 @@ class test_output_success(unittest.TestCase):
             # Check that the pass? values produced are correct
             self.assertListEqual(self.Discips2[i]['pass?'],[True,False])
     
+    
     def test_rms_fail(self):
         """
         Unit tests for the rmsFail method
         """
         
-        # Write out expected normalized root mean square answers
+        # Determine expected normalized root mean square answers
         exp_ans = [np.array([0.0,0.25]),
                    np.array([0.0,0.53033008588991]),
                    np.array([0.0,0.60908337097702])]
         
         # Loop through each discipline
-        for i in range(0,len(self.Discips2)):
+        for i in range(0, len(self.Discips2)):
             
             # Check if calculated NRMSD is almost equal to expected values
             np.testing.assert_array_almost_equal\
-                (self.Discips2[i]['Fail_Amount'],exp_ans[i])
-        
-        return
+                (self.Discips2[i]['Fail_Amount'], exp_ans[i])
     
+    
+    def test_get_output_diff(self):
+        """
+        Unit tests for the outputDiff function
+        """
+        
+        # Determine expected (normalized) outputDiff values
+        exp_ans = [np.array([float(0.1/0.4)]),
+                   np.array([np.nan, float(0.6/0.8)]),
+                   np.array([float(0.4/0.6), float(0.6/1.1)])]
+        
+        # Loop through each discipline
+        for i in range(0, len(self.Discips2)):
+            
+            # Get output rules of discipline
+            output_rules = getConstraints(self.Discips2[i]['outs'],\
+                                          self.Output_Rules)
+            
+            # Initialize a numpy vector the same length as the output rules
+            tv_diff = np.zeros(len(output_rules))
+            
+            # Loop through each output rule of the discipline
+            for rule in output_rules:
+                
+                # Call outputDiff function for output points first index only
+                tv_diff[output_rules.index(rule)] = \
+                    outputDiff(rule, 1, self.Discips2[i])
+            
+            # Check if tv_diff values almost equal to expected values
+            np.testing.assert_array_almost_equal(tv_diff, exp_ans[i])
+            
         
 """
 SCRIPT

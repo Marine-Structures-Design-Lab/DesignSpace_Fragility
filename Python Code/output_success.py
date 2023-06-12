@@ -22,7 +22,35 @@ import warnings
 """
 SECONDARY FUNCTION
 """
-def get_output_diff(rule, i, d, outr):
+def outputDiff(rule, i, d):
+    """
+    Description
+    -----------
+    A recursive function that calls itself until the rule being passed to it is
+    a sympy inequality rather than an And or Or relational so that the
+    normalized difference of a point to the base inequality can be calculated
+    and evaluated further if it rests within a sympy relational before being
+    returned for the root-mean square difference equation
+    
+    Parameters
+    ----------
+    rule : Sympy relational or inequality
+        The current rule for which an output point's failure difference is
+        calculated
+    i : Integer
+        Index of the current design point
+    d : Dictionary
+        The particular discipline from which output information is being 
+        gathered and stored
+
+    Returns
+    -------
+    np.nanmin, np.nanmax, np.nan, diff, ndiff : Float or nan
+        The failure difference of a point to the current rule whether that
+        difference is a single value associated with an inequality (diff,
+        ndiff), a list of inequalities (np.nanmin, np.nanmax), or nan because
+        the point is not failing
+    """
     
     # Check if rule is an Or or And relational
     if isinstance(rule, sp.Or) or isinstance(rule, sp.And):
@@ -34,7 +62,7 @@ def get_output_diff(rule, i, d, outr):
         for arg in rule.args:
             
             # Call the function again and assign its value to vector
-            diff_vector[rule.args.index(arg)] = get_output_diff(arg,i, d, outr)
+            diff_vector[rule.args.index(arg)] = outputDiff(arg,i, d)
         
         # Turn off the warning messages for an all NaN matrix/vector
         warnings.filterwarnings\
@@ -199,7 +227,7 @@ class checkOutput:
                     
                     # Determine the normalized difference that point fails rule
                     tv_diff[self.outr.index(rule)] = \
-                        get_output_diff(rule, i, self.d, self.outr)
+                        outputDiff(rule, i, self.d)
                 
                 # Identify any instances of not a number
                 nan_mask = np.isnan(tv_diff)
