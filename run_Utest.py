@@ -1,5 +1,6 @@
 """
-Execute all of the unittest files beginning with 'Utest_'.
+Execute all of the unittest files beginning with 'Utest_' and email the results
+in a text file.
 
 CREATOR:
 Joseph B. Van Houten
@@ -13,6 +14,7 @@ import os
 import requests
 import subprocess
 from datetime import datetime
+import base64
 
 """
 SCRIPT FOR RUNNING TESTS
@@ -39,6 +41,16 @@ for test_file in test_files:
     results[test_file] = {'status': status, 'output': result.stdout + '\n' + \
                           result.stderr}
 
+# Save the results to a text file
+attachment_filename = 'test_results.txt'
+with open(attachment_filename, 'w') as f:
+    for test_file, result in results.items():
+        f.write(
+            f'Results for {test_file} '
+            f'({result["status"]}): \n'
+            f'{result["output"]}\n\n'
+        )
+
 """
 SCRIPT FOR SENDING EMAIL
 """
@@ -51,14 +63,12 @@ recipient_email = os.environ['RECIPIENT_EMAIL']
 subject = 'Unit Testing Results'
 current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-# Prepare the results content
-text_content = f'Here are the results of all the unit test files as of {current_datetime}:\n\n'
-for test_file, result in results.items():
-    text_content += (
-        f'Results for {test_file} '
-        f'({result["status"]}): \n'
-        f'{result["output"]}\n\n'
-    )
+# Read attachment file content
+with open(attachment_filename, 'r') as file:
+    attachment_content = file.read()
+
+# Encode attachment content as Base64
+attachment_content_base64 = base64.b64encode(attachment_content.encode()).decode()
 
 # Prepare the data for the API request
 data = {
@@ -72,7 +82,13 @@ data = {
         }
     ],
     'subject': subject,
-    'textContent': text_content,
+    'textContent': 'See attached file for the results.',
+    'attachment': [
+        {
+            'name': attachment_filename,
+            'content': attachment_content_base64
+        }
+    ]
 }
 
 # Send the email using Sendinblue API
