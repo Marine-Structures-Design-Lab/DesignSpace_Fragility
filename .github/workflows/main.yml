@@ -2,7 +2,7 @@ name: Daily Workflow
 
 on:
   schedule:
-    - cron: '31 21 * * *'  # This means the action will run every day at 6 AM UTC (2 AM EST)
+    - cron: '51 21 * * *'  # This means the action will run every day at 6 AM UTC (2 AM EST)
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: test-results
-        path: ./test_results.txt
+        path: ./
 
     - name: Email Utest
       env:
