@@ -86,7 +86,8 @@ data = {
     'attachment': [
         {
             'name': attachment_filename,
-            'content': attachment_content_base64
+            'content': attachment_content_base64,
+            'url': ''  # We don't have a URL for the content, so we set it to empty string
         }
     ]
 }
