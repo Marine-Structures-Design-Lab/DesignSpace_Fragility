@@ -64,11 +64,11 @@ subject = 'Unit Testing Results'
 current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # Read attachment file content
-with open(attachment_filename, 'r') as file:
+with open(attachment_filename, 'rb') as file:  # Note the 'rb' mode
     attachment_content = file.read()
 
 # Encode attachment content as Base64
-attachment_content_base64 = base64.b64encode(attachment_content.encode()).decode()
+attachment_content_base64 = base64.b64encode(attachment_content).decode()
 
 # Prepare the data for the API request
 data = {
