@@ -2,7 +2,7 @@ name: Run Unit Tests
 
 on:
   schedule:
-    - cron: '59 21 * * *'  # This will run the workflow daily at 00:00 UTC
+    - cron: '17 22 * * *'  # This will run the workflow daily at 00:00 UTC
 
 jobs:
   test:
@@ -27,6 +27,9 @@ jobs:
         pip install requests
         pip install numpy
         pip install sympy
+        pip install matplotlib
+        pip install iteration_utilities
+        pip install sklearn
 
     - name: Run Tests and Email Results
       env:
