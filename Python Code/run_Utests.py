@@ -19,11 +19,6 @@ from io import StringIO
 """
 SCRIPT
 """
-# Get API key, sender and receiver email from environment variables
-api_key = os.getenv('API_KEY')
-sender_email = os.getenv('SENDER_EMAIL')
-to_email = os.getenv('RECEIVER_EMAIL')
-
 # Get all test files
 test_files = [file for file in os.listdir('.') if file.startswith('Utest_') \
               and file.endswith('.py')]
@@ -40,12 +35,16 @@ for test in test_files:
 
 # Prepare an object to capture the test runner's output
 stream = StringIO()
-runner = unittest.TextTestRunner(stream=stream)
+runner = unittest.TextTestRunner(stream=stream, verbosity=2)
 
 # Run the tests
 result = runner.run(suite)
 
 # Send the results via email
+api_key = os.getenv('API_KEY')
+sender_email = os.getenv('SENDER_EMAIL')
+to_email = os.getenv('RECEIVER_EMAIL')
+
 email_content = {
     'sender': {'name': 'Unit Tester', 'email': sender_email},
     'to': [{'email': to_email}],
