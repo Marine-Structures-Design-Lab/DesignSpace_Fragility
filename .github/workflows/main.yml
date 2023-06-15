@@ -2,7 +2,7 @@ name: Run Unit Tests
 
 on:
   schedule:
-    - cron: '37 21 * * *'  # This will run the workflow daily at 00:00 UTC
+    - cron: '45 21 * * *'  # This will run the workflow daily at 00:00 UTC
 
 jobs:
   test:
@@ -19,7 +19,7 @@ jobs:
 
     - name: Set up a virtual environment and install dependencies
       run: |
-        cd Python Code
+        cd "Python Code"
         python -m venv env
         source env/bin/activate
         python -m pip install --upgrade pip
@@ -32,6 +32,6 @@ jobs:
         SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
         RECEIVER_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: |
-        cd Python Code
+        cd "Python Code"
         source env/bin/activate
         python run_Utests.py
