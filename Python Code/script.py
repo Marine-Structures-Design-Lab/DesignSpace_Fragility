@@ -68,7 +68,7 @@ sample = 'uniform'
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
 ### following any space reductions
-total_points = 10000
+total_points = 20000
 
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
@@ -83,8 +83,8 @@ fragility_max = 5   # Must be a positive integer!
 
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
-    [0.3,  # p1: x-intercept (0 <= p1 < p3)
-     8.0,  # p2: Steepness (any real, positive number)
+    [0.2,  # p1: x-intercept (0 <= p1 < p3)
+     5.0,  # p2: Steepness (any real, positive number)
      1.0,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
