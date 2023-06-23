@@ -33,6 +33,7 @@ from exponential_reduction import plotExponential
 from point_sorter import sortPoints
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
+from space_prediction import predictSpace
 from reduction_change import changeReduction
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
@@ -45,6 +46,7 @@ from output_success import checkOutput
 import numpy as np
 import copy
 
+
 """
 USER INPUTS
 """
@@ -56,7 +58,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 100    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -68,7 +70,7 @@ sample = 'uniform'
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
 ### following any space reductions
-total_points = 20000
+total_points = 10000
 
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
@@ -101,6 +103,7 @@ part_params = {
 """
 COMMANDS
 """
+
 ###############################################################################
 ################################ PROBLEM SETUP ################################
 ###############################################################################
@@ -197,7 +200,7 @@ while iters < iters_max:
             irules_new.append(space_check.prepareRule(pot_rule))
     
     # Check up on new rules
-    print(irules_new)
+    print("Newly proposed input rules: " + str(irules_new))
     
     # Check if new input rules list is filled with any rules
     if irules_new:
@@ -213,6 +216,24 @@ while iters < iters_max:
         # Run a fragility assessment if desired and while the fragility counter
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
+            
+            # Loop through each discipline
+            for i in range(0, len(Discips)):
+                
+                # Train Kriging model with all input and output points thus far
+                elim_xray = Discips[i].get('eliminated',{}).get('tested_ins',\
+                                 np.empty((0, len(Discips[i]['ins']))))
+                elim_yray = Discips[i].get('eliminated',{}).get('tested_outs',\
+                                 np.empty((0, len(Discips[i]['outs']))))
+                x_train = np.concatenate(\
+                              (Discips[i]['tested_ins'], elim_xray), axis=0)
+                y_train = np.concatenate(\
+                              (Discips[i]['tested_outs'], elim_yray), axis=0)
+                predictor = predictSpace(x_train, y_train)
+                
+                # Predict the output of the space remaining based on the model
+                pred_list, stddev_list = \
+                    predictor.predictOutput(Discips[i]['space_remaining'])
             
             # Execute fragility assessment and increase fragility counter by 1
             fragile = checkFragility()
@@ -296,7 +317,7 @@ while iters < iters_max:
     # Determine the amount of time/iterations for disciplines to explore
     space_amount = exploreSpace(iters,iters_max,run_time)
     temp_amount = space_amount.fixedExplore()
-    print("Current Exploration Time: " + str(temp_amount) +\
+    print("\nCurrent Exploration Time: " + str(temp_amount) +\
           ", Total Exploration Time: " + str(temp_amount+iters))
     
     # Loop through each discipline (maintaining each of their independence)
