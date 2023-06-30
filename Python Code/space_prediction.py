@@ -15,8 +15,20 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from scipy.stats import norm
 import numpy as np
+import sympy as sp
 import warnings
 from sklearn.exceptions import ConvergenceWarning
+
+"""
+SECONDARY FUNCTIONS
+"""
+def getLHS(rule):
+    
+    if isinstance(rule, sp.Rel):
+        return rule.lhs
+    elif isinstance(rule, (sp.And, sp.Or)):
+        return getLHS(rule.args[0])
+
 
 """
 CLASS
@@ -105,9 +117,43 @@ class predictSpace:
         # Determine the z-score given the desired confidence level
         z = norm.ppf((1 + confidence) / 2)
         
-        # Calculate the lower and upper bounds of the predicted value
-        lower_bounds = predictions - z * std_devs
-        upper_bounds = predictions + z * std_devs
+        # Initialize list for predict value bound arrays
+        pred_bounds = []
         
-        # Return an array of the lower and upper bounds for each test point
-        return np.column_stack((lower_bounds, upper_bounds))
+        # Loop through each array of predictions
+        for i in range(0, len(predictions)):
+            
+            # Calculate the lower and upper bounds of the predicted values
+            lower_bounds = predictions[i] - z * std_devs[i]
+            upper_bounds = predictions[i] + z * std_devs[i]
+            
+            # Stack the lower and upper bounds into an array
+            bounds = np.column_stack((lower_bounds, upper_bounds))
+            
+            # Append the bounds to the predicted bounds list
+            pred_bounds.append(bounds)
+        
+        # Return a list of the predicted value confidence bounds
+        return pred_bounds
+    
+    
+    def checkBounds(self, pred_bounds, output_rules, out_vars):
+        
+        # Initialize a numpy array for each predicted point and output rule
+        success_range = np.zeros((pred_bounds[0].shape[0], len(output_rules)))
+        
+        # Loop through each output rule
+        for rule in output_rules:
+            
+            # Gather the lhs of the output rule
+            lhs = getLHS(rule)
+            
+            # 
+            
+            
+            
+            
+        
+        
+        
+        return success_range

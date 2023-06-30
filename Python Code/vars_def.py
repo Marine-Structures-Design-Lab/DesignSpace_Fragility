@@ -84,6 +84,7 @@ class setProblem:
         ### ALL VARIABLES OF INEQUALITY MUST BE ON LEFT-HAND SIDE
         ### FREE-STANDING NUMBERS MUST BE ON THE RIGHT-HAND SIDE
         ### CAN ONLY HAVE SYMPY AND/OR RELATIONALS
+        ### LEFT-HAND SIDE OF RULE MUST BE SAME THROUGHOUT AND/OR RELATIONALS
         input_rules = [sp.And(x[i] >= 0.0, x[i] <= 1.0) for i in range(len(x))]
         
         # Create a list for the initial output rules

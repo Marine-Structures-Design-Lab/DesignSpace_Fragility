@@ -220,7 +220,7 @@ while iters < iters_max:
             # Loop through each discipline
             for i in range(0, len(Discips)):
                 
-                # Train Kriging model with all input and output points thus far
+                # Gather all input and output points thus far
                 elim_xray = Discips[i].get('eliminated',{}).get('tested_ins',\
                                  np.empty((0, len(Discips[i]['ins']))))
                 elim_yray = Discips[i].get('eliminated',{}).get('tested_outs',\
@@ -229,11 +229,28 @@ while iters < iters_max:
                               (Discips[i]['tested_ins'], elim_xray), axis=0)
                 y_train = np.concatenate(\
                               (Discips[i]['tested_outs'], elim_yray), axis=0)
+                
+                # Train a Kriging model with the input and output points
                 predictor = predictSpace(x_train, y_train)
                 
                 # Predict the output of the space remaining based on the model
-                pred_list, stddev_list = \
+                pred_arrays, stddev_arrays = \
                     predictor.predictOutput(Discips[i]['space_remaining'])
+                
+                # Get lower and upper confidence bounds of predicted values
+                pred_bounds = predictor.getError(pred_arrays, stddev_arrays)
+                
+                # Gather output rules relevant to the discipline
+                output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
+                
+                # Determine fraction of confidence bounds meeting output rules
+                # for each predicted point
+                pred_fracs = predictor.checkBounds(pred_bounds, output_rules, Discips[i]['outs'])
+                
+                # 
+                
+                
+                
             
             # Execute fragility assessment and increase fragility counter by 1
             fragile = checkFragility()
