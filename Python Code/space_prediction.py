@@ -16,6 +16,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from scipy.stats import norm
 import numpy as np
 import sympy as sp
+import copy
 import warnings
 from sklearn.exceptions import ConvergenceWarning
 
@@ -148,10 +149,28 @@ class predictSpace:
             # Gather the lhs of the output rule
             lhs = getLHS(rule)
             
-            # 
+            # Gather the free symbols of the lhs of the output rule
+            free_symbols = lhs.free_symbols
             
-            
-            
+            # Loop through each point
+            for i in range(0, pred_bounds[0].shape[0]):
+                
+                # Create two copies of the lhs of the output rule
+                copy1 = copy.deepcopy(lhs)
+                copy2 = copy.deepcopy(lhs)
+                
+                # Substitute all variables at once as part of a dictionary!!!
+                # (See latest chatgpt answer)
+                
+                # Loop through each free symbol
+                for symb in free_symbols:
+                    
+                    # Gather index of the free symbol in the output variables
+                    ind = out_vars.index(symb)
+                    
+                    # Substitute point's lower and upper bound into rule copies
+                    
+                    
             
         
         
