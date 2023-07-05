@@ -58,7 +58,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 100    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -220,34 +220,29 @@ while iters < iters_max:
             # Loop through each discipline
             for i in range(0, len(Discips)):
                 
-                # Gather all input and output points thus far
+                # Gather all input and output data thus far
                 elim_xray = Discips[i].get('eliminated',{}).get('tested_ins',\
                                  np.empty((0, len(Discips[i]['ins']))))
-                elim_yray = Discips[i].get('eliminated',{}).get('tested_outs',\
-                                 np.empty((0, len(Discips[i]['outs']))))
+                elim_ypass = Discips[i].get('eliminated',{}).get('pass?', [])
                 x_train = np.concatenate(\
                               (Discips[i]['tested_ins'], elim_xray), axis=0)
-                y_train = np.concatenate(\
-                              (Discips[i]['tested_outs'], elim_yray), axis=0)
+                y_train = Discips[i]['pass?'] + elim_ypass
                 
-                # Train a Kriging model with the input and output points
-                predictor = predictSpace(x_train, y_train)
+                # Initialize Gaussian Process Classifier (GPC) for feasibility
+                predictor = predictSpace()
                 
-                # Predict the output of the space remaining based on the model
-                pred_arrays, stddev_arrays = \
-                    predictor.predictOutput(Discips[i]['space_remaining'])
+                # Train GPC with x-input and pass/fail data
+                trained_bool = predictor.trainFeasibility(x_train, y_train)
                 
-                # Get lower and upper confidence bounds of predicted values
-                pred_bounds = predictor.getError(pred_arrays, stddev_arrays)
+                # Check that the GPC has been trained
+                if trained_bool:
+                    
+                    # Predict probability of feasibility of points remaining
+                    pof = predictor.predictProb(Discips[i]['space_remaining'])
+                    
+                    # Calculate Shannon Entropy at each point remaining
+                    entropy = predictor.calcEntropy(pof)
                 
-                # Gather output rules relevant to the discipline
-                output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
-                
-                # Determine fraction of confidence bounds meeting output rules
-                # for each predicted point
-                pred_fracs = predictor.checkBounds(pred_bounds, output_rules, Discips[i]['outs'])
-                
-                # 
                 
                 
                 
