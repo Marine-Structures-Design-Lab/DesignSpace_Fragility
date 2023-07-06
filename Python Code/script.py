@@ -242,6 +242,9 @@ while iters < iters_max:
                     
                     # Calculate Shannon Entropy at each point remaining
                     entropy = predictor.calcEntropy(pof)
+                    
+                    # Show plot of points with probability and entropy values
+                    predictor.plotPoints(Discips[i]['space_remaining'], pof, entropy, Discips[i]['ins'], i)
                 
                 
                 
@@ -413,8 +416,6 @@ for i in range(0,len(Discips)):
       f"{round((np.shape(Discips[i]['space_remaining'])[0]/tp_actual)*100, 2)}"
       f"% of its original design space remaining")
 
-
-    
     # Initialize an empty list for storing numpy arrays
     l = []
     
