@@ -13,6 +13,7 @@ LIBRARIES
 """
 from sklearn.gaussian_process import GaussianProcessClassifier
 import numpy as np
+import itertools
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -33,8 +34,9 @@ CLASS
 """
 class predictSpace:
 
-    def __init__(self):
+    def __init__(self, var):
         self.model = GaussianProcessClassifier()
+        self.var = var
         return
     
     def trainFeasibility(self, x_train, y_train):
@@ -45,15 +47,136 @@ class predictSpace:
             print("Training skipped due to insufficient unique classes.")
             return False
     
+    
     def predictFeas(self, x_test):
         return self.model.predict(x_test)
+    
     
     def predictProb(self, x):
         return self.model.predict_proba(x)
     
+    
+    def createCombos(self):
+        
+        # Create empty dictionary for all of the different variable combos
+        var_combos = {}
+        
+        # Loop over all possible variable combination lengths
+        for i in range(1, len(self.var)+1):
+            
+            # Generate combinations
+            for combo in itertools.combinations(self.var, i):
+                
+                # Assign 0.0 to each combination of variables
+                var_combos[combo] = 0.0
+        
+        # Return the dictionary of variable combinations
+        return var_combos
+    
+    
+    def feasStats(self, var_combos, space_rem, pof, tp_actual):
+        
+        # Determine the number of points in each dimension of space_rem
+        point_num = tp_actual**(1/len(self.var))
+        
+        # Determine the distance between points in each dimension of space_rem
+        point_dist = 1 / (point_num-1)
+        
+        # Loop through each variable combination
+        for combo in var_combos:
+            
+            # Initialize an empty list for indices
+            indices = []
+            
+            # Loop through each variable in the combination
+            for var in combo:
+                
+                # Gather the index of the variable in the discipline's inputs
+                index = self.var.index(var)
+                
+                # Append the index to the indices list
+                indices.append(index)
+            
+            # Initialize a dictionary to store sums and 
+            results = {}
+            
+            # Traverse the space remaining array
+            for row in range(0, len(space_rem)):
+                
+                # Create a tuple of the space_rem values at the current indices
+                key = tuple(space_rem[row, idx] for idx in indices)
+                
+                # Check if key not already in the dictionary
+                if key not in results:
+                    
+                    # Initialize the key with the pof value and a count of 1
+                    results[key] = [pof[row, 1], 1]
+                
+                # Perform the following commands if the key already exists
+                else:
+                    
+                    # Add the pof value to the existing sum
+                    results[key][0] += pof[row, 1]
+                    
+                    # Increase the count by 1
+                    results[key][1] += 1
+            
+            # Calculate the average for each key in the results dictionary
+            averages = {key: val[0] / val[1] for key, val in results.items()}
+            
+            # Sum all of the averages together
+            total = sum(averages.values())
+            
+            # Multiply total by
+            
+            
+            
+            
+            
+            
+            
+            #print(sum(pof[:,1])/pof.shape[0])
+            
+            
+            
+            
+            
+            
+            
+            
+            # # Gather the index or indices of the variable combination
+            # indices = 
+            
+            # # Isoloate the values from the array corresponding to the combo
+            # condensed_arr = space_rem
+            
+            # # Determine the unique values of each combo
+            # unique_vals = 
+        
+        
+        
+        
+        return var_combos
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     def calcEntropy(self, pof):
         entropy = -pof[:,0]*np.log2(pof[:,0]) - pof[:,1]*np.log2(pof[:,1])
         return entropy
+    
     
     def plotPoints(self, points, probs_and_colors, entropies, var, i, min_point_size=20, max_point_size=200):
         

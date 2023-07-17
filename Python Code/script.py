@@ -58,7 +58,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 100    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -229,23 +229,32 @@ while iters < iters_max:
                 y_train = Discips[i]['pass?'] + elim_ypass
                 
                 # Initialize Gaussian Process Classifier (GPC) for feasibility
-                predictor = predictSpace()
+                predictor = predictSpace(Discips[i]['ins'])
                 
                 # Train GPC with x-input and pass/fail data
                 trained_bool = predictor.trainFeasibility(x_train, y_train)
                 
-                # Check that the GPC has been trained
-                if trained_bool:
+                # Check GPC has been trained and space remaining not empty
+                if trained_bool and Discips[i]['space_remaining'].shape[0] > 0:
                     
                     # Predict probability of feasibility of points remaining
                     pof = predictor.predictProb(Discips[i]['space_remaining'])
                     
-                    # Calculate Shannon Entropy at each point remaining
-                    entropy = predictor.calcEntropy(pof)
+                    # Gather each combination of input variables
+                    var_combos = predictor.createCombos()
                     
-                    # Show plot of points with probability and entropy values
-                    predictor.plotPoints(Discips[i]['space_remaining'], pof, entropy, Discips[i]['ins'], i)
-                
+                    # Gather feasible point stats for each combo of variables
+                    var_combos = predictor.feasStats(var_combos, \
+                        Discips[i]['space_remaining'], pof, tp_actual)
+                    
+                    # Create a duplicate space remaining discipline
+                    
+                    # Eliminate points from the duplicate discipline
+                    
+                    # Gather feasible points stats for reduced design space
+                    
+                    # Compare feasible designs before and after the reduction
+                    
                 
                 
                 
