@@ -77,10 +77,7 @@ class predictSpace:
     def feasStats(self, var_combos, space_rem, pof, tp_actual):
         
         # Determine the number of points in each dimension of space_rem
-        point_num = tp_actual**(1/len(self.var))
-        
-        # Determine the distance between points in each dimension of space_rem
-        point_dist = 1 / (point_num-1)
+        point_num = round(tp_actual**(1/len(self.var)))
         
         # Loop through each variable combination
         for combo in var_combos:
@@ -97,7 +94,7 @@ class predictSpace:
                 # Append the index to the indices list
                 indices.append(index)
             
-            # Initialize a dictionary to store sums and 
+            # Initialize a dictionary to store sums and counts
             results = {}
             
             # Traverse the space remaining array
@@ -127,35 +124,10 @@ class predictSpace:
             # Sum all of the averages together
             total = sum(averages.values())
             
-            # Multiply total by
-            
-            
-            
-            
-            
-            
-            
-            #print(sum(pof[:,1])/pof.shape[0])
-            
-            
-            
-            
-            
-            
-            
-            
-            # # Gather the index or indices of the variable combination
-            # indices = 
-            
-            # # Isoloate the values from the array corresponding to the combo
-            # condensed_arr = space_rem
-            
-            # # Determine the unique values of each combo
-            # unique_vals = 
+            # Divide by product of points in each dimension of variable combo
+            var_combos[combo] = total / (len(combo)**point_num)
         
-        
-        
-        
+        # Return the variable combos dictionary with updated values
         return var_combos
     
     

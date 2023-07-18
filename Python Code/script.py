@@ -30,7 +30,7 @@ LIBRARIES
 from vars_def import setProblem
 from uniform_grid import uniformGrid
 from exponential_reduction import plotExponential
-from point_sorter import sortPoints
+from point_sorter import sortPoints, sortPoints2
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from space_prediction import predictSpace
@@ -247,11 +247,16 @@ while iters < iters_max:
                     var_combos = predictor.feasStats(var_combos, \
                         Discips[i]['space_remaining'], pof, tp_actual)
                     
-                    # Create a duplicate space remaining discipline
+                    # Create a duplicate discipline
+                    disc_dup = copy.deepcopy(Discips[i])
                     
                     # Eliminate points from the duplicate discipline
+                    disc_dup = sortPoints2(disc_dup, irules_new)
                     
                     # Gather feasible points stats for reduced design space
+                    pof2 = predictor.predictProb(disc_dup['space_remaining'])
+                    var_combos2 = predictor.createCombos()
+                    var_combos2 = predictor.feasStats(var_combos2, disc_dup['space_remaining'], pof2, tp_actual)
                     
                     # Compare feasible designs before and after the reduction
                     

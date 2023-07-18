@@ -62,7 +62,8 @@ def checkPoints(discipline, rule, var, key):
             index = discipline['ins'].index(symb)
             
             # Substitute index value from point to rule copy
-            rule_copy = rule_copy.subs(discipline['ins'][index], discipline[key][j,index])
+            rule_copy = rule_copy.subs(discipline['ins'][index], \
+                                       discipline[key][j,index])
             
         # Check if the tested input point does not meet the new rule
         if not rule_copy:
@@ -130,7 +131,9 @@ def updatePoints(discipline, indices, keys):
             discipline[key] = np.delete(discipline[key], indices, axis=0)
             
             # Add the moved values to the array
-            discipline['eliminated'][key] = np.concatenate((discipline['eliminated'][key], moved_values), axis=0)
+            discipline['eliminated'][key] = \
+                np.concatenate((discipline['eliminated'][key], moved_values), \
+                               axis=0)
     
     # Return the discipline having (potentially updated) eliminated values
     return discipline
@@ -289,3 +292,48 @@ def sortPoints(Discips, irules_new):
     
     # Return the updated list of dictionaries with changes for each discipline
     return Discips
+
+
+def sortPoints2(Discip, irules_new):
+    """
+    Description
+    -----------
+    Move previously established values from the necessary discipline keys to an
+    eliminated key within the discipline based on the new input rule(s) being
+    added
+
+    Parameters
+    ----------
+    Discip : Lictionary
+        Each dictionary contains information specific to a discipline on
+        previously tested input values, corresponding output values, and other
+        items
+    irules_new : List of sympy relationals
+        All the new input rules that are being added to the cumulative input
+        rule set based on the previous round of space reductions
+
+    Returns
+    -------
+    Discips : Dictionary
+        The same list of dictionaries that now has information moved to an
+        "eliminated" key within the dictionary based on what information was
+        made obsolete by the new set of input rules
+    """
+    
+    # Loop through each new input rule
+    for rule in irules_new:
+        
+        # Determine the variables of the rule
+        var = rule.free_symbols
+        
+        # Continue to next discipline if current one not impacted by rule
+        if not all(item in Discip['ins'] for item in var): continue
+        
+        # Create dictionaries for eliminated info if they do not exist
+        Discip = elimDicts(Discip)
+        
+        # Move proper points and other information to eliminated dictionary
+        Discip = testPoints(Discip, var, rule)
+    
+    # Return the updated list of dictionaries with changes for each discipline
+    return Discip
