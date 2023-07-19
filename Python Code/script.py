@@ -247,7 +247,7 @@ while iters < iters_max:
                     var_combos = predictor.feasStats(var_combos, \
                         Discips[i]['space_remaining'], pof, tp_actual)
                     
-                    # Create a duplicate discipline
+                    # Create a duplicate discipline (Need to edit code from this point on so only feasStats method is performed twice...not createCombos or predictProb)
                     disc_dup = copy.deepcopy(Discips[i])
                     
                     # Eliminate points from the duplicate discipline
@@ -259,6 +259,8 @@ while iters < iters_max:
                     var_combos2 = predictor.feasStats(var_combos2, disc_dup['space_remaining'], pof2, tp_actual)
                     
                     # Compare feasible designs before and after the reduction
+                    var_diff = {key: var_combos[key] - var_combos2[key] for key in var_combos if key in var_combos2}
+                    print(var_diff)
                     
                 
                 

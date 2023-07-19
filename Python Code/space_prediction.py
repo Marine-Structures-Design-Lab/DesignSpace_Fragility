@@ -79,6 +79,9 @@ class predictSpace:
         # Determine the number of points in each dimension of space_rem
         point_num = round(tp_actual**(1/len(self.var)))
         
+        # Determine the length between each point in a particular dimension
+        point_len = 1 / (point_num - 1)
+        
         # Loop through each variable combination
         for combo in var_combos:
             
@@ -124,8 +127,8 @@ class predictSpace:
             # Sum all of the averages together
             total = sum(averages.values())
             
-            # Divide by product of points in each dimension of variable combo
-            var_combos[combo] = total / (len(combo)**point_num)
+            # Multiply by distance between points
+            var_combos[combo] = total * (point_len**len(combo))
         
         # Return the variable combos dictionary with updated values
         return var_combos
