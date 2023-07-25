@@ -30,9 +30,10 @@ LIBRARIES
 from vars_def import setProblem
 from uniform_grid import uniformGrid
 from exponential_reduction import plotExponential
-from point_sorter import sortPoints
+from point_sorter import sortPoints, sortPoints2
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
+from space_prediction import predictSpace
 from reduction_change import changeReduction
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
@@ -44,6 +45,7 @@ from calc_rules import calcRules
 from output_success import checkOutput
 import numpy as np
 import copy
+
 
 """
 USER INPUTS
@@ -75,6 +77,8 @@ total_points = 10000
 ### number of disciplines/equations there are in the design problem
 run_time = [2, 3, 4]    # Must all be positive integers!
 
+# Choose desired fragility tracking method
+
 # Decide if the fragility of proposed reductions is to be assessed and the
 # number of fragility assessments to allow before accepting a fragile space
 # reduction
@@ -96,6 +100,12 @@ part_params = {
     "dist_crit": 0.2,
     "disc_crit": 0.2
     }
+
+
+
+
+
+
 
 """
 COMMANDS
@@ -214,16 +224,57 @@ while iters < iters_max:
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
             
-            # Initialize an object for the fragility check class
-            fragile = checkFragility(Discips, irules_new)
-            
-            # Create the data sets with which infotopo can work
-            
-            
-            
-            
+            # Loop through each discipline
+            for i in range(0, len(Discips)):
                 
+                # Gather all input and output data thus far
+                elim_xray = Discips[i].get('eliminated',{}).get('tested_ins',\
+                                 np.empty((0, len(Discips[i]['ins']))))
+                elim_ypass = Discips[i].get('eliminated',{}).get('pass?', [])
+                x_train = np.concatenate(\
+                              (Discips[i]['tested_ins'], elim_xray), axis=0)
+                y_train = Discips[i]['pass?'] + elim_ypass
+                
+                # Initialize Gaussian Process Classifier (GPC) for feasibility
+                predictor = predictSpace(Discips[i]['ins'])
+                
+                # Train GPC with x-input and pass/fail data
+                trained_bool = predictor.trainFeasibility(x_train, y_train)
+                
+                # Check GPC has been trained and space remaining not empty
+                if trained_bool and Discips[i]['space_remaining'].shape[0] > 0:
+                    
+                    # Predict probability of feasibility of points remaining
+                    pof = predictor.predictProb(Discips[i]['space_remaining'])
+                    
+                    # Gather each combination of input variables
+                    var_combos = predictor.createCombos()
+                    
+                    # Gather feasible point stats for each combo of variables
+                    var_combos = predictor.feasStats(var_combos, \
+                        Discips[i]['space_remaining'], pof, tp_actual)
+                    
+                    # Create a duplicate discipline (Need to edit code from this point on so only feasStats method is performed twice...not createCombos or predictProb)
+                    disc_dup = copy.deepcopy(Discips[i])
+                    
+                    # Eliminate points from the duplicate discipline
+                    disc_dup = sortPoints2(disc_dup, irules_new)
+                    
+                    # Gather feasible points stats for reduced design space
+                    pof2 = predictor.predictProb(disc_dup['space_remaining'])
+                    var_combos2 = predictor.createCombos()
+                    var_combos2 = predictor.feasStats(var_combos2, disc_dup['space_remaining'], pof2, tp_actual)
+                    
+                    # Compare feasible designs before and after the reduction
+                    var_diff = {key: var_combos[key] - var_combos2[key] for key in var_combos if key in var_combos2}
+                    print(var_diff)
+                    
+                
+                
+                
+            
             # Execute fragility assessment and increase fragility counter by 1
+            fragile = checkFragility()
             isfragile = fragile.basicCheck()
             fragility_counter += 1
             
