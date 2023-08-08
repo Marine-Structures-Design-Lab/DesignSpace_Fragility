@@ -97,6 +97,12 @@ part_params = {
     "disc_crit": 0.2
     }
 
+# Set number of new points to be tested before calculating Kullback-Leibler
+### divergence between prior and posterior data sets of a discipline
+KLgap = 1
+
+
+
 """
 COMMANDS
 """
@@ -215,11 +221,10 @@ while iters < iters_max:
         while fragility and fragility_counter < fragility_max:
             
             # Initialize an object for the fragility check class
-            fragile = checkFragility(Discips, irules_new)
+            fragile = checkFragility(Discips, irules_new, KLgap)
             
-            # Create the data sets with which infotopo can work
-            
-            
+            # Create data sets for calculating probability distributions
+            prior_data, posterior_data = fragile.createDataSets(KLgap)
             
             
                 
