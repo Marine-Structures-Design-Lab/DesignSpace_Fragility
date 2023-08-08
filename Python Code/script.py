@@ -221,7 +221,7 @@ while iters < iters_max:
         while fragility and fragility_counter < fragility_max:
             
             # Initialize an object for the fragility check class
-            fragile = checkFragility(Discips, irules_new, KLgap)
+            fragile = checkFragility(Discips, irules_new)
             
             # Create data sets for calculating probability distributions
             prior_data, posterior_data = fragile.createDataSets(KLgap)
