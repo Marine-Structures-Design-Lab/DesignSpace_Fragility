@@ -106,7 +106,6 @@ KLgap = 1
 """
 COMMANDS
 """
-
 ###############################################################################
 ################################ PROBLEM SETUP ################################
 ###############################################################################
@@ -213,6 +212,28 @@ while iters < iters_max:
         merger = mergeConstraints(irules_new)
         irules_new = merger.removeContradiction()
         
+        # Initialize an object for the fragility check class
+        fragile = checkFragility(Discips, irules_new)
+        
+        # Create data sets for calculating probability distributions
+        all_data = fragile.createDataSets()
+        
+        # Produce PDFs from KDEs and calculate KL divergence between PDF's
+        KL_values, prior_KDEs, posterior_KDEs = fragile.klDivergence\
+            (all_data, KLgap)
+        
+        # Plot the PDFs for each discipline
+        fragile.visualize_KDEs(prior_KDEs, posterior_KDEs)
+
+
+
+
+
+        
+        
+        
+        
+        
         # Initialize a fragility counter
         fragility_counter = 0
         
@@ -220,14 +241,10 @@ while iters < iters_max:
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
             
-            # Initialize an object for the fragility check class
-            fragile = checkFragility(Discips, irules_new)
-            
-            # Create data sets for calculating probability distributions
-            prior_data, posterior_data = fragile.createDataSets(KLgap)
             
             
-                
+            
+            
             # Execute fragility assessment and increase fragility counter by 1
             isfragile = fragile.basicCheck()
             fragility_counter += 1
