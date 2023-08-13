@@ -224,6 +224,9 @@ while iters < iters_max:
         # Determine posterior KDEs with Bayes' Theorem
         posterior_KDEs = fragile.evalBayes(KDEs, joint_KDEs)
         
+        # Compute the KL divergence between successive posterior distributions
+        KL_divergence = fragile.computeKL(posterior_KDEs)
+        
         
         
         

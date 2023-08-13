@@ -15,6 +15,35 @@ import itertools
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
+"""
+FUNCTIONS
+"""
+def kl_divergence(p, q, epsilon=1e-10):
+    """
+    Compute KL divergence of two distributions.
+    
+    Parameters:
+    - p, q: The two distributions. They should be on the same grid.
+    - epsilon: A small value to ensure we don't get log(0).
+    
+    Returns:
+    - KL divergence between p and q.
+    """
+
+    # Ensure the distributions are normalized
+    p /= p.sum()
+    q /= q.sum()
+
+    # Add epsilon to avoid log(0)
+    p = p + epsilon
+    q = q + epsilon
+
+    return np.sum(p * np.log(p / q))
+
+
+
+
+
 
 """
 CLASS
@@ -132,6 +161,13 @@ class checkFragility:
         return KDEs, joint_KDEs
     
     
+    
+    # NEED TO ADJUST THESE TWO METHODS TO ONLY GO THROUGH THEIR LOOPS IF DATA HASN'T
+    # LED TO AN EVALUATION ALREADY SIMILARLY TO HOW i DO IN THE ABOVE METHOD
+    
+    ### ALSO DO I WANT ANY VISUALIZATION METHODS????
+    
+    
     def evalBayes(self, KDEs, joint_KDEs):
         
         # Initialize empty lists
@@ -139,7 +175,7 @@ class checkFragility:
         
         # Specify number of points in each dimension of evaluation grids
         # (Free to adjust this!)
-        grid_res = 100
+        grid_res = 10
         
         # Loop through each discipline
         for i in range(0, len(self.D)):
@@ -152,18 +188,57 @@ class checkFragility:
             ranges = [np.linspace(0, 1, grid_res) for _ in range(num_dimensions)]
             
             # Loop through each KDE
-            for j in range(0, len(joint_KDEs[i])):
+            for j, joint_kde in enumerate(joint_KDEs[i]):
                 
                 # Create an evaluation grid
                 grid = np.meshgrid(*ranges)
                 
-        
+                # Convert grid points
+                grid_points = np.vstack([g.ravel() for g in grid]).T
+                
+                # Evaluate the joint KDE P(A, B)
+                joint_values = joint_kde.pdf(grid_points)
+                
+                # Evaluate the marginal KDEs P(B)
+                marginal_values = np.prod([kde_list[j].evaluate(grid_points[:, ind]) for ind, kde_list in enumerate(KDEs[i].values())], axis=0)
+                
+                # Calculate the posterior P(A|B)
+                posterior_values = joint_values / marginal_values
+                
+                # Store the posterior values
+                posterior_KDEs[i].append(posterior_values.reshape(*[grid_res]*num_dimensions))
+                
+        # Return the posterior KDEs
         return posterior_KDEs
     
     
-    def computeKL(self):
+    def computeKL(self, posterior_KDEs):
+        """
+        Compute KL divergence for each successive posterior distribution.
         
-        return
+        Parameters:
+        - posterior_KDEs: List of posterior KDEs.
+        
+        Returns:
+        - List of KL divergences.
+        """
+        kl_divs = []
+        
+        # Loop through each discipline
+        for post_kdes in posterior_KDEs:
+            discipline_kl_divs = []
+            for i in range(len(post_kdes) - 1):
+                div = kl_divergence(post_kdes[i], post_kdes[i + 1])
+                discipline_kl_divs.append(div)
+            kl_divs.append(discipline_kl_divs)
+        
+        return kl_divs
+    
+
+
+
+
+
     
     
     
