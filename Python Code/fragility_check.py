@@ -12,7 +12,6 @@ LIBRARIES
 """
 import numpy as np
 import itertools
-import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 """
@@ -33,11 +32,12 @@ def kl_divergence(p, q, epsilon=1e-10):
     # Ensure the distributions are normalized
     p /= p.sum()
     q /= q.sum()
-
+    
     # Add epsilon to avoid log(0)
     p = p + epsilon
     q = q + epsilon
-
+    
+    # Return the calculated KL divergence
     return np.sum(p * np.log(p / q))
 
 
@@ -56,10 +56,17 @@ class checkFragility:
         return
     
     
+    # Initialize KDE_data and other variables being returned in script file
+    # to make sure I know the order that data was added and to avoid repetitive
+    # KDE & KL divergence calculations!!!
+    
+    # ADJUST GRID SIZE AFTER I'VE DONE THIS!!!
+    
+    # Shouldn't need to collect eliminated data if this is done correctly?
     def createDataSets(self):
         
         # Initialize list of empty dictionaries for data
-        all_data = [{} for _ in self.D]
+        KDE_data = [{} for _ in self.D]
         
         # Loop through each discipline
         for i in range(0, len(self.D)):
@@ -90,14 +97,13 @@ class checkFragility:
                     nonelim_data = np.hstack((tested_ins, f_amount))
                     
                     # Add eliminated and non-eliminated data together
-                    all_data[i][combo] = np.vstack((elim_data, nonelim_data))
+                    KDE_data[i][combo] = np.vstack((elim_data, nonelim_data))
         
         # Return the eliminated and non-eliminated combined data sets
-        return all_data
+        return KDE_data
     
     
-    # (SHOULD BE ABLE TO COME BACK TO THIS AND MAKE CODE LESS REPETITIVE)
-    def calcKDEs(self, all_data, KLgap):
+    def calcKDEs(self, KDE_data, KLgap):
         
         # Initialize empty lists
         joint_KDEs = [{} for _ in range(len(self.D))]
@@ -107,10 +113,10 @@ class checkFragility:
         for i in range(0, len(self.D)):
             
             # Determine the maximum number of dimensions for joint KDE
-            num_dimensions = len(max(all_data[i], key=lambda k: len(k))) + 1
+            num_dimensions = len(max(KDE_data[i], key=lambda k: len(k))) + 1
             
             # Loop through each variable combination
-            for combo in all_data[i]:
+            for combo in KDE_data[i]:
                 
                 # Add combo to joint KDE dictionaries
                 joint_KDEs[i].setdefault(combo, [])
@@ -123,19 +129,23 @@ class checkFragility:
                 
                 # Establish minimum number of data points for KDE development
                 # (MIGHT GET AN ERROR HERE IF I HAVE TOO LITTLE EXPLORED DATA)
-                if len(joint_KDEs[i][combo]) == 0: min_data = num_dimensions + 1
-                else: min_data = len(joint_KDEs[i][combo])*KLgap + num_dimensions + 1
+                if len(joint_KDEs[i][combo]) == 0: 
+                    min_data = num_dimensions + 1
+                else: 
+                    min_data = \
+                        len(joint_KDEs[i][combo])*KLgap + num_dimensions + 1
                 
                 # Loop through data for KDE development
-                for j in range(min_data, all_data[i][combo].shape[0], KLgap):
+                for j in range(min_data, KDE_data[i][combo].shape[0], KLgap):
                     
                     # Gather data for joint combination
-                    joint_data = all_data[i][combo][0:j, :]
+                    joint_data = KDE_data[i][combo][0:j, :]
                     
                     # Perform multivariate KDE (free to adjust these!)
                     var_type_string = 'c' * (len(combo) + 1)
                     bandwidth_multivariate = 'normal_reference'
-                    kde = sm.nonparametric.KDEMultivariate(data=joint_data, var_type=var_type_string, bw=bandwidth_multivariate)
+                    kde = sm.nonparametric.KDEMultivariate(data=joint_data, \
+                        var_type=var_type_string, bw=bandwidth_multivariate)
                     
                     # Append KDE to the joint KDE's list
                     joint_KDEs[i][combo].append(kde)
@@ -144,26 +154,20 @@ class checkFragility:
                     if len(combo) == 1:
                         
                         # Gather data for particular combination
-                        combo_data = all_data[i][combo][0:j, 0:-1]
+                        combo_data = KDE_data[i][combo][0:j, 0:-1]
                         
                         # Perform univariate KDE (free to adjust these!)
                         bandwidth_univariate = 'scott'
                         kernel_univariate = 'gau'
                         kde = sm.nonparametric.KDEUnivariate(combo_data)
-                        kde.fit(bw=bandwidth_univariate, kernel=kernel_univariate)
+                        kde.fit(bw=bandwidth_univariate, \
+                                kernel=kernel_univariate)
                         
                         # Append KDE to the KDE's list
                         KDEs[i][combo].append(kde)
                     
         # Return the univariate and multivariate KDEs
         return KDEs, joint_KDEs
-    
-    
-    
-    # NEED TO ADJUST THESE TWO METHODS TO ONLY GO THROUGH THEIR LOOPS IF DATA HASN'T
-    # LED TO AN EVALUATION ALREADY SIMILARLY TO HOW i DO IN THE ABOVE METHOD
-    
-    ### ALSO DO I WANT ANY VISUALIZATION METHODS????
     
     
     def evalBayes(self, KDEs, joint_KDEs):
@@ -226,37 +230,35 @@ class checkFragility:
     
     
     def computeKL(self, posterior_KDEs):
-        """
-        Compute KL divergence for each successive posterior distribution.
         
-        Parameters:
-        - posterior_KDEs: List of posterior KDEs.
-        
-        Returns:
-        - List of KL divergences.
-        """
-        kl_divs = []
+        # Initialize empty lists
+        KL_divs = [{} for _ in range(len(self.D))]
         
         # Loop through each discipline
-        for post_kdes in posterior_KDEs:
-            discipline_kl_divs = []
-            for i in range(len(post_kdes) - 1):
-                div = kl_divergence(post_kdes[i], post_kdes[i + 1])
-                discipline_kl_divs.append(div)
-            kl_divs.append(discipline_kl_divs)
+        for i in range(0, len(self.D)):
+            
+            # Loop through each variable combination
+            for combo in posterior_KDEs[i]:
+                
+                # Add combo to KL divergence dictionaries
+                KL_divs[i].setdefault(combo, [])
+                
+                # Loop through each coinciding pair of posterior probabilities
+                for j in range(0, len(posterior_KDEs[i][combo]) - 1):
+                    
+                    # Calculate KL divergence between consecutive probabilities
+                    div = kl_divergence(posterior_KDEs[i][combo][j+1], posterior_KDEs[i][combo][j])
+                    
+                    # Append the KL divergence to the proper dictionary key
+                    KL_divs[i][combo].append(div)
         
-        return kl_divs
-    
-
-
-
-
-
+        # Return the KL divergences
+        return KL_divs
     
     
+    # Method to visualize KL divergences
     
-    
-    
+    # Method to visualize KDEs
     
     # Return a true or false boolean value if fragile or not
     def basicCheck(self):

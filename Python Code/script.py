@@ -216,10 +216,10 @@ while iters < iters_max:
         fragile = checkFragility(Discips, irules_new)
         
         # Create data sets for calculating probability distributions
-        all_data = fragile.createDataSets()
+        KDE_data = fragile.createDataSets()
         
         # Calculate individual and joint KDEs
-        KDEs, joint_KDEs = fragile.calcKDEs(all_data, KLgap)
+        KDEs, joint_KDEs = fragile.calcKDEs(KDE_data, KLgap)
         
         # Determine posterior KDEs with Bayes' Theorem
         posterior_KDEs = fragile.evalBayes(KDEs, joint_KDEs)
@@ -228,20 +228,6 @@ while iters < iters_max:
         KL_divergence = fragile.computeKL(posterior_KDEs)
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        # Produce PDFs from KDEs and calculate KL divergence between PDFs
-        # KL_values, prior_KDEs, posterior_KDEs = fragile.klDivergence\
-        #     (all_data, KLgap)
-        
-        # Plot the PDFs for each discipline
-        #fragile.visualize_KDEs(prior_KDEs, posterior_KDEs)
 
 
 
@@ -416,7 +402,7 @@ while iters < iters_max:
 
 
 
-####################################TEMPORARY##################################
+################################### TEMPORARY #################################
 # Visualize the points in the space remaining
 import matplotlib.pyplot as plt
 
