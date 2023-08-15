@@ -50,9 +50,37 @@ CLASS
 """
 class checkFragility:
     
-    def __init__(self, Discips, irules_new):
+    def __init__(self, Discips, irules_new, KDE_data, joint_KDEs, KDEs):
+        
+        # Initialize disciplines and new rules
         self.D = Discips
         self.ir = irules_new
+        
+        # Loop through each discipline
+        for i in range(0, len(self.D)):
+            
+            # Loop over all possible input variable combination lengths
+            for j in range(1, len(self.D[i]['ins']) + 1):
+                
+                # Generate combinations
+                for combo in itertools.combinations(self.D[i]['ins'], j):
+                    
+                    # Add combo to dictionary if it does not already exist
+                    KDE_data[i].setdefault(combo, np.empty((0, j+1)))
+                    joint_KDEs[i].setdefault(combo, [])
+                    
+                    # Check if currently only considering individual variable
+                    if j == 1:
+                        
+                        # Add combo to dictionary if it does not already exist
+                        KDEs[i].setdefault(combo, [])
+                    
+        
+        # Initialize object variables for other inputs
+        self.kde_d = KDE_data
+        self.j_kde = joint_KDEs
+        self.kde = KDEs
+        
         return
     
     
@@ -62,84 +90,72 @@ class checkFragility:
     
     # ADJUST GRID SIZE AFTER I'VE DONE THIS!!!
     
-    # Shouldn't need to collect eliminated data if this is done correctly?
     def createDataSets(self):
         
-        # Initialize list of empty dictionaries for data
-        KDE_data = [{} for _ in self.D]
-        
         # Loop through each discipline
-        for i in range(0, len(self.D)):
+        for i in range(0, len(self.kde_d)):
             
-            # Loop over all possible input variable combination lengths
-            for j in range(1, len(self.D[i]['ins'])+1):
+            # Loop over each variable combination
+            for combo in self.kde_d[i]:
                 
-                # Generate combinations
-                for combo in itertools.combinations(self.D[i]['ins'], j):
+                # Check the size of the eliminated data
+                if 'eliminated' in self.D[i]:
+                    elim_size = self.D[i]['eliminated']['tested_ins'].shape[0]
+                else:
+                    elim_size = 0
+                
+                # Check the size of the non-eliminated data
+                nonelim_size = self.D[i]['tested_ins'].shape[0]
+                
+                # Determine number of new points that have been explored
+                num_points = nonelim_size - \
+                    (self.kde_d[i][combo].shape[0] - elim_size)
+                
+                # Check if new points have been explored
+                if num_points > 0:
                     
                     # Gather the indices of the variables in the combo
                     indices = [self.D[i]['ins'].index(var) for var in combo]
                     indices = tuple(indices)
                     
-                    # Collect eliminated data
-                    elim_data = self.D[i].get('eliminated', {})
-                    etested_ins = elim_data.get('tested_ins', np.empty((0, j)))
-                    etested_ins = etested_ins[:, indices]
-                    ef_amount = elim_data.get('Fail_Amount', np.array([]))
-                    ef_amount = np.reshape(ef_amount, (-1, 1))
-                    elim_data = np.hstack((etested_ins, ef_amount))
-                    
-                    # Collect non-eliminated data
-                    tested_ins = self.D[i].get('tested_ins', np.empty((0, j)))
-                    tested_ins = tested_ins[:, indices]
-                    f_amount = self.D[i].get('Fail_Amount', np.array([]))
+                    # Collect new non-eliminated data
+                    tested_ins = self.D[i]['tested_ins'][-num_points:, indices]
+                    f_amount = self.D[i]['Fail_Amount'][-num_points:]
                     f_amount = np.reshape(f_amount, (-1, 1))
                     nonelim_data = np.hstack((tested_ins, f_amount))
                     
                     # Add eliminated and non-eliminated data together
-                    KDE_data[i][combo] = np.vstack((elim_data, nonelim_data))
+                    self.kde_d[i][combo] = \
+                        np.vstack((self.kde_d[i][combo], nonelim_data))
         
-        # Return the eliminated and non-eliminated combined data sets
-        return KDE_data
+        # Return the potentially updated KDE data set
+        return self.kde_d
     
     
-    def calcKDEs(self, KDE_data, KLgap):
-        
-        # Initialize empty lists
-        joint_KDEs = [{} for _ in range(len(self.D))]
-        KDEs = [{} for _ in range(len(self.D))]
+    def calcKDEs(self, KLgap):
         
         # Loop through each discipline
-        for i in range(0, len(self.D)):
+        for i in range(0, len(self.j_kde)):
             
             # Determine the maximum number of dimensions for joint KDE
-            num_dimensions = len(max(KDE_data[i], key=lambda k: len(k))) + 1
+            num_dimensions = len(max(self.kde_d[i], key=lambda k: len(k))) + 1
             
-            # Loop through each variable combination
-            for combo in KDE_data[i]:
-                
-                # Add combo to joint KDE dictionaries
-                joint_KDEs[i].setdefault(combo, [])
-                
-                # Check if tuple only consists of a single input variable
-                if len(combo) == 1:
-                    
-                    # Add combo to KDE dictionaries
-                    KDEs[i].setdefault(combo, [])
+            # Loop through each variable combination in joint KDE
+            for combo in self.j_kde[i]:
                 
                 # Establish minimum number of data points for KDE development
                 # (MIGHT GET AN ERROR HERE IF I HAVE TOO LITTLE EXPLORED DATA)
-                if len(joint_KDEs[i][combo]) == 0: 
+                if len(self.j_kde[i][combo]) == 0: 
                     min_data = num_dimensions + 1
                 else: 
                     min_data = \
-                        len(joint_KDEs[i][combo])*KLgap + num_dimensions + 1
+                        len(self.j_kde[i][combo])*KLgap + num_dimensions + 1
                 
                 # Loop through data for KDE development
-                for j in range(min_data, KDE_data[i][combo].shape[0], KLgap):
+                for j in range(min_data, self.kde_d[i][combo].shape[0], KLgap):
                     
                     # Gather data for joint combination
-                    joint_data = KDE_data[i][combo][0:j, :]
+                    joint_data = self.kde_d[i][combo][0:j, :]
                     
                     # Perform multivariate KDE (free to adjust these!)
                     var_type_string = 'c' * (len(combo) + 1)
@@ -148,13 +164,13 @@ class checkFragility:
                         var_type=var_type_string, bw=bandwidth_multivariate)
                     
                     # Append KDE to the joint KDE's list
-                    joint_KDEs[i][combo].append(kde)
+                    self.j_kde[i][combo].append(kde)
                     
                     # Check if tuple only consists of a single input variable
                     if len(combo) == 1:
                         
                         # Gather data for particular combination
-                        combo_data = KDE_data[i][combo][0:j, 0:-1]
+                        combo_data = self.kde_d[i][combo][0:j, 0:-1]
                         
                         # Perform univariate KDE (free to adjust these!)
                         bandwidth_univariate = 'scott'
@@ -164,13 +180,13 @@ class checkFragility:
                                 kernel=kernel_univariate)
                         
                         # Append KDE to the KDE's list
-                        KDEs[i][combo].append(kde)
+                        self.kde[i][combo].append(kde)
                     
         # Return the univariate and multivariate KDEs
-        return KDEs, joint_KDEs
+        return self.kde, self.j_kde
     
     
-    def evalBayes(self, KDEs, joint_KDEs):
+    def evalBayes(self):
         
         # Initialize empty lists
         posterior_KDEs = [{} for _ in range(len(self.D))]
@@ -183,28 +199,28 @@ class checkFragility:
         for i in range(0, len(self.D)):
             
             # Loop through each variable combination
-            for combo in joint_KDEs[i]:
+            for combo in self.j_kde[i]:
                 
                 # Add combo to posterior KDE dictionaries
                 posterior_KDEs[i].setdefault(combo, [])
                 
                 # Determine the number of dimensions of the joint KDE
-                num_dimensions = np.array(joint_KDEs[i][combo][0].data).shape[1]
+                num_dimensions = np.array(self.j_kde[i][combo][0].data).shape[1]
                 
                 # Initialize an empty dictionary of marginal KDEs
                 marg_kdes = {}
                 
                 # Gather the relevant individual KDEs
-                for key in KDEs[i]:
+                for key in self.kde[i]:
                     if key[0] in combo:
-                        marg_kdes[key] = KDEs[i][key]
+                        marg_kdes[key] = self.kde[i][key]
 
                 # Create the range lists
                 # (MAY WANT TO ADJUST THE RANGE OF FAILURE AMOUNT TO BE 0 TO MAX+0.5!)
                 ranges = [np.linspace(0, 1, grid_res) for _ in range(num_dimensions)]
                 
                 # Loop through each joint KDE
-                for j, joint_kde in enumerate(joint_KDEs[i][combo]):
+                for j, joint_kde in enumerate(self.j_kde[i][combo]):
                     
                     # Create an evaluation grid
                     grid = np.meshgrid(*ranges)

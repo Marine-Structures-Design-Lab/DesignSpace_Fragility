@@ -139,6 +139,13 @@ plotExponential(exp_parameters)
 # Create an empty list for new rules to be added
 irules_new = []
 
+# Initialize dictionaries for KDEs of fragility check
+KDE_data = [{} for _ in Discips]
+joint_KDEs = [{} for _ in Discips]
+KDEs = [{} for _ in Discips]
+posterior_KDEs = [{} for _ in Discips]
+KL_divs = [{} for _ in Discips]
+
 # Set the initial forced reduction value to false and establish a counter
 ### THESE MAY NOT BE NEEDED LATER
 force_reduction = False
@@ -213,16 +220,16 @@ while iters < iters_max:
         irules_new = merger.removeContradiction()
         
         # Initialize an object for the fragility check class
-        fragile = checkFragility(Discips, irules_new)
+        fragile = checkFragility(Discips, irules_new, KDE_data, joint_KDEs, KDEs)
         
         # Create data sets for calculating probability distributions
         KDE_data = fragile.createDataSets()
         
         # Calculate individual and joint KDEs
-        KDEs, joint_KDEs = fragile.calcKDEs(KDE_data, KLgap)
+        KDEs, joint_KDEs = fragile.calcKDEs(KLgap)
         
         # Determine posterior KDEs with Bayes' Theorem
-        posterior_KDEs = fragile.evalBayes(KDEs, joint_KDEs)
+        posterior_KDEs = fragile.evalBayes()
         
         # Compute the KL divergence between successive posterior distributions
         KL_divergence = fragile.computeKL(posterior_KDEs)
