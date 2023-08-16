@@ -13,6 +13,8 @@ LIBRARIES
 import numpy as np
 import itertools
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 """
 FUNCTIONS
@@ -50,7 +52,8 @@ CLASS
 """
 class checkFragility:
     
-    def __init__(self, Discips, irules_new, KDE_data, joint_KDEs, KDEs):
+    def __init__(self, Discips, irules_new, KDE_data, joint_KDEs, KDEs, \
+                 posterior_KDEs, KL_divs):
         
         # Initialize disciplines and new rules
         self.D = Discips
@@ -68,6 +71,8 @@ class checkFragility:
                     # Add combo to dictionary if it does not already exist
                     KDE_data[i].setdefault(combo, np.empty((0, j+1)))
                     joint_KDEs[i].setdefault(combo, [])
+                    posterior_KDEs[i].setdefault(combo, [])
+                    KL_divs[i].setdefault(combo, [])
                     
                     # Check if currently only considering individual variable
                     if j == 1:
@@ -80,6 +85,8 @@ class checkFragility:
         self.kde_d = KDE_data
         self.j_kde = joint_KDEs
         self.kde = KDEs
+        self.p_kde = posterior_KDEs
+        self.kl_div = KL_divs
         
         return
     
@@ -138,7 +145,7 @@ class checkFragility:
         for i in range(0, len(self.j_kde)):
             
             # Determine the maximum number of dimensions for joint KDE
-            num_dimensions = len(max(self.kde_d[i], key=lambda k: len(k))) + 1
+            num_dimensions = len(max(self.j_kde[i], key=lambda k: len(k))) + 1
             
             # Loop through each variable combination in joint KDE
             for combo in self.j_kde[i]:
@@ -170,7 +177,7 @@ class checkFragility:
                     if len(combo) == 1:
                         
                         # Gather data for particular combination
-                        combo_data = self.kde_d[i][combo][0:j, 0:-1]
+                        combo_data = self.kde_d[i][combo][0:j, 0]
                         
                         # Perform univariate KDE (free to adjust these!)
                         bandwidth_univariate = 'scott'
@@ -186,23 +193,26 @@ class checkFragility:
         return self.kde, self.j_kde
     
     
+    
+    # START HERE! (08/15/2023)
+    
+    
     def evalBayes(self):
-        
-        # Initialize empty lists
-        posterior_KDEs = [{} for _ in range(len(self.D))]
         
         # Specify number of points in each dimension of evaluation grids
         # (Free to adjust this!)
         grid_res = 10
         
         # Loop through each discipline
-        for i in range(0, len(self.D)):
+        for i in range(0, len(self.p_kde)):
             
             # Loop through each variable combination
-            for combo in self.j_kde[i]:
+            for combo in self.p_kde[i]:
                 
-                # Add combo to posterior KDE dictionaries
-                posterior_KDEs[i].setdefault(combo, [])
+                # Continue to next iteration if posterior KDE list is at least
+                # same length as joint KDE list (no new points)
+                if len(self.p_kde[i][combo]) >= len(self.j_kde[i][combo]):
+                    continue
                 
                 # Determine the number of dimensions of the joint KDE
                 num_dimensions = np.array(self.j_kde[i][combo][0].data).shape[1]
@@ -213,14 +223,14 @@ class checkFragility:
                 # Gather the relevant individual KDEs
                 for key in self.kde[i]:
                     if key[0] in combo:
-                        marg_kdes[key] = self.kde[i][key]
-
+                        marg_kdes[key] = self.kde[i][key][len(self.p_kde[i][combo]):]
+                
                 # Create the range lists
                 # (MAY WANT TO ADJUST THE RANGE OF FAILURE AMOUNT TO BE 0 TO MAX+0.5!)
                 ranges = [np.linspace(0, 1, grid_res) for _ in range(num_dimensions)]
                 
-                # Loop through each joint KDE
-                for j, joint_kde in enumerate(self.j_kde[i][combo]):
+                # Loop through each new joint KDE
+                for j, joint_kde in enumerate(self.j_kde[i][combo][len(self.p_kde[i][combo]):]):
                     
                     # Create an evaluation grid
                     grid = np.meshgrid(*ranges)
@@ -231,48 +241,74 @@ class checkFragility:
                     # Evaluate the joint KDE P(A, B)
                     joint_values = joint_kde.pdf(grid_points)
                     
-                    # Evaluate the product of the relevant marginal KDEs
-                    marginal_values = [kde_list[j].evaluate(grid_points[:, ind]) for ind, kde_list in enumerate(marg_kdes.values())]
+                    # Initialize list for marginal KDEs evaluated along grid
+                    marginal_values = []
+                    
+                    # Loop through each marginal KDE combo
+                    for key in marg_kdes:
+                        
+                        # Evaluate KDE at grid points and append to list
+                        mv_array = marg_kdes[key][j].evaluate(grid_points[:, 0])
+                        
+                        # Append array to marginal values list
+                        marginal_values.append([mv_array])
+                    
+                    # Take the product of each of the relevant marginal KDEs
                     marginal_values = np.prod(marginal_values, axis=0)
                     
                     # Calculate the posterior P(A|B)
                     posterior_values = joint_values / marginal_values
                     
                     # Store the posterior values
-                    posterior_KDEs[i][combo].append(posterior_values.reshape(*[grid_res]*num_dimensions))
+                    self.p_kde[i][combo].append(posterior_values.reshape(*[grid_res]*num_dimensions))
                 
         # Return the posterior KDEs
-        return posterior_KDEs
+        return self.p_kde
     
     
-    def computeKL(self, posterior_KDEs):
-        
-        # Initialize empty lists
-        KL_divs = [{} for _ in range(len(self.D))]
+    def computeKL(self):
         
         # Loop through each discipline
         for i in range(0, len(self.D)):
             
             # Loop through each variable combination
-            for combo in posterior_KDEs[i]:
+            for combo in self.p_kde[i]:
                 
-                # Add combo to KL divergence dictionaries
-                KL_divs[i].setdefault(combo, [])
-                
-                # Loop through each coinciding pair of posterior probabilities
-                for j in range(0, len(posterior_KDEs[i][combo]) - 1):
+                # Loop through each new coinciding pair of posterior probabilities
+                for j in range(len(self.kl_div[i][combo]), len(self.p_kde[i][combo]) - 1):
                     
                     # Calculate KL divergence between consecutive probabilities
-                    div = kl_divergence(posterior_KDEs[i][combo][j+1], posterior_KDEs[i][combo][j])
+                    div = kl_divergence(self.p_kde[i][combo][j+1], self.p_kde[i][combo][j])
                     
                     # Append the KL divergence to the proper dictionary key
-                    KL_divs[i][combo].append(div)
+                    self.kl_div[i][combo].append(div)
         
         # Return the KL divergences
-        return KL_divs
+        return self.kl_div
     
     
-    # Method to visualize KL divergences
+    def plotKL(self):
+        
+        # Iterate through each dictionary in the list
+        for idx, d in enumerate(self.kl_div):
+            
+            plt.figure(figsize=(10, 6))  # Create a new figure for each dictionary
+            
+            # Iterate through each key-value pair in the dictionary
+            for key, values in d.items():
+                
+                # Plot the values against their index location
+                plt.plot(range(len(values)), values, label=str(key))
+            
+            # Add some plotting details
+            ax = plt.gca()  # Get the current axis
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure x-axis has only integer ticks
+            plt.xlabel('Index')
+            plt.ylabel('Kullback-Leibler Divergence')
+            plt.title(f'Discipline {idx + 1}')
+            plt.legend()  # This adds a legend with the name of the tuple for each line
+            plt.grid(True)
+            plt.show()
     
     # Method to visualize KDEs
     

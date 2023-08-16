@@ -220,7 +220,8 @@ while iters < iters_max:
         irules_new = merger.removeContradiction()
         
         # Initialize an object for the fragility check class
-        fragile = checkFragility(Discips, irules_new, KDE_data, joint_KDEs, KDEs)
+        fragile = checkFragility(Discips, irules_new, KDE_data, joint_KDEs, \
+                                 KDEs, posterior_KDEs, KL_divs)
         
         # Create data sets for calculating probability distributions
         KDE_data = fragile.createDataSets()
@@ -232,7 +233,10 @@ while iters < iters_max:
         posterior_KDEs = fragile.evalBayes()
         
         # Compute the KL divergence between successive posterior distributions
-        KL_divergence = fragile.computeKL(posterior_KDEs)
+        KL_divs = fragile.computeKL()
+        
+        # Show the progression of KL divergence values as points are added
+        fragile.plotKL()
         
         
 
