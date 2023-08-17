@@ -201,7 +201,7 @@ class checkFragility:
         
         # Specify number of points in each dimension of evaluation grids
         # (Free to adjust this!)
-        grid_res = 10
+        grid_res = 15
         
         # Loop through each discipline
         for i in range(0, len(self.p_kde)):
