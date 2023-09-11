@@ -45,6 +45,7 @@ from output_success import checkOutput
 import numpy as np
 import copy
 
+
 """
 USER INPUTS
 """
@@ -100,7 +101,6 @@ part_params = {
 # Set number of new points to be tested before calculating Kullback-Leibler
 ### divergence between prior and posterior data sets of a discipline
 KLgap = 1
-
 
 
 """
