@@ -90,7 +90,7 @@ def outputDiff(rule, i, d):
             ind = d['outs'].index(symb)
             
             # Substitute output value into free symbol of rule copy
-            rule_copy = rule_copy.subs(symb, d['tested_outs'][i,ind])
+            rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
         
         # Check if the rule copy is true
         if rule_copy:
@@ -243,4 +243,7 @@ class checkOutput:
                 
         # Return updated dictionary with normalized failure amounts
         return self.d
+    
+    
+    # Pass amount method...similar to failure amount method but reversed?
     

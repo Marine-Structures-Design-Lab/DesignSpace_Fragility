@@ -46,6 +46,9 @@ import numpy as np
 import copy
 
 
+###############################################################################
+################################ PROBLEM SETUP ################################
+###############################################################################
 """
 USER INPUTS
 """
@@ -106,10 +109,6 @@ KLgap = 1
 """
 COMMANDS
 """
-###############################################################################
-################################ PROBLEM SETUP ################################
-###############################################################################
-
 # Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
@@ -176,13 +175,13 @@ while iters < iters_max:
     irules_new = []
     
     # Loop through each disicipline
-    for i in range(0,len(Discips)):
+    for i in range(0, len(Discips)):
         
         # Skip reduction considerations if no tested points with which to work
         if 'tested_ins' not in Discips[i] or \
             np.shape(Discips[i]['tested_ins'])[0] == 0: continue
         
-        # Initialize an object for the checkSpace class
+        # Initialize an object for the checkSpace class (free to adjust depth!)
         space_check = checkSpace(Discips[i]['ins'], max_depth=2)
         
         # Produce array of "good" and "bad" values based on CDF threshold

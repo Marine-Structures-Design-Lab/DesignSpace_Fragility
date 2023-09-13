@@ -505,7 +505,7 @@ class checkSpace:
         dist_crit : Float
             The discipline-specific maximum distance of normalized points
             within the area of the design space being reviewed for removal to
-            any tested point in the input space
+            any nearest neighbor in the input space
         disc_crit : Float
             The discipline-specific maximum uniformity metric of points within
             the area of the design space being reviewed for removal (where 0.0
