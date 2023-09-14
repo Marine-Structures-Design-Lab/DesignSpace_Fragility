@@ -215,9 +215,6 @@ class checkOutput:
                 
                 # Append 0.0 to the failure amount vector
                 self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'], 0.0)
-            
-            # Perform the following commands if the point is not passing
-            else:
                 
                 # Initialize a numpy vector the same length as the rules
                 tv_diff = np.zeros(len(self.outr))
@@ -225,7 +222,36 @@ class checkOutput:
                 # Loop through each output rule
                 for rule in self.outr:
                     
-                    # Determine the normalized difference that point fails rule
+                    # Determine normalized difference that point passes rule
+                    tv_diff[self.outr.index(rule)] = \
+                        outputDiff(rule, i, self.d)
+                
+                # Identify any instances of not a number
+                nan_mask = np.isnan(tv_diff)
+                
+                # Replace any instance of not a number with 0.0
+                tv_diff[nan_mask] = 0.0
+                
+                # Calculate the NRMSD for the set of relevant output rules
+                nrmsd = np.sqrt(np.sum(np.square(tv_diff))/len(tv_diff))
+                
+                # Append the NRMSD value to the pass amount vector
+                self.d['Pass_Amount'] = np.append(self.d['Pass_Amount'], nrmsd)
+                
+            
+            # Perform the following commands if the point is not passing
+            else:
+                
+                # Append 0.0 to the pass amount vector
+                self.d['Pass_Amount'] = np.append(self.d['Pass_Amount'], 0.0)
+                
+                # Initialize a numpy vector the same length as the rules
+                tv_diff = np.zeros(len(self.outr))
+                
+                # Loop through each output rule
+                for rule in self.outr:
+                    
+                    # Determine normalized difference that point fails rule
                     tv_diff[self.outr.index(rule)] = \
                         outputDiff(rule, i, self.d)
                 
@@ -239,7 +265,7 @@ class checkOutput:
                 nrmsd = np.sqrt(np.sum(np.square(tv_diff))/len(tv_diff))
                 
                 # Append the NRMSD value to the failure amount vector
-                self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'],nrmsd)
+                self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'], nrmsd)
                 
         # Return updated dictionary with normalized failure amounts
         return self.d

@@ -169,6 +169,7 @@ def elimDicts(discipline):
     # Determine keys to be apart of the nested eliminated dictionary
     keys_to_create = ['Fail_Amount',
                       'pass?',
+                      'Pass_Amount',
                       'space_remaining',
                       'tested_ins',
                       'tested_outs']
@@ -231,7 +232,8 @@ def testPoints(discipline, var, rule):
     
     # Move indices with failing input information to eliminated dictionary
     discipline = updatePoints(discipline, tp_elim,\
-                     ['tested_ins', 'tested_outs', 'Fail_Amount', 'pass?'])
+                     ['tested_ins', 'tested_outs', 'Fail_Amount', \
+                      'Pass_Amount', 'pass?'])
     
     # Gather indices of space remaining points that do not meet rule
     sr_elim = checkPoints(discipline, rule, var, 'space_remaining')

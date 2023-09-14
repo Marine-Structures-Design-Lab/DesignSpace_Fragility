@@ -60,7 +60,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 100    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -223,19 +223,19 @@ while iters < iters_max:
                                  KDEs, posterior_KDEs, KL_divs)
         
         # Create data sets for calculating probability distributions
-        KDE_data = fragile.createDataSets()
+        #KDE_data = fragile.createDataSets()
         
         # Calculate individual and joint KDEs
-        KDEs, joint_KDEs = fragile.calcKDEs(KLgap)
+        #KDEs, joint_KDEs = fragile.calcKDEs(KLgap)
         
         # Determine posterior KDEs with Bayes' Theorem
-        posterior_KDEs = fragile.evalBayes()
+        #posterior_KDEs = fragile.evalBayes()
         
         # Compute the KL divergence between successive posterior distributions
-        KL_divs = fragile.computeKL()
+        #KL_divs = fragile.computeKL()
         
         # Show the progression of KL divergence values as points are added
-        fragile.plotKL()
+        #fragile.plotKL()
         
         
 
@@ -380,11 +380,12 @@ while iters < iters_max:
         Discips[i] = createKey('pass?',Discips[i])
         
         # Check whether the output points pass or fail
-        outchk = checkOutput(Discips[i],output_rules)
+        outchk = checkOutput(Discips[i], output_rules)
         Discips[i] = outchk.basicCheck()
         
         # Create a key for extent of passing/failing if it does not exist
-        Discips[i] = createNumpy('Fail_Amount',Discips[i])
+        Discips[i] = createNumpy('Fail_Amount', Discips[i])
+        Discips[i] = createNumpy('Pass_Amount', Discips[i])
         
         # Determine the extent to which failing points fail
         Discips[i] = outchk.rmsFail()
@@ -455,12 +456,41 @@ for i in range(0,len(Discips)):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     
+    # Initialize colors for plots
+    colors = ['teal', 'teal', 'magenta', 'magenta']
+    
     # Plot every surface
     for m in range(0,len(l)):
-        ax.plot_surface(j, k, l[m], alpha=0.5, rstride=100, cstride=100)
+        if i < 2:
+            ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.5, rstride=100, cstride=100)
+        else:
+            ax.plot_surface( l[m], j, k, color=colors[m], alpha=0.5, rstride=100, cstride=100)
     
-    # Accumulate the data
-    ax.scatter(Discips[i]['space_remaining'][:,0], Discips[i]['space_remaining'][:,1], Discips[i]['space_remaining'][:,2])
+    # Accumulate the space remaining data
+    ax.scatter(Discips[i]['space_remaining'][:,0], \
+                Discips[i]['space_remaining'][:,1], \
+                Discips[i]['space_remaining'][:,2], c='black', s=10, alpha=0.4)
+    
+    
+    # Gather and plot passing and failing remaining tested input indices
+    pass_ind = np.where(Discips[i]['pass?'])[0].tolist()
+    fail_ind = np.where(np.array(Discips[i]['pass?']) == False)[0].tolist()
+    ax.scatter(Discips[i]['tested_ins'][pass_ind,0], \
+               Discips[i]['tested_ins'][pass_ind,1], \
+               Discips[i]['tested_ins'][pass_ind,2], c='green', alpha=1)
+    ax.scatter(Discips[i]['tested_ins'][fail_ind,0], \
+               Discips[i]['tested_ins'][fail_ind,1], \
+               Discips[i]['tested_ins'][fail_ind,2], c='red', alpha=1)
+    
+    # Gather and plot passing and failing eliminated tested input indices
+    pass_ind = np.where(Discips[i]['eliminated']['pass?'])[0].tolist()
+    fail_ind = np.where(np.array(Discips[i]['eliminated']['pass?']) == False)[0].tolist()
+    ax.scatter(Discips[i]['eliminated']['tested_ins'][pass_ind,0], \
+               Discips[i]['eliminated']['tested_ins'][pass_ind,1], \
+               Discips[i]['eliminated']['tested_ins'][pass_ind,2], c='green', alpha=1)
+    ax.scatter(Discips[i]['eliminated']['tested_ins'][fail_ind,0], \
+               Discips[i]['eliminated']['tested_ins'][fail_ind,1], \
+               Discips[i]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
     
     # Set axis limits
     ax.set_xlim([0, 1])
