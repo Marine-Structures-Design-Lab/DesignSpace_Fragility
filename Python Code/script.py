@@ -34,6 +34,8 @@ from point_sorter import sortPoints
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from reduction_change import changeReduction
+from distribution_check import checkDistributions
+from windfall_regret import windfallRegret
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
 from get_constraints import getConstraints, getInequalities
@@ -60,7 +62,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 100    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -218,24 +220,37 @@ while iters < iters_max:
         merger = mergeConstraints(irules_new)
         irules_new = merger.removeContradiction()
         
-        # Initialize an object for the fragility check class
-        fragile = checkFragility(Discips, irules_new, KDE_data, joint_KDEs, \
-                                 KDEs, posterior_KDEs, KL_divs)
+        # Initialize a windfall and regret object
+        windregret = windfallRegret()
         
-        # Create data sets for calculating probability distributions
-        #KDE_data = fragile.createDataSets()
         
-        # Calculate individual and joint KDEs
-        #KDEs, joint_KDEs = fragile.calcKDEs(KLgap)
         
-        # Determine posterior KDEs with Bayes' Theorem
-        #posterior_KDEs = fragile.evalBayes()
         
-        # Compute the KL divergence between successive posterior distributions
-        #KL_divs = fragile.computeKL()
         
-        # Show the progression of KL divergence values as points are added
-        #fragile.plotKL()
+        
+        
+        
+        
+        
+        
+        # # Initialize an object for the distribution check class
+        # distribution = checkDistributions(Discips, irules_new, KDE_data, joint_KDEs, \
+        #                          KDEs, posterior_KDEs, KL_divs)
+        
+        # # Create data sets for calculating probability distributions
+        # KDE_data = distribution.createDataSets()
+        
+        # # Calculate individual and joint KDEs
+        # KDEs, joint_KDEs = distribution.calcKDEs(KLgap)
+        
+        # # Determine posterior KDEs with Bayes' Theorem
+        # posterior_KDEs = distribution.evalBayes()
+        
+        # # Compute the KL divergence between successive posterior distributions
+        # KL_divs = distribution.computeKL()
+        
+        # # Show the progression of KL divergence values as points are added
+        # distribution.plotKL()
         
         
 
@@ -257,7 +272,8 @@ while iters < iters_max:
             
             
             
-            
+            # Initialize a fragility check object
+            fragile = checkFragility()
             
             # Execute fragility assessment and increase fragility counter by 1
             isfragile = fragile.basicCheck()
