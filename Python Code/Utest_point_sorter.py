@@ -51,6 +51,9 @@ class test_point_sorter(unittest.TestCase):
         # Create a vector of failure amounts
         self.Discips[0]['Fail_Amount'] = np.array([0.0, 0.1, 0.2, 0.3, 0.4])
         
+        # Create a vector of pass amounts
+        self.Discips[0]['Pass_Amount'] = np.array([0.0, 0.1, 0.2, 0.3, 0.4])
+        
         # Create a boolean list of pass/fail values
         self.Discips[0]['pass?'] = [True, False, True, False, True]
         
@@ -67,6 +70,8 @@ class test_point_sorter(unittest.TestCase):
         self.Discips[0]['eliminated'] = createKey('pass?', \
             self.Discips[0]['eliminated'])
         self.Discips[0]['eliminated'] = createNumpy('Fail_Amount', \
+            self.Discips[0]['eliminated'])
+        self.Discips[0]['eliminated'] = createNumpy('Pass_Amount', \
             self.Discips[0]['eliminated'])
         self.Discips[0]['eliminated'] = createNumpy2('space_remaining', \
             self.Discips[0]['eliminated'], len(self.Discips[0]['ins']))
@@ -257,6 +262,7 @@ class test_point_sorter(unittest.TestCase):
                                                    [0.5, 0.5],
                                                    [1.0, 1.0]])
         self.Discips[1]['Fail_Amount'] = np.array([0.0, 0.5, 1.0])
+        self.Discips[1]['Pass_Amount'] = np.array([0.0, 0.5, 1.0])
         self.Discips[1]['pass?'] = [True, False, True]
         self.Discips[1]['space_remaining'], tp_actual  = \
             uniformGrid(27, len(self.Discips[1]['ins']))

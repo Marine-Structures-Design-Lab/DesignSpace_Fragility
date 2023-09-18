@@ -80,6 +80,7 @@ class test_output_success(unittest.TestCase):
             
             # Create a key for extent of passing/failing if it does not exist
             self.Discips2[i] = createNumpy('Fail_Amount',self.Discips2[i])
+            self.Discips2[i] = createNumpy('Pass_Amount',self.Discips2[i])
             
             # Produce new discipline
             self.Discips1[i] = outchk.basicCheck()
