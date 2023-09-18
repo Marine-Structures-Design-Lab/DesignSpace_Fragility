@@ -221,8 +221,16 @@ while iters < iters_max:
         irules_new = merger.removeContradiction()
         
         # Initialize a windfall and regret object
-        windregret = windfallRegret()
+        windregret = windfallRegret(Discips)
         
+        # Create training data from sampled locations and pass/fail amounts
+        x_train, y_train = windregret.trainData()
+        
+        # Create GPR from sampled locations and combined pass/fail amounts
+        gpr = windregret.initializeFit(x_train, y_train)
+        
+        # Predict pass/fail amounts for remaining points in each discipline
+        passfail, passfail_std = windregret.predictData(gpr)
         
         
         
