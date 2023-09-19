@@ -232,7 +232,12 @@ while iters < iters_max:
         # Predict pass/fail amounts for remaining points in each discipline
         passfail, passfail_std = windregret.predictData(gpr)
         
+        # Calculate windfall and regret for remaining design spaces
+        windfall, regret, running_windfall, running_regret = windregret.calcWindRegret(passfail, passfail_std)
         
+        # Plot windfall and regret for remaining design spaces
+        if iters > 0.8*iters_max:
+            windregret.plotWindRegret(windfall, regret, tp_actual)
         
         
         
