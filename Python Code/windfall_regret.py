@@ -59,18 +59,14 @@ class windfallRegret:
             
             # Initialize Gaussian kernel
             kernel = 1.0 * RBF(length_scale=np.ones(len(self.D[i]['ins'])), \
-                               length_scale_bounds=(1e-5, 1e5))
+                               length_scale_bounds=(1e-2, 1e3))
             
             # Initialize Gaussian process regressor (GPR)
             gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=0.00001)
             
             # Fit GPR with training data
             gpr_model.fit(x_train[i], y_train[i])
-            
-            print("Log-transformed hyperparameters:", gpr_model.kernel_.theta)
-            print("Kernel parameters:", gpr_model.kernel_.get_params())
 
-            
             # Append fitted model to list of GPR models
             gpr.append(gpr_model)
         
