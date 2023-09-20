@@ -13,6 +13,7 @@ LIBRARIES
 import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 
@@ -97,7 +98,9 @@ class windfallRegret:
         return passfail, passfail_std
     
     
-    def calcWindRegret(self, passfail, passfail_std):
+    # Need to normalize running total values
+    # Need to adjust tp_actual in each discipline because there may be different numbers of dimensions
+    def calcWindRegret(self, passfail, passfail_std, tp_actual):
         
         # Initialize empty lists for windfalls and regrets of each discipline
         windfall = []
@@ -107,6 +110,9 @@ class windfallRegret:
         
         # Loop through each discipline
         for i in range(0, len(self.D)):
+            
+            # Determine length that a point covers in each direction
+            dl = 1/(tp_actual**(1/len(self.D[i]['ins'])))
             
             # Establish running totals of windfall and regret
             running_wind = 0
@@ -127,10 +133,11 @@ class windfallRegret:
                     
                     # Store probability as local windfall and make regret small
                     wind[j] = prob_feas
-                    reg[j] = -10000000000
+                    reg[j] = 0
                     
                     # Add to running windfall total
-                    running_wind += prob_feas
+                    # Sum values above instead and divide by highest possible amount?
+                    running_wind += prob_feas*dl**(len(self.D[i]['ins']))
                 
                 # Do following if point is predicted feasible (regret chance)
                 else:
@@ -140,10 +147,11 @@ class windfallRegret:
                     
                     # Store probability as local regret and make windfall small
                     reg[j] = prob_feas
-                    wind[j] = -10000000000
+                    wind[j] = 0
                     
                     # Add to running regret total
-                    running_reg += prob_feas
+                    # Sum values above instead and divide by highest possible amount?
+                    running_reg += prob_feas*dl**(len(self.D[i]['ins']))
             
             # Print statistics for discipline
             print('Stats for Discipline ' + str(i+1))
@@ -209,30 +217,37 @@ class windfallRegret:
             # Plot every surface
             for m in range(0,len(l)):
                 if i < 2:
-                    ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.5, rstride=100, cstride=100)
+                    ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.1, rstride=100, cstride=100)
                 else:
-                    ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.5, rstride=100, cstride=100)
+                    ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.1, rstride=100, cstride=100)
             
-            # Define the levels and discretize the windfall data
-            levels = np.linspace(0, 1, 11)
+            # Define the levels and discretize the windfall-regret data
+            levels = np.linspace(-1, 1, 21)
             windfall_discrete = np.digitize(windfall[i], bins=levels) / 10
+            regret_discrete = np.digitize(regret[i], bins=levels) / 10
+            wr_discrete = windfall_discrete - regret_discrete
             
             # When plotting space remaining data, use the discretized windfall values
             scatter = ax.scatter(self.D[i]['space_remaining'][:,0], \
                                 self.D[i]['space_remaining'][:,1], \
-                                self.D[i]['space_remaining'][:,2], c=windfall_discrete, s=10, cmap='viridis', alpha=0.4, vmin=0, vmax=1)
+                                self.D[i]['space_remaining'][:,2], c=wr_discrete, s=10, cmap='plasma', alpha=0.7, vmin=-1, vmax=1)
             
             # Adjust the colorbar to reflect the levels
             cbar = plt.colorbar(scatter, ax=ax, ticks=levels, boundaries=levels)
-            cbar.set_label('Windfall Scale')
-
+            cbar.set_label('Windfall-Regret Scale')
+            
+            # Edit the color bar
+            tick_labels = [f"{round(level, 1)}" for level in levels]
+            tick_labels[0] = f"{tick_labels[0]} (Regret)"  # Add the label "(Regret)" next to -1
+            tick_labels[-1] = f"{tick_labels[-1]} (Windfall)"  # Add the label "(Windfall)" next to 1
+            cbar.ax.set_yticklabels(tick_labels)  # Set the tick labels on the colorbar
             
             # Gather and plot passing and failing remaining tested input indices
             pass_ind = np.where(self.D[i]['pass?'])[0].tolist()
             fail_ind = np.where(np.array(self.D[i]['pass?']) == False)[0].tolist()
             ax.scatter(self.D[i]['tested_ins'][pass_ind,0], \
                        self.D[i]['tested_ins'][pass_ind,1], \
-                       self.D[i]['tested_ins'][pass_ind,2], c='green', alpha=1)
+                       self.D[i]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
             ax.scatter(self.D[i]['tested_ins'][fail_ind,0], \
                        self.D[i]['tested_ins'][fail_ind,1], \
                        self.D[i]['tested_ins'][fail_ind,2], c='red', alpha=1)
@@ -243,7 +258,7 @@ class windfallRegret:
                 fail_ind = np.where(np.array(self.D[i]['eliminated']['pass?']) == False)[0].tolist()
                 ax.scatter(self.D[i]['eliminated']['tested_ins'][pass_ind,0], \
                            self.D[i]['eliminated']['tested_ins'][pass_ind,1], \
-                           self.D[i]['eliminated']['tested_ins'][pass_ind,2], c='green', alpha=1)
+                           self.D[i]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
                 ax.scatter(self.D[i]['eliminated']['tested_ins'][fail_ind,0], \
                            self.D[i]['eliminated']['tested_ins'][fail_ind,1], \
                            self.D[i]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
@@ -258,6 +273,15 @@ class windfallRegret:
             ax.set_ylabel(self.D[i]['ins'][1])
             ax.set_zlabel(self.D[i]['ins'][2])
             ax.set_title('Discipline '+ str(i+1) + ' Remaining Input Space')
+            
+            # Create proxy artists for the legend
+            legend_elements = [Line2D([0], [0], marker='o', color='w', label='Feasible',
+                                      markersize=10, markerfacecolor='lightgreen'),
+                               Line2D([0], [0], marker='o', color='w', label='Infeasible',
+                                      markersize=10, markerfacecolor='red')]
+
+            # Add the legend to your axis
+            ax.legend(handles=legend_elements, loc='upper left')
             
             # Show plot
             plt.show()

@@ -233,10 +233,10 @@ while iters < iters_max:
         passfail, passfail_std = windregret.predictData(gpr)
         
         # Calculate windfall and regret for remaining design spaces
-        windfall, regret, running_windfall, running_regret = windregret.calcWindRegret(passfail, passfail_std)
+        windfall, regret, running_windfall, running_regret = windregret.calcWindRegret(passfail, passfail_std, tp_actual)
         
         # Plot windfall and regret for remaining design spaces
-        if iters > 0.8*iters_max:
+        if iters > 0.97*iters_max or iters < 0.36*iters_max:
             windregret.plotWindRegret(windfall, regret, tp_actual)
         
         
@@ -443,97 +443,97 @@ while iters < iters_max:
 
 
 ################################### TEMPORARY #################################
-# Visualize the points in the space remaining
-import matplotlib.pyplot as plt
+# # Visualize the points in the space remaining
+# import matplotlib.pyplot as plt
 
-# Loop through each discipline
-for i in range(0,len(Discips)):
+# # Loop through each discipline
+# for i in range(0,len(Discips)):
     
-    # Print percent of space that remains in discipline
-    print(f"Discipline {i+1} has "
-      f"{round((np.shape(Discips[i]['space_remaining'])[0]/tp_actual)*100, 2)}"
-      f"% of its original design space remaining")
+#     # Print percent of space that remains in discipline
+#     print(f"Discipline {i+1} has "
+#       f"{round((np.shape(Discips[i]['space_remaining'])[0]/tp_actual)*100, 2)}"
+#       f"% of its original design space remaining")
 
-    # Initialize an empty list for storing numpy arrays
-    l = []
+#     # Initialize an empty list for storing numpy arrays
+#     l = []
     
-    # Surface plot
-    j = np.linspace(0, 1, 4000)
-    k = np.linspace(0, 1, 4000)
-    j, k = np.meshgrid(j, k)
+#     # Surface plot
+#     j = np.linspace(0, 1, 4000)
+#     k = np.linspace(0, 1, 4000)
+#     j, k = np.meshgrid(j, k)
     
-    if i == 0:
-        l.append(0.8*j**2 + 2*k**2 - 0.0)
-        l.append(0.8*j**2 + 2*k**2 - 0.4)
-        l.append(0.8*j**2 + 2*k**2 - 1.2)
-        l.append(0.8*j**2 + 2*k**2 - 1.6)
-    elif i == 1:
-        l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
-        l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
-        l.append(-k**3+np.sqrt(0.2))
-        l.append(-k**3+np.sqrt(0.5))
-    else:
-        l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
-        l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
-        l.append((np.cos(3*j)+0.8)**3)
-        l.append((np.cos(3*j)+1.6)**3)
+#     if i == 0:
+#         l.append(0.8*j**2 + 2*k**2 - 0.0)
+#         l.append(0.8*j**2 + 2*k**2 - 0.4)
+#         l.append(0.8*j**2 + 2*k**2 - 1.2)
+#         l.append(0.8*j**2 + 2*k**2 - 1.6)
+#     elif i == 1:
+#         l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
+#         l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
+#         l.append(-k**3+np.sqrt(0.2))
+#         l.append(-k**3+np.sqrt(0.5))
+#     else:
+#         l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
+#         l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
+#         l.append((np.cos(3*j)+0.8)**3)
+#         l.append((np.cos(3*j)+1.6)**3)
     
-    # Replace out-of-bounds z_values with np.nan
-    l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
+#     # Replace out-of-bounds z_values with np.nan
+#     l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
     
-    # Initialize plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+#     # Initialize plot
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
     
-    # Initialize colors for plots
-    colors = ['teal', 'teal', 'magenta', 'magenta']
+#     # Initialize colors for plots
+#     colors = ['teal', 'teal', 'magenta', 'magenta']
     
-    # Plot every surface
-    for m in range(0,len(l)):
-        if i < 2:
-            ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.5, rstride=100, cstride=100)
-        else:
-            ax.plot_surface( l[m], j, k, color=colors[m], alpha=0.5, rstride=100, cstride=100)
+#     # Plot every surface
+#     for m in range(0,len(l)):
+#         if i < 2:
+#             ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.5, rstride=100, cstride=100)
+#         else:
+#             ax.plot_surface( l[m], j, k, color=colors[m], alpha=0.5, rstride=100, cstride=100)
     
-    # Accumulate the space remaining data
-    ax.scatter(Discips[i]['space_remaining'][:,0], \
-                Discips[i]['space_remaining'][:,1], \
-                Discips[i]['space_remaining'][:,2], c='black', s=10, alpha=0.4)
+#     # Accumulate the space remaining data
+#     ax.scatter(Discips[i]['space_remaining'][:,0], \
+#                 Discips[i]['space_remaining'][:,1], \
+#                 Discips[i]['space_remaining'][:,2], c='black', s=10, alpha=0.4)
     
     
-    # Gather and plot passing and failing remaining tested input indices
-    pass_ind = np.where(Discips[i]['pass?'])[0].tolist()
-    fail_ind = np.where(np.array(Discips[i]['pass?']) == False)[0].tolist()
-    ax.scatter(Discips[i]['tested_ins'][pass_ind,0], \
-               Discips[i]['tested_ins'][pass_ind,1], \
-               Discips[i]['tested_ins'][pass_ind,2], c='green', alpha=1)
-    ax.scatter(Discips[i]['tested_ins'][fail_ind,0], \
-               Discips[i]['tested_ins'][fail_ind,1], \
-               Discips[i]['tested_ins'][fail_ind,2], c='red', alpha=1)
+#     # Gather and plot passing and failing remaining tested input indices
+#     pass_ind = np.where(Discips[i]['pass?'])[0].tolist()
+#     fail_ind = np.where(np.array(Discips[i]['pass?']) == False)[0].tolist()
+#     ax.scatter(Discips[i]['tested_ins'][pass_ind,0], \
+#                Discips[i]['tested_ins'][pass_ind,1], \
+#                Discips[i]['tested_ins'][pass_ind,2], c='green', alpha=1)
+#     ax.scatter(Discips[i]['tested_ins'][fail_ind,0], \
+#                Discips[i]['tested_ins'][fail_ind,1], \
+#                Discips[i]['tested_ins'][fail_ind,2], c='red', alpha=1)
     
-    # Gather and plot passing and failing eliminated tested input indices
-    pass_ind = np.where(Discips[i]['eliminated']['pass?'])[0].tolist()
-    fail_ind = np.where(np.array(Discips[i]['eliminated']['pass?']) == False)[0].tolist()
-    ax.scatter(Discips[i]['eliminated']['tested_ins'][pass_ind,0], \
-               Discips[i]['eliminated']['tested_ins'][pass_ind,1], \
-               Discips[i]['eliminated']['tested_ins'][pass_ind,2], c='green', alpha=1)
-    ax.scatter(Discips[i]['eliminated']['tested_ins'][fail_ind,0], \
-               Discips[i]['eliminated']['tested_ins'][fail_ind,1], \
-               Discips[i]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
+#     # Gather and plot passing and failing eliminated tested input indices
+#     pass_ind = np.where(Discips[i]['eliminated']['pass?'])[0].tolist()
+#     fail_ind = np.where(np.array(Discips[i]['eliminated']['pass?']) == False)[0].tolist()
+#     ax.scatter(Discips[i]['eliminated']['tested_ins'][pass_ind,0], \
+#                Discips[i]['eliminated']['tested_ins'][pass_ind,1], \
+#                Discips[i]['eliminated']['tested_ins'][pass_ind,2], c='green', alpha=1)
+#     ax.scatter(Discips[i]['eliminated']['tested_ins'][fail_ind,0], \
+#                Discips[i]['eliminated']['tested_ins'][fail_ind,1], \
+#                Discips[i]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
     
-    # Set axis limits
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1])
-    ax.set_zlim([0, 1])
+#     # Set axis limits
+#     ax.set_xlim([0, 1])
+#     ax.set_ylim([0, 1])
+#     ax.set_zlim([0, 1])
     
-    # Set labels and title
-    ax.set_xlabel(Discips[i]['ins'][0])
-    ax.set_ylabel(Discips[i]['ins'][1])
-    ax.set_zlabel(Discips[i]['ins'][2])
-    ax.set_title('Discipline '+ str(i+1) + ' Remaining Input Space')
+#     # Set labels and title
+#     ax.set_xlabel(Discips[i]['ins'][0])
+#     ax.set_ylabel(Discips[i]['ins'][1])
+#     ax.set_zlabel(Discips[i]['ins'][2])
+#     ax.set_title('Discipline '+ str(i+1) + ' Remaining Input Space')
     
-    # Show plot
-    plt.show()
+#     # Show plot
+#     plt.show()
 
 ###############################################################################
 # Choose the final design or the final group of designs
