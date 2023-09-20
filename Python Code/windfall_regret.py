@@ -79,6 +79,7 @@ class windfallRegret:
         return gpr
     
     
+    # Can I figure out a way to plot this or the above method?
     def predictData(self, gpr):
         
         # Initialize empty lists for predicted arrays of each discipline
@@ -98,8 +99,8 @@ class windfallRegret:
         return passfail, passfail_std
     
     
-    # Need to normalize running total values
     # Need to adjust tp_actual in each discipline because there may be different numbers of dimensions
+    # Figure out how to do this for each input variable combination rather than only space as a whole
     def calcWindRegret(self, passfail, passfail_std, tp_actual):
         
         # Initialize empty lists for windfalls and regrets of each discipline
@@ -107,6 +108,7 @@ class windfallRegret:
         regret = []
         running_windfall = []
         running_regret = []
+        net_windreg = []
         
         # Loop through each discipline
         for i in range(0, len(self.D)):
@@ -117,6 +119,7 @@ class windfallRegret:
             # Establish running totals of windfall and regret
             running_wind = 0
             running_reg = 0
+            net_wr = 0
             
             # Initalize matrices for windfall and regret tracking
             wind = np.empty_like(passfail[i])
@@ -136,7 +139,6 @@ class windfallRegret:
                     reg[j] = 0
                     
                     # Add to running windfall total
-                    # Sum values above instead and divide by highest possible amount?
                     running_wind += prob_feas*dl**(len(self.D[i]['ins']))
                 
                 # Do following if point is predicted feasible (regret chance)
@@ -150,22 +152,31 @@ class windfallRegret:
                     wind[j] = 0
                     
                     # Add to running regret total
-                    # Sum values above instead and divide by highest possible amount?
                     running_reg += prob_feas*dl**(len(self.D[i]['ins']))
+                
+                # Calculate the difference between the net windfall and regret
+                net_wr = running_wind - running_reg
             
             # Print statistics for discipline
             print('Stats for Discipline ' + str(i+1))
             print('Total windfall: ' + str(running_wind))
             print('Total regret: ' + str(running_reg))
+            print('Net windfall-regret: ' + str(net_wr))
             
             # Append matrices and values to proper list
             windfall.append(wind)
             regret.append(reg)
             running_windfall.append(running_wind)
             running_regret.append(running_reg)
-                    
+            net_windreg.append(net_wr)
+            
+            # Consider plotting net windfall-regret over time for each variable combination!
+            # In fact, should consider retaining all of the values over time for each variable combination rather
+            # than just the most recent values of all of the variables combined
+            
         # Return windfall and regret information
-        return windfall, regret, running_windfall, running_regret
+        return windfall, regret, running_windfall, running_regret, net_windreg
+    
     
     # Surfaces are temporary and may need adjustment to fit other SBD problems
     # Need to add regret plot (combine into a single scale so I don't need two plots)
@@ -230,7 +241,7 @@ class windfallRegret:
             # When plotting space remaining data, use the discretized windfall values
             scatter = ax.scatter(self.D[i]['space_remaining'][:,0], \
                                 self.D[i]['space_remaining'][:,1], \
-                                self.D[i]['space_remaining'][:,2], c=wr_discrete, s=10, cmap='plasma', alpha=0.7, vmin=-1, vmax=1)
+                                self.D[i]['space_remaining'][:,2], c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-1, vmax=1)
             
             # Adjust the colorbar to reflect the levels
             cbar = plt.colorbar(scatter, ax=ax, ticks=levels, boundaries=levels)

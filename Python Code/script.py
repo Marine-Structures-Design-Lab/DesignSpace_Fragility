@@ -62,7 +62,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 100    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values - may want to change
 ### this decision process up and have many selections in user inputs according
@@ -117,6 +117,7 @@ Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
+iter_rem = 0
 
 # Loop through each discipline
 for i in range(0,len(Discips)):
@@ -233,11 +234,15 @@ while iters < iters_max:
         passfail, passfail_std = windregret.predictData(gpr)
         
         # Calculate windfall and regret for remaining design spaces
-        windfall, regret, running_windfall, running_regret = windregret.calcWindRegret(passfail, passfail_std, tp_actual)
+        windfall, regret, running_windfall, running_regret, net_windreg = \
+            windregret.calcWindRegret(passfail, passfail_std, tp_actual)
         
         # Plot windfall and regret for remaining design spaces
-        if iters > 0.97*iters_max or iters < 0.36*iters_max:
+        if iter_rem == 0 or iters > 0.99*iters_max:
             windregret.plotWindRegret(windfall, regret, tp_actual)
+            iter_rem = 8
+        iter_rem -= 1
+            
         
         
         
