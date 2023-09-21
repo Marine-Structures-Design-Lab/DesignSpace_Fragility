@@ -52,12 +52,11 @@ CLASS
 """
 class checkDistributions:
     
-    def __init__(self, Discips, irules_new, KDE_data, joint_KDEs, KDEs, \
+    def __init__(self, Discips, KDE_data, joint_KDEs, KDEs, \
                  posterior_KDEs, KL_divs):
         
-        # Initialize disciplines and new rules
+        # Initialize disciplines
         self.D = Discips
-        self.ir = irules_new
         
         # Loop through each discipline
         for i in range(0, len(self.D)):

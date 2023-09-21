@@ -34,7 +34,7 @@ from point_sorter import sortPoints
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from reduction_change import changeReduction
-from distribution_check import checkDistributions
+# from distribution_check import checkDistributions
 from windfall_regret import windfallRegret
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
@@ -141,12 +141,23 @@ plotExponential(exp_parameters)
 # Create an empty list for new rules to be added
 irules_new = []
 
+# Initialize dictionaries for windfall and regret calculations
+passfail = [{"reduced": [], "non_reduced": []} for _ in Discips]
+passfail_std = [{"reduced": [], "non_reduced": []} for _ in Discips]
+windfall = [{"reduced": [], "non_reduced": []} for _ in Discips]
+regret = [{"reduced": [], "non_reduced": []} for _ in Discips]
+running_windfall = [{"reduced": [], "non_reduced": []} for _ in Discips]
+running_regret = [{"reduced": [], "non_reduced": []} for _ in Discips]
+net_windreg = [{"reduced": [], "non_reduced": []} for _ in Discips]
+
 # Initialize dictionaries for KDEs of fragility check
-KDE_data = [{} for _ in Discips]
-joint_KDEs = [{} for _ in Discips]
-KDEs = [{} for _ in Discips]
-posterior_KDEs = [{} for _ in Discips]
-KL_divs = [{} for _ in Discips]
+# KDE_data = [{} for _ in Discips]
+# joint_KDEs = [{} for _ in Discips]
+# KDEs = [{} for _ in Discips]
+# posterior_KDEs = [{} for _ in Discips]
+# KL_divs = [{} for _ in Discips]
+
+
 
 # Set the initial forced reduction value to false and establish a counter
 ### THESE MAY NOT BE NEEDED LATER
@@ -222,7 +233,10 @@ while iters < iters_max:
         irules_new = merger.removeContradiction()
         
         # Initialize a windfall and regret object
-        windregret = windfallRegret(Discips)
+        windregret = windfallRegret(Discips, irules_new, passfail, \
+                                    passfail_std, windfall, regret, \
+                                    running_windfall, running_regret, \
+                                    net_windreg)
         
         # Create training data from sampled locations and pass/fail amounts
         x_train, y_train = windregret.trainData()
@@ -235,11 +249,16 @@ while iters < iters_max:
         
         # Calculate windfall and regret for remaining design spaces
         windfall, regret, running_windfall, running_regret, net_windreg = \
-            windregret.calcWindRegret(passfail, passfail_std, tp_actual)
+            windregret.calcWindRegret(tp_actual)
+        
+        # Quantify risk or potential of space reduction for each discipline
+        ### A positive value means risk or potential is ADDED
+        ### A negative value means risk or potential is REDUCED
+        reduction_risk, reduction_potential = windregret.quantRisk()
         
         # Plot windfall and regret for remaining design spaces
         if iter_rem == 0 or iters > 0.99*iters_max:
-            windregret.plotWindRegret(windfall, regret, tp_actual)
+            windregret.plotWindRegret(tp_actual)
             iter_rem = 8
         iter_rem -= 1
             
@@ -252,7 +271,7 @@ while iters < iters_max:
         
         
         # # Initialize an object for the distribution check class
-        # distribution = checkDistributions(Discips, irules_new, KDE_data, joint_KDEs, \
+        # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
         #                          KDEs, posterior_KDEs, KL_divs)
         
         # # Create data sets for calculating probability distributions
