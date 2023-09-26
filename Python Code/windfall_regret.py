@@ -203,7 +203,7 @@ class windfallRegret:
         # Loop through each discipline
         for i in range(0, len(self.D)):
             
-            # Calculate the "risk" or "potential value for the space reduction
+            # Calculate the "risk" or "potential" value for the space reduction
             risk_or_pot = (self.net_wr[i]['reduced'][-1]/self.net_wr[i]['non_reduced'][-1] - 1) * 100
             
             # Check if reduced design space is risk affiliated
