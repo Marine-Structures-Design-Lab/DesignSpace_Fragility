@@ -21,6 +21,30 @@ from point_sorter import sortPoints
 
 
 """
+FUNCTIONS
+"""
+def rows_in_A_and_indices(A, B):
+    # Convert rows to tuples for set operations
+    A_rows = set(map(tuple, A))
+    B_rows = set(map(tuple, B))
+    
+    # Find rows in A that are not in B
+    diff_rows = A_rows - B_rows
+    
+    # Convert back to numpy arrays for comparison
+    diff_rows_array = np.array([list(row) for row in diff_rows])
+    
+    # Get indices of A for rows that are not in B
+    indices_not_in_B = [i for i, row in enumerate(A) if tuple(row) in diff_rows]
+    
+    # Get indices of A for rows that are in both A and B
+    indices_in_both = [i for i, row in enumerate(A) if tuple(row) not in diff_rows]
+    
+    return diff_rows_array, indices_not_in_B, indices_in_both
+
+
+
+"""
 CLASS
 """
 class windfallRegret:
@@ -45,11 +69,29 @@ class windfallRegret:
         self.D_red = copy.deepcopy(Discips)
         self.D_red = sortPoints(self.D_red, irules_new)
         
-        # Place non-reduced and reduced dictionaries into a list
-        self.D_list = [self.D, self.D_red]
+        # Initialize list for leftover discipline matrices
+        self.D_leftover = []
+        self.i_leftover = []
+        self.i_both = []
+        
+        # Loop through each discipline
+        for i in range(0, len(self.D)):
+            
+            rows_not_in_B, indices_not_in_B, indices_in_both = rows_in_A_and_indices(self.D[i]['space_remaining'], self.D_red[i]['space_remaining'])
+            
+            # Create matrix for rows that are in self.D but not in self.D_red
+            self.D_leftover.append(rows_not_in_B)
+            self.i_leftover.append(indices_not_in_B)
+            self.i_both.append(indices_in_both)
+            
+            
+            
+        
+        # Place non-reduced, reduced, and leftover dictionaries into a list
+        self.D_list = [self.D, self.D_red, self.D_leftover]
         
         # Initialize a list of strings for looping (order matters!)
-        self.strings = ['non_reduced', 'reduced']
+        self.strings = ['non_reduced', 'reduced', 'leftover']
         
         # Nothing to return
         return
@@ -105,23 +147,24 @@ class windfallRegret:
         # Return trained GPR
         return gpr
     
-    
+    ### Needs to do it for the reduced and non-reduced points that aren't the same
     # Can I figure out a way to plot this or the above method?
     def predictData(self, gpr):
         
-        # Loop through non-reduced and reduced data
-        for index, red_type in enumerate(self.strings):
+        # Loop through each discipline
+        for i in range(0, len(self.D)):
             
-            # Loop through each discipline
-            for i, discip in enumerate(self.D_list[index]):
-                
-                # Test GPR at each point remaining for discipline BEFORE new rule
-                means, stddevs = gpr[i].predict(discip['space_remaining'], return_std=True)
-                
-                # Append arrays to empty lists
-                self.pf[i][red_type].append(means)
-                self.pf_std[i][red_type].append(stddevs)
-        
+            # Test GPR at each point remaining of non-reduced
+            means, stddevs = gpr[i].predict(self.D[i]['space_remaining'], return_std=True)
+            
+            # Append arrays to empty lists
+            self.pf[i]['non_reduced'].append(means)
+            self.pf_std[i]['non_reduced'].append(stddevs)
+            self.pf[i]['reduced'].append(means[self.i_both[i]])
+            self.pf_std[i]['reduced'].append(stddevs[self.i_both[i]])
+            self.pf[i]['leftover'].append(means[self.i_leftover[i]])
+            self.pf_std[i]['leftover'].append(stddevs[self.i_leftover[i]])
+    
         # Return predicted passing and failing dictionaries with newest tests
         return self.pf, self.pf_std
     
@@ -130,7 +173,7 @@ class windfallRegret:
     # Figure out how to do this for each input variable combination rather than only space as a whole
     def calcWindRegret(self, tp_actual):
         
-        # Loop through non-reduced and reduced data
+        # Loop through non-reduced, reduced, and leftover data
         for index, red_type in enumerate(self.strings):
             
             # Loop through each discipline
@@ -199,21 +242,37 @@ class windfallRegret:
         # Initialize list for tracking space reduction risk of each discipline
         reduction_risk = []
         reduction_potential = []
+        reduction_net = []
         
         # Loop through each discipline
         for i in range(0, len(self.D)):
             
+            ########## Regret ##########
+            # Calculate the "risk" value for the space reduction
+            risk = (self.run_reg[i]['reduced'][-1]/self.run_reg[i]['non_reduced'][-1] - 1) * 100
+            
+            # Check if risk is larger for the 
+            
+            
+            
+            
+            
+            
+            ########## Windfall ##########
+            
+            
+            
+            
+            
+            
+            
+            
+            ########## Net Windfall-Regret ##########
             # Calculate the "risk" or "potential" value for the space reduction
             risk_or_pot = (self.net_wr[i]['reduced'][-1]/self.net_wr[i]['non_reduced'][-1] - 1) * 100
             
             # Check if reduced design space is risk affiliated
             if self.net_wr[i]['non_reduced'][-1] <= 0:
-                
-                # Append risk_or_pot value to the risk list
-                reduction_risk.append(risk_or_pot)
-                
-                # Append 0.0 to the potential list
-                reduction_potential.append(0.0)
                 
                 # Print results
                 if risk_or_pot >= 0:
@@ -224,20 +283,17 @@ class windfallRegret:
             # Perform following commands as reduced design space is potential affiliated
             else:
                 
-                # Append risk_or_pot value to the potential list
-                reduction_potential.append(risk_or_pot)
-                
-                # Append 0.0 to the risk list
-                reduction_risk.append(0.0)
-                
                 # Print results
                 if risk_or_pot >= 0:
                     print(f"Discipline {i+1} experiences {round(risk_or_pot, 2)}% added potential for this space reduction.")
                 else:
                     print(f"Discipline {i+1} experiences {-round(risk_or_pot, 2)}% reduced potential for this space reduction.")
-                
+            
+            # Append risk_or_pot value to the reduction_net list
+            reduction_potential.append(risk_or_pot)
+            
         # Return risk and potential of space reduction for each discipline
-        return reduction_risk, reduction_potential
+        return reduction_risk, reduction_potential, reduction_net
     
     
     # Surfaces are temporary and may need adjustment to fit other SBD problems

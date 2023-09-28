@@ -142,13 +142,13 @@ plotExponential(exp_parameters)
 irules_new = []
 
 # Initialize dictionaries for windfall and regret calculations
-passfail = [{"reduced": [], "non_reduced": []} for _ in Discips]
-passfail_std = [{"reduced": [], "non_reduced": []} for _ in Discips]
-windfall = [{"reduced": [], "non_reduced": []} for _ in Discips]
-regret = [{"reduced": [], "non_reduced": []} for _ in Discips]
-running_windfall = [{"reduced": [], "non_reduced": []} for _ in Discips]
-running_regret = [{"reduced": [], "non_reduced": []} for _ in Discips]
-net_windreg = [{"reduced": [], "non_reduced": []} for _ in Discips]
+passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+passfail_std = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+regret = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+running_windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+running_regret = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+net_windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
 
 # Initialize dictionaries for KDEs of fragility check
 # KDE_data = [{} for _ in Discips]
@@ -254,7 +254,7 @@ while iters < iters_max:
         # Quantify risk or potential of space reduction for each discipline
         ### A positive value means risk or potential is ADDED
         ### A negative value means risk or potential is REDUCED
-        reduction_risk, reduction_potential = windregret.quantRisk()
+        reduction_risk, reduction_potential, reduction_net = windregret.quantRisk()
         
         # Plot windfall and regret for remaining design spaces
         # if iter_rem == 0 or iters > 0.99*iters_max:
