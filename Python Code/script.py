@@ -144,8 +144,7 @@ irules_new = []
 # Initialize dictionaries for windfall and regret calculations
 passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
 passfail_std = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-regret = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
+windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
 running_windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
 running_regret = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
 net_windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
@@ -234,9 +233,8 @@ while iters < iters_max:
         
         # Initialize a windfall and regret object
         windregret = windfallRegret(Discips, irules_new, passfail, \
-                                    passfail_std, windfall, regret, \
-                                    running_windfall, running_regret, \
-                                    net_windreg)
+                                    passfail_std, windreg, running_windfall, \
+                                    running_regret, net_windreg)
         
         # Create training data from sampled locations and pass/fail amounts
         x_train, y_train = windregret.trainData()
@@ -248,7 +246,7 @@ while iters < iters_max:
         passfail, passfail_std = windregret.predictData(gpr)
         
         # Calculate windfall and regret for remaining design spaces
-        windfall, regret, running_windfall, running_regret, net_windreg = \
+        windreg, running_windfall, running_regret, net_windreg = \
             windregret.calcWindRegret(tp_actual)
         
         # Quantify risk or potential of space reduction for each discipline

@@ -49,8 +49,8 @@ CLASS
 """
 class windfallRegret:
     
-    def __init__(self, Discips, irules_new, passfail, passfail_std, windfall, \
-                 regret, running_windfall, running_regret, net_windreg):
+    def __init__(self, Discips, irules_new, passfail, passfail_std, windreg, \
+                 running_windfall, running_regret, net_windreg):
         
         # Initialize instance variables for disciplines and new rules
         self.D = Discips
@@ -59,8 +59,7 @@ class windfallRegret:
         # Initialize instance variables for windfall-regret data tracking
         self.pf = passfail
         self.pf_std = passfail_std
-        self.wind = windfall
-        self.reg = regret
+        self.windreg = windreg
         self.run_wind = running_windfall
         self.run_reg = running_regret
         self.net_wr = net_windreg
@@ -83,6 +82,14 @@ class windfallRegret:
             self.D_leftover.append(rows_not_in_B)
             self.i_leftover.append(indices_not_in_B)
             self.i_both.append(indices_in_both)
+            
+            
+            
+            
+            
+            
+            
+            
             
             
             
@@ -154,7 +161,7 @@ class windfallRegret:
         # Loop through each discipline
         for i in range(0, len(self.D)):
             
-            # Test GPR at each point remaining of non-reduced
+            # Test GPR at each point remaining of non-reduced matrix
             means, stddevs = gpr[i].predict(self.D[i]['space_remaining'], return_std=True)
             
             # Append arrays to empty lists
@@ -169,72 +176,118 @@ class windfallRegret:
         return self.pf, self.pf_std
     
     
+    
+    
+    
+    
     # Need to adjust tp_actual in each discipline because there may be different numbers of dimensions
     # Figure out how to do this for each input variable combination rather than only space as a whole
     def calcWindRegret(self, tp_actual):
-        
-        # Loop through non-reduced, reduced, and leftover data
-        for index, red_type in enumerate(self.strings):
             
-            # Loop through each discipline
-            for i, discip in enumerate(self.D_list[index]):
-                
-                # Determine length that a point covers in each direction
-                dl = 1/(tp_actual**(1/len(discip['ins'])))
-                
-                # Establish running totals of windfall and regret
-                running_wind = 0
-                running_reg = 0
-                net_wr = 0
+        # Loop through each discipline's pass/fail dictionary
+        for ind1, d in enumerate(self.pf):
+            
+            # Determine length that a point covers in each direction
+            # dl = 1/(tp_actual**(1/len(self.D[i]['ins'])))
+            
+            # Establish running totals of windfall and regret
+            # running_wind = 0
+            # running_reg = 0
+            # net_wr = 0
+            
+            # Initialize an empty dictionary
+            diction = {}
+            
+            # Loop through each item of dictionary
+            for key, value in d.items():
                 
                 # Initalize matrices for windfall and regret tracking
-                wind = np.empty_like(self.pf[i][red_type][-1])
-                reg = np.empty_like(self.pf[i][red_type][-1])
+                diction[key] = np.empty_like(value[-1])
                 
-                # Loop through each predicted point
-                for j in range(0, self.pf[i][red_type][-1].shape[0]):
+            # Loop through each predicted value of the non-reduced matrix
+            for ind2, value in enumerate(d['non_reduced'][-1]):
+                
+                # Convert prediction to a probability
+                prob_feas = 1.0 - stats.norm.cdf(abs(value)/self.pf_std[ind1]['non_reduced'][-1][ind2])
+                
+                # Check if point is in both non-reduced and reduced matrices
+                if ind2 in self.i_both[ind1]:
                     
-                    # Check if point is predicted as infeasible (windfall chance)
-                    if self.pf[i][red_type][-1][j] < 0:
+                    # Check if point is predicted infeasible (windfall chance)
+                    if value < 0:
                         
-                        # Convert prediction to probability
-                        prob_feas = 1.0 - stats.norm.cdf(-self.pf[i][red_type][-1][j]/self.pf_std[i][red_type][-1][j])
-                        
-                        # Store probability as local windfall and make regret small
-                        wind[j] = prob_feas
-                        reg[j] = 0
-                        
-                        # Add to running windfall total
-                        running_wind += prob_feas*dl**(len(discip['ins']))
+                        # Add pos. probability to the proper dictionary arrays
+                        diction['non_reduced'][ind2] = prob_feas
+                        diction['reduced'][self.i_both[ind1].index(ind2)] = prob_feas
                     
-                    # Do following if point is predicted feasible (regret chance)
+                    # Do below if point is predicted feasible (regret chance)
                     else:
                         
-                        # Convert prediction to probability
-                        prob_feas = 1.0 - stats.norm.cdf(self.pf[i][red_type][-1][j]/self.pf_std[i][red_type][-1][j])
-                        
-                        # Store probability as local regret and make windfall small
-                        reg[j] = prob_feas
-                        wind[j] = 0
-                        
-                        # Add to running regret total
-                        running_reg += prob_feas*dl**(len(discip['ins']))
+                        # Add neg. probability to the proper dictionary arrays
+                        diction['non_reduced'][ind2] = -prob_feas
+                        diction['reduced'][self.i_both[ind1].index(ind2)] = -prob_feas
+                
+                # Do below if point is not in both non-reduced and reduced matrices
+                else:
                     
-                    # Calculate the difference between the net windfall and regret
-                    net_wr = running_wind - running_reg
+                    # Check if point is predicted infeasible (windfall chance)
+                    if value < 0:
+                        
+                        # Add pos. probability to the proper dictionary arrays
+                        diction['non_reduced'][ind2] = prob_feas
+                        diction['leftover'][self.i_leftover[ind1].index(ind2)] = -prob_feas
+                    
+                    # Do below if point is predicted feasible (regret chance)
+                    else:
+                        
+                        # Add neg. probability to the proper dictionary arrays
+                        diction['non_reduced'][ind2] = -prob_feas
+                        diction['leftover'][self.i_leftover[ind1].index(ind2)] = prob_feas
+                        
                 
-                # Append matrices and values to proper list
-                self.wind[i][red_type].append(wind)
-                self.reg[i][red_type].append(reg)
-                self.run_wind[i][red_type].append(running_wind)
-                self.run_reg[i][red_type].append(running_reg)
-                self.net_wr[i][red_type].append(net_wr)
-                
-                # Consider plotting net windfall-regret over time for each variable combination!
                 
                 
+                
+                
+                
+                
+                
+                
+                
+                # Check if point is predicted as infeasible (windfall chance)
+                if self.pf[i][red_type][-1][j] < 0:
+                    
+                    # Store probability as local windfall and make regret small
+                    wind[j] = prob_feas
+                    reg[j] = 0
+                    
+                    # Add to running windfall total
+                    running_wind += prob_feas*dl**(len(discip['ins']))
+                
+                # Do following if point is predicted feasible (regret chance)
+                else:
+                    
+                    # Store probability as local regret and make windfall small
+                    reg[j] = prob_feas
+                    wind[j] = 0
+                    
+                    # Add to running regret total
+                    running_reg += prob_feas*dl**(len(discip['ins']))
+                
+                # Calculate the difference between the net windfall and regret
+                net_wr = running_wind - running_reg
+            
+            # Append matrices and values to proper list
+            self.windreg[i][red_type].append(wind)
+            self.run_wind[i][red_type].append(running_wind)
+            self.run_reg[i][red_type].append(running_reg)
+            self.net_wr[i][red_type].append(net_wr)
+            
+            # Consider plotting net windfall-regret over time for each variable combination!
+            
+            
         # Return windfall and regret information
-        return self.wind, self.reg, self.run_wind, self.run_reg, self.net_wr
+        return self.windreg, self.run_wind, self.run_reg, self.net_wr
     
     
     def quantRisk(self):
