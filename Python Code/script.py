@@ -259,7 +259,7 @@ while iters < iters_max:
         #     windregret.plotWindRegret(tp_actual)
         #     iter_rem = 8
         # iter_rem -= 1
-            
+        
         
         
         
