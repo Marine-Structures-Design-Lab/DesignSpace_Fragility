@@ -159,10 +159,6 @@ class windfallRegret:
         return self.pf, self.pf_std
     
     
-    
-    
-    
-    
     # Need to adjust tp_actual in each discipline because there may be different numbers of dimensions
     # Figure out how to do this for each input variable combination rather than only space as a whole
     def calcWindRegret(self, tp_actual):
@@ -172,11 +168,6 @@ class windfallRegret:
             
             # Determine length that a point covers in each direction
             dl = 1/(tp_actual**(1/len(self.D[ind1]['ins'])))
-            
-            # Establish running totals of windfall and regret
-            # running_wind = 0
-            # running_reg = 0
-            # net_wr = 0
             
             # Initialize empty dictionaries
             windreg = {}
@@ -199,14 +190,14 @@ class windfallRegret:
                 prob_feas = 1.0 - stats.norm.cdf(abs(value)/self.pf_std[ind1]['non_reduced'][-1][ind2])
                 
                 # Check if point is in both non-reduced and reduced matrices
-                if ind2 in self.i_both[ind1]:
+                if ind2 in self.i_lists[ind1]["reduced"]:
                     
                     # Check if point is predicted infeasible (windfall chance)
                     if value < 0:
                         
                         # Add pos. probability to the proper dictionary arrays
                         windreg['non_reduced'][ind2] = prob_feas
-                        windreg['reduced'][self.i_both[ind1].index(ind2)] = prob_feas
+                        windreg['reduced'][self.i_lists[ind1]["reduced"].index(ind2)] = prob_feas
                         
                         # Add to proper running windfall count
                         run_wind['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
@@ -217,7 +208,7 @@ class windfallRegret:
                         
                         # Add neg. probability to the proper dictionary arrays
                         windreg['non_reduced'][ind2] = -prob_feas
-                        windreg['reduced'][self.i_both[ind1].index(ind2)] = -prob_feas
+                        windreg['reduced'][self.i_lists[ind1]["reduced"].index(ind2)] = -prob_feas
                         
                         # Add to proper running regret count
                         run_reg['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
@@ -231,7 +222,7 @@ class windfallRegret:
                         
                         # Add pos. probability to the proper dictionary arrays (Should I do leftover or put these values in reduced?)
                         windreg['non_reduced'][ind2] = prob_feas
-                        windreg['leftover'][self.i_leftover[ind1].index(ind2)] = -prob_feas
+                        windreg['leftover'][self.i_lists[ind1]["leftover"].index(ind2)] = -prob_feas
                         
                         # Add to proper running windfall count (Do I want to use leftover key at all?)
                         run_wind['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
@@ -242,7 +233,7 @@ class windfallRegret:
                         
                         # Add neg. probability to the proper dictionary arrays
                         windreg['non_reduced'][ind2] = -prob_feas
-                        windreg['leftover'][self.i_leftover[ind1].index(ind2)] = prob_feas
+                        windreg['leftover'][self.i_lists[ind1]["leftover"].index(ind2)] = prob_feas
                         
                         # Add to proper running windfall count
                         run_reg['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
@@ -289,12 +280,6 @@ class windfallRegret:
             # Print the reduced potential results of the space reduction
             print(f"Discipline {i+1} experiences {-round(windfall, 2)}% reduced potential for this space reduction.")
             
-            
-            
-            
-            
-            
-            
             ########## Net Windfall-Regret ##########
             # # Calculate the "risk" or "potential" value for the space reduction
             # risk_or_pot = (self.net_wr[i]['reduced'][-1]/self.net_wr[i]['non_reduced'][-1] - 1) * 100
@@ -324,16 +309,10 @@ class windfallRegret:
         return reduction_risk, reduction_potential, reduction_net
     
     
-    
-    
-    
-    
     # Surfaces are temporary and may need adjustment to fit other SBD problems
-    # Need to add regret plot (combine into a single scale so I don't need two plots)
-    # Need to add plots for space remaining with points that are eliminated
     def plotWindRegret(self, tp_actual):
         
-        # Loop through each discipline
+        # Loop through each discipline's windfall-regret values
         for ind1, d in enumerate(self.windreg):
             
             # Print percent of space that would remain in discipline
@@ -347,7 +326,6 @@ class windfallRegret:
                 
                 # Continue if array is empty
                 if value[-1].shape[0] == 0:
-                    print("Throw out!")
                     continue
                 
                 # Initialize an empty list for storing numpy arrays
@@ -393,12 +371,13 @@ class windfallRegret:
                 
                 # Define the levels and discretize the windfall-regret data
                 levels = np.linspace(-1, 1, 21)
-                wr_discrete = np.digitize(value[-1], bins=levels) / 10
+                wr_discrete = (np.digitize(value[-1], bins=levels) - 11) / 10.0
                 
                 # When plotting space remaining data, use the discretized windfall values
-                scatter = ax.scatter(self.D[ind1]['space_remaining'][:,0], \
-                                     discip['space_remaining'][:,1], \
-                                     discip['space_remaining'][:,2], c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-1, vmax=1)
+                scatter = ax.scatter(self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 0], \
+                                     self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 1], \
+                                     self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 2], \
+                                     c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-1, vmax=1)
                 
                 # Adjust the colorbar to reflect the levels
                 cbar = plt.colorbar(scatter, ax=ax, ticks=levels, boundaries=levels)
@@ -411,25 +390,25 @@ class windfallRegret:
                 cbar.ax.set_yticklabels(tick_labels)
                 
                 # Gather and plot passing and failing remaining tested input indices
-                pass_ind = np.where(discip['pass?'])[0].tolist()
-                fail_ind = np.where(np.array(discip['pass?']) == False)[0].tolist()
-                ax.scatter(discip['tested_ins'][pass_ind,0], \
-                            discip['tested_ins'][pass_ind,1], \
-                            discip['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                ax.scatter(discip['tested_ins'][fail_ind,0], \
-                            discip['tested_ins'][fail_ind,1], \
-                            discip['tested_ins'][fail_ind,2], c='red', alpha=1)
+                pass_ind = np.where(self.D[ind1]['pass?'])[0].tolist()
+                fail_ind = np.where(np.array(self.D[ind1]['pass?']) == False)[0].tolist()
+                ax.scatter(self.D[ind1]['tested_ins'][pass_ind,0], \
+                           self.D[ind1]['tested_ins'][pass_ind,1], \
+                           self.D[ind1]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                ax.scatter(self.D[ind1]['tested_ins'][fail_ind,0], \
+                           self.D[ind1]['tested_ins'][fail_ind,1], \
+                           self.D[ind1]['tested_ins'][fail_ind,2], c='red', alpha=1)
                 
                 # Gather and plot passing and failing eliminated tested input indices
-                if 'eliminated' in discip:
-                    pass_ind = np.where(discip['eliminated']['pass?'])[0].tolist()
-                    fail_ind = np.where(np.array(discip['eliminated']['pass?']) == False)[0].tolist()
-                    ax.scatter(discip['eliminated']['tested_ins'][pass_ind,0], \
-                                discip['eliminated']['tested_ins'][pass_ind,1], \
-                                discip['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                    ax.scatter(discip['eliminated']['tested_ins'][fail_ind,0], \
-                                discip['eliminated']['tested_ins'][fail_ind,1], \
-                                discip['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
+                if 'eliminated' in self.D[ind1]:
+                    pass_ind = np.where(self.D[ind1]['eliminated']['pass?'])[0].tolist()
+                    fail_ind = np.where(np.array(self.D[ind1]['eliminated']['pass?']) == False)[0].tolist()
+                    ax.scatter(self.D[ind1]['eliminated']['tested_ins'][pass_ind,0], \
+                               self.D[ind1]['eliminated']['tested_ins'][pass_ind,1], \
+                               self.D[ind1]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                    ax.scatter(self.D[ind1]['eliminated']['tested_ins'][fail_ind,0], \
+                               self.D[ind1]['eliminated']['tested_ins'][fail_ind,1], \
+                               self.D[ind1]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
                 
                 # Set axis limits
                 ax.set_xlim([0, 1])
@@ -437,10 +416,10 @@ class windfallRegret:
                 ax.set_zlim([0, 1])
                 
                 # Set labels and title
-                ax.set_xlabel(discip['ins'][0])
-                ax.set_ylabel(discip['ins'][1])
-                ax.set_zlabel(discip['ins'][2])
-                ax.set_title(f"Discipline {i+1} {red_type} input space")
+                ax.set_xlabel(self.D[ind1]['ins'][0])
+                ax.set_ylabel(self.D[ind1]['ins'][1])
+                ax.set_zlabel(self.D[ind1]['ins'][2])
+                ax.set_title(f"Discipline {ind1+1} {key} input space")
                 
                 # Create proxy artists for the legend
                 legend_elements = [Line2D([0], [0], marker='o', color='w', label='Feasible',
