@@ -50,7 +50,7 @@ CLASS
 class windfallRegret:
     
     def __init__(self, Discips, irules_new, passfail, passfail_std, windreg, \
-                 running_windfall, running_regret, net_windreg):
+                 running_windfall, running_regret, net_windreg, risk_or_potential):
         
         # Initialize instance variables for disciplines and new rules
         self.D = Discips
@@ -63,6 +63,7 @@ class windfallRegret:
         self.run_wind = running_windfall
         self.run_reg = running_regret
         self.net_wr = net_windreg
+        self.risk_or_pot = risk_or_potential
         
         # Initialize a copy of the discipline mirroring new input rule(s)
         D_red = copy.deepcopy(Discips)
@@ -166,9 +167,6 @@ class windfallRegret:
         # Loop through each discipline's pass/fail dictionary
         for ind1, d in enumerate(self.pf):
             
-            # Determine length that a point covers in each direction
-            dl = 1/(tp_actual**(1/len(self.D[ind1]['ins'])))
-            
             # Initialize empty dictionaries
             windreg = {}
             run_wind = {}
@@ -200,8 +198,8 @@ class windfallRegret:
                         windreg['reduced'][self.i_lists[ind1]["reduced"].index(ind2)] = prob_feas
                         
                         # Add to proper running windfall count
-                        run_wind['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
-                        run_wind['reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
+                        run_wind['non_reduced'] += prob_feas
+                        run_wind['reduced'] += prob_feas
                         
                     # Do below if point is predicted feasible (regret chance)
                     else:
@@ -211,8 +209,8 @@ class windfallRegret:
                         windreg['reduced'][self.i_lists[ind1]["reduced"].index(ind2)] = -prob_feas
                         
                         # Add to proper running regret count
-                        run_reg['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
-                        run_reg['reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
+                        run_reg['non_reduced'] += prob_feas
+                        run_reg['reduced'] += prob_feas
                 
                 # Do below if point is not in both non-reduced and reduced matrices
                 else:
@@ -225,8 +223,8 @@ class windfallRegret:
                         windreg['leftover'][self.i_lists[ind1]["leftover"].index(ind2)] = -prob_feas
                         
                         # Add to proper running windfall count (Do I want to use leftover key at all?)
-                        run_wind['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
-                        run_reg['reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
+                        run_wind['non_reduced'] += prob_feas
+                        run_reg['reduced'] += prob_feas
                     
                     # Do below if point is predicted feasible (non-reduced: regret chance, reduced: windfall chance)
                     else:
@@ -236,11 +234,15 @@ class windfallRegret:
                         windreg['leftover'][self.i_lists[ind1]["leftover"].index(ind2)] = prob_feas
                         
                         # Add to proper running windfall count
-                        run_reg['non_reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
-                        run_wind['reduced'] += prob_feas*dl**(len(self.D[ind1]['ins']))
+                        run_reg['non_reduced'] += prob_feas
+                        run_wind['reduced'] += prob_feas
             
             # Loop through each item of dictionary
             for key, value in d.items():
+                
+                # Divide probabilistic sums by original number of points
+                run_wind[key] = run_wind[key] / tp_actual
+                run_reg[key] = run_reg[key] / tp_actual
                 
                 # Calculate difference between net windfall and regret
                 net_wr[key] = run_wind[key] - run_reg[key]
@@ -259,54 +261,50 @@ class windfallRegret:
     
     def quantRisk(self):
         
-        # Initialize list for tracking space reduction risk of each discipline
-        reduction_risk = []
-        reduction_potential = []
-        reduction_net = []
-        
-        # Loop through each discipline
-        for i in range(0, len(self.D)):
+        # Loop through each discipline's risk or potential dictionary
+        for i, d in enumerate(self.risk_or_pot):
             
             ########## Regret ##########
             # Calculate the "risk" value for the space reduction
+            ### + value indicates added risk
+            ### - value indicates reduced risk
+            if self.run_reg[i]['non_reduced'][-1] == 0: self.run_reg[i]['non_reduced'][-1] += 1e-10
             risk = (self.run_reg[i]['reduced'][-1]/self.run_reg[i]['non_reduced'][-1] - 1) * 100
             
             # Print the added risk results of the space reduction
-            print(f"Discipline {i+1} experiences {round(risk, 2)}% added risk for this space reduction.")
+            print(f"Discipline {i+1} would experience {round(risk, 2)}% added risk.")
+            
+            # Append risk value to proper risk_or_potential key
+            d["regret"].append(risk)
             
             ########## Windfall ##########
+            # Calculate the "potential" value for the space reduction
+            ### + value indicates added potential
+            ### - value indicates reduced potential
+            if self.run_wind[i]['non_reduced'][-1] == 0: self.run_wind[i]['non_reduced'][-1] += 1e-10
             windfall = (self.run_wind[i]['reduced'][-1]/self.run_wind[i]['non_reduced'][-1] - 1) * 100
             
             # Print the reduced potential results of the space reduction
-            print(f"Discipline {i+1} experiences {-round(windfall, 2)}% reduced potential for this space reduction.")
+            print(f"Discipline {i+1} would experience {-round(windfall, 2)}% reduced potential.")
+            
+            # Append windfall value to proper risk_or_potential key
+            d["windfall"].append(windfall)
             
             ########## Net Windfall-Regret ##########
-            # # Calculate the "risk" or "potential" value for the space reduction
-            # risk_or_pot = (self.net_wr[i]['reduced'][-1]/self.net_wr[i]['non_reduced'][-1] - 1) * 100
+            # Calculate the percent shift in net windfall-regret for the space reduction
+            ### + shift is good
+            ### - shift is bad
+            if self.net_wr[i]['non_reduced'][-1] == 0: self.net_wr[i]['non_reduced'][-1] += 1e-10
+            net = ((self.net_wr[i]['reduced'][-1] - self.net_wr[i]['non_reduced'][-1])/abs(self.net_wr[i]['non_reduced'][-1])) * 100
             
-            # # Check if reduced design space is risk affiliated
-            # if self.net_wr[i]['non_reduced'][-1] <= 0:
-                
-            #     # Print results
-            #     if risk_or_pot >= 0:
-            #         print(f"Discipline {i+1} experiences {round(risk_or_pot, 2)}% added risk for this space reduction.")
-            #     else:
-            #         print(f"Discipline {i+1} experiences {-round(risk_or_pot, 2)}% reduced risk for this space reduction.")
-                
-            # # Perform following commands as reduced design space is potential affiliated
-            # else:
-                
-            #     # Print results
-            #     if risk_or_pot >= 0:
-            #         print(f"Discipline {i+1} experiences {round(risk_or_pot, 2)}% added potential for this space reduction.")
-            #     else:
-            #         print(f"Discipline {i+1} experiences {-round(risk_or_pot, 2)}% reduced potential for this space reduction.")
+            # Print the percent shift results of the space reduction
+            print(f"Discipline {i+1} would experience {round(net, 2)}% shift in net windfall-regret.")
             
-            # # Append risk_or_pot value to the reduction_net list
-            # reduction_potential.append(risk_or_pot)
-            
-        # Return risk and potential of space reduction for each discipline
-        return reduction_risk, reduction_potential, reduction_net
+            # Append net value to proper risk_or_potential key
+            d["net"].append(net)
+        
+        # Return updated risk_or_potential dictionary
+        return self.risk_or_pot
     
     
     # Surfaces are temporary and may need adjustment to fit other SBD problems
