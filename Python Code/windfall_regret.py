@@ -184,7 +184,7 @@ class windfallRegret:
             # Loop through each predicted value of the non-reduced matrix
             for ind2, value in enumerate(d['non_reduced'][-1]):
                 
-                # Convert prediction to a probability
+                # Convert prediction to a probability of the opposite event
                 prob_feas = 1.0 - stats.norm.cdf(abs(value)/self.pf_std[ind1]['non_reduced'][-1][ind2])
                 
                 # Check if point is in both non-reduced and reduced matrices
@@ -266,39 +266,41 @@ class windfallRegret:
             
             ########## Regret ##########
             # Calculate the "risk" value for the space reduction
-            ### + value indicates added risk
-            ### - value indicates reduced risk
+            ### + value indicates added regret
+            ### - value indicates reduced regret
             if self.run_reg[i]['non_reduced'][-1] == 0: self.run_reg[i]['non_reduced'][-1] += 1e-10
-            risk = (self.run_reg[i]['reduced'][-1]/self.run_reg[i]['non_reduced'][-1] - 1) * 100
+            risk = self.run_reg[i]['reduced'][-1]/self.run_reg[i]['non_reduced'][-1] - 1
             
             # Print the added risk results of the space reduction
-            print(f"Discipline {i+1} would experience {round(risk, 2)}% added risk.")
+            print(f"Discipline {i+1} would experience {round(risk, 2)} added regret.")
             
             # Append risk value to proper risk_or_potential key
             d["regret"].append(risk)
             
             ########## Windfall ##########
             # Calculate the "potential" value for the space reduction
-            ### + value indicates added potential
-            ### - value indicates reduced potential
+            ### + value indicates added windfall
+            ### - value indicates reduced windfall
             if self.run_wind[i]['non_reduced'][-1] == 0: self.run_wind[i]['non_reduced'][-1] += 1e-10
-            windfall = (self.run_wind[i]['reduced'][-1]/self.run_wind[i]['non_reduced'][-1] - 1) * 100
+            windfall = self.run_wind[i]['reduced'][-1]/self.run_wind[i]['non_reduced'][-1] - 1
             
             # Print the reduced potential results of the space reduction
-            print(f"Discipline {i+1} would experience {-round(windfall, 2)}% reduced potential.")
+            print(f"Discipline {i+1} would experience {-round(windfall, 2)} reduced windfall.")
             
             # Append windfall value to proper risk_or_potential key
             d["windfall"].append(windfall)
             
             ########## Net Windfall-Regret ##########
             # Calculate the percent shift in net windfall-regret for the space reduction
-            ### + shift is good
-            ### - shift is bad
+            ### + means a shift towards more windfall influence
+            ### - means a shift towards more regret influence
+            ### Values less than 1 mean it remains primarily regret or windfall influenced
+            ### Values greater than 1 can mean influence has flipped or have become way more ingrained in regret or windfall depending on "before" value
             if self.net_wr[i]['non_reduced'][-1] == 0: self.net_wr[i]['non_reduced'][-1] += 1e-10
-            net = ((self.net_wr[i]['reduced'][-1] - self.net_wr[i]['non_reduced'][-1])/abs(self.net_wr[i]['non_reduced'][-1])) * 100
+            net = (self.net_wr[i]['reduced'][-1] - self.net_wr[i]['non_reduced'][-1])/abs(self.net_wr[i]['non_reduced'][-1])
             
             # Print the percent shift results of the space reduction
-            print(f"Discipline {i+1} would experience {round(net, 2)}% shift in net windfall-regret.")
+            print(f"Discipline {i+1} would experience {round(net, 2)} shift in net windfall-regret.")
             
             # Append net value to proper risk_or_potential key
             d["net"].append(net)
@@ -368,14 +370,14 @@ class windfallRegret:
                         ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.1, rstride=100, cstride=100)
                 
                 # Define the levels and discretize the windfall-regret data
-                levels = np.linspace(-1, 1, 21)
-                wr_discrete = (np.digitize(value[-1], bins=levels) - 11) / 10.0
+                levels = np.linspace(-0.5, 0.5, 11)
+                wr_discrete = (np.digitize(value[-1], bins=levels) - 6) / 10.0
                 
                 # When plotting space remaining data, use the discretized windfall values
                 scatter = ax.scatter(self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 0], \
                                      self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 1], \
                                      self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 2], \
-                                     c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-1, vmax=1)
+                                     c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-0.5, vmax=0.5)
                 
                 # Adjust the colorbar to reflect the levels
                 cbar = plt.colorbar(scatter, ax=ax, ticks=levels, boundaries=levels)
