@@ -256,10 +256,10 @@ while iters < iters_max:
         risk_or_potential = windregret.quantRisk()
         
         # Plot windfall and regret for remaining design spaces
-        if iter_rem == 0 or iters > 0.99*iters_max:
-            windregret.plotWindRegret(tp_actual)
-            iter_rem = 8
-        iter_rem -= 1
+        # if iter_rem == 0 or iters > 0.99*iters_max:
+        #     windregret.plotWindRegret(tp_actual)
+        #     iter_rem = 8
+        # iter_rem -= 1
         
         
         
