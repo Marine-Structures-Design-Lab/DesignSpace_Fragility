@@ -15,6 +15,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
+import numpy as np
 import sympy as sp
 
 """
@@ -34,8 +35,14 @@ class mergeConstraints:
         self.D = Discips
         return
     
+    
+    # Use GPR to determine number of (in)feasible designs in the space to be removed
+    # and use that value to assign to opinion
     # Have each discipline form an opinion for the proposed space reduction
-    def formOpinion(self):
+    def formOpinion(self, passfail, passfail_std):
+        
+        # Initialize a nested numpy array for opinions of each rule
+        opinions = [np.ones(len(self.D)) for _ in self.rn]
         
         # Loop through each new rule being proposed
         for rule in self.rn:
@@ -43,11 +50,12 @@ class mergeConstraints:
             # Loop through each discipline
             for discip in self.D:
                 
+                
                 rule
         
         
         
-        return
+        return opinions
     
     
     # Do minimum merge if not ready for conflicts yet
