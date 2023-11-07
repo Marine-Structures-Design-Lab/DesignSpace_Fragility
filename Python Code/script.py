@@ -227,39 +227,24 @@ while iters < iters_max:
     # Check if new input rules list is filled with any rules
     if irules_new:
         
-        # If list not empty, merge proposed reduction(s) together into a
-        # cohesive group
-        merger = mergeConstraints(irules_new)
+        ########## PRESENT INFORMATION CHECKS ##########
+        
+        # Initialize an object for the mergeConstraints class
+        merger = mergeConstraints(irules_new, Discips)
+        
+        # Have each discipline form an opinion on the rule (even for discipline proposing it!!!)
+        ### Value of 0.0 means discipline is not in favor of rule at all
+        ### Value of 1.0 means discipline is totally in favor of the rule
+        rule_opinions = merger.formOpinion
+        
+        
+        # Go forward with rule if disciplines are adequately on board
+        
+        
+        # Conduct a minimum merge on the rule if discipline(s) not on board and no dominance
         irules_new = merger.removeContradiction()
         
-        # Initialize a windfall and regret object
-        windregret = windfallRegret(Discips, irules_new, passfail, \
-                                    passfail_std, windreg, running_windfall, \
-                                    running_regret, net_windreg, risk_or_potential)
-        
-        # Create training data from sampled locations and pass/fail amounts
-        x_train, y_train = windregret.trainData()
-        
-        # Create GPR from sampled locations and combined pass/fail amounts
-        gpr = windregret.initializeFit(x_train, y_train)
-        
-        # Predict pass/fail amounts for remaining points in each discipline
-        passfail, passfail_std = windregret.predictData(gpr)
-        
-        # Calculate windfall and regret for remaining design spaces
-        windreg, running_windfall, running_regret, net_windreg = \
-            windregret.calcWindRegret(tp_actual)
-        
-        # Quantify risk or potential of space reduction for each discipline
-        ### A positive value means risk or potential is ADDED
-        ### A negative value means risk or potential is REDUCED
-        risk_or_potential = windregret.quantRisk()
-        
-        # Plot windfall and regret for remaining design spaces
-        # if iter_rem == 0 or iters > 0.99*iters_max:
-        #     windregret.plotWindRegret(tp_actual)
-        #     iter_rem = 8
-        # iter_rem -= 1
+        # Go forward with rule if factoring in dominance and does not completely incapacitate a discipline
         
         
         
@@ -269,35 +254,19 @@ while iters < iters_max:
         
         
         
-        # # Initialize an object for the distribution check class
-        # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
-        #                          KDEs, posterior_KDEs, KL_divs)
-        
-        # # Create data sets for calculating probability distributions
-        # KDE_data = distribution.createDataSets()
-        
-        # # Calculate individual and joint KDEs
-        # KDEs, joint_KDEs = distribution.calcKDEs(KLgap)
-        
-        # # Determine posterior KDEs with Bayes' Theorem
-        # posterior_KDEs = distribution.evalBayes()
-        
-        # # Compute the KL divergence between successive posterior distributions
-        # KL_divs = distribution.computeKL()
-        
-        # # Show the progression of KL divergence values as points are added
-        # distribution.plotKL()
-        
-        
-
-
-
-
-
         
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        ##### FRAGILITY / FUTURE INFORMATION CHECK #####
         
         # Initialize a fragility counter
         fragility_counter = 0
@@ -306,7 +275,65 @@ while iters < iters_max:
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
             
+            ########## FUTURE INFORMATION CHECKS ##########
             
+            ##### PROBABILITY-BASED #####
+            
+            # Initialize a windfall and regret object
+            windregret = windfallRegret(Discips, irules_new, passfail, \
+                                        passfail_std, windreg, running_windfall, \
+                                        running_regret, net_windreg, risk_or_potential)
+            
+            # Create training data from sampled locations and pass/fail amounts
+            x_train, y_train = windregret.trainData()
+            
+            # Create GPR from sampled locations and combined pass/fail amounts
+            gpr = windregret.initializeFit(x_train, y_train)
+            
+            # Predict pass/fail amounts for remaining points in each discipline
+            passfail, passfail_std = windregret.predictData(gpr)
+            
+            # Calculate windfall and regret for remaining design spaces
+            windreg, running_windfall, running_regret, net_windreg = \
+                windregret.calcWindRegret(tp_actual)
+            
+            # Quantify risk or potential of space reduction for each discipline
+            ### A positive value means risk or potential is ADDED
+            ### A negative value means risk or potential is REDUCED
+            risk_or_potential = windregret.quantRisk()
+            
+            # Plot windfall and regret for remaining design spaces
+            if iter_rem == 0 or iters > 0.99*iters_max:
+                windregret.plotWindRegret(tp_actual)
+                iter_rem = 8
+            iter_rem -= 1
+            
+            
+            ##### ENTROPY-BASED #####
+            
+            # # Initialize an object for the distribution check class
+            # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
+            #                          KDEs, posterior_KDEs, KL_divs)
+            
+            # # Create data sets for calculating probability distributions
+            # KDE_data = distribution.createDataSets()
+            
+            # # Calculate individual and joint KDEs
+            # KDEs, joint_KDEs = distribution.calcKDEs(KLgap)
+            
+            # # Determine posterior KDEs with Bayes' Theorem
+            # posterior_KDEs = distribution.evalBayes()
+            
+            # # Compute the KL divergence between successive posterior distributions
+            # KL_divs = distribution.computeKL()
+            
+            # # Show the progression of KL divergence values as points are added
+            # distribution.plotKL()
+            
+            
+            
+            
+            ########## APPLY THE RESULTS TO THE FRAGILITY DECISION PROCESS ##########
             
             # Initialize a fragility check object
             fragile = checkFragility()

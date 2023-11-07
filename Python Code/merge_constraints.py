@@ -22,7 +22,7 @@ CLASS
 """
 class mergeConstraints:
     
-    def __init__(self, rules_new):
+    def __init__(self, rules_new, Discips):
         """
         Parameters
         ----------
@@ -31,7 +31,32 @@ class mergeConstraints:
             only consist of one argument
         """
         self.rn = rules_new
+        self.D = Discips
         return
+    
+    # Have each discipline form an opinion for the proposed space reduction
+    def formOpinion(self):
+        
+        # Loop through each new rule being proposed
+        for rule in self.rn:
+            
+            # Loop through each discipline
+            for discip in self.D:
+                
+                rule
+        
+        
+        
+        return
+    
+    
+    # Do minimum merge if not ready for conflicts yet
+    
+    
+    # Do dominance if ready for conflicts
+    
+    
+    
     
     
     def removeContradiction(self):
@@ -96,6 +121,25 @@ class mergeConstraints:
         
     #     return
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 # def remove_redundancies(rules):
 #     non_redundant_rules = []
