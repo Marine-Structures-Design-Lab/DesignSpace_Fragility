@@ -49,8 +49,7 @@ class mergeConstraints:
             
             # Loop through each discipline
             for discip in self.D:
-                
-                
+                                
                 rule
         
         
