@@ -232,24 +232,10 @@ while iters < iters_max:
         # Initialize an object for the mergeConstraints class
         merger = mergeConstraints(irules_new, Discips)
         
-        # Initialize a windfall and regret object
-        windregret = windfallRegret(Discips, irules_new, passfail, \
-                                    passfail_std, windreg, running_windfall, \
-                                    running_regret, net_windreg, risk_or_potential)
-        
-        # Create training data from sampled locations and pass/fail amounts
-        x_train, y_train = windregret.trainData()
-        
-        # Create GPR from sampled locations and combined pass/fail amounts
-        gpr = windregret.initializeFit(x_train, y_train)
-        
-        # Predict pass/fail amounts for remaining points in each discipline
-        passfail, passfail_std = windregret.predictData(gpr)
-        
         # Have each discipline form an opinion on the rule
-        ### Value of 0.0 means discipline is not in favor of rule at all
-        ### Value of 1.0 means discipline is totally fine with the rule
-        rule_opinions = merger.formOpinion(passfail, passfail_std)
+        ### Value of 0.0 means discipline is not in favor of rule at all (you're eliminating my most feasible designs)
+        ### Value of 1.0 means discipline is totally fine with the rule (you're eliminating my most infeasible designs)
+        rule_opinions = merger.formOpinion()
         
         # Go forward with rule if disciplines are adequately on board
         
@@ -292,7 +278,19 @@ while iters < iters_max:
             
             ##### PROBABILITY-BASED #####
             
+            # Initialize a windfall and regret object
+            windregret = windfallRegret(Discips, irules_new, passfail, \
+                                        passfail_std, windreg, running_windfall, \
+                                        running_regret, net_windreg, risk_or_potential)
             
+            # Create training data from sampled locations and pass/fail amounts
+            x_train, y_train = windregret.trainData()
+            
+            # Create GPR from sampled locations and combined pass/fail amounts
+            gpr = windregret.initializeFit(x_train, y_train)
+            
+            # Predict pass/fail amounts for remaining points in each discipline
+            passfail, passfail_std = windregret.predictData(gpr)
             
             # Calculate windfall and regret for remaining design spaces
             windreg, running_windfall, running_regret, net_windreg = \
@@ -308,7 +306,6 @@ while iters < iters_max:
                 windregret.plotWindRegret(tp_actual)
                 iter_rem = 8
             iter_rem -= 1
-            
             
             ##### ENTROPY-BASED #####
             

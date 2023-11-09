@@ -46,7 +46,7 @@ def checkPoints(discipline, rule, var, key):
         All the array indices that do not satisfy the rule
     """
     
-    # Initialize and empty list of indices for elimination
+    # Initialize an empty list of indices for elimination
     indices = []
     
     # Loop through each point

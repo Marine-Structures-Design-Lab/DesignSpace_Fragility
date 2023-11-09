@@ -15,8 +15,62 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
+from point_sorter import sortPoints
+from windfall_regret import sharedIndices
 import numpy as np
 import sympy as sp
+import copy
+
+"""
+TERTIARY FUNCTIONS
+"""
+
+
+
+
+
+
+
+"""
+SECONDARY FUNCTIONS
+"""
+# Develop a strategy for forming an opinion!!!
+### Forming an opinion should only focus on the infeasibility of the space to be reduced
+### Making a decision based on dominance needs to account for the space that would remain
+def getOpinion(rule, discip):
+    
+    # Make a copy of the discipline that takes input rule into account
+    d_copy = copy.deepcopy(discip)
+    d_copy = sortPoints([d_copy], [rule])
+    
+    # Find different index lists based on rule
+    all_indices, indices_in_both, indices_not_in_B = \
+        sharedIndices(discip['space_remaining'], d_copy[0]['space_remaining'])
+    
+    # Add each list to a different dictionary key
+    diction = {"non_reduced": all_indices, 
+               "reduced": indices_in_both, 
+               "leftover": indices_not_in_B}
+    
+    
+    ### (Have all of these things be tertiary functions and model them closely after windfall_regret)
+    # Initialize data for training a GPR
+    
+    
+    # Train GPR (maybe include noise in this one?)
+    
+    
+    # Predict GPR at points in leftover space remaining indices
+    
+    
+    
+    
+    return 0.0
+
+
+
+
+
 
 """
 CLASS
@@ -36,24 +90,32 @@ class mergeConstraints:
         return
     
     
-    # Use GPR to determine number of (in)feasible designs in the space to be removed
-    # and use that value to assign to opinion
+    # Use GPR to determine infeasibility of designs in the space to be removed
     # Have each discipline form an opinion for the proposed space reduction
-    def formOpinion(self, passfail, passfail_std):
+    def formOpinion(self):
         
         # Initialize a nested numpy array for opinions of each rule
         opinions = [np.ones(len(self.D)) for _ in self.rn]
         
         # Loop through each new rule being proposed
-        for rule in self.rn:
+        for i, rule in enumerate(self.rn):
             
             # Loop through each discipline
-            for discip in self.D:
-                                
-                rule
-        
-        
-        
+            for j, discip in enumerate(self.D):
+                
+                # Get free variables of the rule
+                rule_vars = rule.free_symbols
+                
+                # Assign nan if discipline is not directly affected by rule
+                if rule_vars <= set(discip['ins']): pass
+                else: 
+                    opinions[i][j] = np.nan
+                    continue
+                
+                # Get opinion of discipline directly affected by rule
+                opinions[i][j] = getOpinion(rule, discip)
+                
+        # Return the opinions of each rule from each discipline
         return opinions
     
     
