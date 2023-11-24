@@ -17,6 +17,8 @@ LIBRARIES
 """
 from point_sorter import sortPoints
 from windfall_regret import sharedIndices
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.gaussian_process import GaussianProcessRegressor
 import numpy as np
 import sympy as sp
 import copy
@@ -24,9 +26,57 @@ import copy
 """
 TERTIARY FUNCTIONS
 """
+def trainData(discip):
+    
+    # Combine tested input data from remaining and eliminated arrays
+    x_train = discip['tested_ins']
+    if 'eliminated' in discip:
+        x_train = np.concatenate((x_train, \
+            discip['eliminated']['tested_ins']), axis=0)
+    
+    # Combine pass & fail amounts from remaining & eliminated arrays
+    y_train = discip['Pass_Amount'] - discip['Fail_Amount']
+    if 'eliminated' in discip:
+        y_train = np.concatenate((y_train, \
+            discip['eliminated']['Pass_Amount'] - \
+            discip['eliminated']['Fail_Amount']))
+    
+    # Return training data
+    return x_train, y_train
 
+def initializeFit(discip, x_train, y_train):
+    
+    # Initialize Gaussian kernel
+    kernel = 1.0 * RBF(length_scale=np.ones(len(discip['ins'])), \
+                       length_scale_bounds=(1e-2, 1e3))
+    
+    # Initialize Gaussian process regressor (GPR)
+    gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=0.00001)
+    
+    # Fit GPR with training data
+    gpr_model.fit(x_train, y_train)
+    
+    # Return trained GPR
+    return gpr_model
 
-
+def predictData(discip, gpr, diction):
+    
+    # Test GPR at each point remaining of non-reduced matrix
+    means, stddevs = gpr.predict(discip['space_remaining'], return_std=True)
+    
+    # Initialize dictionaries
+    passfail = {}
+    passfail_std = {}
+    
+    # Loop through each list of indices in dictionary
+    for key in diction:
+        
+        # Assign predicted data to proper dictionary key
+        passfail[key] = means[diction[key]]
+        passfail_std[key] = stddevs[diction[key]]
+        
+    # Return predicted passing and failing dictionaries with newest tests
+    return passfail, passfail_std
 
 
 
@@ -52,16 +102,14 @@ def getOpinion(rule, discip):
                "reduced": indices_in_both, 
                "leftover": indices_not_in_B}
     
-    
-    ### (Have all of these things be tertiary functions and model them closely after windfall_regret)
     # Initialize data for training a GPR
+    x_train, y_train = trainData(discip)
     
+    # Train GPR - maybe come back and introduce noise later
+    gpr = initializeFit(discip, x_train, y_train)
     
-    # Train GPR (maybe include noise in this one?)
-    
-    
-    # Predict GPR at points in leftover space remaining indices
-    
+    # Predict GPR at points in various space remaining indices
+    passfail, passfail_std = predictData(d_copy, gpr, diction)
     
     
     
