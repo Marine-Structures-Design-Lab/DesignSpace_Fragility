@@ -74,6 +74,7 @@ def predictData(discip, gpr, diction):
         # Assign predicted data to proper dictionary key
         passfail[key] = means[diction[key]]
         passfail_std[key] = stddevs[diction[key]]
+        print(len(passfail[key]))
         
     # Return predicted passing and failing dictionaries with newest tests
     return passfail, passfail_std
@@ -109,7 +110,7 @@ def getOpinion(rule, discip):
     gpr = initializeFit(discip, x_train, y_train)
     
     # Predict GPR at points in various space remaining indices
-    passfail, passfail_std = predictData(d_copy, gpr, diction)
+    passfail, passfail_std = predictData(discip, gpr, diction)
     
     
     
