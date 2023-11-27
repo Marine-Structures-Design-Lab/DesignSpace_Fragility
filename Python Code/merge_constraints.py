@@ -19,6 +19,7 @@ from point_sorter import sortPoints
 from windfall_regret import sharedIndices
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.gaussian_process import GaussianProcessRegressor
+from scipy.stats import norm
 import numpy as np
 import sympy as sp
 import copy
@@ -74,12 +75,56 @@ def predictData(discip, gpr, diction):
         # Assign predicted data to proper dictionary key
         passfail[key] = means[diction[key]]
         passfail_std[key] = stddevs[diction[key]]
-        print(len(passfail[key]))
         
     # Return predicted passing and failing dictionaries with newest tests
     return passfail, passfail_std
 
+def analyzeInfeasibility(predictions, std_devs):
 
+    total_above_zero = 0
+
+    for pred, std_dev in zip(predictions, std_devs):
+        lower_bound = pred - 2 * std_dev
+        upper_bound = pred + 2 * std_dev
+
+        if upper_bound <= 0:
+            # Entire interval is below zero, so decimal above zero is 0
+            decimal_above_zero = 0
+        elif lower_bound >= 0:
+            # Entire interval is above zero, so decimal above zero is 1
+            decimal_above_zero = 1
+        else:
+            # Interval crosses zero, calculate the decimal part above zero
+            decimal_above_zero = (upper_bound - 0) / (upper_bound - lower_bound)
+
+        total_above_zero += decimal_above_zero
+
+    average_above_zero = total_above_zero / len(predictions)
+    average_below_zero = 1 - average_above_zero
+    return average_below_zero
+
+def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
+
+    total_above_zero_1 = 0
+    total_above_zero_2 = 0
+
+    # Calculating for the first set
+    for mean, std_dev in zip(means1, std_devs1):
+        cdf_at_zero = norm.cdf(0, loc=mean, scale=std_dev)
+        decimal_above_zero = 1 - cdf_at_zero
+        total_above_zero_1 += decimal_above_zero
+
+    # Calculating for the second set
+    for mean, std_dev in zip(means2, std_devs2):
+        cdf_at_zero = norm.cdf(0, loc=mean, scale=std_dev)
+        decimal_above_zero = 1 - cdf_at_zero
+        total_above_zero_2 += decimal_above_zero
+
+    # Calculating the percentage of the first set relative to the second set
+    return total_above_zero_1 / total_above_zero_2 if total_above_zero_2 != 0 else 0
+    
+    
+    return
 
 
 """
@@ -111,6 +156,31 @@ def getOpinion(rule, discip):
     
     # Predict GPR at points in various space remaining indices
     passfail, passfail_std = predictData(discip, gpr, diction)
+    
+    # STEP 1: AM I GETTING RID OF CLEARLY INFEASIBLE SPACE?
+    # I LIKE THIS AND THE 95% INTERVAL I AM SETTING UP TO ENSURE CLEARLY INFEASIBLE IS BEING LOOKED AT
+    # Get rid of clearly infeasible area!!!!
+    # Form statistics for opinion based on predictions in space being reduced
+    infeas_space = analyzeInfeasibility(passfail['reduced'], passfail_std['reduced'])
+    
+    
+    # GETTING TOO SMALL OF NUMBERS AS IS RIGHT NOW...CAN'T BE FEASIBILITY VS. INFEASIBILITY RELATIVE TO 0!
+    ### NEEDS TO INSTEAD BE A SIMPLE COMPARISON OF THE SIZE OF P/F VALUES OF LEFTOVER COMPARED TO NON-REDUCED
+    # STEP 2: IF NOT, AM I MAINTAINING POSSIBILITY OF FEASIBLE SPACE IN OTHER AREAS?
+    # NO STANDARD DEVIATION FOR THIS ONE? JUST LOOK AT ACTUAL PREDICTED VALUES?
+    # Maintain some feasible areas!!!! - want this decimal to be large
+    # Important because what if a discipline has just a lot of feasible spaces...?
+    # This statistic is meant to dilute the one above!!!
+    # Form additional statistics for opinion based on predictions in space leftover
+    feas_space = analyzeFeasibility(passfail['leftover'], passfail_std['leftover'],
+                                    passfail['non_reduced'], passfail_std['non_reduced'])
+    print(feas_space)
+    
+    # IF ANSWERS TO BOTH STEP 1 AND 2 SEPARATELY ARE BAD, THEN NEED A BAD OPINION
+    # IF 1 IS SATISFIED MOVE ON...IF NOT, CHECK IF 2 IS SATISFIED
+    # Consider only step 1 when no dominance...consider 1 and 2 for dominance
+    # Form opinion
+    
     
     
     
