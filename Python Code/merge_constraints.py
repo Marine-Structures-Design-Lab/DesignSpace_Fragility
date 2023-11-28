@@ -122,9 +122,6 @@ def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
 
     # Calculating the percentage of the first set relative to the second set
     return total_above_zero_1 / total_above_zero_2 if total_above_zero_2 != 0 else 0
-    
-    
-    return
 
 
 """
