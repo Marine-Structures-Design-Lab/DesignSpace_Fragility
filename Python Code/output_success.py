@@ -69,8 +69,18 @@ def outputDiff(rule, i, d):
             if d['pass?'][i] == False: return np.min(diff_vector)
             else: return np.max(diff_vector)
         
-        # Always return minimum value for And relational
-        else: return np.min(diff_vector)
+        # Always return minimum value greater than 0.0 for And relational
+        else:
+            
+            # Create a mask for values greater than 0.0
+            mask = diff_vector > 0.0
+            
+            # Avoid error with all values being false in mask
+            if np.all(~mask):
+                return 0.0
+            
+            # Apply mask and return minimum value
+            return np.min(diff_vector[mask])
     
     # Perform following commands if rule is not an Or or And relational
     else:
@@ -90,13 +100,9 @@ def outputDiff(rule, i, d):
             # Substitute output value into free symbol of rule copy
             rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
         
-        # Return 0.0 if rule inequality is true but point is failing and
-        #### NEED SOMETHING LIKE AN OR CONDITIONAL HERE BECAUSE THIS RULE IS RETURNING
-        #### A VECTOR WITH A 0, THAT IS GOING TO THE ELSE STATEMENT ABOVE BECAUSE
-        #### IT IS PART OF AN AND RELATIONAL AND THE MINIMUM VALUE IS BEING TAKEN
-        #### FROM THE AND RELATIONAL (I.E. 0)...SO NEED TO FIX THIS HERE AND/OR THE
-        #### AND RELATIONAL ABOVE
-        if rule_copy and d['pass?'][i] == False: #AND...
+        # Return 0.0 if inequality is true but point is failing to avoid 
+        ### absolute value issues
+        if rule_copy and d['pass?'][i] == False:
             return 0.0
         
         # Perform following commands if rule copy not true or point is passing
