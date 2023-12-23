@@ -90,9 +90,13 @@ def outputDiff(rule, i, d):
             # Substitute output value into free symbol of rule copy
             rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
         
-        # Return 0.0 if rule inequality is true but point is failing and OR?????
-        if rule_copy and d['pass?'][i] == False: 
-            print(i)
+        # Return 0.0 if rule inequality is true but point is failing and
+        #### NEED SOMETHING LIKE AN OR CONDITIONAL HERE BECAUSE THIS RULE IS RETURNING
+        #### A VECTOR WITH A 0, THAT IS GOING TO THE ELSE STATEMENT ABOVE BECAUSE
+        #### IT IS PART OF AN AND RELATIONAL AND THE MINIMUM VALUE IS BEING TAKEN
+        #### FROM THE AND RELATIONAL (I.E. 0)...SO NEED TO FIX THIS HERE AND/OR THE
+        #### AND RELATIONAL ABOVE
+        if rule_copy and d['pass?'][i] == False: #AND...
             return 0.0
         
         # Perform following commands if rule copy not true or point is passing
