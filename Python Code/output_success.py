@@ -17,7 +17,6 @@ import numpy as np
 import sympy as sp
 import copy
 import math
-import warnings
 
 """
 SECONDARY FUNCTION
@@ -45,11 +44,10 @@ def outputDiff(rule, i, d):
 
     Returns
     -------
-    np.nanmin, np.nanmax, np.nan, diff, ndiff : Float or nan
+    np.min, np.max, diff, ndiff : Float
         The failure difference of a point to the current rule whether that
         difference is a single value associated with an inequality (diff,
-        ndiff), a list of inequalities (np.nanmin, np.nanmax), or nan because
-        the point is not failing
+        ndiff) or a list of inequalities (np.min, np.max)
     """
     
     # Check if rule is an Or or And relational
@@ -64,15 +62,16 @@ def outputDiff(rule, i, d):
             # Call the function again and assign its value to vector
             diff_vector[rule.args.index(arg)] = outputDiff(arg,i, d)
         
-        # Turn off the warning messages for an all NaN matrix/vector
-        warnings.filterwarnings\
-            ('ignore', 'All-NaN (slice|axis) encountered')
+        
         
         # Return min of difference array for each point of Or rule
-        if isinstance(rule, sp.Or): return np.nanmin(diff_vector)
+        if isinstance(rule, sp.Or): return np.min(diff_vector)
         
         # Return max of difference array for each point of And rule
-        else: return np.nanmax(diff_vector)
+        ### For failing AND needs to have contributions from each part of rule!
+        ### Need to use numpy insert here?  And statement should be added as another rule
+        ### in the list!!!!!
+        else: return np.max(diff_vector)
     
     # Perform following commands if rule is not an Or or And relational
     else:
@@ -92,13 +91,10 @@ def outputDiff(rule, i, d):
             # Substitute output value into free symbol of rule copy
             rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
         
-        # Check if the rule copy is true
-        if rule_copy:
-            
-            # Return not a number
-            return np.nan
+        # Return 0.0 if rule inequality is true but point is failing
+        if rule_copy and d['pass?'][i] == False: return 0.0
         
-        # Perform the following commands if the rule copy is not true
+        # Perform following commands if rule copy not true or point is passing
         else:
             
             # Determine difference between lhs and rhs of rule
@@ -217,6 +213,7 @@ class checkOutput:
                 self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'], 0.0)
                 
                 # Initialize a numpy vector the same length as the rules
+                ### This needs to change because it needs to grow with the rule
                 tv_diff = np.zeros(len(self.outr))
                 
                 # Loop through each output rule
@@ -226,17 +223,11 @@ class checkOutput:
                     tv_diff[self.outr.index(rule)] = \
                         outputDiff(rule, i, self.d)
                 
-                # Identify any instances of not a number
-                nan_mask = np.isnan(tv_diff)
+                # Calculate minimum difference for set of relevant output rules
+                min_d = np.min(tv_diff)
                 
-                # Replace any instance of not a number with 0.0
-                tv_diff[nan_mask] = 0.0
-                
-                # Calculate the NRMSD for the set of relevant output rules
-                nrmsd = np.sqrt(np.sum(np.square(tv_diff))/len(tv_diff))
-                
-                # Append the NRMSD value to the pass amount vector
-                self.d['Pass_Amount'] = np.append(self.d['Pass_Amount'], nrmsd)
+                # Append min difference value to the pass amount vector
+                self.d['Pass_Amount'] = np.append(self.d['Pass_Amount'], min_d)
                 
             
             # Perform the following commands if the point is not passing

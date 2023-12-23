@@ -89,6 +89,10 @@ class setProblem:
         
         # Create a list for the initial output rules
         ### SAME STRUCTURE AS THE INPUT RULES
+        ### sp.And should be reserved when trying to define an area that is
+        ### cut off on both sides for one variable...if the user finds
+        ### themselves creating a rule such as y[0] > 1 AND y[1] > 1, then it
+        ### should be split up into two separate rules on the list
         output_rules = [sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4),\
                               sp.And(y[0]>=1.2,y[0]<=1.6)),
                         sp.And(y[1]>=0.5,y[1]<=0.7),

@@ -133,7 +133,7 @@ class test_output_success(unittest.TestCase):
         
         # Determine expected (normalized) outputDiff values
         exp_ans = [np.array([float(0.1/0.4)]),
-                   np.array([np.nan, float(0.6/0.8)]),
+                   np.array([0.0, float(0.6/0.8)]),
                    np.array([float(0.4/0.6), float(0.6/1.1)])]
         
         # Loop through each discipline
