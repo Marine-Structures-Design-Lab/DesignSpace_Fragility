@@ -171,7 +171,6 @@ def getOpinion(rule, discip):
     # Form additional statistics for opinion based on predictions in space leftover
     feas_space = analyzeFeasibility(passfail['leftover'], passfail_std['leftover'],
                                     passfail['non_reduced'], passfail_std['non_reduced'])
-    print(feas_space)
     
     # IF ANSWERS TO BOTH STEP 1 AND 2 SEPARATELY ARE BAD, THEN NEED A BAD OPINION
     # IF 1 IS SATISFIED MOVE ON...IF NOT, CHECK IF 2 IS SATISFIED
