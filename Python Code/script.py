@@ -430,24 +430,24 @@ while iters < iters_max:
         Discips[i] = createKey('tested_ins',Discips[i])
         
         # Get input points according to the desired strategy
-        inppts = getInput(Discips[i],input_rules,temp_amount,i)
+        inppts = getInput(Discips[i], input_rules, temp_amount, i)
         Discips[i] = inppts.getUniform()
         
         # Create a key for tested outputs of discipline if it does not exist
-        Discips[i] = createKey('tested_outs',Discips[i])
+        Discips[i] = createKey('tested_outs', Discips[i])
         
         # Get output points from equations or black-box programs
         outpts = getOutput(Discips[i])
         Discips[i] = outpts.getValues()
         
         # Create a key for the output rule inequalities relevant to discipline
-        Discips[i] = createDict('out_ineqs',Discips[i])
+        Discips[i] = createDict('out_ineqs', Discips[i])
         
         # Determine current output value rules for the discipline to meet
-        output_rules = getConstraints(Discips[i]['outs'],Output_Rules)
+        output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
         
         # Gather any new inequalities of relevance to the discipline
-        Discips[i] = getInequalities(Discips[i],output_rules,'out_ineqs')
+        Discips[i] = getInequalities(Discips[i], output_rules, 'out_ineqs')
         
         # Calculate left-hand side of output rule inequality for each new point
         Discips[i]['out_ineqs'] = calcRules(Discips[i],\

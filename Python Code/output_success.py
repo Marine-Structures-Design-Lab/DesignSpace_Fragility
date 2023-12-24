@@ -67,6 +67,8 @@ def outputDiff(rule, i, d):
             
             # Return proper min or max value depending on pass/fail of point
             if d['pass?'][i] == False: return np.min(diff_vector)
+            elif any(isinstance(arg, sp.Or) for arg in rule.args): return np.min(diff_vector)
+            elif any(isinstance(arg, sp.And) for arg in rule.args): return np.min(diff_vector)
             else: return np.max(diff_vector)
         
         # Always return minimum value greater than 0.0 for And relational
