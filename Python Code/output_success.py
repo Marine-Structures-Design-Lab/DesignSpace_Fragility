@@ -102,18 +102,18 @@ def outputDiff(rule, i, d):
             # Substitute output value into free symbol of rule copy
             rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
         
-        # Return 0.0 if inequality is true but point is failing...to avoid 
-        ### absolute value issues
+        # Return 0.0 if inequality is true but point is failing...as difference
+        ### should not contribute to fail amount
         if rule_copy and d['pass?'][i] == False:
             return 0.0
         
-        # Return nan if inequality is not true but point is passing...to
-        ### avoid maximization issues
+        # Return nan if inequality is not true but point is passing...as
+        ### difference should not contribute to pass amount
         elif ~rule_copy and d['pass?'][i] == True:
             return np.nan
         
-        # Perform following commands if either rule copy not true or point is
-        ### passing...but not both
+        # Perform following commands if rule copy is true and point is passing
+        ### or if rule copy is false and point is failing
         else:
             
             # Determine difference between lhs and rhs of rule
