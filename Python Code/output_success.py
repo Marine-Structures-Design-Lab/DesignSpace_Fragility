@@ -44,7 +44,7 @@ def outputDiff(rule, i, d):
 
     Returns
     -------
-    np.min, np.max, diff, ndiff : Float
+    np.nanmin, np.nanmax, diff, ndiff : Float
         The failure difference of a point to the current rule whether that
         difference is a single value associated with an inequality (diff,
         ndiff) or a list of inequalities (np.min, np.max)
@@ -66,10 +66,10 @@ def outputDiff(rule, i, d):
         if isinstance(rule, sp.Or):
             
             # Return proper min or max value depending on pass/fail of point
-            if d['pass?'][i] == False: return np.min(diff_vector)
-            elif any(isinstance(arg, sp.Or) for arg in rule.args): return np.min(diff_vector)
-            elif any(isinstance(arg, sp.And) for arg in rule.args): return np.min(diff_vector)
-            else: return np.max(diff_vector)
+            if d['pass?'][i] == False: return np.nanmin(diff_vector)
+            elif any(isinstance(arg, sp.Or) for arg in rule.args): return np.nanmin(diff_vector)
+            elif any(isinstance(arg, sp.And) for arg in rule.args): return np.nanmin(diff_vector)
+            else: return np.nanmax(diff_vector)
         
         # Always return minimum value greater than 0.0 for And relational
         else:
@@ -82,7 +82,7 @@ def outputDiff(rule, i, d):
                 return 0.0
             
             # Apply mask and return minimum value
-            return np.min(diff_vector[mask])
+            return np.nanmin(diff_vector[mask])
     
     # Perform following commands if rule is not an Or or And relational
     else:
@@ -102,12 +102,18 @@ def outputDiff(rule, i, d):
             # Substitute output value into free symbol of rule copy
             rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
         
-        # Return 0.0 if inequality is true but point is failing to avoid 
+        # Return 0.0 if inequality is true but point is failing...to avoid 
         ### absolute value issues
         if rule_copy and d['pass?'][i] == False:
             return 0.0
         
-        # Perform following commands if rule copy not true or point is passing
+        # Return nan if inequality is not true but point is passing...to
+        ### avoid maximization issues
+        elif ~rule_copy and d['pass?'][i] == True:
+            return np.nan
+        
+        # Perform following commands if either rule copy not true or point is
+        ### passing...but not both
         else:
             
             # Determine difference between lhs and rhs of rule
@@ -237,7 +243,7 @@ class checkOutput:
                         outputDiff(rule, i, self.d)
                 
                 # Calculate minimum difference for set of relevant output rules
-                min_d = np.min(tv_diff)
+                min_d = np.nanmin(tv_diff)
                 
                 # Append min difference value to the pass amount vector
                 self.d['Pass_Amount'] = np.append(self.d['Pass_Amount'], min_d)

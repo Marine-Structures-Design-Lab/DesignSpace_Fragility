@@ -61,7 +61,7 @@ class test_output_success(unittest.TestCase):
             # Add partially filled "pass?" values to dictionary
             self.Discips1[i]['pass?'] = [None]
             
-            # Create a key for the output rule inequalities relevant to discipline
+            # Create key for output rule inequalities relevant to discipline
             self.Discips2[i] = createDict('out_ineqs',self.Discips2[i])
             
             # Get output rules
@@ -180,8 +180,8 @@ class test_output_success(unittest.TestCase):
         
         # Determine expected pass amounts
         pass_ans = [np.array([0.25, 0.0]),
-                    np.array([0.0, 0.0]),
-                    np.array([0.0, 0.0])]
+                    np.array([0.1, 0.0]),
+                    np.array([0.272727272727, 0.0])]
         
         # Loop through each discipline
         for i in range(0, len(self.Discips2)):
@@ -197,10 +197,20 @@ class test_output_success(unittest.TestCase):
         
         ########## TESTS FOR NEW OUTPUT SPACE ##########
         # Determine expected normalized root mean square fail amounts
-        fail_ans = np.array([0.0, 0.3010486145, 0.1296828204, 0.0882352941, 0.0, 0.0])
+        fail_ans = np.array([0.0,
+                             0.3010486145,
+                             0.1296828204,
+                             0.0882352941,
+                             0.0,
+                             0.0])
         
         # Determine expected pass amounts
-        pass_ans = np.array([0.119047619, 0.0, 0.0, 0.0, 0.0823529412, 0.0470588235])
+        pass_ans = np.array([0.119047619,
+                             0.0,
+                             0.0,
+                             0.0,
+                             0.0823529412,
+                             0.0470588235])
         
         # Check if calculated fail amounts are almost equal to expected values
         np.testing.assert_array_almost_equal\
@@ -244,7 +254,40 @@ class test_output_success(unittest.TestCase):
         
         
         ########## TESTS FOR NEW OUTPUT SPACE ##########
+        # Determine expected (normalized) outputDiff values
+        exp_ans = [np.array([float(0.25/0.84), float(0.1/0.84),
+                             float(0.15/0.85), float(0.3/1.64)]),
+                   np.array([0.0, 0.0,
+                             float(0.3/0.85), float(0.8/1.64)]),
+                   np.array([float(0.04/0.84), float(0.19/0.84),
+                             float(0.1/0.85), 0.0]),
+                   np.array([0.0, 0.0,
+                             float(0.15/0.85), 0.0]),
+                   np.array([float(0.07/0.84), float(0.23/0.85),
+                             float(0.07/0.85), float(0.3/1.64)]),
+                   np.array([float(0.19/0.84), float(0.04/0.84),
+                             float(0.04/0.85), float(0.47/1.64)])]
+        
+        # Get output rules of discipline
+        output_rules = getConstraints(self.Discipline[0]['outs'],\
+                                      self.ORules)
+        
+        # Initialize a numpy vector the same length as the output rules
+        tv_diff = np.zeros(len(output_rules))
+        
+        # Loop through each index of the discipline
+        for ind in range(0, self.Discipline[0]['tested_outs'].shape[0]):
             
+            # Loop through each output rule of the discipline
+            for rule in output_rules:
+            
+                # Call outputDiff function for output points first index only
+                tv_diff[output_rules.index(rule)] = \
+                    outputDiff(rule, ind, self.Discipline[0])
+                
+            # Check if tv_diff values almost equal to expected values
+            np.testing.assert_array_almost_equal(tv_diff, exp_ans[ind])
+        
         
 """
 SCRIPT
