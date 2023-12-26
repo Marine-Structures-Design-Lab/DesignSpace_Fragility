@@ -227,7 +227,7 @@ while iters < iters_max:
     # Check if new input rules list is filled with any rules
     if irules_new:
         
-        ########## PRESENT INFORMATION CHECKS ##########
+        ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
         
         # Initialize an object for the mergeConstraints class
         merger = mergeConstraints(irules_new, Discips)
@@ -306,6 +306,11 @@ while iters < iters_max:
                 windregret.plotWindRegret(tp_actual)
                 iter_rem = 8
             iter_rem -= 1
+            
+            
+            
+            
+            
             
             ##### ENTROPY-BASED #####
             
