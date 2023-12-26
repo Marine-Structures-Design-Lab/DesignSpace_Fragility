@@ -88,7 +88,7 @@ class test_output_success(unittest.TestCase):
             self.Discips1[i] = outchk.basicCheck()
             self.Discips2[i] = outchk2.basicCheck()
             
-            # Determine the extent to which failing points fail
+            # Determine the extent to which points pass or fail
             self.Discips2[i] = outchk2.rmsFail()
         
         
@@ -138,7 +138,7 @@ class test_output_success(unittest.TestCase):
         # Produce new discipline
         self.Discipline[0] = outchk.basicCheck()
         
-        # Determine the extent to which failing points fail
+        # Determine the extent to which points pass or fail
         self.Discipline[0] = outchk.rmsFail()
         
         
@@ -281,7 +281,7 @@ class test_output_success(unittest.TestCase):
             # Loop through each output rule of the discipline
             for rule in output_rules:
             
-                # Call outputDiff function for output points first index only
+                # Call outputDiff function for output points
                 tv_diff[output_rules.index(rule)] = \
                     outputDiff(rule, ind, self.Discipline[0])
                 

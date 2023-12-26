@@ -2,7 +2,8 @@
 SUMMARY:
 Takes the calculated output values and assesses whether or not they meet the
 current set of constraints/rules.  If they do not meet the rules, then it
-provides the opportunity to assess the extent to which this failure occurs.
+assesses the extent to which this failure occurs.  If they do meet the rules,
+then it assesses the extent to which failure has been avoided.
 
 CREATOR:
 Joseph B. Van Houten
@@ -29,25 +30,26 @@ def outputDiff(rule, i, d):
     a sympy inequality rather than an And or Or relational so that the
     normalized difference of a point to the base inequality can be calculated
     and evaluated further if it rests within a sympy relational before being
-    returned for the root-mean square difference equation
+    returned for the root-mean square difference equation or minimum selection.
     
     Parameters
     ----------
     rule : Sympy relational or inequality
-        The current rule for which an output point's failure difference is
-        calculated
+        The current rule for which an output point's failure or success
+        difference is calculated
     i : Integer
         Index of the current design point
     d : Dictionary
         The particular discipline from which output information is being 
         gathered and stored
-
+    
     Returns
     -------
     np.nanmin, np.nanmax, diff, ndiff : Float
         The failure difference of a point to the current rule whether that
         difference is a single value associated with an inequality (diff,
-        ndiff) or a list of inequalities (np.min, np.max)
+        ndiff), a list of inequalities (np.nanmin, np.nanmax), or not a number
+        (np.nan)
     """
     
     # Check if rule is an Or or And relational
@@ -67,8 +69,10 @@ def outputDiff(rule, i, d):
             
             # Return proper min or max value depending on pass/fail of point
             if d['pass?'][i] == False: return np.nanmin(diff_vector)
-            elif any(isinstance(arg, sp.Or) for arg in rule.args): return np.nanmin(diff_vector)
-            elif any(isinstance(arg, sp.And) for arg in rule.args): return np.nanmin(diff_vector)
+            elif any(isinstance(arg, sp.Or) for arg in rule.args):
+                return np.nanmin(diff_vector)
+            elif any(isinstance(arg, sp.And) for arg in rule.args):
+                return np.nanmin(diff_vector)
             else: return np.nanmax(diff_vector)
         
         # Always return minimum value greater than 0.0 for And relational
@@ -159,7 +163,7 @@ class checkOutput:
         -----------
         Checks whether the output values pass or fail the current set of output
         rules and adds this information to the discipline's dictionary of
-        information
+        information.
         
         Parameters
         ----------
@@ -203,9 +207,13 @@ class checkOutput:
         """
         Description
         -----------
-        Calculates the normalized root mean square difference of calculated
-        output points to each relevant rule of the discipline and returns those
-        values as part of a numpy vector in the discipline's "Fail_Amount" key
+        When a point is failing at least one requirement, it calculates the 
+        normalized root mean square difference of calculated output points to
+        each relevant rule of the discipline.  When a point is not failing any
+        requirments, it determines the minimum difference of calculated output
+        points to threshold of rule relevant to the discipline.  Returns the
+        "Fail_Amount" or "Pass_Amount" as part of a numpy vector in each
+        discipline's dictionary.
         
         Parameters
         ----------
@@ -214,8 +222,8 @@ class checkOutput:
         Returns
         -------
         self.d : Dictionary
-            The same dictionary now updated with new failure amounts for all of
-            the output points that have been calculated thus far
+            The same dictionary now updated with new failure and pass amounts 
+            for all of the output points that have been calculated thus far
         """
         
         # Initial definitions to make code more readable
@@ -225,22 +233,21 @@ class checkOutput:
         # Loop through each NEW design point
         for i in range(start,len(pass_)):
             
+            # Initialize a numpy vector the same length as the rules
+            tv_diff = np.zeros(len(self.outr))
+            
+            # Loop through each output rule
+            for rule in self.outr:
+                
+                # Determine normalized difference of point to rule's threshold
+                tv_diff[self.outr.index(rule)] = \
+                    outputDiff(rule, i, self.d)
+            
             # Check if point is already passing
             if pass_[i] == True:
                 
                 # Append 0.0 to the failure amount vector
                 self.d['Fail_Amount'] = np.append(self.d['Fail_Amount'], 0.0)
-                
-                # Initialize a numpy vector the same length as the rules
-                ### This needs to change because it needs to grow with the rule
-                tv_diff = np.zeros(len(self.outr))
-                
-                # Loop through each output rule
-                for rule in self.outr:
-                    
-                    # Determine normalized difference that point passes rule
-                    tv_diff[self.outr.index(rule)] = \
-                        outputDiff(rule, i, self.d)
                 
                 # Calculate minimum difference for set of relevant output rules
                 min_d = np.nanmin(tv_diff)
@@ -254,16 +261,6 @@ class checkOutput:
                 # Append 0.0 to the pass amount vector
                 self.d['Pass_Amount'] = np.append(self.d['Pass_Amount'], 0.0)
                 
-                # Initialize a numpy vector the same length as the rules
-                tv_diff = np.zeros(len(self.outr))
-                
-                # Loop through each output rule
-                for rule in self.outr:
-                    
-                    # Determine normalized difference that point fails rule
-                    tv_diff[self.outr.index(rule)] = \
-                        outputDiff(rule, i, self.d)
-                
                 # Calculate the NRMSD for the set of relevant output rules
                 nrmsd = np.sqrt(np.sum(np.square(tv_diff))/len(tv_diff))
                 
@@ -272,7 +269,4 @@ class checkOutput:
                 
         # Return updated dictionary with normalized failure amounts
         return self.d
-    
-    
-    # Pass amount method...similar to failure amount method but reversed?
     
