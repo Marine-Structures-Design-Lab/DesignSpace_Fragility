@@ -84,8 +84,8 @@ def analyzeInfeasibility(predictions, std_devs):
     total_above_zero = 0
 
     for pred, std_dev in zip(predictions, std_devs):
-        lower_bound = pred - 2 * std_dev
-        upper_bound = pred + 2 * std_dev
+        lower_bound = pred - 3 * std_dev
+        upper_bound = pred + 3 * std_dev
 
         if upper_bound <= 0:
             # Entire interval is below zero, so decimal above zero is 0
@@ -158,7 +158,10 @@ def getOpinion(rule, discip):
     # I LIKE THIS AND THE 95% INTERVAL I AM SETTING UP TO ENSURE CLEARLY INFEASIBLE IS BEING LOOKED AT
     # Get rid of clearly infeasible area!!!!
     # Form statistics for opinion based on predictions in space being reduced
-    infeas_space = analyzeInfeasibility(passfail['reduced'], passfail_std['reduced'])
+    infeas_space = analyzeInfeasibility(passfail['leftover'], passfail_std['leftover'])
+    print("Infeas: " + str(infeas_space))
+    
+    # If statement with opinion
     
     
     # GETTING TOO SMALL OF NUMBERS AS IS RIGHT NOW...CAN'T BE FEASIBILITY VS. INFEASIBILITY RELATIVE TO 0!
@@ -169,13 +172,16 @@ def getOpinion(rule, discip):
     # Important because what if a discipline has just a lot of feasible spaces...?
     # This statistic is meant to dilute the one above!!!
     # Form additional statistics for opinion based on predictions in space leftover
-    feas_space = analyzeFeasibility(passfail['leftover'], passfail_std['leftover'],
+    feas_space = analyzeFeasibility(passfail['reduced'], passfail_std['reduced'],
                                     passfail['non_reduced'], passfail_std['non_reduced'])
+    print("Feas: " + str(feas_space))
     
     # IF ANSWERS TO BOTH STEP 1 AND 2 SEPARATELY ARE BAD, THEN NEED A BAD OPINION
     # IF 1 IS SATISFIED MOVE ON...IF NOT, CHECK IF 2 IS SATISFIED
     # Consider only step 1 when no dominance...consider 1 and 2 for dominance
     # Form opinion
+    
+    # If statement with opinion that is infeas*feas... or just this one on its own!!!!
     
     
     
