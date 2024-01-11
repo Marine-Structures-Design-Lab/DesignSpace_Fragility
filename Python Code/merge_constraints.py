@@ -80,7 +80,6 @@ def predictData(discip, gpr, diction):
     return passfail, passfail_std
 
 def analyzeInfeasibility(predictions, std_devs):
-
     total_above_zero = 0
 
     for pred, std_dev in zip(predictions, std_devs):
@@ -99,9 +98,9 @@ def analyzeInfeasibility(predictions, std_devs):
 
         total_above_zero += decimal_above_zero
 
-    average_above_zero = total_above_zero / len(predictions)
-    average_below_zero = 1 - average_above_zero
-    return average_below_zero
+    # Return 0 if total_above_zero is zero, else calculate the average
+    return 0 if total_above_zero == 0 else (1 - (total_above_zero / len(predictions)))
+
 
 def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
 
