@@ -321,7 +321,7 @@ class mergeConstraints:
     
     # Subtract fail_crit criteria from the opinion of discipline proposing rule
     # check that opinions of other disciplines are higher than or within threshold of recommending discipline
-    def domDecision(self, rule_opinions, irules_new, irules_discip):
+    def domDecision(self, rule_opinions, irules_new, irules_discip, fail_crit):
         
         
         

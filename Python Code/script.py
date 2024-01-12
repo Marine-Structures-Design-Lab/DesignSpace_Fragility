@@ -244,7 +244,7 @@ while iters < iters_max:
         rule_opinions = merger.formOpinion()
         
         # Go forward with rule if disciplines are adequately on board
-        i_rules_new = merger.domDecision(rule_opinions, irules_new, irules_discip)
+        i_rules_new = merger.domDecision(rule_opinions, irules_new, irules_discip, part_params['fail_crit'])
         
         
         # Conduct a minimum merge on the rule if discipline(s) not on board and no dominance
