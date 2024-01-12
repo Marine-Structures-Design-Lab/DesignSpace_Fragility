@@ -319,12 +319,21 @@ class mergeConstraints:
         return opinions
     
     
-    # Subtract fail_crit criteria from the opinion of discipline proposing rule
+    # Determine if any discipline has the grounds to throw out the rule being proposed
+    ### Dominance is naturally included in every rule proposal
+    ### Each discipline is given the opportunity for veto power
+    ### Make veto power easy early on but harder later
     # check that opinions of other disciplines are higher than or within threshold of recommending discipline
     def domDecision(self, rule_opinions, irules_discip, fail_crit):
         
+        # Make a set containing indices of rules to throw out
+        rules_delete = set()
+        
         # Loop through each new rule being proposed
         for i, rule in enumerate(self.rn):
+            
+            # Determine threshold for throwing out the rule
+            threshold = rule_opinions[i][irules_discip[i]] - fail_crit
             
             # Loop through each discipline's opinion
             for j, discip in enumerate(rule_opinions[i]):
@@ -332,12 +341,22 @@ class mergeConstraints:
                 # If discipline is the one proposing the rule, continue to next discipline
                 if j == irules_discip[i]: continue
                 
-                print(j)
                 # If discipline has no opinion, continue to next discipline
                 if np.isnan(rule_opinions[i][j]): continue
-                print(j)
-                # Check if discipline's opinion warrants throwing the rule out
                 
+                # Check if discipline's opinion warrants throwing the rule out
+                if rule_opinions[i][j] < threshold:
+                    
+                    # Add index of rule to the rule deletion list
+                    rules_delete.add(i)
+                    
+                    # Break the discipline loop and proceed to next rule
+                    break
+                    
+        # 
+        
+        
+        
         
         
         return self.rn
