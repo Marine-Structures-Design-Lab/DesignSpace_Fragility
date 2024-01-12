@@ -138,8 +138,9 @@ for i in range(0,len(Discips)):
 # Print a visual of the minimum space reduction vs. time remaining pace
 plotExponential(exp_parameters)
 
-# Create an empty list for new rules to be added
+# Create empty list for new rules to be added
 irules_new = []
+irules_discip = []
 
 # Initialize dictionaries for windfall and regret calculations
 passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
@@ -187,6 +188,7 @@ while iters < iters_max:
     
     # Reset the input rules to an empty list
     irules_new = []
+    irules_discip = []
     
     # Loop through each disicipline
     for i in range(0, len(Discips)):
@@ -218,8 +220,11 @@ while iters < iters_max:
             Discips[i]['part_params']['disc_crit'])
         
         # Add potential rule to the new rule list if it meets the criteria
+        ### and determine discipline proposing rule
         if rule_check:
             irules_new.append(space_check.prepareRule(pot_rule))
+            irules_discip.append(i)
+        
     
     # Check up on new rules
     print("Newly proposed input rules: " + str(irules_new))
@@ -239,7 +244,7 @@ while iters < iters_max:
         rule_opinions = merger.formOpinion()
         
         # Go forward with rule if disciplines are adequately on board
-        # check that opinions of other disciplines are higher than or within threshold of recommending discipline
+        i_rules_new = merger.domDecision(rule_opinions, irules_new, irules_discip)
         
         
         # Conduct a minimum merge on the rule if discipline(s) not on board and no dominance
