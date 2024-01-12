@@ -20,6 +20,7 @@ from windfall_regret import sharedIndices
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
+from scipy.optimize import fsolve
 import numpy as np
 import sympy as sp
 import copy
@@ -45,6 +46,7 @@ def trainData(discip):
     # Return training data
     return x_train, y_train
 
+
 def initializeFit(discip, x_train, y_train):
     
     # Initialize Gaussian kernel
@@ -59,6 +61,7 @@ def initializeFit(discip, x_train, y_train):
     
     # Return trained GPR
     return gpr_model
+
 
 def predictData(discip, gpr, diction):
     
@@ -78,6 +81,7 @@ def predictData(discip, gpr, diction):
         
     # Return predicted passing and failing dictionaries with newest tests
     return passfail, passfail_std
+
 
 def analyzeInfeasibility(predictions, std_devs):
     total_above_zero = 0
@@ -123,12 +127,35 @@ def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
     return total_above_zero_1 / total_above_zero_2 if total_above_zero_2 != 0 else 0
 
 
+def bezier_point(m1):
+    
+    # Control points
+    P0 = (0.0, 1.0)
+    P1 = (0.5, 0.8)
+    P2 = (1.0, 0.0)
+
+    # Define the x-coordinate of the Bezier curve
+    def bezier_x(t):
+        return (1 - t)**2 * P0[0] + 2 * (1 - t) * t * P1[0] + t**2 * P2[0] - m1
+
+    # Solve for t where x(t) = m1
+    t_solution = fsolve(bezier_x, 0.5)[0]  # Initial guess is 0.5
+
+    # Ensure t is in the range [0, 1]
+    if not 0 <= t_solution <= 1:
+        return None
+
+    # Calculate the y-coordinate at the solved t
+    y = (1 - t_solution)**2 * P0[1] + 2 * (1 - t_solution) * t_solution * P1[1] + t_solution**2 * P2[1]
+
+    return y
+
+
+
 """
 SECONDARY FUNCTIONS
 """
 # Develop a strategy for forming an opinion!!!
-### Forming an opinion should only focus on the infeasibility of the space to be reduced
-### Making a decision based on dominance needs to account for the space that would remain
 def getOpinion(rule, discip):
     
     # Make a copy of the discipline that takes input rule into account
@@ -153,39 +180,23 @@ def getOpinion(rule, discip):
     # Predict GPR at points in various space remaining indices
     passfail, passfail_std = predictData(discip, gpr, diction)
     
-    # STEP 1: AM I GETTING RID OF CLEARLY INFEASIBLE SPACE?
-    # I LIKE THIS AND THE 95% INTERVAL I AM SETTING UP TO ENSURE CLEARLY INFEASIBLE IS BEING LOOKED AT
-    # Get rid of clearly infeasible area!!!!
-    # Form statistics for opinion based on predictions in space being reduced
+    # Metric 1: Am I get ridding of clearly infeasible space?
     infeas_space = analyzeInfeasibility(passfail['leftover'], passfail_std['leftover'])
     print("Infeas: " + str(infeas_space))
     
-    # If statement with opinion
-    
-    
-    # GETTING TOO SMALL OF NUMBERS AS IS RIGHT NOW...CAN'T BE FEASIBILITY VS. INFEASIBILITY RELATIVE TO 0!
-    ### NEEDS TO INSTEAD BE A SIMPLE COMPARISON OF THE SIZE OF P/F VALUES OF LEFTOVER COMPARED TO NON-REDUCED
-    # STEP 2: IF NOT, AM I MAINTAINING POSSIBILITY OF FEASIBLE SPACE IN OTHER AREAS?
-    # NO STANDARD DEVIATION FOR THIS ONE? JUST LOOK AT ACTUAL PREDICTED VALUES?
-    # Maintain some feasible areas!!!! - want this decimal to be large
-    # Important because what if a discipline has just a lot of feasible spaces...?
-    # This statistic is meant to dilute the one above!!!
-    # Form additional statistics for opinion based on predictions in space leftover
+    # Metric 2: Am I maintaining feasible space for this space reduction?
     feas_space = analyzeFeasibility(passfail['reduced'], passfail_std['reduced'],
                                     passfail['non_reduced'], passfail_std['non_reduced'])
     print("Feas: " + str(feas_space))
     
-    # IF ANSWERS TO BOTH STEP 1 AND 2 SEPARATELY ARE BAD, THEN NEED A BAD OPINION
-    # IF 1 IS SATISFIED MOVE ON...IF NOT, CHECK IF 2 IS SATISFIED
-    # Consider only step 1 when no dominance...consider 1 and 2 for dominance
-    # Form opinion
+    # Quadratic Bezier curve to determine weight of second metric
+    weight2 = bezier_point(infeas_space)
     
-    # If statement with opinion that is infeas*feas... or just this one on its own!!!!
+    # Determine weight of first metric
+    weight1 = 1 - weight2
     
-    
-    
-    
-    return 0.0
+    # Return properly weighted opinion from metrics
+    return weight1*infeas_space + weight2*feas_space
 
 
 
@@ -208,44 +219,6 @@ class mergeConstraints:
         self.rn = rules_new
         self.D = Discips
         return
-    
-    
-    # Use GPR to determine infeasibility of designs in the space to be removed
-    # Have each discipline form an opinion for the proposed space reduction
-    def formOpinion(self):
-        
-        # Initialize a nested numpy array for opinions of each rule
-        opinions = [np.ones(len(self.D)) for _ in self.rn]
-        
-        # Loop through each new rule being proposed
-        for i, rule in enumerate(self.rn):
-            
-            # Loop through each discipline
-            for j, discip in enumerate(self.D):
-                
-                # Get free variables of the rule
-                rule_vars = rule.free_symbols
-                
-                # Assign nan if discipline is not directly affected by rule
-                if rule_vars <= set(discip['ins']): pass
-                else: 
-                    opinions[i][j] = np.nan
-                    continue
-                
-                # Get opinion of discipline directly affected by rule
-                opinions[i][j] = getOpinion(rule, discip)
-                
-        # Return the opinions of each rule from each discipline
-        return opinions
-    
-    
-    # Do minimum merge if not ready for conflicts yet
-    
-    
-    # Do dominance if ready for conflicts
-    
-    
-    
     
     
     def removeContradiction(self):
@@ -310,6 +283,48 @@ class mergeConstraints:
         
     #     return
     
+    
+    
+    
+    
+    
+    # Use GPR to determine infeasibility of designs in the space to be removed
+    # Have each discipline form an opinion for the proposed space reduction
+    def formOpinion(self):
+        
+        # Initialize a nested numpy array for opinions of each rule
+        opinions = [np.ones(len(self.D)) for _ in self.rn]
+        
+        # Loop through each new rule being proposed
+        for i, rule in enumerate(self.rn):
+            
+            # Loop through each discipline
+            for j, discip in enumerate(self.D):
+                
+                # Get free variables of the rule
+                rule_vars = rule.free_symbols
+                
+                # Assign nan if discipline is not directly affected by rule
+                if rule_vars <= set(discip['ins']): pass
+                else: 
+                    opinions[i][j] = np.nan
+                    continue
+                
+                # Get opinion of discipline directly affected by rule
+                opinions[i][j] = getOpinion(rule, discip)
+                
+        print(opinions)
+                
+        # Return the opinions of each rule from each discipline
+        return opinions
+    
+    
+    
+    
+    
+    
+
+    
 
 
 
@@ -345,40 +360,6 @@ class mergeConstraints:
 #     return non_redundant_rules   
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # No dominance until at least 50% of spaces have been eliminated
-    ### One option is to have the requests pop up with stats and I decide
-    ### Or program decides with stats
-    ### Stats: How many disciplines are requesting what vs. the other
-    ### How each side would be affected by the other discipline's proposal
-    
-    
-    ### Could call a getInput method here...but not have it be a uniform method
-    ### Could also do this for the fragility or other methods that may need to
-    ### search points further
     
     
     

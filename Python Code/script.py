@@ -233,17 +233,21 @@ while iters < iters_max:
         merger = mergeConstraints(irules_new, Discips)
         
         # Have each discipline form an opinion on the rule
-        ### Value of 0.0 means discipline is not in favor of rule at all (you're eliminating my most feasible designs)
-        ### Value of 1.0 means discipline is totally fine with the rule (you're eliminating my most infeasible designs)
+        ### Value of 0.0 means discipline is not in favor of rule at all
+        ### Value of 1.0 means discipline is totally fine with the rule
+        ### Value of nan means discipline is not directly impacted by rule
         rule_opinions = merger.formOpinion()
         
         # Go forward with rule if disciplines are adequately on board
+        # check that opinions of other disciplines are higher than or within threshold of recommending discipline
         
         
         # Conduct a minimum merge on the rule if discipline(s) not on board and no dominance
+        # CHANGE THIS! MOVE IT IN FRONT OF OPINION FORMATION TO SEE IF THERE IS CONFLICT TO ENSURE
+        # FORM OPINION EVALUATES BOTH PROPOSALS OF THE CONFLICT BEFORE GOING THROUGH WITH NONE, ONE OR BOTH
         irules_new = merger.removeContradiction()
         
-        # Go forward with rule if factoring in dominance and does not completely incapacitate a discipline
+        # CHECK IF OPINIONS PASS THE THRESHOLD FOR THE SPACE REDUCTION DOMINANCE-WISE
         
         
         
