@@ -321,12 +321,26 @@ class mergeConstraints:
     
     # Subtract fail_crit criteria from the opinion of discipline proposing rule
     # check that opinions of other disciplines are higher than or within threshold of recommending discipline
-    def domDecision(self, rule_opinions, irules_new, irules_discip, fail_crit):
+    def domDecision(self, rule_opinions, irules_discip, fail_crit):
+        
+        # Loop through each new rule being proposed
+        for i, rule in enumerate(self.rn):
+            
+            # Loop through each discipline's opinion
+            for j, discip in enumerate(rule_opinions[i]):
+                
+                # If discipline is the one proposing the rule, continue to next discipline
+                if j == irules_discip[i]: continue
+                
+                print(j)
+                # If discipline has no opinion, continue to next discipline
+                if np.isnan(rule_opinions[i][j]): continue
+                print(j)
+                # Check if discipline's opinion warrants throwing the rule out
+                
         
         
-        
-        
-        return irules_new
+        return self.rn
     
     
     
