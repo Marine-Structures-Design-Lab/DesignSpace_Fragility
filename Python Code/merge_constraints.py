@@ -323,8 +323,7 @@ class mergeConstraints:
     ### Dominance is naturally included in every rule proposal
     ### Each discipline is given the opportunity for veto power
     ### Make veto power easy early on but harder later
-    # check that opinions of other disciplines are higher than or within threshold of recommending discipline
-    def domDecision(self, rule_opinions, irules_discip, fail_crit):
+    def domDecision(self, rule_opinions, irules_discip):
         
         # Make a set containing indices of rules to throw out
         rules_delete = set()
@@ -333,10 +332,17 @@ class mergeConstraints:
         for i, rule in enumerate(self.rn):
             
             # Determine threshold for throwing out the rule
-            threshold = rule_opinions[i][irules_discip[i]] - fail_crit
+            ### MAKE SURE EACH DISCIPLINE UPDATES ITS CRITERIA SEPARATELY!!!!!!
+            ### Maybe make this some sort of max for fail_crit rather than just discipline proposing it?
+            ### Or should it simply just be its own failure criterion???
+            threshold = rule_opinions[i][irules_discip[i]] - self.D[irules_discip[i]]['part_params']['fail_crit']
             
             # Loop through each discipline's opinion
             for j, discip in enumerate(rule_opinions[i]):
+                
+                # Determine threshold for throwing out the rule
+                ### YOUR OWN RULE OPINION???
+                # threshold = rule_opinions[i][]
                 
                 # If discipline is the one proposing the rule, continue to next discipline
                 if j == irules_discip[i]: continue
@@ -353,12 +359,10 @@ class mergeConstraints:
                     # Break the discipline loop and proceed to next rule
                     break
                     
-        # 
+        # Remove vetoed rules from the input rule list
+        self.rn = [item for idx, item in enumerate(self.rn) if idx not in rules_delete]
         
-        
-        
-        
-        
+        # Return updated rule list which is potentially condensed
         return self.rn
     
     

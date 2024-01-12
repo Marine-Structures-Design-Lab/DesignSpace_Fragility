@@ -229,10 +229,12 @@ while iters < iters_max:
     # Check up on new rules
     print("Newly proposed input rules: " + str(irules_new))
     
+    
+    
+    ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
+    
     # Check if new input rules list is filled with any rules
     if irules_new:
-        
-        ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
         
         # Initialize an object for the mergeConstraints class
         merger = mergeConstraints(irules_new, Discips)
@@ -244,18 +246,21 @@ while iters < iters_max:
         rule_opinions = merger.formOpinion()
         
         # Go forward with rule if disciplines are adequately on board
-        i_rules_new = merger.domDecision(rule_opinions, irules_discip, part_params['fail_crit'])
+        print(irules_new)
+        irules_new = merger.domDecision(rule_opinions, irules_discip)
+        print(irules_new)
         
+        # IF IRULES_NEW EVER BECOMES EMPTY, NEED TO CHECK IF SPACE REDUCTION SHOULD BE FORCED
+        ### AS IS DONE IN THE ELSE STATEMENT THAT GOES WITH NEXT IF STATEMENT!!!!
         
         # Conduct a minimum merge on the rule if discipline(s) not on board and no dominance
         # CHANGE THIS! MOVE IT IN FRONT OF OPINION FORMATION TO SEE IF THERE IS CONFLICT TO ENSURE
         # FORM OPINION EVALUATES BOTH PROPOSALS OF THE CONFLICT BEFORE GOING THROUGH WITH NONE, ONE OR BOTH
         irules_new = merger.removeContradiction()
         
-        # CHECK IF OPINIONS PASS THE THRESHOLD FOR THE SPACE REDUCTION DOMINANCE-WISE
-        
-        
-        
+    
+    # Check if new input rules list is STILL filled with any rules
+    if irules_new:
         
         
         
