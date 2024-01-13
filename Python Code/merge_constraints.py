@@ -331,18 +331,11 @@ class mergeConstraints:
         # Loop through each new rule being proposed
         for i, rule in enumerate(self.rn):
             
-            # Determine threshold for throwing out the rule
-            ### MAKE SURE EACH DISCIPLINE UPDATES ITS CRITERIA SEPARATELY!!!!!!
-            ### Maybe make this some sort of max for fail_crit rather than just discipline proposing it?
-            ### Or should it simply just be its own failure criterion???
-            threshold = rule_opinions[i][irules_discip[i]] - self.D[irules_discip[i]]['part_params']['fail_crit']
-            
             # Loop through each discipline's opinion
             for j, discip in enumerate(rule_opinions[i]):
                 
                 # Determine threshold for throwing out the rule
-                ### YOUR OWN RULE OPINION???
-                # threshold = rule_opinions[i][]
+                threshold = rule_opinions[i][irules_discip[i]] - self.D[j]['part_params']['fail_crit']
                 
                 # If discipline is the one proposing the rule, continue to next discipline
                 if j == irules_discip[i]: continue
