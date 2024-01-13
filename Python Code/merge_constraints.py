@@ -182,12 +182,10 @@ def getOpinion(rule, discip):
     
     # Metric 1: Am I get ridding of clearly infeasible space?
     infeas_space = analyzeInfeasibility(passfail['leftover'], passfail_std['leftover'])
-    print("Infeas: " + str(infeas_space))
     
     # Metric 2: Am I maintaining feasible space for this space reduction?
     feas_space = analyzeFeasibility(passfail['reduced'], passfail_std['reduced'],
                                     passfail['non_reduced'], passfail_std['non_reduced'])
-    print("Feas: " + str(feas_space))
     
     # Quadratic Bezier curve to determine weight of second metric
     weight2 = bezier_point(infeas_space)
@@ -331,11 +329,26 @@ class mergeConstraints:
         # Loop through each new rule being proposed
         for i, rule in enumerate(self.rn):
             
+            # Determine max fail_criteria value of disciplines involved
+            # Initialize an empty set for gathering failure criteria
+            fail_crit = set()
+            
+            # Loop through each discipline
+            for j, discip in enumerate(self.D):
+                
+                # Continue to next discipline if it has no opinion on rule
+                if np.isnan(rule_opinions[i][j]): continue
+                
+                # Add discipline's failure criterion to failure critieria set
+                fail_crit.add(discip['part_params']['fail_crit'])
+            
             # Loop through each discipline's opinion
             for j, discip in enumerate(rule_opinions[i]):
                 
                 # Determine threshold for throwing out the rule
-                threshold = rule_opinions[i][irules_discip[i]] - self.D[j]['part_params']['fail_crit']
+                ### Opinion of the discipline proposing the rule minus the max
+                ### fail criterion value for all of the disciplines involved
+                threshold = rule_opinions[i][irules_discip[i]] - max(fail_crit)
                 
                 # If discipline is the one proposing the rule, continue to next discipline
                 if j == irules_discip[i]: continue

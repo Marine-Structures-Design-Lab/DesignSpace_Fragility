@@ -171,8 +171,8 @@ while iters < iters_max:
     # Break while loop if any discipline has maxed out partition parameters
     break_loop = False
     for dic in Discips:
-        part_params = dic["part_params"]
-        if all(value >= 1.0 for value in part_params.values()):
+        part_params_check = dic["part_params"]
+        if all(value >= 1.0 for value in part_params_check.values()):
             break_loop = True
             break
     if break_loop:
@@ -246,7 +246,6 @@ while iters < iters_max:
         rule_opinions = merger.formOpinion()
         
         # Go forward with rule if disciplines are adequately on board
-        print(irules_new)
         irules_new = merger.domDecision(rule_opinions, irules_discip)
         print(irules_new)
         
