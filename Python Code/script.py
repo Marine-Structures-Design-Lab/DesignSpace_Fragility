@@ -225,10 +225,8 @@ while iters < iters_max:
             irules_new.append(space_check.prepareRule(pot_rule))
             irules_discip.append(i)
         
-    
     # Check up on new rules
-    print("Newly proposed input rules: " + str(irules_new))
-    
+    print("Individually proposed input rules: " + str(irules_new))
     
     
     ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
@@ -245,40 +243,21 @@ while iters < iters_max:
         ### Value of nan means discipline is not directly impacted by rule
         rule_opinions = merger.formOpinion()
         
-        # Go forward with rule if disciplines are adequately on board
+        # Determine if discipline can veto proposal or if dominance forces it
         irules_new = merger.domDecision(rule_opinions, irules_discip)
-        print(irules_new)
         
-        # IF IRULES_NEW EVER BECOMES EMPTY, NEED TO CHECK IF SPACE REDUCTION SHOULD BE FORCED
-        ### AS IS DONE IN THE ELSE STATEMENT THAT GOES WITH NEXT IF STATEMENT!!!!
+        # DO NOT THINK WE EVEN NEED REMOVE CONTRADICTION ANYMORE!!!
+        # THINK I SHOULD JUST MOVE ONTO UNITTESTING
+        # ARCHIVE IT AND MOVE THE UNIT TESTS TO ARCHIVE AS WELL WITH IT
         
-        # Conduct a minimum merge on the rule if discipline(s) not on board and no dominance
-        # CHANGE THIS! MOVE IT IN FRONT OF OPINION FORMATION TO SEE IF THERE IS CONFLICT TO ENSURE
-        # FORM OPINION EVALUATES BOTH PROPOSALS OF THE CONFLICT BEFORE GOING THROUGH WITH NONE, ONE OR BOTH
-        irules_new = merger.removeContradiction()
-        
+    # Check up on new rules
+    print("Universally proposed input rules: " + str(irules_new))
+    
+    
+    ##### FRAGILITY / FUTURE INFORMATION CHECK #####
     
     # Check if new input rules list is STILL filled with any rules
     if irules_new:
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        ##### FRAGILITY / FUTURE INFORMATION CHECK #####
         
         # Initialize a fragility counter
         fragility_counter = 0

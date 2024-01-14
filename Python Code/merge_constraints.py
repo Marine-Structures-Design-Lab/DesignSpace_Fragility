@@ -219,73 +219,6 @@ class mergeConstraints:
         return
     
     
-    def removeContradiction(self):
-        """
-        Description
-        -----------
-        Considers the independent rule (consisting of a single inequality or a
-        sympy Or relational containing multiple inequalities) being proposed by
-        one or more disciplines and merges them such that from the top-level,
-        the rule(s) do not contradict each other
-        
-        Parameters
-        ----------
-        None.
-
-        Returns
-        -------
-        noncon_rules : List
-            Contains sympy Or relationals and/or inequalities for rules that
-            only consist of one argument without any contradictions
-        """
-        
-        # Initialize a noncontradictory rule list
-        noncon_rules = []
-        
-        # Loop through each new rule
-        for i in range(0,len(self.rn)):
-            
-            # Set a boolean variable tracking contradiction to False
-            is_contra = False
-            
-            # Loop through each new rule again
-            for j in range(0,len(self.rn)):
-                
-                # Check that rules being checked for contradiction are not same
-                if i != j:
-                    
-                    # Place rules inside a sympy And relational
-                    contra = sp.And(self.rn[j], self.rn[i])
-                    
-                    # Check if simplified And relational evaluates to False
-                    if sp.simplify(contra) == False:
-                        
-                        # Change contradiction variable to true and break loop
-                        is_contra = True
-                        break
-            
-            # Check if contradiction variable is still false
-            if not is_contra:
-                
-                # Append the rule to the noncontradictory rule list
-                noncon_rules.append(self.rn[i])
-        
-        # Return the noncontradictory rule list
-        return noncon_rules
-    
-    
-    # No 'Or' rule redundancies
-    # def removeRedundancy(self):
-    #     # Do I only want to remove redundancies in the new rules?...or do I
-    #     # want to do the entire list of rules established thus far?
-        
-    #     return
-    
-    
-    
-    
-    
-    
     # Use GPR to determine infeasibility of designs in the space to be removed
     # Have each discipline form an opinion for the proposed space reduction
     def formOpinion(self):
@@ -310,8 +243,9 @@ class mergeConstraints:
                 
                 # Get opinion of discipline directly affected by rule
                 opinions[i][j] = getOpinion(rule, discip)
-                
-        print(opinions)
+        
+        # Display formed opinions
+        print("Opinions: " + str(opinions))
                 
         # Return the opinions of each rule from each discipline
         return opinions
@@ -374,6 +308,83 @@ class mergeConstraints:
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    def removeContradiction(self):
+        """
+        Description
+        -----------
+        Considers the independent rule (consisting of a single inequality or a
+        sympy Or relational containing multiple inequalities) being proposed by
+        one or more disciplines and merges them such that from the top-level,
+        the rule(s) do not contradict each other
+        
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        noncon_rules : List
+            Contains sympy Or relationals and/or inequalities for rules that
+            only consist of one argument without any contradictions
+        """
+        
+        # Initialize a noncontradictory rule list
+        noncon_rules = []
+        
+        # Loop through each new rule
+        for i in range(0,len(self.rn)):
+            
+            # Set a boolean variable tracking contradiction to False
+            is_contra = False
+            
+            # Loop through each new rule again
+            for j in range(0,len(self.rn)):
+                
+                # Check that rules being checked for contradiction are not same
+                if i != j:
+                    
+                    # Place rules inside a sympy And relational
+                    contra = sp.And(self.rn[j], self.rn[i])
+                    
+                    # Check if simplified And relational evaluates to False
+                    if sp.simplify(contra) == False:
+                        
+                        # Change contradiction variable to true and break loop
+                        is_contra = True
+                        break
+            
+            # Check if contradiction variable is still false
+            if not is_contra:
+                
+                # Append the rule to the noncontradictory rule list
+                noncon_rules.append(self.rn[i])
+        
+        # Return the noncontradictory rule list
+        return noncon_rules
+    
+    
+    # No 'Or' rule redundancies
+    # def removeRedundancy(self):
+    #     # Do I only want to remove redundancies in the new rules?...or do I
+    #     # want to do the entire list of rules established thus far?
+        
+    #     return
     
     
 
