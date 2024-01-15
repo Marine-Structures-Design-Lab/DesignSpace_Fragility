@@ -158,7 +158,7 @@ def elimDicts(discipline):
 
     Returns
     -------
-    discipline : TYPE
+    discipline : Dictionary
         All information pertaining to a discipline that absolutely has an
         "eliminated" dictionary along with relevant keys within that dictioanry
     """
@@ -296,6 +296,28 @@ def sortPoints(Discips, irules_new):
     return Discips
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def sortPoints2(Discip, irules_new):
     """
     Description
@@ -306,7 +328,7 @@ def sortPoints2(Discip, irules_new):
 
     Parameters
     ----------
-    Discip : Lictionary
+    Discip : Dictionary
         Each dictionary contains information specific to a discipline on
         previously tested input values, corresponding output values, and other
         items

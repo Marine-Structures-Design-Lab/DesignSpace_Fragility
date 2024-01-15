@@ -165,6 +165,10 @@ risk_or_potential = [{"regret": [], "windfall": [], "net": []} for _ in Discips]
 force_reduction = False
 force_reduction_counter = 0
 
+
+
+
+
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
     
@@ -238,17 +242,10 @@ while iters < iters_max:
         merger = mergeConstraints(irules_new, Discips)
         
         # Have each discipline form an opinion on the rule
-        ### Value of 0.0 means discipline is not in favor of rule at all
-        ### Value of 1.0 means discipline is totally fine with the rule
-        ### Value of nan means discipline is not directly impacted by rule
         rule_opinions = merger.formOpinion()
         
         # Determine if discipline can veto proposal or if dominance forces it
         irules_new = merger.domDecision(rule_opinions, irules_discip)
-        
-        # DO NOT THINK WE EVEN NEED REMOVE CONTRADICTION ANYMORE!!!
-        # THINK I SHOULD JUST MOVE ONTO UNITTESTING
-        # ARCHIVE IT AND MOVE THE UNIT TESTS TO ARCHIVE AS WELL WITH IT
         
     # Check up on new rules
     print("Universally proposed input rules: " + str(irules_new))
@@ -265,6 +262,7 @@ while iters < iters_max:
         # Run a fragility assessment if desired and while the fragility counter
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
+            
             
             ########## FUTURE INFORMATION CHECKS ##########
             

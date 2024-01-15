@@ -108,7 +108,8 @@ class test_point_sorter(unittest.TestCase):
         
         # Execute the update points function for the provided indices
         self.Discips[0] = updatePoints(self.Discips[0], tp_elim, \
-            ['tested_ins', 'tested_outs', 'Fail_Amount', 'pass?'])
+            ['tested_ins', 'tested_outs', 'Fail_Amount',
+             'Pass_Amount', 'pass?'])
         self.Discips[0] = updatePoints(self.Discips[0], sr_elim, \
             ['space_remaining'])
             
@@ -118,6 +119,7 @@ class test_point_sorter(unittest.TestCase):
         array_outs = np.array([[1.2],
                                [1.4]])
         array_FA = np.array([0.2, 0.4])
+        array_PA = np.array([0.2, 0.4])
         list_p = [True, True]
         array_sr = np.empty((0,3))
         
@@ -128,6 +130,8 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['eliminated']['tested_outs'], array_outs)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['space_remaining'], array_sr)
@@ -140,6 +144,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.1],
                                [1.3]])
         array_FA = np.array([0.0, 0.1, 0.3])
+        array_PA = np.array([0.0, 0.1, 0.3])
         list_p = [True, False, False]
         array_sr = uniformGrid(27, len(self.Discips[0]['ins']))[0]
         
@@ -148,6 +153,7 @@ class test_point_sorter(unittest.TestCase):
         np.testing.assert_array_equal\
             (self.Discips[0]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal(self.Discips[0]['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[0]['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[0]['space_remaining'], array_sr)
@@ -168,6 +174,7 @@ class test_point_sorter(unittest.TestCase):
         # one with all of the relevant keys
         self.assertIn("eliminated", self.Discips[1])
         self.assertIn("Fail_Amount", self.Discips[1]['eliminated'])
+        self.assertIn("Pass_Amount", self.Discips[1]['eliminated'])
         self.assertIn("pass?", self.Discips[1]['eliminated'])
         self.assertIn("tested_ins", self.Discips[1]['eliminated'])
         self.assertIn("tested_outs", self.Discips[1]['eliminated'])
@@ -187,6 +194,7 @@ class test_point_sorter(unittest.TestCase):
         array_ins = np.array([[0.0, 0.0, 1.0]])
         array_outs = np.array([[1.3]])
         array_FA = np.array([0.3])
+        array_PA = np.array([0.3])
         list_p = [False]
         array_sr = np.array([[0.0, 0.0, 0.0],
                              [0.0, 0.0, 0.5],
@@ -205,6 +213,8 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['eliminated']['tested_outs'], array_outs)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['space_remaining'], array_sr)
@@ -219,6 +229,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.2],
                                [1.4]])
         array_FA = np.array([0.0, 0.1, 0.2, 0.4])
+        array_PA = np.array([0.0, 0.1, 0.2, 0.4])
         list_p = [True, False, True, True]
         array_sr = np.array([[0.5, 0.0, 0.0],
                              [0.5, 0.0, 0.5],
@@ -244,6 +255,7 @@ class test_point_sorter(unittest.TestCase):
         np.testing.assert_array_equal\
             (self.Discips[0]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal(self.Discips[0]['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[0]['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[0]['space_remaining'], array_sr)
@@ -283,6 +295,7 @@ class test_point_sorter(unittest.TestCase):
         array_outs = np.array([[1.3],
                                [1.1]])
         array_FA = np.array([0.3, 0.1])
+        array_PA = np.array([0.3, 0.1])
         list_p = [False, False]
         array_sr = np.array([[0.0, 0.0, 0.0],
                              [0.0, 0.0, 0.5],
@@ -305,6 +318,8 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['eliminated']['tested_outs'], array_outs)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['space_remaining'], array_sr)
@@ -317,6 +332,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.2],
                                [1.4]])
         array_FA = np.array([0.0, 0.2, 0.4])
+        array_PA = np.array([0.0, 0.2, 0.4])
         list_p = [True, True, True]
         array_sr = np.array([[0.5, 0.0, 0.0],
                              [0.5, 0.0, 0.5],
@@ -338,6 +354,7 @@ class test_point_sorter(unittest.TestCase):
         np.testing.assert_array_equal\
             (self.Discips[0]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal(self.Discips[0]['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[0]['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[0]['space_remaining'], array_sr)
@@ -346,6 +363,7 @@ class test_point_sorter(unittest.TestCase):
         array_ins = np.array([[1.0, 1.0, 1.0]])
         array_outs = np.array([[1.0, 1.0]])
         array_FA = np.array([1.0])
+        array_PA = np.array([1.0])
         list_p = [True]
         array_sr = np.array([[0.0, 1.0, 0.0],
                              [0.0, 1.0, 0.5],
@@ -364,6 +382,8 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[1]['eliminated']['tested_outs'], array_outs)
         np.testing.assert_array_equal\
             (self.Discips[1]['eliminated']['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['eliminated']['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[1]['eliminated']['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[1]['eliminated']['space_remaining'], array_sr)
@@ -374,6 +394,7 @@ class test_point_sorter(unittest.TestCase):
         array_outs = np.array([[0.0, 0.0],
                                [0.5, 0.5]])
         array_FA = np.array([0.0, 0.5])
+        array_PA = np.array([0.0, 0.5])
         list_p = [True, False]
         array_sr = np.array([[0.0, 0.0, 0.0],
                              [0.0, 0.0, 0.5],
@@ -399,6 +420,7 @@ class test_point_sorter(unittest.TestCase):
         np.testing.assert_array_equal\
             (self.Discips[1]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[1]['Fail_Amount'], array_FA)
+        np.testing.assert_array_equal(self.Discips[1]['Pass_Amount'], array_PA)
         self.assertEqual(self.Discips[1]['pass?'], list_p)
         np.testing.assert_array_equal\
             (self.Discips[1]['space_remaining'], array_sr)

@@ -1,11 +1,6 @@
 """
 SUMMARY:
-First merges the rule(s) being proposed by each discipline such that there are
-no contradictions by removing any rules apart of a contradiction.  Dominance
-will be saved for consideration in the fragility framework.  There is also
-potential for adding a method that removes any redundancies in the new rules
-being proposed or possibly in all of the rules up to this point if the Input
-Rules list is passed as another argument.
+
 
 CREATOR:
 Joseph B. Van Houten
@@ -22,8 +17,8 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
 from scipy.optimize import fsolve
 import numpy as np
-import sympy as sp
 import copy
+
 
 """
 TERTIARY FUNCTIONS
@@ -127,7 +122,7 @@ def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
     return total_above_zero_1 / total_above_zero_2 if total_above_zero_2 != 0 else 0
 
 
-def bezier_point(m1):
+def bezierPoint(m1):
     
     # Control points
     P0 = (0.0, 1.0)
@@ -149,7 +144,6 @@ def bezier_point(m1):
     y = (1 - t_solution)**2 * P0[1] + 2 * (1 - t_solution) * t_solution * P1[1] + t_solution**2 * P2[1]
 
     return y
-
 
 
 """
@@ -188,17 +182,13 @@ def getOpinion(rule, discip):
                                     passfail['non_reduced'], passfail_std['non_reduced'])
     
     # Quadratic Bezier curve to determine weight of second metric
-    weight2 = bezier_point(infeas_space)
+    weight2 = bezierPoint(infeas_space)
     
     # Determine weight of first metric
     weight1 = 1 - weight2
     
     # Return properly weighted opinion from metrics
     return weight1*infeas_space + weight2*feas_space
-
-
-
-
 
 
 """
@@ -213,15 +203,36 @@ class mergeConstraints:
         rules_new : List
             Contains sympy Or relationals and/or inequalities for rules that
             only consist of one argument
+        Discips : List of dictionaries
+            Contains dictionaries with all of the information relevant to each
+            discipline
         """
         self.rn = rules_new
         self.D = Discips
         return
     
     
-    # Use GPR to determine infeasibility of designs in the space to be removed
-    # Have each discipline form an opinion for the proposed space reduction
     def formOpinion(self):
+        """
+        Description
+        -----------
+        Has each discipline form an opinion for a proposed rule.  A value of
+        0.0 means the discipline is not in favor of the rule at all.  A value
+        of 1.0 means the discipline is totally in favor of the rule.  A value
+        of nan means the discipline is not directly impacted by the rule.
+        
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        opinions : List of numpy arrays
+            The number of numpy arrays within the list coincides with each new
+            rule that is being proposed by the disciplines, and the number of
+            opinions within each array coincides with each discipline of the
+            design problem.
+        """
         
         # Initialize a nested numpy array for opinions of each rule
         opinions = [np.ones(len(self.D)) for _ in self.rn]
@@ -251,11 +262,32 @@ class mergeConstraints:
         return opinions
     
     
-    # Determine if any discipline has the grounds to throw out the rule being proposed
-    ### Dominance is naturally included in every rule proposal
-    ### Each discipline is given the opportunity for veto power
-    ### Make veto power easy early on but harder later
     def domDecision(self, rule_opinions, irules_discip):
+        """
+        Description
+        -----------
+        Determines if any discipline has the grounds to throw out a rule being
+        proposed.  Dominance is naturally included in every rule proposal as
+        each discipline is given veto power.  Vetoing is much easier early on
+        but becomes more difficult later.
+
+        Parameters
+        ----------
+        rule_opinions : List of numpy arrays
+            The number of numpy arrays within the list coincides with each new
+            rule that is being proposed by the disciplines, and the number of
+            opinions within each array coincides with each discipline of the
+            design problem.
+        irules_discip : List of integers
+            Index of the discipline proposing a particular rule that coincides
+            with the input rule list.
+
+        Returns
+        -------
+        rules_new : List
+            Contains updated sympy Or relationals and/or inequalities for rules
+            that only consist of one argument after enduring merging process.
+        """
         
         # Make a set containing indices of rules to throw out
         rules_delete = set()
@@ -263,7 +295,6 @@ class mergeConstraints:
         # Loop through each new rule being proposed
         for i, rule in enumerate(self.rn):
             
-            # Determine max fail_criteria value of disciplines involved
             # Initialize an empty set for gathering failure criteria
             fail_crit = set()
             
@@ -284,7 +315,7 @@ class mergeConstraints:
                 ### fail criterion value for all of the disciplines involved
                 threshold = rule_opinions[i][irules_discip[i]] - max(fail_crit)
                 
-                # If discipline is the one proposing the rule, continue to next discipline
+                # If discipline is proposing rule, continue to next discipline
                 if j == irules_discip[i]: continue
                 
                 # If discipline has no opinion, continue to next discipline
@@ -300,130 +331,10 @@ class mergeConstraints:
                     break
                     
         # Remove vetoed rules from the input rule list
-        self.rn = [item for idx, item in enumerate(self.rn) if idx not in rules_delete]
+        self.rn = [item for idx, item in enumerate(self.rn) \
+                   if idx not in rules_delete]
         
         # Return updated rule list which is potentially condensed
         return self.rn
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    def removeContradiction(self):
-        """
-        Description
-        -----------
-        Considers the independent rule (consisting of a single inequality or a
-        sympy Or relational containing multiple inequalities) being proposed by
-        one or more disciplines and merges them such that from the top-level,
-        the rule(s) do not contradict each other
-        
-        Parameters
-        ----------
-        None.
-
-        Returns
-        -------
-        noncon_rules : List
-            Contains sympy Or relationals and/or inequalities for rules that
-            only consist of one argument without any contradictions
-        """
-        
-        # Initialize a noncontradictory rule list
-        noncon_rules = []
-        
-        # Loop through each new rule
-        for i in range(0,len(self.rn)):
-            
-            # Set a boolean variable tracking contradiction to False
-            is_contra = False
-            
-            # Loop through each new rule again
-            for j in range(0,len(self.rn)):
-                
-                # Check that rules being checked for contradiction are not same
-                if i != j:
-                    
-                    # Place rules inside a sympy And relational
-                    contra = sp.And(self.rn[j], self.rn[i])
-                    
-                    # Check if simplified And relational evaluates to False
-                    if sp.simplify(contra) == False:
-                        
-                        # Change contradiction variable to true and break loop
-                        is_contra = True
-                        break
-            
-            # Check if contradiction variable is still false
-            if not is_contra:
-                
-                # Append the rule to the noncontradictory rule list
-                noncon_rules.append(self.rn[i])
-        
-        # Return the noncontradictory rule list
-        return noncon_rules
-    
-    
-    # No 'Or' rule redundancies
-    # def removeRedundancy(self):
-    #     # Do I only want to remove redundancies in the new rules?...or do I
-    #     # want to do the entire list of rules established thus far?
-        
-    #     return
-    
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-# def remove_redundancies(rules):
-#     non_redundant_rules = []
-#     for i in range(len(rules)):
-#         is_redundant = False
-#         for j in range(len(rules)):
-#             if i != j:
-#                 implication = sp.Implies(rules[j], rules[i])
-#                 if sp.simplify(implication) == True:
-#                     is_redundant = True
-#                     break
-#         if not is_redundant:
-#             non_redundant_rules.append(rules[i])
-#     return non_redundant_rules   
-    
-    
-    
     
     
