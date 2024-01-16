@@ -1,5 +1,8 @@
 """
 SUMMARY:
+Takes all of the input rules proposed from each discipline in a particular
+space reduction cycle and proposes a universal set of space reductions for each
+discipline to abide by based on their respective opinions of each reduction.  
 
 
 CREATOR:
@@ -24,6 +27,24 @@ import copy
 TERTIARY FUNCTIONS
 """
 def trainData(discip):
+    """
+    Description
+    -----------
+    Organize previously tested points into x and y training data for a Gaussian
+    Process Regressor (GPR).
+
+    Parameters
+    ----------
+    discip : Dictionary
+        Contains all of the information relevant to the discipline
+
+    Returns
+    -------
+    x_train : Numpy array
+        Input coordinates of previously tested design points
+    y_train : Numpy array
+        Pass or Fail amounts of previously tested design points
+    """
     
     # Combine tested input data from remaining and eliminated arrays
     x_train = discip['tested_ins']
@@ -43,6 +64,25 @@ def trainData(discip):
 
 
 def initializeFit(discip, x_train, y_train):
+    """
+    Description
+    -----------
+    Fits a GPR from the training data.
+
+    Parameters
+    ----------
+    discip : Dictionary
+        Contains all of the information relevant to the discipline
+    x_train : Numpy array
+        Input coordinates of previously tested design points
+    y_train : Numpy array
+        Pass or Fail amounts of previously tested design points
+
+    Returns
+    -------
+    gpr_model : GaussianProcessRegressor
+        A trained GPR model
+    """
     
     # Initialize Gaussian kernel
     kernel = 1.0 * RBF(length_scale=np.ones(len(discip['ins'])), \
@@ -59,6 +99,30 @@ def initializeFit(discip, x_train, y_train):
 
 
 def predictData(discip, gpr, diction):
+    """
+    Description
+    -----------
+    Predicts pass or fail amounts for unexplored areas of the discretized space
+    remaining from the trained GPR.
+
+    Parameters
+    ----------
+    discip : Dictionary
+        Contains all of the information relevant to the discipline
+    gpr : GaussianProcessRegressor
+        A trained GPR model
+    diction : Dictionary
+        Keeps track of the indices for the non-reduced, reduced, and leftover
+        design spaces for a particular set of new input rule(s)
+
+    Returns
+    -------
+    passfail : Dictionary
+        Predicted pass or fail amounts.  A negative value up to 1 is failing.  
+        A positive value up to 1 is passing.
+    passfail_std : Dictionary
+        Standard deviations of predicted pass or fail amounts.
+    """
     
     # Test GPR at each point remaining of non-reduced matrix
     means, stddevs = gpr.predict(discip['space_remaining'], return_std=True)
@@ -79,52 +143,125 @@ def predictData(discip, gpr, diction):
 
 
 def analyzeInfeasibility(predictions, std_devs):
-    total_above_zero = 0
+    """
+    Description
+    -----------
+    Calculate the range of each predicted point within 3 standard deviations
+    (99.7%) and then determine the average fraction of that range that has a
+    predicted pass or fail amount falling below 0.
 
+    Parameters
+    ----------
+    predictions : Numpy array
+        Predicted pass or fail amounts of the area of the design space up for
+        elimination.
+    std_devs : Numpy array
+        Standard deviations of predicted pass or fail amounts of the area of
+        the design space up for elimination.
+
+    Returns
+    -------
+    average_infeasibility : Float
+        Average fraction of the design space with pass or fail amounts below 0
+    """
+    
+    # Initialize a variable that sums contributions of each predicted point
+    total_above_zero = 0
+    
+    # Loop through each predicted value
     for pred, std_dev in zip(predictions, std_devs):
+        
+        # Calculate bounds of prediction within 3 standard deviations
         lower_bound = pred - 3 * std_dev
         upper_bound = pred + 3 * std_dev
-
-        if upper_bound <= 0:
-            # Entire interval is below zero, so decimal above zero is 0
-            decimal_above_zero = 0
-        elif lower_bound >= 0:
-            # Entire interval is above zero, so decimal above zero is 1
-            decimal_above_zero = 1
-        else:
-            # Interval crosses zero, calculate the decimal part above zero
-            decimal_above_zero = (upper_bound - 0) / (upper_bound - lower_bound)
-
+        
+        # If entire interval is below 0, assign 0 to decimal
+        if upper_bound <= 0: decimal_above_zero = 0
+        
+        # Else if entire interval is above 0, assign 1 to decimal
+        elif lower_bound >= 0: decimal_above_zero = 1
+        
+        # Else calculate the fraction of the interval above 0
+        else: decimal_above_zero = (upper_bound-0) / (upper_bound-lower_bound)
+        
+        # Add the decimal to the sum of contributions
         total_above_zero += decimal_above_zero
 
-    # Return 0 if total_above_zero is zero, else calculate the average
-    return 0 if total_above_zero == 0 else (1 - (total_above_zero / len(predictions)))
+    # Return 0 if sum is zero, else calculate the average decimal below zero
+    return 0 if total_above_zero == 0 \
+        else (1 - (total_above_zero / len(predictions)))
 
 
 def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
+    """
+    Description
+    -----------
+    Calculate the fraction of each point's normal distribution for predicted
+    pass or fail value that is above 0 for the reduced and non-reduced design
+    spaces.  Then sum those fractions and find the ratio of the reduced sum to
+    the non-reduced sum.
 
+    Parameters
+    ----------
+    means1 : Numpy array
+        Predicted pass or fail amounts of the reduced design space
+    std_devs1 : Numpy array
+        Standard deviations of the predicted pass or fail amounts of the
+        reduced design space
+    means2 : Numpy array
+        Predicted pass or fail amounts of the non-reduced design space
+    std_devs2 : Numpy array
+        Standard deviations of the predicted pass or fail amounts of the
+        non-reduced design space
+
+    Returns
+    -------
+    average_feasibility : Float
+        Fraction of remaining feasible space of the reduced design space
+        relative to the non-reduced design space
+    """
+    
+    # Initialize variables that sum contributions of each predicted point
     total_above_zero_1 = 0
     total_above_zero_2 = 0
 
-    # Calculating for the first set
+    # Calculate fraction of distribution above 0 for first set of predictions
     for mean, std_dev in zip(means1, std_devs1):
         cdf_at_zero = norm.cdf(0, loc=mean, scale=std_dev)
         decimal_above_zero = 1 - cdf_at_zero
         total_above_zero_1 += decimal_above_zero
 
-    # Calculating for the second set
+    # Calculate fraction of distribution above 0 for second set of predictions
     for mean, std_dev in zip(means2, std_devs2):
         cdf_at_zero = norm.cdf(0, loc=mean, scale=std_dev)
         decimal_above_zero = 1 - cdf_at_zero
         total_above_zero_2 += decimal_above_zero
 
-    # Calculating the percentage of the first set relative to the second set
-    return total_above_zero_1 / total_above_zero_2 if total_above_zero_2 != 0 else 0
+    # Calculate and return percentage of first set relative to second set
+    return total_above_zero_1 / total_above_zero_2 if total_above_zero_2 != 0 \
+        else 0
 
 
 def bezierPoint(m1):
+    """
+    Description
+    -----------
+    Calculate the weighted contribution of the second metric (feasibility)
+    based on the value of the first metric with a Quadratic Bezier curve.
     
-    # Control points
+    Parameters
+    ----------
+    m1 : Float
+        Average fraction of the design space up for elimination with pass or
+        fail amounts below 0
+    
+    Returns
+    -------
+    y : Float
+        Weight of second metric (feasibility)
+    """
+    
+    # Establish control points for Quadratic Bezier curve
     P0 = (0.0, 1.0)
     P1 = (0.5, 0.8)
     P2 = (1.0, 0.0)
@@ -141,22 +278,49 @@ def bezierPoint(m1):
         return None
 
     # Calculate the y-coordinate at the solved t
-    y = (1 - t_solution)**2 * P0[1] + 2 * (1 - t_solution) * t_solution * P1[1] + t_solution**2 * P2[1]
-
+    y = (1 - t_solution)**2 * P0[1] + \
+        2 * (1 - t_solution) * t_solution * P1[1] + \
+        t_solution**2 * P2[1]
+    
+    # Return the y-coordinate which is the weight of the feasibility metric
     return y
 
 
 """
 SECONDARY FUNCTIONS
 """
-# Develop a strategy for forming an opinion!!!
 def getOpinion(rule, discip):
+    """
+    Description
+    -----------
+    Calculate the discipline's opinion of the rule by using a Gaussian process
+    regressor to form perceptions of feasibility throughout the remaining
+    design space and using perceived infeasibility and feasibility to produce
+    two metrics.
+
+    Parameters
+    ----------
+    rule : Sympy relational
+        Either a sympy And or Or relational or a sympy inequality describing
+        the input rule for which discipline is forming an opinion
+    discip : Dictionary
+        Contains all of the information relevant to the discipline
+
+    Returns
+    -------
+    opinion : Float
+        A number between 0.0 and 1.0 where a small number matches up with an
+        unfavorable opinion of the rule while a large number matches up with a
+        favorable opinion of the rule
+    """
     
-    # Make a copy of the discipline that takes input rule into account
+    # Make a copy of the discipline taking the input rule into account
     d_copy = copy.deepcopy(discip)
+    
+    # Add values to eliminated section of discipline copy for new input rule
     d_copy = sortPoints([d_copy], [rule])
     
-    # Find different index lists based on rule
+    # Create different index lists based on new input rule
     all_indices, indices_in_both, indices_not_in_B = \
         sharedIndices(discip['space_remaining'], d_copy[0]['space_remaining'])
     
@@ -168,23 +332,26 @@ def getOpinion(rule, discip):
     # Initialize data for training a GPR
     x_train, y_train = trainData(discip)
     
-    # Train GPR - maybe come back and introduce noise later
+    # Train GPR without noise
     gpr = initializeFit(discip, x_train, y_train)
     
     # Predict GPR at points in various space remaining indices
     passfail, passfail_std = predictData(discip, gpr, diction)
     
     # Metric 1: Am I get ridding of clearly infeasible space?
-    infeas_space = analyzeInfeasibility(passfail['leftover'], passfail_std['leftover'])
+    infeas_space = analyzeInfeasibility(passfail['leftover'], 
+                                        passfail_std['leftover'])
     
     # Metric 2: Am I maintaining feasible space for this space reduction?
-    feas_space = analyzeFeasibility(passfail['reduced'], passfail_std['reduced'],
-                                    passfail['non_reduced'], passfail_std['non_reduced'])
+    feas_space = analyzeFeasibility(passfail['reduced'], 
+                                    passfail_std['reduced'],
+                                    passfail['non_reduced'], 
+                                    passfail_std['non_reduced'])
     
-    # Quadratic Bezier curve to determine weight of second metric
+    # Use quadratic Bezier curve to determine weight of second metric
     weight2 = bezierPoint(infeas_space)
     
-    # Determine weight of first metric
+    # Use weight of second metric to determine weight of first metric
     weight1 = 1 - weight2
     
     # Return properly weighted opinion from metrics
