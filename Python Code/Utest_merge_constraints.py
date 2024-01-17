@@ -190,6 +190,70 @@ class test_merge_constraints(unittest.TestCase):
         np.testing.assert_almost_equal(infeas2, exp_infeas2)
     
     
+    def test_analyze_feasibility(self):
+        """
+        Unit tests for analyzeFeasibility function
+        """
+        
+        # Create two sets of mean and standard deviation data
+        means1_1 = np.array([0.3, -0.7, 0.1, 0.0, -0.2])
+        std1_1 = np.array([0.1, 0.3, 0.05, 0.2, 0.2])
+        means1_2 = np.array([])
+        std1_2 = np.array([])
+        means2_1 = np.array([0.3, -0.7, 0.1, 0.0, -0.2])
+        std2_1 = np.array([0.1, 0.3, 0.05, 0.2, 0.2])
+        means2_2 = np.array([0.4, 0.0, 0.5, -0.3])
+        std2_2 = np.array([0.1, 0.05, 0.2, 0.1])
+        
+        # Run function with both sets of mean and standard deviation data
+        feas1 = analyzeFeasibility(means1_1, std1_1, means1_2, std1_2)
+        feas2 = analyzeFeasibility(means2_1, std2_1, means2_2, std2_2)
+        
+        # Determine the expected values of both sets of data
+        exp_feas1 = 0.0
+        exp_feas2 = (0.99865010+0.00981533+0.97724987+0.50000000+0.15865525) /\
+            (0.99996833+0.50000000+0.99379033+0.00134990)
+        
+        # Test that calculated values match expected data
+        np.testing.assert_almost_equal(feas1, exp_feas1)
+        np.testing.assert_almost_equal(feas2, exp_feas2)
+        
+    
+    def test_bezier_point(self):
+        """
+        Unit tests for bezierPoint function
+        """
+        
+        # Create various values of the m1 metric
+        m1 = np.array([0.0, 0.2, 0.5, 0.8, 1.0])
+        
+        # Initialize a numpy array of zeros the same size as m1
+        y = np.zeros_like(m1)
+        
+        # Run function for each value of the m1 metric
+        for i, value in enumerate(m1):
+            y[i] = bezierPoint(m1[i])
+            
+        # Determine expected values of y
+        exp_y = np.array([1.0, 0.896, 0.65, 0.296, 0.0])
+        
+        # Check that expected and actual array for y match up
+        np.testing.assert_array_almost_equal(y, exp_y)
+        
+        # Check that nonetype is returned when t value is not between 0 and 1
+        m1 = 20
+        y = bezierPoint(m1)
+        self.assertIsNone(y)
+    
+    
+    def test_get_opinion(self):
+        """
+        Unit tests for getOpinion function
+        """
+        
+        
+    
+    
         
 
         

@@ -143,13 +143,20 @@ irules_new = []
 irules_discip = []
 
 # Initialize dictionaries for windfall and regret calculations
-passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-passfail_std = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-running_windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-running_regret = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-net_windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} for _ in Discips]
-risk_or_potential = [{"regret": [], "windfall": [], "net": []} for _ in Discips]
+passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} \
+            for _ in Discips]
+passfail_std = [{"reduced": [], "non_reduced": [], "leftover":[]} \
+                for _ in Discips]
+windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} \
+           for _ in Discips]
+running_windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} \
+                    for _ in Discips]
+running_regret = [{"reduced": [], "non_reduced": [], "leftover":[]} \
+                  for _ in Discips]
+net_windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} \
+               for _ in Discips]
+risk_or_potential = [{"regret": [], "windfall": [], "net": []} \
+                     for _ in Discips]
 
 # Initialize dictionaries for KDEs of fragility check
 # KDE_data = [{} for _ in Discips]
@@ -269,9 +276,10 @@ while iters < iters_max:
             ##### PROBABILITY-BASED #####
             
             # Initialize a windfall and regret object
-            windregret = windfallRegret(Discips, irules_new, passfail, \
-                                        passfail_std, windreg, running_windfall, \
-                                        running_regret, net_windreg, risk_or_potential)
+            windregret = windfallRegret(Discips, irules_new, passfail,
+                                        passfail_std, windreg, 
+                                        running_windfall, running_regret, 
+                                        net_windreg, risk_or_potential)
             
             # Create training data from sampled locations and pass/fail amounts
             x_train, y_train = windregret.trainData()
