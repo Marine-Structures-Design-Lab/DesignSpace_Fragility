@@ -317,7 +317,7 @@ def sortPoints(Discips, irules_new):
 
 
 
-
+############################################################################### MIGHT NOT NEED THIS FOR IMDC
 def sortPoints2(Discip, irules_new):
     """
     Description

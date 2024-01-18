@@ -160,9 +160,8 @@ class windfallRegret:
         return self.pf, self.pf_std
     
     
-    # Need to adjust tp_actual in each discipline because there may be different numbers of dimensions
     # Figure out how to do this for each input variable combination rather than only space as a whole
-    def calcWindRegret(self, tp_actual):
+    def calcWindRegret(self):
             
         # Loop through each discipline's pass/fail dictionary
         for ind1, d in enumerate(self.pf):
@@ -241,8 +240,8 @@ class windfallRegret:
             for key, value in d.items():
                 
                 # Divide probabilistic sums by original number of points
-                run_wind[key] = run_wind[key] / tp_actual
-                run_reg[key] = run_reg[key] / tp_actual
+                run_wind[key] = run_wind[key] / self.D[ind1]['tp_actual']
+                run_reg[key] = run_reg[key] / self.D[ind1]['tp_actual']
                 
                 # Calculate difference between net windfall and regret
                 net_wr[key] = run_wind[key] - run_reg[key]
@@ -310,15 +309,15 @@ class windfallRegret:
     
     
     # Surfaces are temporary and may need adjustment to fit other SBD problems
-    def plotWindRegret(self, tp_actual):
+    def plotWindRegret(self):
         
         # Loop through each discipline's windfall-regret values
         for ind1, d in enumerate(self.windreg):
             
             # Print percent of space that would remain in discipline
             print(f"Discipline {ind1+1} would go from "
-                  f"{round((d['non_reduced'][-1].shape[0]/tp_actual)*100, 2)}% to "
-                  f"{round((d['reduced'][-1].shape[0]/tp_actual)*100, 2)}%"
+                  f"{round((d['non_reduced'][-1].shape[0]/self.D[ind1]['tp_actual'])*100, 2)}% to "
+                  f"{round((d['reduced'][-1].shape[0]/self.D[ind1]['tp_actual'])*100, 2)}%"
                   f" of its original design space remaining!")
             
             # Loop through each item of dictionary

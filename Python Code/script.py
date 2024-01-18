@@ -64,9 +64,7 @@ problem_name = 'SBD1'
 ### one iteration to complete.
 iters_max = 1000    # Must be a positive integer!
 
-# Decide on the strategy for producing random input values - may want to change
-### this decision process up and have many selections in user inputs according
-### to how the project is going
+# Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
 sample = 'uniform'
 
@@ -89,13 +87,13 @@ fragility_max = 5   # Must be a positive integer!
 
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
-    [0.2,  # p1: x-intercept (0 <= p1 < p3)
-     5.0,  # p2: Steepness (any real, positive number)
-     1.0,  # p3: Max percent of time to force reductions (p1 < p3 <=1)
+    [0.2,   # p1: x-intercept (0 <= p1 < p3)
+     5.0,   # p2: Steepness (any real, positive number)
+     1.0,   # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Set initial values for creating and evaluating the suitability of partitions
-# ERROR ON THE SIDE OF STARTING THESE LOW AND HAVING ADJUST CRITERIA ALTER THEM
+# START THESE LOW AS THEY WILL BE INCREASED TO FORCE A SPACE REDUCTION
 part_params = {
     "cdf_crit": 0.1,
     "fail_crit": 0.0,
@@ -103,9 +101,31 @@ part_params = {
     "disc_crit": 0.2
     }
 
+# Set parameters for decision tree classifier used to propose space reductions
+dtc_kwargs = {
+    'max_depth': 2,
+    # Add other parameters as needed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Set number of new points to be tested before calculating Kullback-Leibler
 ### divergence between prior and posterior data sets of a discipline
-KLgap = 1
+#KLgap = 1
 
 
 """
@@ -117,7 +137,7 @@ Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
-iter_rem = 0
+iter_rem = 0 ################################################################## MIGHT NOT NEED THIS LATER
 
 # Loop through each discipline
 for i in range(0,len(Discips)):
@@ -132,13 +152,13 @@ for i in range(0,len(Discips)):
     Discips[i]['force_reduction'] = [False, 0]
     
     # Initialize an array for estimating the space remaining for the discipline
-    Discips[i]['space_remaining'], tp_actual = \
+    Discips[i]['space_remaining'], Discips[i]['tp_actual'] = \
         uniformGrid(total_points, len(Discips[i]['ins']))
 
 # Print a visual of the minimum space reduction vs. time remaining pace
 plotExponential(exp_parameters)
 
-# Create empty list for new rules to be added
+# Create empty lists for new rules and index of discipline proposing each rule
 irules_new = []
 irules_discip = []
 
@@ -158,23 +178,17 @@ net_windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} \
 risk_or_potential = [{"regret": [], "windfall": [], "net": []} \
                      for _ in Discips]
 
-# Initialize dictionaries for KDEs of fragility check
+# Initialize dictionaries for KDEs of fragility check ######################### MIGHT NOT NEED THESE FOR IMDC
 # KDE_data = [{} for _ in Discips]
 # joint_KDEs = [{} for _ in Discips]
 # KDEs = [{} for _ in Discips]
 # posterior_KDEs = [{} for _ in Discips]
 # KL_divs = [{} for _ in Discips]
 
-
-
 # Set the initial forced reduction value to false and establish a counter
-### THESE MAY NOT BE NEEDED LATER
+############################################################################### THESE MAY NOT BE NEEDED LATER
 force_reduction = False
 force_reduction_counter = 0
-
-
-
-
 
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max:
@@ -208,8 +222,8 @@ while iters < iters_max:
         if 'tested_ins' not in Discips[i] or \
             np.shape(Discips[i]['tested_ins'])[0] == 0: continue
         
-        # Initialize an object for the checkSpace class (free to adjust depth!)
-        space_check = checkSpace(Discips[i]['ins'], max_depth=2)
+        # Initialize an object for the checkSpace class
+        space_check = checkSpace(Discips[i]['ins'], **dtc_kwargs)
         
         # Produce array of "good" and "bad" values based on CDF threshold
         gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
@@ -292,7 +306,7 @@ while iters < iters_max:
             
             # Calculate windfall and regret for remaining design spaces
             windreg, running_windfall, running_regret, net_windreg = \
-                windregret.calcWindRegret(tp_actual)
+                windregret.calcWindRegret()
             
             # Quantify risk or potential of space reduction for each discipline
             ### A positive value means risk or potential is ADDED
@@ -301,7 +315,7 @@ while iters < iters_max:
             
             # Plot windfall and regret for remaining design spaces
             if iter_rem == 0 or iters > 0.99*iters_max:
-                windregret.plotWindRegret(tp_actual)
+                windregret.plotWindRegret()
                 iter_rem = 8
             iter_rem -= 1
             
@@ -387,7 +401,7 @@ while iters < iters_max:
         red_change = changeReduction(Discips)
         
         # Estimate the space remaining in each discipline
-        space_rem = red_change.estimateSpace(tp_actual)
+        space_rem = red_change.estimateSpace()
         
         # Check if a space reduction should be forced
         Discips = red_change.forceReduction(space_rem, iters, iters_max, exp_parameters)
@@ -530,7 +544,8 @@ while iters < iters_max:
     
 #     # Print percent of space that remains in discipline
 #     print(f"Discipline {i+1} has "
-#       f"{round((np.shape(Discips[i]['space_remaining'])[0]/tp_actual)*100, 2)}"
+#       f"{round((np.shape(Discips[i]['space_remaining'])[0]/ \
+#            Discips[i]['tp_actual'])*100, 2)}"
 #       f"% of its original design space remaining")
 
 #     # Initialize an empty list for storing numpy arrays

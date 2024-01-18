@@ -34,7 +34,7 @@ class changeReduction:
         return
     
     
-    def estimateSpace(self, tp_actual):
+    def estimateSpace(self):
         """
         Description
         -----------
@@ -42,10 +42,7 @@ class changeReduction:
 
         Parameters
         ----------
-        tp_actual : Integer
-            The number of discretized points evenly spaced throughout a
-            discipline's design space for helping approximate the fraction of
-            space remaining in that discipline
+        None.
         
         Returns
         -------
@@ -60,7 +57,8 @@ class changeReduction:
         for i in range(0,len(self.d)):
             
             # Calculate space remaining relative to space at beginning
-            space_rem[i] = np.shape(self.d[i]['space_remaining'])[0]/tp_actual
+            space_rem[i] = np.shape(self.d[i]['space_remaining'])[0]/ \
+                self.d[i]['tp_actual']
             
         # Return approximate fraction of space remaining for each discipline
         return space_rem
