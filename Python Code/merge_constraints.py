@@ -4,7 +4,6 @@ Takes all of the input rules proposed from each discipline in a particular
 space reduction cycle and proposes a universal set of space reductions for each
 discipline to abide by based on their respective opinions of each reduction.  
 
-
 CREATOR:
 Joseph B. Van Houten
 joeyvan@umich.edu

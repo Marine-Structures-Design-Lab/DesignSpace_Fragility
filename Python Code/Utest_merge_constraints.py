@@ -11,8 +11,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from merge_constraints import mergeConstraints, trainData, initializeFit, \
-    predictData, analyzeInfeasibility, analyzeFeasibility, bezierPoint, \
-    getOpinion
+    predictData, analyzeInfeasibility, analyzeFeasibility, bezierPoint
 import unittest
 import numpy as np
 import sympy as sp
@@ -28,16 +27,20 @@ class test_merge_constraints(unittest.TestCase):
         """
         
         # Initialize symbols
-        x = sp.symbols('x1:4')
+        x = sp.symbols('x1:5')
+        y = sp.symbols('y1:4')
         
         # Create a discipline without eliminated data
         self.Discip1 = {
             "tested_ins": np.array([[0.1, 0.1, 0.1],
                                     [0.2, 0.3, 0.4],
                                     [0.5, 0.5, 0.9]]),
+            "tested_outs": np.zeros((3,1)),
             "Fail_Amount": np.array([0.0, 0.5, 0.3]),
             "Pass_Amount": np.array([0.7, 0.0, 0.4]),
+            "pass?": [True, True, True],
             "ins": [x[0], x[1], x[2]],
+            "outs": [y[0]],
             "space_remaining": np.array([[0.2, 0.2, 0.2],
                                          [0.5, 0.2, 0.5],
                                          [0.9, 0.9, 0.2],
@@ -52,9 +55,12 @@ class test_merge_constraints(unittest.TestCase):
                                     [0.5, 0.5, 0.5],
                                     [0.9, 0.1, 0.9],
                                     [0.7, 0.6, 0.5]]),
+            "tested_outs": np.zeros((4,2)),
             "Fail_Amount": np.array([0.1, 0.0, 0.8, 0.0]),
             "Pass_Amount": np.array([0.0, 0.2, 0.9, 0.0]),
-            "ins": [x[0], x[1], x[2]],
+            "pass?": [True, True, True, True],
+            "ins": [x[1], x[2], x[3]],
+            "outs": [y[1], y[2]],
             "space_remaining": np.array([[0.4, 0.4, 0.4],
                                          [0.5, 0.4, 0.5],
                                          [0.3, 0.3, 0.4],
@@ -64,8 +70,10 @@ class test_merge_constraints(unittest.TestCase):
                 "tested_ins": np.array([[0.1, 0.1, 0.1],
                                         [0.2, 0.3, 0.4],
                                         [0.5, 0.5, 0.9]]),
+                "tested_outs": np.zeros((3,2)),
                 "Fail_Amount": np.array([0.0, 0.5, 0.3]),
                 "Pass_Amount": np.array([0.7, 0.0, 0.4]),
+                "pass?": [True, True, True],
                 "space_remaining": np.array([[0.1, 0.4, 0.4],
                                              [0.7, 0.7, 0.2]])
                 }
@@ -246,17 +254,119 @@ class test_merge_constraints(unittest.TestCase):
         self.assertIsNone(y)
     
     
-    def test_get_opinion(self):
+    def test_form_opinion(self):
         """
-        Unit tests for getOpinion function
+        Unit tests for formOpinion method
         """
         
+        # Initialize symbols
+        x = sp.symbols('x1:5')
         
+        # Create a list of rules
+        rules_new = [x[0]>0.5, 
+                     sp.Or(x[1]<0.2, x[2]>=0.8), 
+                     sp.And(x[3]>0.2,x[3]<0.6), 
+                     sp.Or(x[0]>0.8, x[2]<0.9), 
+                     x[2]>0.5]
+        
+        # Create a mergeConstraints object
+        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2])
+        
+        # Form opinions for the set of new rules
+        opinions = cmerger.formOpinion()
+        
+        # Ensure opinion has nan only if not impacted by rule
+        self.assertFalse(np.isnan(opinions[0][0]))
+        self.assertTrue(np.isnan(opinions[0][1]))
+        self.assertFalse(np.isnan(opinions[1][0]))
+        self.assertFalse(np.isnan(opinions[1][1]))
+        self.assertTrue(np.isnan(opinions[2][0]))
+        self.assertFalse(np.isnan(opinions[2][1]))
+        self.assertFalse(np.isnan(opinions[3][0]))
+        self.assertTrue(np.isnan(opinions[3][1]))
+        self.assertFalse(np.isnan(opinions[4][0]))
+        self.assertFalse(np.isnan(opinions[4][1]))
+        
+        # Ensure 5 sets of opinions are formed
+        self.assertEqual(len(opinions), 5)
+        
+        # Ensure each set has opinions from two disciplines
+        for op in opinions:
+            self.assertEqual(op.shape, (2,))
     
     
+    def test_dom_decisions(self):
+        """
+        Unit tests for domDecision method
+        """
         
-
+        # Initialize symbols
+        x = sp.symbols('x1:5')
         
+        # Create a list of rules
+        rules_new = [x[0]>0.5, 
+                     sp.Or(x[1]<0.2, x[2]>=0.8),
+                     sp.And(x[3]>0.2,x[3]<0.6),
+                     sp.Or(x[0]>0.8, x[2]<0.9),
+                     x[2]>0.5]
+        
+        # Create a mergeConstraints object
+        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2])
+        
+        # Create list of integers for discipline proposing each rule
+        irules_discip = [0, 1, 1, 0, 1]
+        
+        # Create opinions for the new set of rules
+        opinions = [np.array([0.8, np.nan]),
+                    np.array([0.5, 0.9]),
+                    np.array([np.nan, 0.2]),
+                    np.array([1.0, np.nan]),
+                    np.array([1.0, 0.05])]
+        
+        # Establish initial failure criteria parameter for each discipline
+        self.Discip1['part_params'] = {'fail_crit': 0.0}
+        self.Discip2['part_params'] = {'fail_crit': 0.1}
+        
+        # Run domDecision method
+        rules_new = cmerger.domDecision(opinions, irules_discip)
+        
+        # Establish expected rule list
+        exp_rules_new = [x[0]>0.5,
+                         sp.And(x[3]>0.2,x[3]<0.6),
+                         sp.Or(x[0]>0.8, x[2]<0.9),
+                         x[2]>0.5]
+        
+        # Ensure proper rule(s) are being thrown out
+        self.assertListEqual(rules_new, exp_rules_new)
+        
+        # Re-establish list of rules
+        rules_new = [x[0]>0.5, 
+                     sp.Or(x[1]<0.2, x[2]>=0.8),
+                     sp.And(x[3]>0.2,x[3]<0.6),
+                     sp.Or(x[0]>0.8, x[2]<0.9),
+                     x[2]>0.5]
+        
+        # Create a mergeConstraints object
+        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2])
+        
+        # Establish new failure criteria parameter for each discipline
+        self.Discip1['part_params'] = {'fail_crit': 0.9}
+        self.Discip2['part_params'] = {'fail_crit': 0.35}
+        
+        # Run domDecision method
+        rules_new = cmerger.domDecision(opinions, irules_discip)
+        
+        # Establish expected rule list
+        exp_rules_new = [x[0]>0.5, 
+                         sp.Or(x[1]<0.2, x[2]>=0.8),
+                         sp.And(x[3]>0.2,x[3]<0.6),
+                         sp.Or(x[0]>0.8, x[2]<0.9),
+                         x[2]>0.5]
+        
+        # Ensure proper rule(s) are being thrown out
+        self.assertListEqual(rules_new, exp_rules_new)
+        
+    
 """
 SCRIPT
 """
