@@ -72,10 +72,10 @@ class test_input_vals(unittest.TestCase):
             inppts4 = getInput(copy.deepcopy(self.Discips2[i]),ir2,20,i)
             
             # Produce new disciplines
-            self.Dtest1[i] = inppts1.getUniform()
-            self.Dtest2[i] = inppts2.getUniform()
-            self.Dtest3[i] = inppts3.getUniform()
-            self.Dtest4[i] = inppts4.getUniform()
+            self.Dtest1[i] = inppts1.getUniform(100)
+            self.Dtest2[i] = inppts2.getUniform(100)
+            self.Dtest3[i] = inppts3.getUniform(100)
+            self.Dtest4[i] = inppts4.getUniform(100)
         
     def test_get_uniform(self):
         """

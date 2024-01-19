@@ -42,7 +42,7 @@ class getInput:
         self.i = i
     
     
-    def getUniform(self):
+    def getUniform(self, search_factor):
         """
         Description
         -----------
@@ -52,7 +52,9 @@ class getInput:
         
         Parameters
         ----------
-        None.
+        search_factor : integer
+            Multiplicative factor for amount of time willing to extend search
+            looking for a point to sample in the remaining input space
         
         Returns
         -------
@@ -68,9 +70,8 @@ class getInput:
         # Loop through potential uniform test points to add to discipline
         while count1 < self.it//self.d['time']:
             
-            # Prevent an infinite loop from occurring (change value being
-            # multiplied by self.it, if desired)
-            if count2 >= 100*self.it*self.d['time']:
+            # Prevent an infinite loop from occurring
+            if count2 >= search_factor*self.it*self.d['time']:
                 print(
                     f"Only created {count1} new input point(s) for Discipline "
                     f"{self.i+1} instead of "

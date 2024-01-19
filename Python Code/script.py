@@ -68,6 +68,12 @@ iters_max = 1000    # Must be a positive integer!
 ### OPTIONS: Uniform, LHS (eventually),...
 sample = 'uniform'
 
+# Decide on number of points to attempt sampling in space remaining before
+### moving on (a larger amount will help ensure a point is found during uniform
+### sampling as remaining input spaces get smaller, but it will also lead to an
+### increased run time during the search)
+search_factor = 100
+
 # Decide the approximate number of points that you want to use to estimate the
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
@@ -489,7 +495,7 @@ while iters < iters_max:
         
         # Get input points according to the desired strategy
         inppts = getInput(Discips[i], input_rules, temp_amount, i)
-        Discips[i] = inppts.getUniform()
+        Discips[i] = inppts.getUniform(search_factor)
         
         # Create a key for tested outputs of discipline if it does not exist
         Discips[i] = createKey('tested_outs', Discips[i])
