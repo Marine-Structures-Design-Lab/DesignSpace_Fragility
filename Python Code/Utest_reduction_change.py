@@ -92,10 +92,10 @@ class test_reduction_change(unittest.TestCase):
         
         # Create initial exponential paramter values
         part_params = {
-            "cdf_crit": 0.1,
-            "fail_crit": 0.0,
-            "dist_crit": 0.2,
-            "disc_crit": 0.2
+            "cdf_crit": [0.1, 0.1],
+            "fail_crit": [0.0, 0.05],
+            "dist_crit": [0.2, 0.1],
+            "disc_crit": [0.2, 0.1]
             }
         
         # Create parameter and reduction keys for each discipline
@@ -156,73 +156,73 @@ class test_reduction_change(unittest.TestCase):
         
         # Ensure no parameters are changed when force reduction is False
         self.Discips = self.cr.adjustCriteria()
-        self.assertEqual(self.Discips[0]['part_params']['cdf_crit'], 0.1)
+        self.assertEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.1)
         
         # Set force reduction to True for Discipline 1
         self.Discips[0]['force_reduction'][0] = True
         
         # Ensure cdf_crit criterion is increased
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 0.2)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 0.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 0.2)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.2)
         
         # Ensure fail_crit criterion is increased
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 0.2)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 0.05)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 0.2)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.05)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.2)
         
         # Ensure dist_crit criterion is increased
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 0.2)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 0.05)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 0.3)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.05)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.3)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.2)
         
         # Ensure disc_crit criterion is increased
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 0.2)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 0.05)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 0.3)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 0.3)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.2)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.05)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.3)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.3)
         
         # Ensure cdf_crit criterion is increased again
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 0.3)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 0.05)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 0.3)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 0.3)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.3)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.05)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.3)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.3)
         
         # Set all criteria to 1.0 for Discipline 1
-        self.Discips[0]['part_params']['cdf_crit'] = 1.0
-        self.Discips[0]['part_params']['fail_crit'] = 1.0
-        self.Discips[0]['part_params']['dist_crit'] = 1.0
-        self.Discips[0]['part_params']['disc_crit'] = 1.0
+        self.Discips[0]['part_params']['cdf_crit'][0] = 1.0
+        self.Discips[0]['part_params']['fail_crit'][0] = 1.0
+        self.Discips[0]['part_params']['dist_crit'][0] = 1.0
+        self.Discips[0]['part_params']['disc_crit'][0] = 1.0
         
         # Ensure all criteria remain at 1.0
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
         
         
 """

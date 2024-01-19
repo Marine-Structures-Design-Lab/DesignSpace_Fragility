@@ -504,7 +504,7 @@ class mergeConstraints:
                 if np.isnan(rule_opinions[i][j]): continue
                 
                 # Add discipline's failure criterion to failure critieria set
-                fail_crit.add(discip['part_params']['fail_crit'])
+                fail_crit.add(discip['part_params']['fail_crit'][0])
             
             # Loop through each discipline's opinion
             for j, discip in enumerate(rule_opinions[i]):

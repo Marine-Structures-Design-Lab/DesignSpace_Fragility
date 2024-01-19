@@ -326,8 +326,8 @@ class test_merge_constraints(unittest.TestCase):
                     np.array([1.0, 0.05])]
         
         # Establish initial failure criteria parameter for each discipline
-        self.Discip1['part_params'] = {'fail_crit': 0.0}
-        self.Discip2['part_params'] = {'fail_crit': 0.1}
+        self.Discip1['part_params'] = {'fail_crit': [0.0, 0.05]}
+        self.Discip2['part_params'] = {'fail_crit': [0.1, 0.05]}
         
         # Run domDecision method
         rules_new = cmerger.domDecision(opinions, irules_discip)
@@ -353,8 +353,8 @@ class test_merge_constraints(unittest.TestCase):
                                    {}, {})
         
         # Establish new failure criteria parameter for each discipline
-        self.Discip1['part_params'] = {'fail_crit': 0.9}
-        self.Discip2['part_params'] = {'fail_crit': 0.35}
+        self.Discip1['part_params'] = {'fail_crit': [0.9, 0.05]}
+        self.Discip2['part_params'] = {'fail_crit': [0.35, 0.05]}
         
         # Run domDecision method
         rules_new = cmerger.domDecision(opinions, irules_discip)

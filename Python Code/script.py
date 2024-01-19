@@ -93,12 +93,14 @@ exp_parameters = np.array(\
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Set initial values for creating and evaluating the suitability of partitions
+# (1st value) as well as the amount that each criteria should be increased by
+# when forcing a space reduction (2nd value)
 # START THESE LOW AS THEY WILL BE INCREASED TO FORCE A SPACE REDUCTION
 part_params = {
-    "cdf_crit": 0.1,
-    "fail_crit": 0.0,
-    "dist_crit": 0.2,
-    "disc_crit": 0.2
+    "cdf_crit": [0.1, 0.1],
+    "fail_crit": [0.0, 0.05],
+    "dist_crit": [0.2, 0.1],
+    "disc_crit": [0.2, 0.1]
     }
 
 # Set parameters for decision tree classifier used to propose space reductions
@@ -122,6 +124,11 @@ bez_point = {
     'P2': (1.0, 0.0)
     # Adjust these parameters as needed
     }
+
+# 
+
+
+
 
 
 
@@ -217,7 +224,7 @@ while iters < iters_max:
     break_loop = False
     for dic in Discips:
         part_params_check = dic["part_params"]
-        if all(value >= 1.0 for value in part_params_check.values()):
+        if all(value[0] >= 1.0 for value in part_params_check.values()):
             break_loop = True
             break
     if break_loop:
@@ -247,7 +254,7 @@ while iters < iters_max:
         
         # Produce array of "good" and "bad" values based on CDF threshold
         gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
-                       Discips[i]['part_params']['cdf_crit'])
+                       Discips[i]['part_params']['cdf_crit'][0])
         
         # Build the decision tree
         space_check.buildTree(Discips[i]['tested_ins'], gb_array)
@@ -260,9 +267,9 @@ while iters < iters_max:
         rule_check = space_check.reviewPartitions(\
             Discips[i]['tested_ins'], pot_rule,\
             Discips[i]['Fail_Amount'],\
-            Discips[i]['part_params']['fail_crit'],\
-            Discips[i]['part_params']['dist_crit'],\
-            Discips[i]['part_params']['disc_crit'])
+            Discips[i]['part_params']['fail_crit'][0],\
+            Discips[i]['part_params']['dist_crit'][0],\
+            Discips[i]['part_params']['disc_crit'][0])
         
         # Add potential rule to the new rule list if it meets the criteria
         ### and determine discipline proposing rule
@@ -345,6 +352,7 @@ while iters < iters_max:
             
             
             ##### ENTROPY-BASED #####
+            ################################################################### MIGHT NOT NEED THIS FOR IMDC
             
             # # Initialize an object for the distribution check class
             # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
@@ -364,6 +372,11 @@ while iters < iters_max:
             
             # # Show the progression of KL divergence values as points are added
             # distribution.plotKL()
+            
+            
+            
+            
+            
             
             
             
@@ -413,8 +426,15 @@ while iters < iters_max:
          
                 
     
-    ### If no rules, determine if time remaining paired with the design space
-    ### remaining warrants a space reduction to be forced
+    
+    
+    
+    
+    
+    
+    
+    # If no new input rules, determine if time remaining paired with the design
+    ### space remaining warrants a space reduction to be forced
     else:
         
         # Create an object for the changeReduction class
@@ -424,10 +444,11 @@ while iters < iters_max:
         space_rem = red_change.estimateSpace()
         
         # Check if a space reduction should be forced
-        Discips = red_change.forceReduction(space_rem, iters, iters_max, exp_parameters)
+        Discips = red_change.forceReduction(space_rem, iters, iters_max, 
+                                            exp_parameters)
         
         # Perform the following commands if a space reduction should be forced
-        if any(dictionary.get("force_reduction", False)[0] == True\
+        if any(dictionary.get("force_reduction", False)[0] == True \
                for dictionary in Discips):
             
             # Adjust the criteria for the necessary discipline(s)

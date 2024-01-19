@@ -21,7 +21,7 @@ CLASS
 """
 class changeReduction:
     
-    def __init__(self,Discips):
+    def __init__(self, Discips):
         """
         Parameters
         ----------
@@ -136,17 +136,21 @@ class changeReduction:
             
             # Adjust criterion based on number of forced reductions thus far
             if self.d[i]['force_reduction'][1] % 4 == 0:
-                self.d[i]['part_params']['cdf_crit'] = \
-                    min(self.d[i]['part_params']['cdf_crit'] + 0.1, 1.0)
+                self.d[i]['part_params']['cdf_crit'][0] = \
+                    min(self.d[i]['part_params']['cdf_crit'][0] + \
+                        self.d[i]['part_params']['cdf_crit'][1], 1.0)
             elif self.d[i]['force_reduction'][1] % 4 == 1:
-                self.d[i]['part_params']['fail_crit'] = \
-                    min(self.d[i]['part_params']['fail_crit'] + 0.05, 1.0)
+                self.d[i]['part_params']['fail_crit'][0] = \
+                    min(self.d[i]['part_params']['fail_crit'][0] + \
+                        self.d[i]['part_params']['fail_crit'][1], 1.0)
             elif self.d[i]['force_reduction'][1] % 4 == 2:
-                self.d[i]['part_params']['dist_crit'] = \
-                    min(self.d[i]['part_params']['dist_crit'] + 0.1, 1.0)
+                self.d[i]['part_params']['dist_crit'][0] = \
+                    min(self.d[i]['part_params']['dist_crit'][0] + \
+                        self.d[i]['part_params']['dist_crit'][1], 1.0)
             else:
-                self.d[i]['part_params']['disc_crit'] = \
-                    min(self.d[i]['part_params']['disc_crit'] + 0.1, 1.0)
+                self.d[i]['part_params']['disc_crit'][0] = \
+                    min(self.d[i]['part_params']['disc_crit'][0] + \
+                        self.d[i]['part_params']['disc_crit'][1], 1.0)
             
             # THIS MAY GO IN ITS OWN METHOD based on how adjustCriteria is
             # called elsewhere in the script file!!!
