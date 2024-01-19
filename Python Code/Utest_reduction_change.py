@@ -102,6 +102,7 @@ class test_reduction_change(unittest.TestCase):
         for i in range(0, len(self.Discips)):
             self.Discips[i]['force_reduction'] = [False, 0]
             self.Discips[i]['part_params'] = copy.deepcopy(part_params)
+            self.Discips[i]['tp_actual'] = self.Discips[0]['space_remaining'].shape[0]
         
         # Initialize a changeReduction object
         self.cr = changeReduction(self.Discips)
@@ -112,12 +113,9 @@ class test_reduction_change(unittest.TestCase):
         Unit tests for the estimateSpace method
         """
         
-        # Initialize the starting size of each space remaining array
-        tp_actual = self.Discips[0]['space_remaining'].shape[0]
-        
         # Ensure each discipline reports the proper space remaining
         expected_sr = np.array([1.0, float(18/27), float(12/27)])
-        actual_sr = self.cr.estimateSpace(tp_actual)
+        actual_sr = self.cr.estimateSpace()
         np.testing.assert_array_almost_equal(actual_sr, expected_sr)
         
         
