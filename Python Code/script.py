@@ -107,6 +107,23 @@ dtc_kwargs = {
     # Add other parameters as needed
 }
 
+# Parameters for Gaussian kernel when merging proposed constraints
+gpr_params = {
+    'length_scale_bounds': (1e-2, 1e3),
+    'alpha': 0.00001
+    # Add other parameters as needed
+}
+
+
+
+
+# Parameters for bezier point of merging constraints
+
+
+
+
+# Parameters for Gaussian kernel of windfall_regret
+
 
 
 
@@ -260,7 +277,7 @@ while iters < iters_max:
     if irules_new:
         
         # Initialize an object for the mergeConstraints class
-        merger = mergeConstraints(irules_new, Discips)
+        merger = mergeConstraints(irules_new, Discips, gpr_params)
         
         # Have each discipline form an opinion on the rule
         rule_opinions = merger.formOpinion()

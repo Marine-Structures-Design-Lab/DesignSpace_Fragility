@@ -62,7 +62,7 @@ def trainData(discip):
     return x_train, y_train
 
 
-def initializeFit(discip, x_train, y_train):
+def initializeFit(discip, x_train, y_train, **kwargs):
     """
     Description
     -----------
@@ -76,16 +76,27 @@ def initializeFit(discip, x_train, y_train):
         Input coordinates of previously tested design points
     y_train : Numpy array
         Pass or Fail amounts of previously tested design points
-
+    kwargs : dict, optional
+        Additional keyword arguments for GPR model configuration. Common 
+        parameters include 'length_scale_bounds' for the RBF kernel
+        (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
+        (default: 0.00001). These parameters are used to control various
+        aspects of the GPR model, such as kernel properties and regularization
+    
     Returns
     -------
     gpr_model : GaussianProcessRegressor
         A trained GPR model
     """
     
+    # Extract parameters from kwargs or set default values
+    length_scale_bounds = kwargs.get('length_scale_bounds', (1e-2, 1e3))
+    alpha = kwargs.get('alpha', 0.00001)
+    
     # Initialize Gaussian kernel
-    kernel = 1.0 * RBF(length_scale=np.ones(len(discip['ins'])), \
-                       length_scale_bounds=(1e-2, 1e3))
+    kernel = 1.0 * RBF(length_scale=np.ones(len(discip['ins'])), 
+                       length_scale_bounds=length_scale_bounds)
+    gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=alpha)
     
     # Initialize Gaussian process regressor (GPR)
     gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=0.00001)
@@ -288,7 +299,7 @@ def bezierPoint(m1):
 """
 SECONDARY FUNCTIONS
 """
-def getOpinion(rule, discip):
+def getOpinion(rule, discip, gpr_params):
     """
     Description
     -----------
@@ -332,7 +343,7 @@ def getOpinion(rule, discip):
     x_train, y_train = trainData(discip)
     
     # Train GPR without noise
-    gpr = initializeFit(discip, x_train, y_train)
+    gpr = initializeFit(discip, x_train, y_train, **gpr_params)
     
     # Predict GPR at points in various space remaining indices
     passfail, passfail_std = predictData(discip, gpr, diction)
@@ -362,7 +373,7 @@ CLASS
 """
 class mergeConstraints:
     
-    def __init__(self, rules_new, Discips):
+    def __init__(self, rules_new, Discips, gpr_params):
         """
         Parameters
         ----------
@@ -372,9 +383,17 @@ class mergeConstraints:
         Discips : List of dictionaries
             Contains dictionaries with all of the information relevant to each
             discipline
+        gpr_params : dict, optional
+            Additional keyword arguments for GPR model configuration. Common 
+            parameters include 'length_scale_bounds' for the RBF kernel
+            (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
+            (default: 0.00001). These parameters are used to control various
+            aspects of the GPR model, such as kernel properties and
+            regularization
         """
         self.rn = rules_new
         self.D = Discips
+        self.gpr_params = gpr_params
         return
     
     
@@ -419,7 +438,7 @@ class mergeConstraints:
                     continue
                 
                 # Get opinion of discipline directly affected by rule
-                opinions[i][j] = getOpinion(rule, discip)
+                opinions[i][j] = getOpinion(rule, discip, self.gpr_params)
         
         # Display formed opinions
         print("Opinions: " + str(opinions))
