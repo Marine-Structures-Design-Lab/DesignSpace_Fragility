@@ -270,7 +270,8 @@ class test_merge_constraints(unittest.TestCase):
                      x[2]>0.5]
         
         # Create a mergeConstraints object
-        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2], {})
+        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2],
+                                   {}, {})
         
         # Form opinions for the set of new rules
         opinions = cmerger.formOpinion()
@@ -311,7 +312,8 @@ class test_merge_constraints(unittest.TestCase):
                      x[2]>0.5]
         
         # Create a mergeConstraints object
-        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2], {})
+        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2],
+                                   {}, {})
         
         # Create list of integers for discipline proposing each rule
         irules_discip = [0, 1, 1, 0, 1]
@@ -347,7 +349,8 @@ class test_merge_constraints(unittest.TestCase):
                      x[2]>0.5]
         
         # Create a mergeConstraints object
-        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2], {})
+        cmerger = mergeConstraints(rules_new, [self.Discip1, self.Discip2],
+                                   {}, {})
         
         # Establish new failure criteria parameter for each discipline
         self.Discip1['part_params'] = {'fail_crit': 0.9}

@@ -76,7 +76,7 @@ def initializeFit(discip, x_train, y_train, **kwargs):
         Input coordinates of previously tested design points
     y_train : Numpy array
         Pass or Fail amounts of previously tested design points
-    kwargs : dict, optional
+    kwargs : Dictionary, optional
         Additional keyword arguments for GPR model configuration. Common 
         parameters include 'length_scale_bounds' for the RBF kernel
         (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
@@ -252,7 +252,7 @@ def analyzeFeasibility(means1, std_devs1, means2, std_devs2):
         else 0
 
 
-def bezierPoint(m1):
+def bezierPoint(m1, **kwargs):
     """
     Description
     -----------
@@ -264,6 +264,8 @@ def bezierPoint(m1):
     m1 : Float
         Average fraction of the design space up for elimination with pass or
         fail amounts below 0
+    kwargs : Dictionary, optional
+        x and y coordinates of control points of quadratic Bezier curve
     
     Returns
     -------
@@ -271,10 +273,10 @@ def bezierPoint(m1):
         Weight of second metric (feasibility)
     """
     
-    # Establish control points for Quadratic Bezier curve
-    P0 = (0.0, 1.0)
-    P1 = (0.5, 0.8)
-    P2 = (1.0, 0.0)
+    # Extract control points for Quadratic Bezier curve or set default ones
+    P0 = kwargs.get('P0', (0.0, 1.0))
+    P1 = kwargs.get('P1', (0.5, 0.8))
+    P2 = kwargs.get('P2', (1.0, 0.0))
 
     # Define the x-coordinate of the Bezier curve
     def bezier_x(t):
@@ -299,7 +301,7 @@ def bezierPoint(m1):
 """
 SECONDARY FUNCTIONS
 """
-def getOpinion(rule, discip, gpr_params):
+def getOpinion(rule, discip, gpr_params, bez_point):
     """
     Description
     -----------
@@ -315,6 +317,14 @@ def getOpinion(rule, discip, gpr_params):
         the input rule for which discipline is forming an opinion
     discip : Dictionary
         Contains all of the information relevant to the discipline
+    gpr_params : Dictionary
+        Additional keyword arguments for GPR model configuration. Common 
+        parameters include 'length_scale_bounds' for the RBF kernel
+        (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
+        (default: 0.00001). These parameters are used to control various
+        aspects of the GPR model, such as kernel properties and regularization
+    bez_point : Dictionary
+        x and y coordinates of control points of quadratic Bezier curve
 
     Returns
     -------
@@ -359,7 +369,7 @@ def getOpinion(rule, discip, gpr_params):
                                     passfail_std['non_reduced'])
     
     # Use quadratic Bezier curve to determine weight of second metric
-    weight2 = bezierPoint(infeas_space)
+    weight2 = bezierPoint(infeas_space, **bez_point)
     
     # Use weight of second metric to determine weight of first metric
     weight1 = 1 - weight2
@@ -373,7 +383,7 @@ CLASS
 """
 class mergeConstraints:
     
-    def __init__(self, rules_new, Discips, gpr_params):
+    def __init__(self, rules_new, Discips, gpr_params, bez_point):
         """
         Parameters
         ----------
@@ -383,17 +393,20 @@ class mergeConstraints:
         Discips : List of dictionaries
             Contains dictionaries with all of the information relevant to each
             discipline
-        gpr_params : dict, optional
+        gpr_params : Dictionary
             Additional keyword arguments for GPR model configuration. Common 
             parameters include 'length_scale_bounds' for the RBF kernel
             (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
             (default: 0.00001). These parameters are used to control various
             aspects of the GPR model, such as kernel properties and
             regularization
+        bez_point : Dictionary
+            x and y coordinates of control points of quadratic Bezier curve
         """
         self.rn = rules_new
         self.D = Discips
         self.gpr_params = gpr_params
+        self.bez_point = bez_point
         return
     
     
@@ -438,7 +451,8 @@ class mergeConstraints:
                     continue
                 
                 # Get opinion of discipline directly affected by rule
-                opinions[i][j] = getOpinion(rule, discip, self.gpr_params)
+                opinions[i][j] = getOpinion(rule, discip, self.gpr_params, 
+                                            self.bez_point)
         
         # Display formed opinions
         print("Opinions: " + str(opinions))

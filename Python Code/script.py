@@ -114,11 +114,14 @@ gpr_params = {
     # Add other parameters as needed
 }
 
-
-
-
-# Parameters for bezier point of merging constraints
-
+# Parameters for control points of quadratic bezier curve when merging proposed
+# constraints
+bez_point = {
+    'P0': (0.0, 1.0),
+    'P1': (0.0, 1.0),
+    'P2': (1.0, 0.0)
+    # Adjust these parameters as needed
+    }
 
 
 
@@ -277,7 +280,7 @@ while iters < iters_max:
     if irules_new:
         
         # Initialize an object for the mergeConstraints class
-        merger = mergeConstraints(irules_new, Discips, gpr_params)
+        merger = mergeConstraints(irules_new, Discips, gpr_params, bez_point)
         
         # Have each discipline form an opinion on the rule
         rule_opinions = merger.formOpinion()
