@@ -131,10 +131,6 @@ bez_point = {
     # Adjust these parameters as needed
     }
 
-# 
-
-# Standard deviations when analyzing infeasibility!!!
-
 
 
 

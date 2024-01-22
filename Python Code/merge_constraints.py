@@ -308,6 +308,32 @@ def bezierPoint(m1, **kwargs):
 SECONDARY FUNCTIONS
 """
 def getPerceptions(discip, gpr_params):
+    """
+    Description
+    -----------
+    Predict the passing or failure amounts for each point in the non-reduced
+    design space of each discipline.
+
+    Parameters
+    ----------
+    discip : Dictionary
+        Contains all of the information relevant to the discipline
+    gpr_params : Dictionary
+        Additional keyword arguments for GPR model configuration. Common 
+        parameters include 'length_scale_bounds' for the RBF kernel
+        (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
+        (default: 0.00001). These parameters are used to control various
+        aspects of the GPR model, such as kernel properties and regularization
+    
+    Returns
+    -------
+    pf_mean : Numpy array
+        Predicted passing or failing amounts for non-reduced design space of
+        particular discipline
+    pf_std : Numpy array
+        Standard deviations associated with predicted passing or failing
+        amounts
+    """
     
     # Initialize data for training a GPR
     x_train, y_train = trainData(discip)
@@ -323,6 +349,36 @@ def getPerceptions(discip, gpr_params):
 
 
 def getPredictions(discip, rule, pf_mean, pf_std):
+    """
+    Description
+    -----------
+    Organize predicted passing or failure amounts into categories for the
+    non-reduced, reduced, and leftover design spaces of the discipline for a
+    particular rule being proposed.
+
+    Parameters
+    ----------
+    discip : Dictionary
+        Contains all of the information relevant to the discipline
+    rule : Sympy relational
+        Either a sympy And or Or relational or a sympy inequality describing
+        the input rule for which discipline is categorizing design spaces
+    pf_mean : Numpy array
+        Predicted passing or failing amounts for non-reduced design space of
+        particular discipline
+    pf_std : Numpy array
+        Standard deviations associated with predicted passing or failing
+        amounts
+
+    Returns
+    -------
+    passfail : Dictionary
+        Predicted passing or failing amounts for each design space of
+        discipline considering the particular rule
+    passfail_std : Dictionary
+        Standard deviations associated with categorized passing or failing
+        amounts
+    """
     
     # Make a copy of the discipline taking the input rule into account
     d_copy = copy.deepcopy(discip)
@@ -358,24 +414,23 @@ def getOpinion(rule, discip, passfail, passfail_std, bez_point):
     """
     Description
     -----------
-    Calculate the discipline's opinion of the rule by using a Gaussian process
-    regressor to form perceptions of feasibility throughout the remaining
-    design space and using perceived infeasibility and feasibility to produce
-    two metrics.
+    Calculate the discipline's opinion of the rule with passing and failure
+    amount data and corresponding perceived infeasibility and feasibility to 
+    produce two metrics.
 
-    Parameters - FIX THESE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Parameters
     ----------
     rule : Sympy relational
         Either a sympy And or Or relational or a sympy inequality describing
         the input rule for which discipline is forming an opinion
     discip : Dictionary
         Contains all of the information relevant to the discipline
-    gpr_params : Dictionary
-        Additional keyword arguments for GPR model configuration. Common 
-        parameters include 'length_scale_bounds' for the RBF kernel
-        (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
-        (default: 0.00001). These parameters are used to control various
-        aspects of the GPR model, such as kernel properties and regularization
+    passfail : Dictionary
+        Predicted passing or failing amounts for each design space of
+        discipline considering a particular rule
+    passfail_std : Dictionary
+        Standard deviations associated with categorized passing or failing
+        amounts
     bez_point : Dictionary
         x and y coordinates of control points of quadratic Bezier curve
 
@@ -403,7 +458,7 @@ def getOpinion(rule, discip, passfail, passfail_std, bez_point):
     # Use weight of second metric to determine weight of first metric
     weight1 = 1 - weight2
     
-    # Calculation weighted opinion
+    # Calculate weighted opinion
     opinion = weight1*infeas_space + weight2*feas_space
     
     # Return properly weighted opinion
@@ -420,8 +475,8 @@ class mergeConstraints:
         Parameters
         ----------
         rules_new : List
-            Contains sympy Or relationals and/or inequalities for rules that
-            only consist of one argument
+            Contains sympy relationals and/or inequalities for rules that only
+            consist of one argument
         Discips : List of dictionaries
             Contains dictionaries with all of the information relevant to each
             discipline
@@ -457,11 +512,16 @@ class mergeConstraints:
 
         Returns
         -------
-        opinions : List of numpy arrays
-            The number of numpy arrays within the list coincides with each new
-            rule that is being proposed by the disciplines, and the number of
-            opinions within each array coincides with each discipline of the
-            design problem.
+        opinions : Dictionary
+            Each key in the dictionary corresponds with a rule being proposed,
+            and each value is a numpy array keeping track of the opinion that
+            each discipline has of the particular rule
+        passfail : Dictionary
+            Predicted passing or failure amounts for the non-reduced, reduced,
+            and leftover design spaces of each discipline for each rule
+        passfail_std : Dictionary
+            Standard deviations associated with the predicted passing or
+            failure amounts
         """
         
         # Initialize dictionaries with a list of numpy arrays for each rule
@@ -511,23 +571,34 @@ class mergeConstraints:
         proposed.  Dominance is naturally included in every rule proposal as
         each discipline is given veto power.  Vetoing is much easier early on
         but becomes more difficult later.
-
+        
         Parameters
         ----------
-        opinions : 
-            The number of numpy arrays within the list coincides with each new
-            rule that is being proposed by the disciplines, and the number of
-            opinions within each array coincides with each discipline of the
-            design problem.
+        opinions : Dictionary
+            Each key in the dictionary corresponds with a rule being proposed,
+            and each value is a numpy array keeping track of the opinion that
+            each discipline has of the particular rule
         irules_discip : List of integers
             Index of the discipline proposing a particular rule that coincides
             with the input rule list.
-
+        passfail : Dictionary
+            Predicted passing or failure amounts for the non-reduced, reduced,
+            and leftover design spaces of each discipline for each rule
+        passfail_std : Dictionary
+            Standard deviations associated with the predicted passing or
+            failure amounts
+        
         Returns
         -------
         rules_new : List
             Contains updated sympy Or relationals and/or inequalities for rules
             that only consist of one argument after enduring merging process.
+        passfail : Dictionary
+            Predicted passing or failure amounts for the non-reduced, reduced,
+            and leftover design spaces of each discipline of the new rule list
+        passfail_std : Dictionary
+            Standard deviations associated with the predicted passing or
+            failure amounts of the new rule list
         """
         
         # Make a set containing indices of rules to throw out
@@ -571,7 +642,7 @@ class mergeConstraints:
                     # Break the discipline loop and proceed to next rule
                     break
                     
-        # Remove passfail data of vetoed rule
+        # Remove passfail data of vetoed rule(s)
         for index in rules_delete:
             del passfail[self.rn[index]]
             del passfail_std[self.rn[index]]
