@@ -115,7 +115,7 @@ dtc_kwargs = {
     # Add other parameters as needed
 }
 
-# Parameters for Gaussian kernel when merging proposed constraints
+# Parameters for Gaussian kernel when forming perceptions of design space
 gpr_params = {
     'length_scale_bounds': (1e-2, 1e3),
     'alpha': 0.00001
@@ -133,12 +133,7 @@ bez_point = {
 
 # 
 
-
-
-
-
-
-# Parameters for Gaussian kernel of windfall_regret
+# Standard deviations when analyzing infeasibility!!!
 
 
 
@@ -196,6 +191,7 @@ irules_new = []
 irules_discip = []
 
 # Initialize dictionaries for windfall and regret calculations
+############################################################################### MIGHT NOT NEED ALL OR SOME OF THESE SOON
 passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} \
             for _ in Discips]
 passfail_std = [{"reduced": [], "non_reduced": [], "leftover":[]} \
@@ -296,10 +292,12 @@ while iters < iters_max:
         merger = mergeConstraints(irules_new, Discips, gpr_params, bez_point)
         
         # Have each discipline form an opinion on the rule
-        rule_opinions = merger.formOpinion()
+        rule_opinions, passfail, passfail_std = merger.formOpinion()
         
         # Determine if discipline can veto proposal or if dominance forces it
-        irules_new = merger.domDecision(rule_opinions, irules_discip)
+        irules_new, passfail, passfail_std = \
+            merger.domDecision(rule_opinions, irules_discip, 
+                               passfail, passfail_std)
         
     # Check up on new rules
     print("Universally proposed input rules: " + str(irules_new))
@@ -323,34 +321,34 @@ while iters < iters_max:
             ##### PROBABILITY-BASED #####
             
             # Initialize a windfall and regret object
-            windregret = windfallRegret(Discips, irules_new, passfail,
-                                        passfail_std, windreg, 
-                                        running_windfall, running_regret, 
-                                        net_windreg, risk_or_potential)
+            #windregret = windfallRegret(Discips, irules_new, passfail,
+                                        #passfail_std, windreg, 
+                                        #running_windfall, running_regret, 
+                                        #net_windreg, risk_or_potential)
             
             # Create training data from sampled locations and pass/fail amounts
-            x_train, y_train = windregret.trainData()
+            #x_train, y_train = windregret.trainData()
             
             # Create GPR from sampled locations and combined pass/fail amounts
-            gpr = windregret.initializeFit(x_train, y_train)
+            #gpr = windregret.initializeFit(x_train, y_train)
             
             # Predict pass/fail amounts for remaining points in each discipline
-            passfail, passfail_std = windregret.predictData(gpr)
+            #passfail, passfail_std = windregret.predictData(gpr)
             
             # Calculate windfall and regret for remaining design spaces
-            windreg, running_windfall, running_regret, net_windreg = \
-                windregret.calcWindRegret()
+            #windreg, running_windfall, running_regret, net_windreg = \
+                #windregret.calcWindRegret()
             
             # Quantify risk or potential of space reduction for each discipline
             ### A positive value means risk or potential is ADDED
             ### A negative value means risk or potential is REDUCED
-            risk_or_potential = windregret.quantRisk()
+            #risk_or_potential = windregret.quantRisk()
             
             # Plot windfall and regret for remaining design spaces
-            if iter_rem == 0 or iters > 0.99*iters_max:
-                windregret.plotWindRegret()
-                iter_rem = 8
-            iter_rem -= 1
+            # if iter_rem == 0 or iters > 0.99*iters_max:
+            #     windregret.plotWindRegret()
+            #     iter_rem = 8
+            # iter_rem -= 1
             
             
             

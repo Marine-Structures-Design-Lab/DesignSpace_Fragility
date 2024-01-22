@@ -14,6 +14,7 @@ import numpy as np
 import copy
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+from merge_constraints import sharedIndices, trainData, initializeFit
 from matplotlib.lines import Line2D
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
@@ -23,25 +24,8 @@ from point_sorter import sortPoints
 """
 FUNCTIONS
 """
-def sharedIndices(A, B):
-    
-    # Convert rows to tuples for set operations
-    A_rows = set(map(tuple, A))
-    B_rows = set(map(tuple, B))
-    
-    # Find rows in A that are not in B
-    diff_rows = A_rows - B_rows
-    
-    # Get indices of A for rows that are not in B
-    indices_not_in_B = [i for i, row in enumerate(A) if tuple(row) in diff_rows]
-    
-    # Get indices of A for rows that are in both A and B
-    indices_in_both = [i for i, row in enumerate(A) if tuple(row) not in diff_rows]
-    
-    # Get all indices of A
-    all_indices = list(range(len(A)))
-    
-    return all_indices, indices_in_both, indices_not_in_B
+
+
 
 
 """

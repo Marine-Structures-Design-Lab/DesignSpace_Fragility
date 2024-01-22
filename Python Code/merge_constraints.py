@@ -13,7 +13,6 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from point_sorter import sortPoints
-from windfall_regret import sharedIndices
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
@@ -25,6 +24,57 @@ import copy
 """
 TERTIARY FUNCTIONS
 """
+def sharedIndices(A, B):
+    """
+    Description
+    -----------
+    Analyzes a discipline without a proposed space reduction (A) and a
+    discipline with a proposed space reduction (B) and organizes the indices of
+    the points in the space remaining into lists for the non-reduced, reduced,
+    and leftover (eliminated) areas of the design space.
+
+    Parameters
+    ----------
+    A : Numpy array
+        Coordinates of remaining areas in the design space not including the
+        newly considered space reduction
+    B : Numpy array
+        Coordinates of remaining areas in the design space including the newly
+        considered space reduction
+
+    Returns
+    -------
+    all_indices : List
+        Indices of points in A (non-reduced design space)
+    indices_in_both : List
+        Indices of points in A that are also found in B (reduced design space)
+    indices_not_in_B : List
+        Indices of points in A that are not found in B (leftover design space /
+        area of the design space up for elimination)
+    """
+    
+    # Convert rows to tuples for set operations
+    A_rows = set(map(tuple, A))
+    B_rows = set(map(tuple, B))
+    
+    # Find rows in A that are not in B
+    diff_rows = A_rows - B_rows
+    
+    # Get indices of A for rows that are not in B
+    indices_not_in_B = \
+        [i for i, row in enumerate(A) if tuple(row) in diff_rows]
+    
+    # Get indices of A for rows that are in both A and B
+    indices_in_both = \
+        [i for i, row in enumerate(A) if tuple(row) not in diff_rows]
+    
+    # Get all indices of A
+    all_indices = list(range(len(A)))
+    
+    # Return each list of indices
+    return all_indices, indices_in_both, indices_not_in_B
+
+
 def trainData(discip):
     """
     Description
@@ -106,50 +156,6 @@ def initializeFit(discip, x_train, y_train, **kwargs):
     
     # Return trained GPR
     return gpr_model
-
-
-def predictData(discip, gpr, diction):
-    """
-    Description
-    -----------
-    Predicts pass or fail amounts for unexplored areas of the discretized space
-    remaining from the trained GPR.
-
-    Parameters
-    ----------
-    discip : Dictionary
-        Contains all of the information relevant to the discipline
-    gpr : GaussianProcessRegressor
-        A trained GPR model
-    diction : Dictionary
-        Keeps track of the indices for the non-reduced, reduced, and leftover
-        design spaces for a particular set of new input rule(s)
-
-    Returns
-    -------
-    passfail : Dictionary
-        Predicted pass or fail amounts.  A negative value up to 1 is failing.  
-        A positive value up to 1 is passing.
-    passfail_std : Dictionary
-        Standard deviations of predicted pass or fail amounts.
-    """
-    
-    # Test GPR at each point remaining of non-reduced matrix
-    means, stddevs = gpr.predict(discip['space_remaining'], return_std=True)
-    
-    # Initialize dictionaries
-    passfail = {}
-    passfail_std = {}
-    
-    # Loop through each list of indices in dictionary
-    for key in diction:
-        
-        # Assign predicted data to proper dictionary key
-        passfail[key] = means[diction[key]]
-        passfail_std[key] = stddevs[diction[key]]
-        
-    # Return predicted passing and failing dictionaries with newest tests
-    return passfail, passfail_std
 
 
 def analyzeInfeasibility(predictions, std_devs):
@@ -301,7 +307,54 @@ def bezierPoint(m1, **kwargs):
 """
 SECONDARY FUNCTIONS
 """
-def getOpinion(rule, discip, gpr_params, bez_point):
+def getPerceptions(discip, gpr_params):
+    
+    # Initialize data for training a GPR
+    x_train, y_train = trainData(discip)
+    
+    # Train GPR
+    gpr = initializeFit(discip, x_train, y_train, **gpr_params)
+    
+    # Predict passfail data at every point in non-reduced design space
+    pf_mean, pf_std = gpr.predict(discip['space_remaining'], return_std=True)
+    
+    # Return trained GPR
+    return pf_mean, pf_std
+
+
+def getPredictions(discip, rule, pf_mean, pf_std):
+    
+    # Make a copy of the discipline taking the input rule into account
+    d_copy = copy.deepcopy(discip)
+    
+    # Add values to eliminated section of discipline copy for new input rule
+    d_copy = sortPoints([d_copy], [rule])
+    
+    # Create different index lists based on new input rule
+    all_indices, indices_in_both, indices_not_in_B = \
+        sharedIndices(discip['space_remaining'], d_copy[0]['space_remaining'])
+    
+    # Add each list to a different dictionary key
+    diction = {"non_reduced": all_indices, 
+               "reduced": indices_in_both, 
+               "leftover": indices_not_in_B}
+    
+    # Initialize passfail dictionaries
+    passfail = {}
+    passfail_std = {}
+    
+    # Loop through each list of indices in dictionary
+    for key in diction:
+        
+        # Assign predicted data to proper dictionary key
+        passfail[key] = pf_mean[diction[key]]
+        passfail_std[key] = pf_std[diction[key]]
+    
+    # Return passfail data for the rule
+    return passfail, passfail_std
+
+
+def getOpinion(rule, discip, passfail, passfail_std, bez_point):
     """
     Description
     -----------
@@ -310,7 +363,7 @@ def getOpinion(rule, discip, gpr_params, bez_point):
     design space and using perceived infeasibility and feasibility to produce
     two metrics.
 
-    Parameters
+    Parameters - FIX THESE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ----------
     rule : Sympy relational
         Either a sympy And or Or relational or a sympy inequality describing
@@ -334,30 +387,6 @@ def getOpinion(rule, discip, gpr_params, bez_point):
         favorable opinion of the rule
     """
     
-    # Make a copy of the discipline taking the input rule into account
-    d_copy = copy.deepcopy(discip)
-    
-    # Add values to eliminated section of discipline copy for new input rule
-    d_copy = sortPoints([d_copy], [rule])
-    
-    # Create different index lists based on new input rule
-    all_indices, indices_in_both, indices_not_in_B = \
-        sharedIndices(discip['space_remaining'], d_copy[0]['space_remaining'])
-    
-    # Add each list to a different dictionary key
-    diction = {"non_reduced": all_indices, 
-               "reduced": indices_in_both, 
-               "leftover": indices_not_in_B}
-    
-    # Initialize data for training a GPR
-    x_train, y_train = trainData(discip)
-    
-    # Train GPR without noise
-    gpr = initializeFit(discip, x_train, y_train, **gpr_params)
-    
-    # Predict GPR at points in various space remaining indices
-    passfail, passfail_std = predictData(discip, gpr, diction)
-    
     # Metric 1: Am I get ridding of clearly infeasible space?
     infeas_space = analyzeInfeasibility(passfail['leftover'], 
                                         passfail_std['leftover'])
@@ -374,8 +403,11 @@ def getOpinion(rule, discip, gpr_params, bez_point):
     # Use weight of second metric to determine weight of first metric
     weight1 = 1 - weight2
     
-    # Return properly weighted opinion from metrics
-    return weight1*infeas_space + weight2*feas_space
+    # Calculation weighted opinion
+    opinion = weight1*infeas_space + weight2*feas_space
+    
+    # Return properly weighted opinion
+    return opinion
 
 
 """
@@ -432,14 +464,23 @@ class mergeConstraints:
             design problem.
         """
         
-        # Initialize a nested numpy array for opinions of each rule
-        opinions = [np.ones(len(self.D)) for _ in self.rn]
+        # Initialize dictionaries with a list of numpy arrays for each rule
+        opinions = {rule: np.ones(len(self.D)) for rule in self.rn}
+        passfail = {rule: [None for _ in self.D] for rule in self.rn}
+        passfail_std = {rule: [None for _ in self.D] for rule in self.rn}
         
-        # Loop through each new rule being proposed
-        for i, rule in enumerate(self.rn):
+        # Loop through each discipline
+        for i, discip in enumerate(self.D):
             
-            # Loop through each discipline
-            for j, discip in enumerate(self.D):
+            # Get perceptions of feasibility in the non-reduced design space
+            pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
+            
+            # Loop through each new rule being proposed
+            for j, rule in enumerate(self.rn):
+                
+                # Get predictions for different design spaces of the rule
+                passfail[rule][i], passfail_std[rule][i] = \
+                    getPredictions(discip, rule, pf_mean, pf_std)
                 
                 # Get free variables of the rule
                 rule_vars = rule.free_symbols
@@ -447,21 +488,22 @@ class mergeConstraints:
                 # Assign nan if discipline is not directly affected by rule
                 if rule_vars <= set(discip['ins']): pass
                 else: 
-                    opinions[i][j] = np.nan
+                    opinions[rule][i] = np.nan
                     continue
                 
                 # Get opinion of discipline directly affected by rule
-                opinions[i][j] = getOpinion(rule, discip, self.gpr_params, 
+                opinions[rule][i] = getOpinion(rule, discip, passfail[rule][i], 
+                                            passfail_std[rule][i], 
                                             self.bez_point)
-        
+                
         # Display formed opinions
         print("Opinions: " + str(opinions))
                 
-        # Return the opinions of each rule from each discipline
-        return opinions
+        # Return the opinions of each rule and passfail data
+        return opinions, passfail, passfail_std
     
     
-    def domDecision(self, rule_opinions, irules_discip):
+    def domDecision(self, opinions, irules_discip, passfail, passfail_std):
         """
         Description
         -----------
@@ -472,7 +514,7 @@ class mergeConstraints:
 
         Parameters
         ----------
-        rule_opinions : List of numpy arrays
+        opinions : 
             The number of numpy arrays within the list coincides with each new
             rule that is being proposed by the disciplines, and the number of
             opinions within each array coincides with each discipline of the
@@ -501,27 +543,27 @@ class mergeConstraints:
             for j, discip in enumerate(self.D):
                 
                 # Continue to next discipline if it has no opinion on rule
-                if np.isnan(rule_opinions[i][j]): continue
+                if np.isnan(opinions[rule][j]): continue
                 
                 # Add discipline's failure criterion to failure critieria set
                 fail_crit.add(discip['part_params']['fail_crit'][0])
             
             # Loop through each discipline's opinion
-            for j, discip in enumerate(rule_opinions[i]):
+            for j, discip in enumerate(opinions[rule]):
                 
                 # Determine threshold for throwing out the rule
                 ### Opinion of the discipline proposing the rule minus the max
                 ### fail criterion value for all of the disciplines involved
-                threshold = rule_opinions[i][irules_discip[i]] - max(fail_crit)
+                threshold = opinions[rule][irules_discip[i]] - max(fail_crit)
                 
                 # If discipline is proposing rule, continue to next discipline
                 if j == irules_discip[i]: continue
                 
                 # If discipline has no opinion, continue to next discipline
-                if np.isnan(rule_opinions[i][j]): continue
+                if np.isnan(opinions[rule][j]): continue
                 
                 # Check if discipline's opinion warrants throwing the rule out
-                if rule_opinions[i][j] < threshold:
+                if opinions[rule][j] < threshold:
                     
                     # Add index of rule to the rule deletion list
                     rules_delete.add(i)
@@ -529,11 +571,16 @@ class mergeConstraints:
                     # Break the discipline loop and proceed to next rule
                     break
                     
+        # Remove passfail data of vetoed rule
+        for index in rules_delete:
+            del passfail[self.rn[index]]
+            del passfail_std[self.rn[index]]
+        
         # Remove vetoed rules from the input rule list
         self.rn = [item for idx, item in enumerate(self.rn) \
                    if idx not in rules_delete]
         
-        # Return updated rule list which is potentially condensed
-        return self.rn
+        # Return updated rule list and passfail data
+        return self.rn, passfail, passfail_std
     
     

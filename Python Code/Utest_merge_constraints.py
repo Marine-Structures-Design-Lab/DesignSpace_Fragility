@@ -11,7 +11,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from merge_constraints import mergeConstraints, trainData, initializeFit, \
-    predictData, analyzeInfeasibility, analyzeFeasibility, bezierPoint
+    analyzeInfeasibility, analyzeFeasibility, bezierPoint
 import unittest
 import numpy as np
 import sympy as sp
