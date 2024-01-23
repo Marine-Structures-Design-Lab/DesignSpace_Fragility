@@ -186,22 +186,13 @@ plotExponential(exp_parameters)
 irules_new = []
 irules_discip = []
 
-# Initialize dictionaries for windfall and regret calculations
-############################################################################### MIGHT NOT NEED ALL OR SOME OF THESE SOON
-passfail = [{"reduced": [], "non_reduced": [], "leftover":[]} \
-            for _ in Discips]
-passfail_std = [{"reduced": [], "non_reduced": [], "leftover":[]} \
-                for _ in Discips]
-windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} \
-           for _ in Discips]
-running_windfall = [{"reduced": [], "non_reduced": [], "leftover":[]} \
-                    for _ in Discips]
-running_regret = [{"reduced": [], "non_reduced": [], "leftover":[]} \
-                  for _ in Discips]
-net_windreg = [{"reduced": [], "non_reduced": [], "leftover":[]} \
-               for _ in Discips]
-risk_or_potential = [{"regret": [], "windfall": [], "net": []} \
-                     for _ in Discips]
+# Initialize lists for windfall and regret calculations
+passfail = []
+passfail_std = []
+windreg = []
+running_windfall = []
+running_regret = []
+risk_or_potential = []
 
 # Initialize dictionaries for KDEs of fragility check ######################### MIGHT NOT NEED THESE FOR IMDC
 # KDE_data = [{} for _ in Discips]
@@ -288,13 +279,19 @@ while iters < iters_max:
         merger = mergeConstraints(irules_new, Discips, gpr_params, bez_point)
         
         # Have each discipline form an opinion on the rule
-        rule_opinions, passfail, passfail_std = merger.formOpinion()
+        rule_opinions, pf, pf_std = merger.formOpinion()
         
         # Determine if discipline can veto proposal or if dominance forces it
-        irules_new, passfail, passfail_std = \
-            merger.domDecision(rule_opinions, irules_discip, 
-                               passfail, passfail_std)
+        irules_new, pf, pf_std = \
+            merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
         
+        # Append passfail data and time iteration to list if still proposed
+        if irules_new:
+            passfail.append(copy.deepcopy(pf))
+            passfail_std.append(copy.deepcopy(pf_std))
+            passfail[-1]['time'] = iters
+            passfail_std[-1]['time'] = iters
+            
     # Check up on new rules
     print("Universally proposed input rules: " + str(irules_new))
     
@@ -310,30 +307,15 @@ while iters < iters_max:
         # Run a fragility assessment if desired and while the fragility counter
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
-            
-            
-            ########## FUTURE INFORMATION CHECKS ##########
+
             
             ##### PROBABILITY-BASED #####
             
             # Initialize a windfall and regret object
-            #windregret = windfallRegret(Discips, irules_new, passfail,
-                                        #passfail_std, windreg, 
-                                        #running_windfall, running_regret, 
-                                        #net_windreg, risk_or_potential)
-            
-            # Create training data from sampled locations and pass/fail amounts
-            #x_train, y_train = windregret.trainData()
-            
-            # Create GPR from sampled locations and combined pass/fail amounts
-            #gpr = windregret.initializeFit(x_train, y_train)
-            
-            # Predict pass/fail amounts for remaining points in each discipline
-            #passfail, passfail_std = windregret.predictData(gpr)
+            windregret = windfallRegret(Discips, irules_new, pf, pf_std)
             
             # Calculate windfall and regret for remaining design spaces
-            #windreg, running_windfall, running_regret, net_windreg = \
-                #windregret.calcWindRegret()
+            wr, run_wind, run_reg = windregret.calcWindRegret()
             
             # Quantify risk or potential of space reduction for each discipline
             ### A positive value means risk or potential is ADDED
