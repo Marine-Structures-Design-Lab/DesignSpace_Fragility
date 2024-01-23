@@ -10,8 +10,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from merge_constraints import mergeConstraints, trainData, initializeFit, \
-    analyzeInfeasibility, analyzeFeasibility, bezierPoint
+from merge_constraints import mergeConstraints, sharedIndices, trainData, \
+    analyzeInfeasibility, analyzeFeasibility, bezierPoint, getPredictions
 import unittest
 import numpy as np
 import sympy as sp
@@ -80,6 +80,48 @@ class test_merge_constraints(unittest.TestCase):
             }
     
     
+    def test_shared_indices(self):
+        """
+        Unit tests for sharedIndices function
+        """
+        
+        # Test for proper results when no common elements between A and B
+        A = np.array([[1, 2], [3, 4]])
+        B = np.array([[5, 6], [7, 8]])
+        expected = ([0, 1], [], [0, 1])
+        self.assertEqual(sharedIndices(A, B), expected)
+        
+        # Test for proper results when A and B are identical
+        A = np.array([[1, 2], [3, 4]])
+        B = np.array([[1, 2], [3, 4]])
+        expected = ([0, 1], [0, 1], [])
+        self.assertEqual(sharedIndices(A, B), expected)
+        
+        # Test for proper results when some common elements between A and B
+        A = np.array([[1, 2], [3, 4], [5, 6]])
+        B = np.array([[3, 4], [7, 8]])
+        expected = ([0, 1, 2], [1], [0, 2])
+        self.assertEqual(sharedIndices(A, B), expected)
+        
+        # Test for proper results when A is empty
+        A = np.array([])
+        B = np.array([[1, 2], [3, 4]])
+        expected = ([], [], [])
+        self.assertEqual(sharedIndices(A, B), expected)
+        
+        # Test for proper results when B is empty
+        A = np.array([[1, 2], [3, 4]])
+        B = np.array([])
+        expected = ([0, 1], [], [0, 1])
+        self.assertEqual(sharedIndices(A, B), expected)
+        
+        # Test for proper results when both are empty
+        A = np.array([])
+        B = np.array([])
+        expected = ([], [], [])
+        self.assertEqual(sharedIndices(A, B), expected)
+        
+    
     def test_train_data(self):
         """
         Unit tests for trainData function
@@ -110,68 +152,6 @@ class test_merge_constraints(unittest.TestCase):
         # Test that function is also gathering eliminated data if it exists
         np.testing.assert_array_almost_equal(xtrain2, exp_xtrain2)
         np.testing.assert_array_almost_equal(ytrain2, exp_ytrain2)
-    
-    
-    def test_predict_data(self):
-        """
-        Unit tests for predictData function
-        """
-        
-        # Organize x and y training data for both disciplines
-        xtrain1, ytrain1 = trainData(self.Discip1)
-        xtrain2, ytrain2 = trainData(self.Discip2)
-        
-        # Fit a GPR for both sets of training data
-        gpr1 = initializeFit(self.Discip1, xtrain1, ytrain1)
-        gpr2 = initializeFit(self.Discip2, xtrain2, ytrain2)
-        
-        # Establish indices for non-reduced, reduced, and leftover space
-        diction1 = {
-            "non_reduced": [0, 1, 2, 3, 4, 5],
-            "reduced": [0, 1, 2, 5],
-            "leftover": [3, 4]
-            }
-        diction2 = {
-            "non_reduced": [0, 1, 2, 3, 4],
-            "reduced": [0, 1, 3],
-            "leftover": [1, 3]
-            }
-        
-        # Predict pass or fail amounts in space remaining of both disciplines
-        passfail1, passfail_std1 = predictData(self.Discip1, gpr1, diction1)
-        passfail2, passfail_std2 = predictData(self.Discip2, gpr2, diction2)
-        
-        # Determine expected size of passfail arrays for each discipline
-        exp_passfail1_non = (6,)
-        exp_passfail1_red = (4,)
-        exp_passfail1_left = (2,)
-        exp_passfailstd1_non = (6,)
-        exp_passfailstd1_red = (4,)
-        exp_passfailstd1_left = (2,)
-        exp_passfail2_non = (5,)
-        exp_passfail2_red = (3,)
-        exp_passfail2_left = (2,)
-        exp_passfailstd2_non = (5,)
-        exp_passfailstd2_red = (3,)
-        exp_passfailstd2_left = (2,)
-        
-        # Test that expected and actual array sizes match up
-        self.assertEqual(passfail1['non_reduced'].shape, exp_passfail1_non)
-        self.assertEqual(passfail1['reduced'].shape, exp_passfail1_red)
-        self.assertEqual(passfail1['leftover'].shape, exp_passfail1_left)
-        self.assertEqual(passfail_std1['non_reduced'].shape, \
-                         exp_passfailstd1_non)
-        self.assertEqual(passfail_std1['reduced'].shape, exp_passfailstd1_red)
-        self.assertEqual(passfail_std1['leftover'].shape, \
-                         exp_passfailstd1_left)
-        self.assertEqual(passfail2['non_reduced'].shape, exp_passfail2_non)
-        self.assertEqual(passfail2['reduced'].shape, exp_passfail2_red)
-        self.assertEqual(passfail2['leftover'].shape, exp_passfail2_left)
-        self.assertEqual(passfail_std2['non_reduced'].shape, \
-                         exp_passfailstd2_non)
-        self.assertEqual(passfail_std2['reduced'].shape, exp_passfailstd2_red)
-        self.assertEqual(passfail_std2['leftover'].shape, \
-                         exp_passfailstd2_left)
     
     
     def test_analyze_infeasibility(self):
@@ -254,6 +234,111 @@ class test_merge_constraints(unittest.TestCase):
         self.assertIsNone(y)
     
     
+    def test_get_predictions(self):
+        """
+        Unit tests for getPredictions function
+        """
+        
+        # Initialize symbols
+        x = sp.symbols('x1:5')
+        
+        # Create new rules
+        rule1 = x[0] > 0.5
+        rule2 = sp.Or(x[1]<0.2, x[3]>0.5)
+        
+        # Initialize passfail data for non-reduced space of both disciplines
+        pf1 = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+        pf_std1 = np.array([0.15, 0.25, 0.35, 0.45, 0.55, 0.65])
+        pf2 = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+        pf_std2 = np.array([0.15, 0.25, 0.35, 0.45, 0.55])
+        
+        # Execute function with established data
+        passfail1, passfail_std1 = getPredictions(self.Discip1, rule1, pf1,
+                                                  pf_std1)
+        passfail2, passfail_std2 = getPredictions(self.Discip2, rule2, pf2,
+                                                  pf_std2)
+        
+        # Determine expected passfail and standard deviation dictionaries
+        exp_passfail1 = {
+            'non_reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]),
+            'reduced': np.array([0.3, 0.5]),
+            'leftover': np.array([0.1, 0.2, 0.4, 0.6])
+            }
+        exp_passfail_std1 = {
+            'non_reduced': np.array([0.15, 0.25, 0.35, 0.45, 0.55, 0.65]),
+            'reduced': np.array([0.35, 0.55]),
+            'leftover': np.array([0.15, 0.25, 0.45, 0.65])
+            }
+        exp_passfail2 = {
+            'non_reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5]),
+            'reduced': np.array([0.4]),
+            'leftover': np.array([0.1, 0.2, 0.3, 0.5])
+            }
+        exp_passfail_std2 = {
+            'non_reduced': np.array([0.15, 0.25, 0.35, 0.45, 0.55]),
+            'reduced': np.array([0.45]),
+            'leftover': np.array([0.15, 0.25, 0.35, 0.55])
+            }
+        
+        # Check that expected passfail dictionaries align with actual ones
+        self.assertEqual(passfail1.keys(), exp_passfail1.keys())
+        self.assertEqual(passfail_std1.keys(), exp_passfail_std1.keys())
+        self.assertEqual(passfail2.keys(), exp_passfail2.keys())
+        self.assertEqual(passfail_std2.keys(), exp_passfail_std2.keys())
+        for key in passfail1:
+            np.testing.assert_array_almost_equal(passfail1[key],
+                                                 exp_passfail1[key])
+            np.testing.assert_array_almost_equal(passfail_std1[key],
+                                                 exp_passfail_std1[key])
+            np.testing.assert_array_almost_equal(passfail2[key],
+                                                 exp_passfail2[key])
+            np.testing.assert_array_almost_equal(passfail_std2[key],
+                                                 exp_passfail_std2[key])
+        
+        # Execute function again with established data
+        passfail1, passfail_std1 = getPredictions(self.Discip1, rule2, pf1,
+                                                  pf_std1)
+        passfail2, passfail_std2 = getPredictions(self.Discip2, rule1, pf2,
+                                                  pf_std2)
+        
+        # Determine expected passfail and standard deviation dictionaries
+        exp_passfail1 = {
+            'non_reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]),
+            'reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]),
+            'leftover': np.array([])
+            }
+        exp_passfail_std1 = {
+            'non_reduced': np.array([0.15, 0.25, 0.35, 0.45, 0.55, 0.65]),
+            'reduced': np.array([0.15, 0.25, 0.35, 0.45, 0.55, 0.65]),
+            'leftover': np.array([])
+            }
+        exp_passfail2 = {
+            'non_reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5]),
+            'reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5]),
+            'leftover': np.array([])
+            }
+        exp_passfail_std2 = {
+            'non_reduced': np.array([0.15, 0.25, 0.35, 0.45, 0.55]),
+            'reduced': np.array([0.15, 0.25, 0.35, 0.45, 0.55]),
+            'leftover': np.array([])
+            }
+        
+        # Check that expected passfail dictionaries align with actual ones
+        self.assertEqual(passfail1.keys(), exp_passfail1.keys())
+        self.assertEqual(passfail_std1.keys(), exp_passfail_std1.keys())
+        self.assertEqual(passfail2.keys(), exp_passfail2.keys())
+        self.assertEqual(passfail_std2.keys(), exp_passfail_std2.keys())
+        for key in passfail1:
+            np.testing.assert_array_almost_equal(passfail1[key],
+                                                 exp_passfail1[key])
+            np.testing.assert_array_almost_equal(passfail_std1[key],
+                                                 exp_passfail_std1[key])
+            np.testing.assert_array_almost_equal(passfail2[key],
+                                                 exp_passfail2[key])
+            np.testing.assert_array_almost_equal(passfail_std2[key],
+                                                 exp_passfail_std2[key])
+        
+        
     def test_form_opinion(self):
         """
         Unit tests for formOpinion method
@@ -274,27 +359,31 @@ class test_merge_constraints(unittest.TestCase):
                                    {}, {})
         
         # Form opinions for the set of new rules
-        opinions = cmerger.formOpinion()
+        opinions, passfail, passfail_std = cmerger.formOpinion()
         
         # Ensure opinion has nan only if not impacted by rule
-        self.assertFalse(np.isnan(opinions[0][0]))
-        self.assertTrue(np.isnan(opinions[0][1]))
-        self.assertFalse(np.isnan(opinions[1][0]))
-        self.assertFalse(np.isnan(opinions[1][1]))
-        self.assertTrue(np.isnan(opinions[2][0]))
-        self.assertFalse(np.isnan(opinions[2][1]))
-        self.assertFalse(np.isnan(opinions[3][0]))
-        self.assertTrue(np.isnan(opinions[3][1]))
-        self.assertFalse(np.isnan(opinions[4][0]))
-        self.assertFalse(np.isnan(opinions[4][1]))
+        self.assertFalse(np.isnan(opinions[rules_new[0]][0]))
+        self.assertTrue(np.isnan(opinions[rules_new[0]][1]))
+        self.assertFalse(np.isnan(opinions[rules_new[1]][0]))
+        self.assertFalse(np.isnan(opinions[rules_new[1]][1]))
+        self.assertTrue(np.isnan(opinions[rules_new[2]][0]))
+        self.assertFalse(np.isnan(opinions[rules_new[2]][1]))
+        self.assertFalse(np.isnan(opinions[rules_new[3]][0]))
+        self.assertTrue(np.isnan(opinions[rules_new[3]][1]))
+        self.assertFalse(np.isnan(opinions[rules_new[4]][0]))
+        self.assertFalse(np.isnan(opinions[rules_new[4]][1]))
         
-        # Ensure 5 sets of opinions are formed
+        # Ensure 5 sets of opinions and passfail data are formed
         self.assertEqual(len(opinions), 5)
+        self.assertEqual(len(passfail), 5)
+        self.assertEqual(len(passfail_std), 5)
         
-        # Ensure each set has opinions from two disciplines
+        # Ensure each set has opinions and passfail data from two disciplines
         for op in opinions:
-            self.assertEqual(op.shape, (2,))
-    
+            self.assertEqual(opinions[op].shape, (2,))
+            self.assertEqual(len(passfail[op]), 2)
+            self.assertEqual(len(passfail_std[op]), 2)
+        
     
     def test_dom_decisions(self):
         """
@@ -319,18 +408,147 @@ class test_merge_constraints(unittest.TestCase):
         irules_discip = [0, 1, 1, 0, 1]
         
         # Create opinions for the new set of rules
-        opinions = [np.array([0.8, np.nan]),
-                    np.array([0.5, 0.9]),
-                    np.array([np.nan, 0.2]),
-                    np.array([1.0, np.nan]),
-                    np.array([1.0, 0.05])]
+        opinions = {
+            rules_new[0]: np.array([0.8, np.nan]),
+            rules_new[1]: np.array([0.5, 0.9]),
+            rules_new[2]: np.array([np.nan, 0.2]),
+            rules_new[3]: np.array([1.0, np.nan]),
+            rules_new[4]: np.array([1.0, 0.05])
+            }
         
         # Establish initial failure criteria parameter for each discipline
         self.Discip1['part_params'] = {'fail_crit': [0.0, 0.05]}
         self.Discip2['part_params'] = {'fail_crit': [0.1, 0.05]}
         
+        # Create passfail data for the rules
+        passfail = {
+            rules_new[0]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[1]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[2]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[3]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[4]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ]
+            }
+        passfail_std = {
+            rules_new[0]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[1]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[2]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[3]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[4]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ]
+            }
+        
         # Run domDecision method
-        rules_new = cmerger.domDecision(opinions, irules_discip)
+        rules_new, passfail, passfail_std = \
+            cmerger.domDecision(opinions,irules_discip,passfail,passfail_std)
         
         # Establish expected rule list
         exp_rules_new = [x[0]>0.5,
@@ -340,6 +558,20 @@ class test_merge_constraints(unittest.TestCase):
         
         # Ensure proper rule(s) are being thrown out
         self.assertListEqual(rules_new, exp_rules_new)
+        
+        # Ensure proper passfail data is being thrown out
+        self.assertEqual(len(passfail), 4)
+        self.assertEqual(len(passfail_std), 4)
+        self.assertIn(x[0]>0.5, passfail)
+        self.assertIn(x[0]>0.5, passfail_std)
+        self.assertNotIn(sp.Or(x[1]<0.2, x[2]>=0.8), passfail)
+        self.assertNotIn(sp.Or(x[1]<0.2, x[2]>=0.8), passfail_std)
+        self.assertIn(sp.And(x[3]>0.2,x[3]<0.6), passfail)
+        self.assertIn(sp.And(x[3]>0.2,x[3]<0.6), passfail_std)
+        self.assertIn(sp.Or(x[0]>0.8, x[2]<0.9), passfail)
+        self.assertIn(sp.Or(x[0]>0.8, x[2]<0.9), passfail_std)
+        self.assertIn(x[2]>0.5, passfail)
+        self.assertIn(x[2]>0.5, passfail_std)
         
         # Re-establish list of rules
         rules_new = [x[0]>0.5, 
@@ -356,8 +588,135 @@ class test_merge_constraints(unittest.TestCase):
         self.Discip1['part_params'] = {'fail_crit': [0.9, 0.05]}
         self.Discip2['part_params'] = {'fail_crit': [0.35, 0.05]}
         
+        # Recreate passfail data for the rules
+        passfail = {
+            rules_new[0]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[1]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[2]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[3]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[4]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ]
+            }
+        passfail_std = {
+            rules_new[0]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[1]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[2]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[3]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ],
+            rules_new[4]: [
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    },
+                {
+                    'non_reduced': np.array([]),
+                    'reduced': np.array([]),
+                    'leftover': np.array([])
+                    }
+                ]
+            }
+        
         # Run domDecision method
-        rules_new = cmerger.domDecision(opinions, irules_discip)
+        rules_new, passfail, passfail_std = \
+            cmerger.domDecision(opinions,irules_discip,passfail,passfail_std)
         
         # Establish expected rule list
         exp_rules_new = [x[0]>0.5, 
@@ -368,6 +727,20 @@ class test_merge_constraints(unittest.TestCase):
         
         # Ensure proper rule(s) are being thrown out
         self.assertListEqual(rules_new, exp_rules_new)
+        
+        # Ensure proper passfail data is being thrown out
+        self.assertEqual(len(passfail), 5)
+        self.assertEqual(len(passfail_std), 5)
+        self.assertIn(x[0]>0.5, passfail)
+        self.assertIn(x[0]>0.5, passfail_std)
+        self.assertIn(sp.Or(x[1]<0.2, x[2]>=0.8), passfail)
+        self.assertIn(sp.Or(x[1]<0.2, x[2]>=0.8), passfail_std)
+        self.assertIn(sp.And(x[3]>0.2,x[3]<0.6), passfail)
+        self.assertIn(sp.And(x[3]>0.2,x[3]<0.6), passfail_std)
+        self.assertIn(sp.Or(x[0]>0.8, x[2]<0.9), passfail)
+        self.assertIn(sp.Or(x[0]>0.8, x[2]<0.9), passfail_std)
+        self.assertIn(x[2]>0.5, passfail)
+        self.assertIn(x[2]>0.5, passfail_std)
         
     
 """
