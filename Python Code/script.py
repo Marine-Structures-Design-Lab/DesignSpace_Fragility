@@ -281,6 +281,11 @@ while iters < iters_max:
         # Have each discipline form an opinion on the rule
         rule_opinions, pf, pf_std = merger.formOpinion()
         
+        # Form an OVERALL opinion based on rules being considered together???
+        ### Don't think this is necessary right now because reasonable enough of space
+        ### reductions are being proposed - and then fragility should be able to
+        ### catch any combined rules that make a design space particularly vulnerable
+        
         # Determine if discipline can veto proposal or if dominance forces it
         irules_new, pf, pf_std = \
             merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
@@ -310,12 +315,16 @@ while iters < iters_max:
             
             
             ##### PROBABILITY-BASED #####
+            # Consider all rules together first
+            # Then consider rules separately if too fragile a design space?
+            # NEED TO DO EACH COMBINATION OF INPUT RULES!!!
+            ### SAVE THE INPUT RULE LOOPING FOR OUT HERE!!!
             
             # Initialize a windfall and regret object
             windregret = windfallRegret(Discips, irules_new, pf, pf_std)
             
             # Calculate windfall and regret for remaining design spaces
-            wr, run_wind, run_reg = windregret.calcWindRegret()
+            wr, run_wind, run_reg = windregret.calcWindRegret() # CHANGE THIS!!!
             windreg.append(copy.deepcopy(wr))
             running_windfall.append(copy.deepcopy(run_wind))
             running_regret.append(copy.deepcopy(run_reg))
@@ -324,15 +333,15 @@ while iters < iters_max:
             running_regret[-1]['time'] = iters
             
             # Quantify risk or potential of space reduction for each discipline
-            ### A positive value means risk or potential is ADDED
-            ### A negative value means risk or potential is REDUCED
+            ### Positive value means potential for regret or windfall ADDED
+            ### Negative value means potential for regret or windfall REDUCED
             ris = windregret.quantRisk(run_wind, run_reg)
             risk.append(copy.deepcopy(ris))
             risk[-1]['time'] = iters
             
             # Plot windfall and regret for remaining design spaces
             # if iter_rem == 0 or iters > 0.99*iters_max:
-            #     windregret.plotWindRegret()
+            #     windregret.plotWindRegret(wr)
             #     iter_rem = 8
             # iter_rem -= 1
             

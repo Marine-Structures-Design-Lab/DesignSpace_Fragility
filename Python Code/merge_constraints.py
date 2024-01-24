@@ -381,6 +381,8 @@ def getPredictions(discip, rule, pf_mean, pf_std):
     """
     
     # Make a copy of the discipline taking the input rule into account
+    # DO THIS AGAIN BUT TAKING ALL OF THE INPUT RULES INTO ACCOUNT TOGETHER? -
+    # OR MAYBE I CAN GET THIS FLEXIBILITY VIA THE SCRIPT!!!
     d_copy = copy.deepcopy(discip)
     
     # Add values to eliminated section of discipline copy for new input rule

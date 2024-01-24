@@ -198,10 +198,10 @@ class windfallRegret:
     
     
     # Surfaces are temporary and may need adjustment to fit other SBD problems
-    def plotWindRegret(self):
+    def plotWindRegret(self, windreg):
         
         # Loop through each discipline's windfall-regret values
-        for ind1, d in enumerate(self.windreg):
+        for ind1, d in enumerate(windreg):
             
             # Print percent of space that would remain in discipline
             print(f"Discipline {ind1+1} would go from "
