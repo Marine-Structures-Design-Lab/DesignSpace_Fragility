@@ -192,7 +192,7 @@ passfail_std = []
 windreg = []
 running_windfall = []
 running_regret = []
-risk_or_potential = []
+risk = []
 
 # Initialize dictionaries for KDEs of fragility check ######################### MIGHT NOT NEED THESE FOR IMDC
 # KDE_data = [{} for _ in Discips]
@@ -307,7 +307,7 @@ while iters < iters_max:
         # Run a fragility assessment if desired and while the fragility counter
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
-
+            
             
             ##### PROBABILITY-BASED #####
             
@@ -316,11 +316,19 @@ while iters < iters_max:
             
             # Calculate windfall and regret for remaining design spaces
             wr, run_wind, run_reg = windregret.calcWindRegret()
+            windreg.append(copy.deepcopy(wr))
+            running_windfall.append(copy.deepcopy(run_wind))
+            running_regret.append(copy.deepcopy(run_reg))
+            windreg[-1]['time'] = iters
+            running_windfall[-1]['time'] = iters
+            running_regret[-1]['time'] = iters
             
             # Quantify risk or potential of space reduction for each discipline
             ### A positive value means risk or potential is ADDED
             ### A negative value means risk or potential is REDUCED
-            #risk_or_potential = windregret.quantRisk()
+            ris = windregret.quantRisk(run_wind, run_reg)
+            risk.append(copy.deepcopy(ris))
+            risk[-1]['time'] = iters
             
             # Plot windfall and regret for remaining design spaces
             # if iter_rem == 0 or iters > 0.99*iters_max:
