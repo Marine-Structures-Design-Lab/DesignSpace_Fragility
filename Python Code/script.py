@@ -126,7 +126,7 @@ gpr_params = {
 # constraints
 bez_point = {
     'P0': (0.0, 1.0),
-    'P1': (0.0, 1.0),
+    'P1': (0.5, 0.8),
     'P2': (1.0, 0.0)
     # Adjust these parameters as needed
     }
