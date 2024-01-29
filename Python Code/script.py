@@ -281,11 +281,6 @@ while iters < iters_max:
         # Have each discipline form an opinion on the rule
         rule_opinions, pf, pf_std = merger.formOpinion()
         
-        # Form an OVERALL opinion based on rules being considered together???
-        ### Don't think this is necessary right now because reasonable enough of space
-        ### reductions are being proposed - and then fragility should be able to
-        ### catch any combined rules that make a design space particularly vulnerable
-        
         # Determine if discipline can veto proposal or if dominance forces it
         irules_new, pf, pf_std = \
             merger.domDecision(rule_opinions, irules_discip, pf, pf_std)

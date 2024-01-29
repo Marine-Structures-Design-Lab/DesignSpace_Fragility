@@ -19,6 +19,7 @@ from scipy.stats import norm
 from scipy.optimize import fsolve
 import numpy as np
 import copy
+import itertools
 
 
 """
@@ -354,13 +355,13 @@ def getPredictions(discip, rule, pf_mean, pf_std):
     -----------
     Organize predicted passing or failure amounts into categories for the
     non-reduced, reduced, and leftover design spaces of the discipline for a
-    particular rule being proposed.
+    particular rule or rule set being proposed.
 
     Parameters
     ----------
     discip : Dictionary
         Contains all of the information relevant to the discipline
-    rule : Sympy relational
+    rule : Tuple of Sympy relational(s)
         Either a sympy And or Or relational or a sympy inequality describing
         the input rule for which discipline is categorizing design spaces
     pf_mean : Numpy array
@@ -380,15 +381,13 @@ def getPredictions(discip, rule, pf_mean, pf_std):
         amounts
     """
     
-    # Make a copy of the discipline taking the input rule into account
-    # DO THIS AGAIN BUT TAKING ALL OF THE INPUT RULES INTO ACCOUNT TOGETHER? -
-    # OR MAYBE I CAN GET THIS FLEXIBILITY VIA THE SCRIPT!!!
+    # Make a copy of the discipline taking the input rule(s) into account
     d_copy = copy.deepcopy(discip)
     
     # Add values to eliminated section of discipline copy for new input rule
-    d_copy = sortPoints([d_copy], [rule])
+    d_copy = sortPoints([d_copy], list(rule))
     
-    # Create different index lists based on new input rule
+    # Create different index lists based on new input rule(s)
     all_indices, indices_in_both, indices_not_in_B = \
         sharedIndices(discip['space_remaining'], d_copy[0]['space_remaining'])
     
@@ -429,7 +428,7 @@ def getOpinion(rule, discip, passfail, passfail_std, bez_point):
         Contains all of the information relevant to the discipline
     passfail : Dictionary
         Predicted passing or failing amounts for each design space of
-        discipline considering a particular rule
+        discipline considering a particular rule set
     passfail_std : Dictionary
         Standard deviations associated with categorized passing or failing
         amounts
@@ -526,10 +525,16 @@ class mergeConstraints:
             failure amounts
         """
         
+        # Gather all of the possible rule combinations
+        rule_combos = []
+        for r in range(1, len(self.rn) + 1):
+            for combo in itertools.combinations(self.rn, r):
+                rule_combos.append(combo)
+        
         # Initialize dictionaries with a list of numpy arrays for each rule
         opinions = {rule: np.ones(len(self.D)) for rule in self.rn}
-        passfail = {rule: [None for _ in self.D] for rule in self.rn}
-        passfail_std = {rule: [None for _ in self.D] for rule in self.rn}
+        passfail = {rule: [None for _ in self.D] for rule in rule_combos}
+        passfail_std = {rule: [None for _ in self.D] for rule in rule_combos}
         
         # Loop through each discipline
         for i, discip in enumerate(self.D):
@@ -537,26 +542,30 @@ class mergeConstraints:
             # Get perceptions of feasibility in the non-reduced design space
             pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
             
-            # Loop through each new rule being proposed
-            for j, rule in enumerate(self.rn):
+            # Loop through each new rule combination - rule is a tuple here!
+            for j, rule in enumerate(rule_combos):
                 
                 # Get predictions for different design spaces of the rule
                 passfail[rule][i], passfail_std[rule][i] = \
                     getPredictions(discip, rule, pf_mean, pf_std)
                 
+                # Do not form opinion for rule combos, only individiual rules
+                if len(rule) > 1: continue
+                
                 # Get free variables of the rule
-                rule_vars = rule.free_symbols
+                rule_vars = rule[0].free_symbols
                 
                 # Assign nan if discipline is not directly affected by rule
                 if rule_vars <= set(discip['ins']): pass
                 else: 
-                    opinions[rule][i] = np.nan
+                    opinions[rule[0]][i] = np.nan
                     continue
                 
                 # Get opinion of discipline directly affected by rule
-                opinions[rule][i] = getOpinion(rule, discip, passfail[rule][i], 
-                                            passfail_std[rule][i], 
-                                            self.bez_point)
+                opinions[rule[0]][i] = getOpinion(rule[0], discip, 
+                                                  passfail[rule][i], 
+                                                  passfail_std[rule][i], 
+                                                  self.bez_point)
                 
         # Display formed opinions
         print("Opinions: " + str(opinions))
@@ -644,10 +653,14 @@ class mergeConstraints:
                     # Break the discipline loop and proceed to next rule
                     break
                     
-        # Remove passfail data of vetoed rule(s)
-        for index in rules_delete:
-            del passfail[self.rn[index]]
-            del passfail_std[self.rn[index]]
+        # Remove passfail data including vetoed rule(s)
+        keys_to_remove = []
+        for key in passfail.keys():
+            if any(self.rn[i] in key for i in rules_delete):
+                keys_to_remove.append(key)
+        for key in keys_to_remove:
+            del passfail[key]
+            del passfail_std[key]
         
         # Remove vetoed rules from the input rule list
         self.rn = [item for idx, item in enumerate(self.rn) \

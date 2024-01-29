@@ -40,7 +40,7 @@ class windfallRegret:
         run_wind = {}
         run_reg = {}
         
-        # Loop through each new rule being proposed
+        # Loop through each new rule set being proposed
         for rule, lis in self.pf.items():
             
             # Add empty list to dictionaries
