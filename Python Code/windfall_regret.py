@@ -20,6 +20,13 @@ from merge_constraints import sharedIndices
 
 
 """
+FUNCTION
+"""
+# Function for repeated sharedIndices data
+
+
+
+"""
 CLASS
 """
 class windfallRegret:
@@ -199,126 +206,146 @@ class windfallRegret:
     # Surfaces are temporary and may need adjustment to fit other SBD problems
     def plotWindRegret(self, windreg):
         
-        # Loop through each discipline's windfall-regret values
-        for ind1, d in enumerate(windreg):
+        # Loop through each new rule (set) being proposed
+        for rule, lis in windreg.items():
             
-            # Print percent of space that would remain in discipline
-            print(f"Discipline {ind1+1} would go from "
-                  f"{round((d['non_reduced'][-1].shape[0]/self.D[ind1]['tp_actual'])*100, 2)}% to "
-                  f"{round((d['reduced'][-1].shape[0]/self.D[ind1]['tp_actual'])*100, 2)}%"
-                  f" of its original design space remaining!")
-            
-            # Loop through each item of dictionary
-            for key, value in d.items():
+            # Loop through each discipline's windfall-regret values
+            for ind_dic, dic in enumerate(windreg[rule]):
                 
-                # Continue if array is empty
-                if value[-1].shape[0] == 0:
-                    continue
+                # Print percent of space that would remain in discipline
+                # DO NOT DO CALCULATIONS HERE...DO THEM BEFORE HERE!!!
+                print(f"Discipline {ind_dic+1} would go from "
+                      f"{round((dic['non_reduced'].shape[0]/self.D[ind_dic]['tp_actual'])*100, 2)}% to "
+                      f"{round((dic['reduced'].shape[0]/self.D[ind_dic]['tp_actual'])*100, 2)}%"
+                      f" of its original design space remaining!")
                 
-                # Initialize an empty list for storing numpy arrays
-                l = []
+                # Make a copy of discipline taking the input rule into account
+                d_copy = copy.deepcopy(self.D[ind_dic])
                 
-                # Surface plot
-                j = np.linspace(0, 1, 4000)
-                k = np.linspace(0, 1, 4000)
-                j, k = np.meshgrid(j, k)
+                # Move values to eliminated section of discipline copy
+                d_copy = sortPoints([d_copy], list(rule))
                 
-                if ind1 == 0:
-                    l.append(0.8*j**2 + 2*k**2 - 0.0)
-                    l.append(0.8*j**2 + 2*k**2 - 0.4)
-                    l.append(0.8*j**2 + 2*k**2 - 1.2)
-                    l.append(0.8*j**2 + 2*k**2 - 1.6)
-                elif ind1 == 1:
-                    l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
-                    l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
-                    l.append(-k**3+np.sqrt(0.2))
-                    l.append(-k**3+np.sqrt(0.5))
-                else:
-                    l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
-                    l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
-                    l.append((np.cos(3*j)+0.8)**3)
-                    l.append((np.cos(3*j)+1.6)**3)
+                # Create different index lists for input rule
+                all_indices, indices_in_both, indices_not_in_B = \
+                    sharedIndices(self.D[ind_dic]['space_remaining'],
+                                  d_copy[0]['space_remaining'])
                 
-                # Replace out-of-bounds z_values with np.nan
-                l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
+                # Add each list to a different dictionary key
+                diction = {"non_reduced": all_indices, 
+                           "reduced": indices_in_both, 
+                           "leftover": indices_not_in_B}
                 
-                # Initialize plot
-                fig = plt.figure()
-                ax = fig.add_subplot(111, projection='3d')
-                
-                # Initialize colors for plots
-                colors = ['teal', 'teal', 'magenta', 'magenta']
-                
-                # Plot every surface
-                for m in range(0,len(l)):
-                    if ind1 < 2:
-                        ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.1, rstride=100, cstride=100)
+                # Loop through each design space of discipline
+                for ds, arr in dic.items():
+                    
+                    # Continue if array is empty
+                    if arr.shape[0] == 0: continue
+                    
+                    # Initialize an empty list for storing numpy arrays
+                    l = []
+                    
+                    # Surface plot
+                    j = np.linspace(0, 1, 4000)
+                    k = np.linspace(0, 1, 4000)
+                    j, k = np.meshgrid(j, k)
+                    
+                    if ind_dic == 0:
+                        l.append(0.8*j**2 + 2*k**2 - 0.0)
+                        l.append(0.8*j**2 + 2*k**2 - 0.4)
+                        l.append(0.8*j**2 + 2*k**2 - 1.2)
+                        l.append(0.8*j**2 + 2*k**2 - 1.6)
+                    elif ind_dic == 1:
+                        l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
+                        l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
+                        l.append(-k**3+np.sqrt(0.2))
+                        l.append(-k**3+np.sqrt(0.5))
                     else:
-                        ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.1, rstride=100, cstride=100)
-                
-                # Define the levels and discretize the windfall-regret data
-                levels = np.linspace(-0.5, 0.5, 11)
-                wr_discrete = (np.digitize(value[-1], bins=levels) - 6) / 10.0
-                
-                # When plotting space remaining data, use the discretized windfall values
-                scatter = ax.scatter(self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 0], \
-                                     self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 1], \
-                                     self.D[ind1]['space_remaining'][self.i_lists[ind1][key], 2], \
-                                     c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-0.5, vmax=0.5)
-                
-                # Adjust the colorbar to reflect the levels
-                cbar = plt.colorbar(scatter, ax=ax, ticks=levels, boundaries=levels)
-                cbar.set_label('Windfall-Regret Scale')
-                
-                # Edit the color bar
-                tick_labels = [f"{round(level, 1)}" for level in levels]
-                tick_labels[0] = f"{tick_labels[0]} (Regret)"
-                tick_labels[-1] = f"{tick_labels[-1]} (Windfall)"
-                cbar.ax.set_yticklabels(tick_labels)
-                
-                # Gather and plot passing and failing remaining tested input indices
-                pass_ind = np.where(self.D[ind1]['pass?'])[0].tolist()
-                fail_ind = np.where(np.array(self.D[ind1]['pass?']) == False)[0].tolist()
-                ax.scatter(self.D[ind1]['tested_ins'][pass_ind,0], \
-                           self.D[ind1]['tested_ins'][pass_ind,1], \
-                           self.D[ind1]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                ax.scatter(self.D[ind1]['tested_ins'][fail_ind,0], \
-                           self.D[ind1]['tested_ins'][fail_ind,1], \
-                           self.D[ind1]['tested_ins'][fail_ind,2], c='red', alpha=1)
-                
-                # Gather and plot passing and failing eliminated tested input indices
-                if 'eliminated' in self.D[ind1]:
-                    pass_ind = np.where(self.D[ind1]['eliminated']['pass?'])[0].tolist()
-                    fail_ind = np.where(np.array(self.D[ind1]['eliminated']['pass?']) == False)[0].tolist()
-                    ax.scatter(self.D[ind1]['eliminated']['tested_ins'][pass_ind,0], \
-                               self.D[ind1]['eliminated']['tested_ins'][pass_ind,1], \
-                               self.D[ind1]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                    ax.scatter(self.D[ind1]['eliminated']['tested_ins'][fail_ind,0], \
-                               self.D[ind1]['eliminated']['tested_ins'][fail_ind,1], \
-                               self.D[ind1]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
-                
-                # Set axis limits
-                ax.set_xlim([0, 1])
-                ax.set_ylim([0, 1])
-                ax.set_zlim([0, 1])
-                
-                # Set labels and title
-                ax.set_xlabel(self.D[ind1]['ins'][0])
-                ax.set_ylabel(self.D[ind1]['ins'][1])
-                ax.set_zlabel(self.D[ind1]['ins'][2])
-                ax.set_title(f"Discipline {ind1+1} {key} input space")
-                
-                # Create proxy artists for the legend
-                legend_elements = [Line2D([0], [0], marker='o', color='w', label='Feasible',
-                                          markersize=10, markerfacecolor='lightgreen'),
-                                    Line2D([0], [0], marker='o', color='w', label='Infeasible',
-                                          markersize=10, markerfacecolor='red')]
-    
-                # Add the legend to your axis
-                ax.legend(handles=legend_elements, loc='upper left')
-                
-                # Show plot
-                plt.show()
+                        l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
+                        l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
+                        l.append((np.cos(3*j)+0.8)**3)
+                        l.append((np.cos(3*j)+1.6)**3)
+                    
+                    # Replace out-of-bounds z_values with np.nan
+                    l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
+                    
+                    # Initialize plot
+                    fig = plt.figure()
+                    ax = fig.add_subplot(111, projection='3d')
+                    
+                    # Initialize colors for plots
+                    colors = ['teal', 'teal', 'magenta', 'magenta']
+                    
+                    # Plot every surface
+                    for m in range(0, len(l)):
+                        if ind_dic < 2:
+                            ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.1, rstride=100, cstride=100)
+                        else:
+                            ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.1, rstride=100, cstride=100)
+                    
+                    # Define the levels and discretize the windfall-regret data
+                    levels = np.linspace(-0.5, 0.5, 11)
+                    wr_discrete = (np.digitize(arr, bins=levels) - 6) / 10.0
+                    
+                    # Plot discretized space remaining points for design space
+                    scatter = ax.scatter(self.D[ind_dic]['space_remaining'][diction[ds], 0], \
+                                         self.D[ind_dic]['space_remaining'][diction[ds], 1], \
+                                         self.D[ind_dic]['space_remaining'][diction[ds], 2], \
+                                         c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-0.5, vmax=0.5)
+                    
+                    # Adjust the colorbar to reflect the levels
+                    cbar = plt.colorbar(scatter, ax=ax, ticks=levels, boundaries=levels)
+                    cbar.set_label('Windfall-Regret Scale')
+                    
+                    # Edit the color bar
+                    tick_labels = [f"{round(level, 1)}" for level in levels]
+                    tick_labels[0] = f"{tick_labels[0]} (Regret)"
+                    tick_labels[-1] = f"{tick_labels[-1]} (Windfall)"
+                    cbar.ax.set_yticklabels(tick_labels)
+                    
+                    # Gather and plot passing and failing remaining tested input indices
+                    pass_ind = np.where(self.D[ind_dic]['pass?'])[0].tolist()
+                    fail_ind = np.where(np.array(self.D[ind_dic]['pass?']) == False)[0].tolist()
+                    ax.scatter(self.D[ind_dic]['tested_ins'][pass_ind,0], \
+                               self.D[ind_dic]['tested_ins'][pass_ind,1], \
+                               self.D[ind_dic]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                    ax.scatter(self.D[ind_dic]['tested_ins'][fail_ind,0], \
+                               self.D[ind_dic]['tested_ins'][fail_ind,1], \
+                               self.D[ind_dic]['tested_ins'][fail_ind,2], c='red', alpha=1)
+                    
+                    # Gather and plot passing and failing eliminated tested input indices
+                    if 'eliminated' in self.D[ind_dic]:
+                        pass_ind = np.where(self.D[ind_dic]['eliminated']['pass?'])[0].tolist()
+                        fail_ind = np.where(np.array(self.D[ind_dic]['eliminated']['pass?']) == False)[0].tolist()
+                        ax.scatter(self.D[ind_dic]['eliminated']['tested_ins'][pass_ind,0], \
+                                   self.D[ind_dic]['eliminated']['tested_ins'][pass_ind,1], \
+                                   self.D[ind_dic]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                        ax.scatter(self.D[ind_dic]['eliminated']['tested_ins'][fail_ind,0], \
+                                   self.D[ind_dic]['eliminated']['tested_ins'][fail_ind,1], \
+                                   self.D[ind_dic]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
+                    
+                    # Set axis limits
+                    ax.set_xlim([0, 1])
+                    ax.set_ylim([0, 1])
+                    ax.set_zlim([0, 1])
+                    
+                    # Set labels and title
+                    ax.set_xlabel(self.D[ind_dic]['ins'][0])
+                    ax.set_ylabel(self.D[ind_dic]['ins'][1])
+                    ax.set_zlabel(self.D[ind_dic]['ins'][2])
+                    ax.set_title(f"Discipline {ind_dic+1} {ds} input space")
+                    plt.figtext(0.5, 0.01, f"New input rule set: {str(rule)}", ha="center", fontsize=10, va="bottom")
+                    
+                    # Create proxy artists for the legend
+                    legend_elements = [Line2D([0], [0], marker='o', color='w', label='Feasible',
+                                              markersize=10, markerfacecolor='lightgreen'),
+                                        Line2D([0], [0], marker='o', color='w', label='Infeasible',
+                                              markersize=10, markerfacecolor='red')]
+                    
+                    # Add the legend to your axis
+                    ax.legend(handles=legend_elements, loc='upper left')
+                    
+                    # Show plot
+                    plt.show()
             
         # Nothing to return as I am plotting information
         return

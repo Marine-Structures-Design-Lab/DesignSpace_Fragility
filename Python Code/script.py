@@ -347,20 +347,18 @@ while iters < iters_max:
                 risk.append(copy.deepcopy(ris))
                 risk[-1]['time'] = iters
                 
-                # PLOT THE THINGS!!!
+                # Plot the potential for windfall and regret throughout each
+                # discipline's design space for the current rule (set)
+                if iter_rem == 0 or iters > 0.99*iters_max:
+                    windregret.plotWindRegret(wr)
+                    iter_rem = 8
+                iter_rem -= 1
                 
                 # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
                 ### added regret too high / added windfall too low
                 ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
                 ### of input rules with a length that is one unit smaller and check again
                 ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
-                
-            
-            # Plot windfall and regret for remaining design spaces
-            # if iter_rem == 0 or iters > 0.99*iters_max:
-            #     windregret.plotWindRegret(wr)
-            #     iter_rem = 8
-            # iter_rem -= 1
             
             
             
