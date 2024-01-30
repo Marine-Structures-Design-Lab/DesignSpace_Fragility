@@ -32,7 +32,6 @@ class windfallRegret:
         return
     
     
-    # Figure out how to do this for each input variable combination rather than only space as a whole
     def calcWindRegret(self):
         
         # Initialize empty dictionaries
@@ -60,15 +59,15 @@ class windfallRegret:
                 for ds, arr in dic.items():
                     
                     # Initialize empty arrays and values
-                    windreg[rule][-1][ds] = np.empty_like(arr)
-                    run_wind[rule][-1][ds] = 0.0
-                    run_reg[rule][-1][ds] = 0.0
+                    windreg[rule][ind_dic][ds] = np.empty_like(arr)
+                    run_wind[rule][ind_dic][ds] = 0.0
+                    run_reg[rule][ind_dic][ds] = 0.0
                 
                 # Make a copy of discipline taking the input rule into account
                 d_copy = copy.deepcopy(self.D[ind_dic])
                 
                 # Move values to eliminated section of discipline copy
-                d_copy = sortPoints([d_copy], [rule])
+                d_copy = sortPoints([d_copy], list(rule))
                 
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
@@ -85,7 +84,7 @@ class windfallRegret:
                     # Check if point is in both non-reduced and reduced matrices
                     if ind_pf in indices_in_both:
                         
-                        # Check if point is predicted infeasible (windfall chance)
+                        # Check if point predicted infeasible (windfall chance)
                         if pf < 0:
                             
                             # Add pos. probability to the proper dictionary arrays
@@ -96,7 +95,7 @@ class windfallRegret:
                             run_wind[rule][ind_dic]['non_reduced'] += prob_feas
                             run_wind[rule][ind_dic]['reduced'] += prob_feas
                                         
-                        # Do below if point is predicted feasible (regret chance)
+                        # Do below if point predicted feasible (regret chance)
                         else:
                                         
                             # Add neg. probability to the proper dictionary arrays
@@ -150,8 +149,8 @@ class windfallRegret:
         # Initialize empty dictionary
         risk = {}
         
-        # Loop through each new rule being proposed
-        for rule in self.ir:
+        # Loop through each new rule (set) being proposed
+        for rule, lis in run_wind.items():
             
             # Add empty list to dictionary
             risk[rule] = []
@@ -164,6 +163,9 @@ class windfallRegret:
                     "regret" : None, 
                     "windfall" : None
                     })
+                
+                # Print rule (set) being considered
+                print(f"For the rule set {str(rule)}...")
                 
                 ########## Regret ##########
                 

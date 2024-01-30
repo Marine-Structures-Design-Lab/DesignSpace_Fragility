@@ -324,46 +324,38 @@ while iters < iters_max:
             # Loop through each rule combination set
             for rule_tup in rule_combos:
                 
+                ##### PROBABILITY-BASED #####
+                # Consider all rules together first
+                # Then consider rules separately if too fragile a design space
+                
                 # Initialize a windfall and regret object
                 windregret = windfallRegret(Discips, rule_tup, pf_combos,
                                             pf_std_combos)
                 
                 # Calculate windfall and regret for remaining design spaces
+                wr, run_wind, run_reg = windregret.calcWindRegret()
+                windreg.append(copy.deepcopy(wr))
+                running_windfall.append(copy.deepcopy(run_wind))
+                running_regret.append(copy.deepcopy(run_reg))
+                windreg[-1]['time'] = iters
+                running_windfall[-1]['time'] = iters
+                running_regret[-1]['time'] = iters
                 
+                # Quantify risk or potential of space reduction for each discipline
+                ### Positive value means potential for regret or windfall ADDED
+                ### Negative value means potential for regret or windfall REDUCED
+                ris = windregret.quantRisk(run_wind, run_reg)
+                risk.append(copy.deepcopy(ris))
+                risk[-1]['time'] = iters
                 
+                # PLOT THE THINGS!!!
                 
-            
-            
-            
-            
-            
-            
-            ##### PROBABILITY-BASED #####
-            # Consider all rules together first
-            # Then consider rules separately if too fragile a design space?
-            # NEED TO DO EACH COMBINATION OF INPUT RULES!!!
-            ### SAVE THE INPUT RULE LOOPING FOR OUT HERE!!!
-            
-            
+                # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
+                ### added regret too high / added windfall too low
+                ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
+                ### of input rules with a length that is one unit smaller and check again
+                ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
                 
-                
-                
-            
-            # Calculate windfall and regret for remaining design spaces
-            # wr, run_wind, run_reg = windregret.calcWindRegret() # CHANGE THIS!!!
-            # windreg.append(copy.deepcopy(wr))
-            # running_windfall.append(copy.deepcopy(run_wind))
-            # running_regret.append(copy.deepcopy(run_reg))
-            # windreg[-1]['time'] = iters
-            # running_windfall[-1]['time'] = iters
-            # running_regret[-1]['time'] = iters
-            
-            # Quantify risk or potential of space reduction for each discipline
-            ### Positive value means potential for regret or windfall ADDED
-            ### Negative value means potential for regret or windfall REDUCED
-            # ris = windregret.quantRisk(run_wind, run_reg)
-            # risk.append(copy.deepcopy(ris))
-            # risk[-1]['time'] = iters
             
             # Plot windfall and regret for remaining design spaces
             # if iter_rem == 0 or iters > 0.99*iters_max:
