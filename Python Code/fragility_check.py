@@ -20,14 +20,17 @@ class checkFragility:
     
     
     # Return a true or false boolean value if fragile or not
-    def basicCheck(self):
+    def basicCheck(self, run_wind, run_reg):
         
-        # Combine regret and windfall together in a weighted sum based on time remaining
+        # Loop through each rule (set)
         
-        # Check that sum is within a certain percentage of past amounts and have
-        # that percentage be allowed to fluctuate with the time remaining
         
-        # Need a starting value though chosen by the User...and/or just a default in here
+        # Set threshold
+        
+        # Subtract windfall from regret
+        
+        # Check that sum is not above threshold
+        
         
         
         

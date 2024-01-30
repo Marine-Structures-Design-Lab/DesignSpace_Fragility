@@ -325,38 +325,28 @@ while iters < iters_max + temp_amount:
                 pf_combos = {key: pf[key] for key in rule_combos}
                 pf_std_combos = {key: pf_std[key] for key in rule_combos}
                 
-                # Loop through each rule combination set
-                for rule_tup in rule_combos:
+                
+                ##### PROBABILITY-BASED #####
                     
-                    
-                    ##### PROBABILITY-BASED #####
-                    
-                    # Initialize a windfall and regret object
-                    windregret = windfallRegret(Discips)
-                    
-                    # Calculate windfall and regret for remaining design spaces
-                    wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos)
-                    windreg.append(copy.deepcopy(wr))
-                    running_windfall.append(copy.deepcopy(run_wind))
-                    running_regret.append(copy.deepcopy(run_reg))
-                    windreg[-1]['time'] = iters
-                    running_windfall[-1]['time'] = iters
-                    running_regret[-1]['time'] = iters
-                    
-                    # Quantify risk or potential of space reduction for each discipline
-                    ### Positive value means potential for regret or windfall ADDED
-                    ### Negative value means potential for regret or windfall REDUCED
-                    ris = windregret.quantRisk(run_wind, run_reg)
-                    risk.append(copy.deepcopy(ris))
-                    risk[-1]['time'] = iters
-                    
-                    # Plot the potential for windfall and regret throughout each
-                    # discipline's design space for the current rule (set)
-                    if iter_rem == 0 or iters > 0.99*iters_max:
-                        windregret.plotWindRegret(wr)
-                        iter_rem = 8
-                    iter_rem -= 1
-                    
+                # Initialize a windfall and regret object
+                windregret = windfallRegret(Discips)
+                
+                # Calculate windfall and regret for remaining design spaces
+                wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos)
+                
+                # Quantify risk or potential of space reduction for each discipline
+                ### Positive value means potential for regret or windfall ADDED
+                ### Negative value means potential for regret or windfall REDUCED
+                ris = windregret.quantRisk(run_wind, run_reg)
+                
+                # Plot the potential for windfall and regret throughout each
+                # discipline's design space for the current rule (set)
+                ### COMMENT THIS OUT IN SIMULATIONS
+                if iter_rem == 0 or iters > 0.99*iters_max:
+                    windregret.plotWindRegret(wr)
+                    iter_rem = 8
+                iter_rem -= 1
+                
                 # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
                 ### added regret too high / added windfall too low
                 ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
@@ -372,6 +362,16 @@ while iters < iters_max + temp_amount:
                 
                 # If fragility is all good, break fragility loop
                 if not isfragile:
+                    
+                    # Append all of the findings to the list of dictionaries
+                    windreg.append(copy.deepcopy(wr))
+                    running_windfall.append(copy.deepcopy(run_wind))
+                    running_regret.append(copy.deepcopy(run_reg))
+                    windreg[-1]['time'] = iters
+                    running_windfall[-1]['time'] = iters
+                    running_regret[-1]['time'] = iters
+                    risk.append(copy.deepcopy(ris))
+                    risk[-1]['time'] = iters
                     break
                 
                 # If fragility bad, but reduction not forced, break fragility loop
