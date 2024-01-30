@@ -329,11 +329,10 @@ while iters < iters_max:
                 # Then consider rules separately if too fragile a design space
                 
                 # Initialize a windfall and regret object
-                windregret = windfallRegret(Discips, rule_tup, pf_combos,
-                                            pf_std_combos)
+                windregret = windfallRegret(Discips)
                 
                 # Calculate windfall and regret for remaining design spaces
-                wr, run_wind, run_reg = windregret.calcWindRegret()
+                wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos)
                 windreg.append(copy.deepcopy(wr))
                 running_windfall.append(copy.deepcopy(run_wind))
                 running_regret.append(copy.deepcopy(run_reg))

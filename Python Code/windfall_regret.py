@@ -24,15 +24,12 @@ CLASS
 """
 class windfallRegret:
     
-    def __init__(self, Discips, irules_new, passfail, passfail_std):
+    def __init__(self, Discips):
         self.D = Discips
-        self.ir = irules_new
-        self.pf = passfail
-        self.pf_std = passfail_std
         return
     
     
-    def calcWindRegret(self):
+    def calcWindRegret(self, passfail, passfail_std):
         
         # Initialize empty dictionaries
         windreg = {}
@@ -40,7 +37,7 @@ class windfallRegret:
         run_reg = {}
         
         # Loop through each new rule (set) being proposed
-        for rule, lis in self.pf.items():
+        for rule, lis in passfail.items():
             
             # Add empty list to dictionaries
             windreg[rule] = []
@@ -79,7 +76,7 @@ class windfallRegret:
                     
                     # Convert passfail prediction to complementary probability
                     prob_feas = 1.0 - stats.norm.cdf(abs(pf)/\
-                        self.pf_std[rule][ind_dic]['non_reduced'][ind_pf])
+                        passfail_std[rule][ind_dic]['non_reduced'][ind_pf])
                     
                     # Check if point is in both non-reduced and reduced matrices
                     if ind_pf in indices_in_both:
@@ -155,6 +152,9 @@ class windfallRegret:
             # Add empty list to dictionary
             risk[rule] = []
             
+            # Print rule (set) being considered
+            print(f"For the rule set {str(rule)}...")
+            
             # Loop through each discipline's regret and windfall data
             for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], run_wind[rule])):
                 
@@ -163,9 +163,6 @@ class windfallRegret:
                     "regret" : None, 
                     "windfall" : None
                     })
-                
-                # Print rule (set) being considered
-                print(f"For the rule set {str(rule)}...")
                 
                 ########## Regret ##########
                 
