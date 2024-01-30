@@ -46,6 +46,7 @@ from calc_rules import calcRules
 from output_success import checkOutput
 import numpy as np
 import copy
+import itertools
 
 
 ###############################################################################
@@ -308,6 +309,34 @@ while iters < iters_max:
         # is not maxed out
         while fragility and fragility_counter < fragility_max:
             
+            # Determine the current rule combination length being checked
+            combo_len = len(irules_new) - fragility_counter
+            
+            # Break if the while loop rule combination length is less than 1????????????????
+            
+            # Gather rule combination(s) of current length in a list of tuples
+            rule_combos = list(itertools.combinations(irules_new, combo_len))
+            
+            # Gather passfail data of rule combination(s) in smaller dictionary
+            pf_combos = {key: pf[key] for key in rule_combos}
+            pf_std_combos = {key: pf_std[key] for key in rule_combos}
+            
+            # Loop through each rule combination set
+            for rule_tup in rule_combos:
+                
+                # Initialize a windfall and regret object
+                windregret = windfallRegret(Discips, rule_tup, pf_combos,
+                                            pf_std_combos)
+                
+                # Calculate windfall and regret for remaining design spaces
+                
+                
+                
+            
+            
+            
+            
+            
             
             ##### PROBABILITY-BASED #####
             # Consider all rules together first
@@ -315,24 +344,26 @@ while iters < iters_max:
             # NEED TO DO EACH COMBINATION OF INPUT RULES!!!
             ### SAVE THE INPUT RULE LOOPING FOR OUT HERE!!!
             
-            # Initialize a windfall and regret object
-            windregret = windfallRegret(Discips, irules_new, pf, pf_std)
+            
+                
+                
+                
             
             # Calculate windfall and regret for remaining design spaces
-            wr, run_wind, run_reg = windregret.calcWindRegret() # CHANGE THIS!!!
-            windreg.append(copy.deepcopy(wr))
-            running_windfall.append(copy.deepcopy(run_wind))
-            running_regret.append(copy.deepcopy(run_reg))
-            windreg[-1]['time'] = iters
-            running_windfall[-1]['time'] = iters
-            running_regret[-1]['time'] = iters
+            # wr, run_wind, run_reg = windregret.calcWindRegret() # CHANGE THIS!!!
+            # windreg.append(copy.deepcopy(wr))
+            # running_windfall.append(copy.deepcopy(run_wind))
+            # running_regret.append(copy.deepcopy(run_reg))
+            # windreg[-1]['time'] = iters
+            # running_windfall[-1]['time'] = iters
+            # running_regret[-1]['time'] = iters
             
             # Quantify risk or potential of space reduction for each discipline
             ### Positive value means potential for regret or windfall ADDED
             ### Negative value means potential for regret or windfall REDUCED
-            ris = windregret.quantRisk(run_wind, run_reg)
-            risk.append(copy.deepcopy(ris))
-            risk[-1]['time'] = iters
+            # ris = windregret.quantRisk(run_wind, run_reg)
+            # risk.append(copy.deepcopy(ris))
+            # risk[-1]['time'] = iters
             
             # Plot windfall and regret for remaining design spaces
             # if iter_rem == 0 or iters > 0.99*iters_max:
