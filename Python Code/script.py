@@ -63,7 +63,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 100    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -162,6 +162,7 @@ Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
+temp_amount = 0
 iter_rem = 0 ################################################################## MIGHT NOT NEED THIS LATER
 
 # Loop through each discipline
@@ -208,21 +209,7 @@ force_reduction = False
 force_reduction_counter = 0
 
 # Begin the design exploration and reduction process with allotted timeline
-while iters < iters_max:
-    
-    # Break while loop if any discipline has maxed out partition parameters
-    break_loop = False
-    for dic in Discips:
-        part_params_check = dic["part_params"]
-        if all(value[0] >= 1.0 for value in part_params_check.values()):
-            break_loop = True
-            break
-    if break_loop:
-        break
-    
-    ###########################################################################
-    ####################### SPACE REDUCTIONS / FRAGILITY ######################
-    ###########################################################################
+while iters < iters_max + temp_amount:
     
     # Add any new input rules to the list
     if iters > 0 and irules_new: Discips = sortPoints(Discips, irules_new)
@@ -232,247 +219,264 @@ while iters < iters_max:
     irules_new = []
     irules_discip = []
     
-    # Loop through each disicipline
-    for i in range(0, len(Discips)):
-        
-        # Skip reduction considerations if no tested points with which to work
-        if 'tested_ins' not in Discips[i] or \
-            np.shape(Discips[i]['tested_ins'])[0] == 0: continue
-        
-        # Initialize an object for the checkSpace class
-        space_check = checkSpace(Discips[i]['ins'], **dtc_kwargs)
-        
-        # Produce array of "good" and "bad" values based on CDF threshold
-        gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
-                       Discips[i]['part_params']['cdf_crit'][0])
-        
-        # Build the decision tree
-        space_check.buildTree(Discips[i]['tested_ins'], gb_array)
-        
-        # Gather inequalitie(s) from the decision tree as a potential rule
-        pot_rule = space_check.extractRules(\
-                     Discips[i]['tested_ins'].astype(np.float32), gb_array)
-        
-        # Check if the rule meets the current criteria to be proposed
-        rule_check = space_check.reviewPartitions(\
-            Discips[i]['tested_ins'], pot_rule,\
-            Discips[i]['Fail_Amount'],\
-            Discips[i]['part_params']['fail_crit'][0],\
-            Discips[i]['part_params']['dist_crit'][0],\
-            Discips[i]['part_params']['disc_crit'][0])
-        
-        # Add potential rule to the new rule list if it meets the criteria
-        ### and determine discipline proposing rule
-        if rule_check:
-            irules_new.append(space_check.prepareRule(pot_rule))
-            irules_discip.append(i)
-        
-    # Check up on new rules
-    print("Individually proposed input rules: " + str(irules_new))
+    # Override to exploration if any discipline maxed out partition parameters
+    just_explore = False
+    for ind_dic, dic in enumerate(Discips):
+        part_params_check = dic["part_params"]
+        if all(value[0] >= 1.0 for value in part_params_check.values()):
+            just_explore = True
+            print(f"Exploring because space reduction cannot be forced for Discipline {ind_dic+1}!")
+            break
     
     
-    ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
+    ###########################################################################
+    ####################### SPACE REDUCTIONS / FRAGILITY ######################
+    ###########################################################################
     
-    # Check if new input rules list is filled with any rules
-    if irules_new:
+    # Check that we are not to jump straight to exploration
+    if not just_explore:
         
-        # Initialize an object for the mergeConstraints class
-        merger = mergeConstraints(irules_new, Discips, gpr_params, bez_point)
+        # Loop through each disicipline
+        for i in range(0, len(Discips)):
+            
+            # Skip reduction considerations if no tested points with which to work
+            if 'tested_ins' not in Discips[i] or \
+                np.shape(Discips[i]['tested_ins'])[0] == 0: continue
+            
+            # Initialize an object for the checkSpace class
+            space_check = checkSpace(Discips[i]['ins'], **dtc_kwargs)
+            
+            # Produce array of "good" and "bad" values based on CDF threshold
+            gb_array = space_check.goodBad(Discips[i]['Fail_Amount'],\
+                           Discips[i]['part_params']['cdf_crit'][0])
+            
+            # Build the decision tree
+            space_check.buildTree(Discips[i]['tested_ins'], gb_array)
+            
+            # Gather inequalitie(s) from the decision tree as a potential rule
+            pot_rule = space_check.extractRules(\
+                         Discips[i]['tested_ins'].astype(np.float32), gb_array)
+            
+            # Check if the rule meets the current criteria to be proposed
+            rule_check = space_check.reviewPartitions(\
+                Discips[i]['tested_ins'], pot_rule,\
+                Discips[i]['Fail_Amount'],\
+                Discips[i]['part_params']['fail_crit'][0],\
+                Discips[i]['part_params']['dist_crit'][0],\
+                Discips[i]['part_params']['disc_crit'][0])
+            
+            # Add potential rule to the new rule list if it meets the criteria
+            ### and determine discipline proposing rule
+            if rule_check:
+                irules_new.append(space_check.prepareRule(pot_rule))
+                irules_discip.append(i)
+            
+        # Check up on new rules
+        print("Individually proposed input rules: " + str(irules_new))
         
-        # Have each discipline form an opinion on the rule
-        rule_opinions, pf, pf_std = merger.formOpinion()
         
-        # Determine if discipline can veto proposal or if dominance forces it
-        irules_new, pf, pf_std = \
-            merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
+        ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
         
-        # Append passfail data and time iteration to list if still proposed
+        # Check if new input rules list is filled with any rules
         if irules_new:
-            passfail.append(copy.deepcopy(pf))
-            passfail_std.append(copy.deepcopy(pf_std))
-            passfail[-1]['time'] = iters
-            passfail_std[-1]['time'] = iters
             
-    # Check up on new rules
-    print("Universally proposed input rules: " + str(irules_new))
-    
-    
-    ##### FRAGILITY / FUTURE INFORMATION CHECK #####
-    
-    # Check if new input rules list is STILL filled with any rules
-    if irules_new:
+            # Initialize an object for the mergeConstraints class
+            merger = mergeConstraints(irules_new, Discips, gpr_params, bez_point)
+            
+            # Have each discipline form an opinion on the rule
+            rule_opinions, pf, pf_std = merger.formOpinion()
+            
+            # Determine if discipline can veto proposal or if dominance forces it
+            irules_new, pf, pf_std = \
+                merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
+            
+            # Append passfail data and time iteration to list if still proposed
+            if irules_new:
+                passfail.append(copy.deepcopy(pf))
+                passfail_std.append(copy.deepcopy(pf_std))
+                passfail[-1]['time'] = iters
+                passfail_std[-1]['time'] = iters
+                
+        # Check up on new rules
+        print("Universally proposed input rules: " + str(irules_new))
         
-        # Initialize a fragility counter
-        fragility_counter = 0
         
-        # Run a fragility assessment if desired and while the fragility counter
-        # is not maxed out
-        while fragility and fragility_counter < fragility_max:
+        ##### FRAGILITY / FUTURE INFORMATION CHECK #####
+        
+        # Check if new input rules list is STILL filled with any rules
+        if irules_new:
             
-            # Determine the current rule combination length being checked
-            combo_len = len(irules_new) - fragility_counter
+            # Initialize a fragility counter
+            fragility_counter = 0
             
-            # Break if the while loop rule combination length is less than 1????????????????
-            
-            # Gather rule combination(s) of current length in a list of tuples
-            rule_combos = list(itertools.combinations(irules_new, combo_len))
-            
-            # Gather passfail data of rule combination(s) in smaller dictionary
-            pf_combos = {key: pf[key] for key in rule_combos}
-            pf_std_combos = {key: pf_std[key] for key in rule_combos}
-            
-            # Loop through each rule combination set
-            for rule_tup in rule_combos:
+            # Run a fragility assessment if desired and while the fragility counter
+            # is not maxed out
+            while fragility and fragility_counter < fragility_max:
                 
-                ##### PROBABILITY-BASED #####
-                # Consider all rules together first
-                # Then consider rules separately if too fragile a design space
+                # Determine the current rule combination length being checked
+                combo_len = len(irules_new) - fragility_counter
                 
-                # Initialize a windfall and regret object
-                windregret = windfallRegret(Discips)
+                # Break if the while loop rule combination length is less than 1????????????????
                 
-                # Calculate windfall and regret for remaining design spaces
-                wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos)
-                windreg.append(copy.deepcopy(wr))
-                running_windfall.append(copy.deepcopy(run_wind))
-                running_regret.append(copy.deepcopy(run_reg))
-                windreg[-1]['time'] = iters
-                running_windfall[-1]['time'] = iters
-                running_regret[-1]['time'] = iters
+                # Gather rule combination(s) of current length in a list of tuples
+                rule_combos = list(itertools.combinations(irules_new, combo_len))
                 
-                # Quantify risk or potential of space reduction for each discipline
-                ### Positive value means potential for regret or windfall ADDED
-                ### Negative value means potential for regret or windfall REDUCED
-                ris = windregret.quantRisk(run_wind, run_reg)
-                risk.append(copy.deepcopy(ris))
-                risk[-1]['time'] = iters
+                # Gather passfail data of rule combination(s) in smaller dictionary
+                pf_combos = {key: pf[key] for key in rule_combos}
+                pf_std_combos = {key: pf_std[key] for key in rule_combos}
                 
-                # Plot the potential for windfall and regret throughout each
-                # discipline's design space for the current rule (set)
-                if iter_rem == 0 or iters > 0.99*iters_max:
-                    windregret.plotWindRegret(wr)
-                    iter_rem = 8
-                iter_rem -= 1
+                # Loop through each rule combination set
+                for rule_tup in rule_combos:
+                    
+                    ##### PROBABILITY-BASED #####
+                    # Consider all rules together first
+                    # Then consider rules separately if too fragile a design space
+                    
+                    # Initialize a windfall and regret object
+                    windregret = windfallRegret(Discips)
+                    
+                    # Calculate windfall and regret for remaining design spaces
+                    wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos)
+                    windreg.append(copy.deepcopy(wr))
+                    running_windfall.append(copy.deepcopy(run_wind))
+                    running_regret.append(copy.deepcopy(run_reg))
+                    windreg[-1]['time'] = iters
+                    running_windfall[-1]['time'] = iters
+                    running_regret[-1]['time'] = iters
+                    
+                    # Quantify risk or potential of space reduction for each discipline
+                    ### Positive value means potential for regret or windfall ADDED
+                    ### Negative value means potential for regret or windfall REDUCED
+                    ris = windregret.quantRisk(run_wind, run_reg)
+                    risk.append(copy.deepcopy(ris))
+                    risk[-1]['time'] = iters
+                    
+                    # Plot the potential for windfall and regret throughout each
+                    # discipline's design space for the current rule (set)
+                    if iter_rem == 0 or iters > 0.99*iters_max:
+                        windregret.plotWindRegret(wr)
+                        iter_rem = 8
+                    iter_rem -= 1
+                    
+                    # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
+                    ### added regret too high / added windfall too low
+                    ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
+                    ### of input rules with a length that is one unit smaller and check again
+                    ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
                 
-                # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
-                ### added regret too high / added windfall too low
-                ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
-                ### of input rules with a length that is one unit smaller and check again
-                ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
-            
-            
-            
-            
-            
-            
-            ##### ENTROPY-BASED #####
-            ################################################################### MIGHT NOT NEED THIS FOR IMDC
-            
-            # # Initialize an object for the distribution check class
-            # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
-            #                          KDEs, posterior_KDEs, KL_divs)
-            
-            # # Create data sets for calculating probability distributions
-            # KDE_data = distribution.createDataSets()
-            
-            # # Calculate individual and joint KDEs
-            # KDEs, joint_KDEs = distribution.calcKDEs(KLgap)
-            
-            # # Determine posterior KDEs with Bayes' Theorem
-            # posterior_KDEs = distribution.evalBayes()
-            
-            # # Compute the KL divergence between successive posterior distributions
-            # KL_divs = distribution.computeKL()
-            
-            # # Show the progression of KL divergence values as points are added
-            # distribution.plotKL()
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            ########## APPLY THE RESULTS TO THE FRAGILITY DECISION PROCESS ##########
-            
-            # Initialize a fragility check object
-            fragile = checkFragility()
-            
-            # Execute fragility assessment and increase fragility counter by 1
-            isfragile = fragile.basicCheck()
-            fragility_counter += 1
-            
-            # If fragility is all good, break fragility loop
-            if not isfragile:
-                break
-            
-            # If fragility bad, but reduction not forced, break fragility loop
-            elif not force_reduction:
-                break
-            
-            # If fragility bad, and reduction forced, revise and try again
-            else:
-                # Call another method from checkFragility for determining why fragile
-                # Call another method from checkFragility for revising the irules_new reduction
-                pass
-            
-        # If no fragility check, fragility counter maxed out, or not fragile,
-        # continue with the proposed/last revised reduction
-        if not fragility or fragility_counter>=fragility_max or not isfragile:
-            force_reduction = False
-            force_reduction_counter = 0
-            # Reset criteria for space reduction?
-            continue
-            
-        # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
-        elif not force_reduction:
-            force_reduction = False # Placeholder...change boolean to checkSpace method call
-            irules_new = []
-            
-            # Adjust criteria for proposing space reduction if should be forced
-            if force_reduction:
-                pass # Placeholder...change to checkSpace method call to adjust criteria
-                # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
-                # DO NOT INCREASE FORCE REDUCTION COUNTER BY 1 HERE
+                
+                
+                
+                
+                
+                ##### ENTROPY-BASED #####
+                ################################################################### MIGHT NOT NEED THIS FOR IMDC
+                
+                # # Initialize an object for the distribution check class
+                # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
+                #                          KDEs, posterior_KDEs, KL_divs)
+                
+                # # Create data sets for calculating probability distributions
+                # KDE_data = distribution.createDataSets()
+                
+                # # Calculate individual and joint KDEs
+                # KDEs, joint_KDEs = distribution.calcKDEs(KLgap)
+                
+                # # Determine posterior KDEs with Bayes' Theorem
+                # posterior_KDEs = distribution.evalBayes()
+                
+                # # Compute the KL divergence between successive posterior distributions
+                # KL_divs = distribution.computeKL()
+                
+                # # Show the progression of KL divergence values as points are added
+                # distribution.plotKL()
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                ########## APPLY THE RESULTS TO THE FRAGILITY DECISION PROCESS ##########
+                
+                # Initialize a fragility check object
+                fragile = checkFragility()
+                
+                # Execute fragility assessment and increase fragility counter by 1
+                isfragile = fragile.basicCheck()
+                fragility_counter += 1
+                
+                # If fragility is all good, break fragility loop
+                if not isfragile:
+                    break
+                
+                # If fragility bad, but reduction not forced, break fragility loop
+                elif not force_reduction:
+                    break
+                
+                # If fragility bad, and reduction forced, revise and try again
+                else:
+                    # Call another method from checkFragility for determining why fragile
+                    # Call another method from checkFragility for revising the irules_new reduction
+                    pass
+                
+            # If no fragility check, fragility counter maxed out, or not fragile,
+            # continue with the proposed/last revised reduction
+            if not fragility or fragility_counter>=fragility_max or not isfragile:
+                force_reduction = False
+                force_reduction_counter = 0
+                # Reset criteria for space reduction?
                 continue
-         
                 
-    
-    
-    
-    
-    
-    
-    
-    
-    # If no new input rules, determine if time remaining paired with the design
-    ### space remaining warrants a space reduction to be forced
-    else:
+            # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
+            elif not force_reduction:
+                force_reduction = False # Placeholder...change boolean to checkSpace method call
+                irules_new = []
+                
+                # Adjust criteria for proposing space reduction if should be forced
+                if force_reduction:
+                    pass # Placeholder...change to checkSpace method call to adjust criteria
+                    # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
+                    # DO NOT INCREASE FORCE REDUCTION COUNTER BY 1 HERE
+                    continue
+             
+                    
         
-        # Create an object for the changeReduction class
-        red_change = changeReduction(Discips)
         
-        # Estimate the space remaining in each discipline
-        space_rem = red_change.estimateSpace()
         
-        # Check if a space reduction should be forced
-        Discips = red_change.forceReduction(space_rem, iters, iters_max, 
-                                            exp_parameters)
         
-        # Perform the following commands if a space reduction should be forced
-        if any(dictionary.get("force_reduction", False)[0] == True \
-               for dictionary in Discips):
+        
+        
+        
+        
+        # If no new input rules, determine if time remaining paired with the design
+        ### space remaining warrants a space reduction to be forced
+        else:
             
-            # Adjust the criteria for the necessary discipline(s)
-            Discips = red_change.adjustCriteria()
+            # Create an object for the changeReduction class
+            red_change = changeReduction(Discips)
             
-            # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
-            force_reduction_counter += 1 # This counter is not needed in the fragility loop
-            # because a forced reduction will not leave the fragility loop until
-            # a space reduction is actually made and committed to 
-            continue
+            # Estimate the space remaining in each discipline
+            space_rem = red_change.estimateSpace()
+            
+            # Check if a space reduction should be forced
+            Discips = red_change.forceReduction(space_rem, iters, iters_max, 
+                                                exp_parameters)
+            
+            # Perform the following commands if a space reduction should be forced
+            if any(dictionary.get("force_reduction", False)[0] == True \
+                   for dictionary in Discips):
+                
+                # Adjust the criteria for the necessary discipline(s)
+                Discips = red_change.adjustCriteria()
+                
+                # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
+                force_reduction_counter += 1 # This counter is not needed in the fragility loop
+                # because a forced reduction will not leave the fragility loop until
+                # a space reduction is actually made and committed to 
+                continue
 
             
     
@@ -548,7 +552,10 @@ while iters < iters_max:
     # Increase the time count
     iters += temp_amount
     
-    # Reset the reduction counter to 0
+    # Reset the just explore value to False
+    just_explore = False
+    
+    # Reset the reduction counter to 0 - WILL NOT NEED THIS ANY LONGER!!!!!!!!!!!!!!!!
     force_reduction_counter = 0
     
     # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
@@ -559,7 +566,8 @@ while iters < iters_max:
 
 
 
-
+# NEED TO MAKE SURE I ADD THE VERY LAST INPUT RULES IF THERE ARE ANY!!!!
+# THEN PLOT FIGURES AND GET FINAL RESULTS OUTSIDE OF THE WHILE LOOP!!!
 
 
 
