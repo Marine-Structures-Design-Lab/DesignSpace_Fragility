@@ -63,7 +63,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 100    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -223,7 +223,7 @@ while iters < iters_max + temp_amount:
     just_explore = False
     for ind_dic, dic in enumerate(Discips):
         part_params_check = dic["part_params"]
-        if all(value[0] >= 1.0 for value in part_params_check.values()):
+        if all(value[0] >= 0.5 for value in part_params_check.values()):
             just_explore = True
             print(f"Exploring because space reduction cannot be forced for Discipline {ind_dic+1}!")
             break
@@ -328,9 +328,8 @@ while iters < iters_max + temp_amount:
                 # Loop through each rule combination set
                 for rule_tup in rule_combos:
                     
+                    
                     ##### PROBABILITY-BASED #####
-                    # Consider all rules together first
-                    # Then consider rules separately if too fragile a design space
                     
                     # Initialize a windfall and regret object
                     windregret = windfallRegret(Discips)
@@ -358,48 +357,11 @@ while iters < iters_max + temp_amount:
                         iter_rem = 8
                     iter_rem -= 1
                     
-                    # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
-                    ### added regret too high / added windfall too low
-                    ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
-                    ### of input rules with a length that is one unit smaller and check again
-                    ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
-                
-                
-                
-                
-                
-                
-                ##### ENTROPY-BASED #####
-                ################################################################### MIGHT NOT NEED THIS FOR IMDC
-                
-                # # Initialize an object for the distribution check class
-                # distribution = checkDistributions(Discips, KDE_data, joint_KDEs, \
-                #                          KDEs, posterior_KDEs, KL_divs)
-                
-                # # Create data sets for calculating probability distributions
-                # KDE_data = distribution.createDataSets()
-                
-                # # Calculate individual and joint KDEs
-                # KDEs, joint_KDEs = distribution.calcKDEs(KLgap)
-                
-                # # Determine posterior KDEs with Bayes' Theorem
-                # posterior_KDEs = distribution.evalBayes()
-                
-                # # Compute the KL divergence between successive posterior distributions
-                # KL_divs = distribution.computeKL()
-                
-                # # Show the progression of KL divergence values as points are added
-                # distribution.plotKL()
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                ########## APPLY THE RESULTS TO THE FRAGILITY DECISION PROCESS ##########
+                # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
+                ### added regret too high / added windfall too low
+                ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
+                ### of input rules with a length that is one unit smaller and check again
+                ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
                 
                 # Initialize a fragility check object
                 fragile = checkFragility()
@@ -418,12 +380,12 @@ while iters < iters_max + temp_amount:
                 
                 # If fragility bad, and reduction forced, revise and try again
                 else:
-                    # Call another method from checkFragility for determining why fragile
-                    # Call another method from checkFragility for revising the irules_new reduction
-                    pass
+                    # Figure out what part(s) of the rule set is failing
+                    # Return back to the start of the fragility while loop - edit irules_new?
+                    pass # Edit this later probably...might not need it anymore
                 
             # If no fragility check, fragility counter maxed out, or not fragile,
-            # continue with the proposed/last revised reduction
+            # continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - aDD TO A TEMPORARY BANNED RULE LIST?
             if not fragility or fragility_counter>=fragility_max or not isfragile:
                 force_reduction = False
                 force_reduction_counter = 0

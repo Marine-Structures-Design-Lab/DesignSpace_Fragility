@@ -138,19 +138,19 @@ class changeReduction:
             if self.d[i]['force_reduction'][1] % 4 == 0:
                 self.d[i]['part_params']['cdf_crit'][0] = \
                     min(self.d[i]['part_params']['cdf_crit'][0] + \
-                        self.d[i]['part_params']['cdf_crit'][1], 1.0)
+                        self.d[i]['part_params']['cdf_crit'][1], 0.5)
             elif self.d[i]['force_reduction'][1] % 4 == 1:
                 self.d[i]['part_params']['fail_crit'][0] = \
                     min(self.d[i]['part_params']['fail_crit'][0] + \
-                        self.d[i]['part_params']['fail_crit'][1], 1.0)
+                        self.d[i]['part_params']['fail_crit'][1], 0.5)
             elif self.d[i]['force_reduction'][1] % 4 == 2:
                 self.d[i]['part_params']['dist_crit'][0] = \
                     min(self.d[i]['part_params']['dist_crit'][0] + \
-                        self.d[i]['part_params']['dist_crit'][1], 1.0)
+                        self.d[i]['part_params']['dist_crit'][1], 0.7)
             else:
                 self.d[i]['part_params']['disc_crit'][0] = \
                     min(self.d[i]['part_params']['disc_crit'][0] + \
-                        self.d[i]['part_params']['disc_crit'][1], 1.0)
+                        self.d[i]['part_params']['disc_crit'][1], 0.7)
             
             # THIS MAY GO IN ITS OWN METHOD based on how adjustCriteria is
             # called elsewhere in the script file!!!
