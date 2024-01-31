@@ -88,9 +88,10 @@ run_time = [2, 3, 4]    # Must all be positive integers!
 
 # Decide if the fragility of proposed reductions is to be assessed and the
 # number of fragility assessments to allow before accepting a fragile space
-# reduction
+# reduction along with the initial net risk threshold
 fragility = True    # True = yes, False = no
 fragility_max = 5   # Must be a positive integer!
+net_risk_threshold = 0.1 
 
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
@@ -309,7 +310,7 @@ while iters < iters_max + temp_amount:
             # Initialize a fragility counter
             fragility_counter = 0
             
-            # Run a fragility assessment if desired and while the fragility counter
+            # Run a fragility assessment if desired and while fragility counter
             # is not maxed out
             while fragility and fragility_counter < fragility_max:
                 
@@ -317,6 +318,8 @@ while iters < iters_max + temp_amount:
                 combo_len = len(irules_new) - fragility_counter
                 
                 # Break if the while loop rule combination length is less than 1????????????????
+                # THROW OUT THE RULE SET!!!!!!
+                # NEED TO REVISE THIS SECTION OF THE IMDC FLOWCHART!!!!!!!!!!!!!!
                 
                 # Gather rule combination(s) of current length in a list of tuples
                 rule_combos = list(itertools.combinations(irules_new, combo_len))
@@ -347,17 +350,11 @@ while iters < iters_max + temp_amount:
                     iter_rem = 8
                 iter_rem -= 1
                 
-                # CHECK IF ANY DISCIPLINE'S ARE TOO FRAGILE
-                ### added regret too high / added windfall too low
-                ### IF A DISCIPLINE IS TOO FRAGILE, cycle back and check for the set
-                ### of input rules with a length that is one unit smaller and check again
-                ##### ALL OF THIS CHUNK WILL BE IN THE FRAGILITY CHECKING CLASS!!!
-                
                 # Initialize a fragility check object
                 fragile = checkFragility()
                 
-                # Execute fragility assessment and increase fragility counter by 1
-                isfragile = fragile.basicCheck()
+                # Execute fragility assessment and increase fragility counter
+                isfragile, net_wr = fragile.basicCheck(ris, iters, iters_max)
                 fragility_counter += 1
                 
                 # If fragility is all good, break fragility loop
@@ -367,29 +364,65 @@ while iters < iters_max + temp_amount:
                     windreg.append(copy.deepcopy(wr))
                     running_windfall.append(copy.deepcopy(run_wind))
                     running_regret.append(copy.deepcopy(run_reg))
+                    risk.append(copy.deepcopy(ris))
+                    
+                    # Append time to the dictionaries
                     windreg[-1]['time'] = iters
                     running_windfall[-1]['time'] = iters
                     running_regret[-1]['time'] = iters
-                    risk.append(copy.deepcopy(ris))
                     risk[-1]['time'] = iters
+                    
+                    # Append boolean that signifies rule (set) is not fragile
+                    windreg[-1]['isFragile'] = isfragile
+                    running_windfall[-1]['isFragile'] = isfragile
+                    running_regret[-1]['isFragile'] = isfragile
+                    risk[-1]['isFragile'] = isfragile
+                    
+                    # Break the fragility loop
                     break
                 
-                # If fragility bad, but reduction not forced, break fragility loop
-                elif not force_reduction:
+                # Fragile, but if reduction not forced, break fragility loop
+                elif all(dictionary.get("force_reduction", False)[0] == False for dictionary in Discips):
+                    
+                    # Append all of the findings to the list of dictionaries
+                    windreg.append(copy.deepcopy(wr))
+                    running_windfall.append(copy.deepcopy(run_wind))
+                    running_regret.append(copy.deepcopy(run_reg))
+                    risk.append(copy.deepcopy(ris))
+                    
+                    # Append time to the dictionaries
+                    windreg[-1]['time'] = iters
+                    running_windfall[-1]['time'] = iters
+                    running_regret[-1]['time'] = iters
+                    risk[-1]['time'] = iters
+                    
+                    # Append boolean that signifies rule (set) is fragile
+                    windreg[-1]['isFragile'] = isfragile
+                    running_windfall[-1]['isFragile'] = isfragile
+                    running_regret[-1]['isFragile'] = isfragile
+                    risk[-1]['isFragile'] = isfragile
+                    
+                    # Append boolean that signifies space reduction not forced
+                    windreg[-1]['force_reduction'] = False
+                    running_windfall[-1]['force_reduction'] = False
+                    running_regret[-1]['force_reduction'] = False
+                    risk[-1]['force_reduction'] = False
+                    
+                    # Break the fragility loop
                     break
                 
-                # If fragility bad, and reduction forced, revise and try again
+                # Fragile and reduction forced, revise and try again - May not need this if it is just pass!
                 else:
                     # Figure out what part(s) of the rule set is failing
                     # Return back to the start of the fragility while loop - edit irules_new?
-                    pass # Edit this later probably...might not need it anymore
+                    break # Edit this later probably...might not need it anymore
                 
             # If no fragility check, fragility counter maxed out, or not fragile,
-            # continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - aDD TO A TEMPORARY BANNED RULE LIST?
+            # continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - ADD TO A TEMPORARY BANNED RULE LIST?
             if not fragility or fragility_counter>=fragility_max or not isfragile:
                 force_reduction = False
                 force_reduction_counter = 0
-                # Reset criteria for space reduction?
+                # Reset criteria for space reduction? - I don't think so...only if next time iteration
                 continue
                 
             # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
@@ -506,10 +539,9 @@ while iters < iters_max + temp_amount:
         Discips[i] = outchk.rmsFail()
         
         # Reset discipline's reduction counter to 0 and criteria to defaults
+        Discips[i]['force_reduction'][0] = False
         Discips[i]['force_reduction'][1] = 0
         Discips[i]['part_params'] = copy.deepcopy(part_params)
-        
-        # Reset force reduction to False?
     
     # Increase the time count
     iters += temp_amount
@@ -519,8 +551,6 @@ while iters < iters_max + temp_amount:
     
     # Reset the reduction counter to 0 - WILL NOT NEED THIS ANY LONGER!!!!!!!!!!!!!!!!
     force_reduction_counter = 0
-    
-    # Reset each discipline's criteria for a space reduction?  Add box to the flowchart?
 
 
 
