@@ -86,19 +86,17 @@ total_points = 10000
 ### number of disciplines/equations there are in the design problem
 run_time = [2, 3, 4]    # Must all be positive integers!
 
-# Decide if the fragility of proposed reductions is to be assessed and the
-# number of fragility assessments to allow before accepting a fragile space
-# reduction along with the initial net risk threshold
-fragility = True    # True = yes, False = no
-fragility_max = 5   # Must be a positive integer!
-net_risk_threshold = 0.1 
-
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
-    [0.2,   # p1: x-intercept (0 <= p1 < p3)
-     3.0,   # p2: Steepness (any real, positive number)
+    [0.1,   # p1: x-intercept (0 <= p1 < p3)
+     2.4,   # p2: Steepness (any real, positive number)
      1.0,   # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
+
+# Decide if the fragility of proposed reductions is to be assessed and the 
+# shift in the exponential curve for determining maximum threshold
+fragility = True       # True = yes, False = no
+fragility_shift = 0.1  # Should be a positive float
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -132,26 +130,6 @@ bez_point = {
     'P2': (1.0, 0.0)
     # Adjust these parameters as needed
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Set number of new points to be tested before calculating Kullback-Leibler
-### divergence between prior and posterior data sets of a discipline
-#KLgap = 1
 
 
 """
@@ -197,13 +175,6 @@ windreg = []
 running_windfall = []
 running_regret = []
 risk = []
-
-# Initialize dictionaries for KDEs of fragility check ######################### MIGHT NOT NEED THESE FOR IMDC
-# KDE_data = [{} for _ in Discips]
-# joint_KDEs = [{} for _ in Discips]
-# KDEs = [{} for _ in Discips]
-# posterior_KDEs = [{} for _ in Discips]
-# KL_divs = [{} for _ in Discips]
 
 # Set the initial forced reduction value to false and establish a counter
 ############################################################################### THESE MAY NOT BE NEEDED LATER
@@ -331,9 +302,8 @@ while iters < iters_max + temp_amount:
             # Initialize a fragility counter
             fragility_counter = 0
             
-            # Run a fragility assessment if desired and while fragility counter
-            # is not maxed out
-            while fragility and fragility_counter < fragility_max:
+            # Run a fragility assessment if desired
+            while fragility:
                 
                 # Determine the current rule combination length being checked
                 combo_len = len(irules_new) - fragility_counter
@@ -361,7 +331,7 @@ while iters < iters_max + temp_amount:
                 # Quantify risk or potential of space reduction for each discipline
                 ### Positive value means potential for regret or windfall ADDED
                 ### Negative value means potential for regret or windfall REDUCED
-                ris = windregret.quantRisk(run_wind, run_reg)
+                ris = windregret.quantRisk(run_wind, run_reg, wr)
                 
                 # Plot the potential for windfall and regret throughout each
                 # discipline's design space for the current rule (set)
@@ -375,7 +345,7 @@ while iters < iters_max + temp_amount:
                 fragile = checkFragility(ris)
                 
                 # Execute fragility assessment and increase fragility counter
-                isfragile, net_wr = fragile.basicCheck(iters, iters_max)
+                isfragile, net_wr = fragile.basicCheck(iters, iters_max, exp_parameters, fragility_shift)
                 fragility_counter += 1
                 
                 # If fragility is all good, break fragility loop
@@ -452,9 +422,8 @@ while iters < iters_max + temp_amount:
                     
                     break # Edit this later probably...might not need it anymore at all
                 
-            # If no fragility check, fragility counter maxed out?, or not fragile,
-            # continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - ADD TO A TEMPORARY BANNED RULE LIST?
-            if not fragility or fragility_counter>=fragility_max or not isfragile:
+            # If no fragility check or not fragile, continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - ADD TO A TEMPORARY BANNED RULE LIST?
+            if not fragility or not isfragile:
                 force_reduction = False
                 force_reduction_counter = 0
                 

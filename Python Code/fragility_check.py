@@ -7,6 +7,12 @@ Joseph B. Van Houten
 joeyvan@umich.edu
 """
 
+"""
+LIBRARIES
+"""
+from exponential_reduction import calcExponential
+
+
 
 
 
@@ -21,12 +27,10 @@ class checkFragility:
     
     
     # Return a true or false boolean value if fragile or not
-    def basicCheck(self, iters, iters_max):
+    def basicCheck(self, iters, iters_max, p, shift):
         
-        # Establish threshold for declaring a design space fragile after a space reduction
-        # If I do an exponential...can I set different parameters for 200 vs. 1000 run test cases?
-        # I want to set the threshold low enough so that the fragility is actually in play, but not so low that no space reductions are ever made
-        threshold = 0.5*(iters/iters_max)     # Fixed value ?????  Exponential value from function already established????  time aware LSTM model????
+        # Establish exponential threshold for declaring a design space fragile after a space reduction
+        threshold = max(calcExponential(iters/iters_max, p), 0.0) + shift
         
         # Initialize an empty dictionary for tracking max risk values
         max_risk = {}

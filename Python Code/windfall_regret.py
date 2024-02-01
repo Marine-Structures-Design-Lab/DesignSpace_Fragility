@@ -155,7 +155,7 @@ class windfallRegret:
         return windreg, run_wind, run_reg
     
     
-    def quantRisk(self, run_wind, run_reg):
+    def quantRisk(self, run_wind, run_reg, windreg):
         
         # Initialize empty dictionary
         risk = {}
@@ -172,11 +172,22 @@ class windfallRegret:
             # Loop through each discipline's regret and windfall data
             for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], run_wind[rule])):
                 
+                ########## Space Remaining ##########
+                # Print percent of space that would remain in discipline
+                print(f"Discipline {ind_dic+1} would go from "
+                      f"{round((windreg[rule][ind_dic]['non_reduced'].shape[0]/self.Df[ind_dic]['tp_actual'])*100, 2)}% to "
+                      f"{round((windreg[rule][ind_dic]['reduced'].shape[0]/self.Df[ind_dic]['tp_actual'])*100, 2)}%"
+                      f" of its original design space remaining!")
+                
+                
+                ########## Regret and Windfall ##########
+                
                 # Create an empty dictionary for regret and windfall tracking
                 risk[rule].append({
                     "regret" : None, 
                     "windfall" : None
                     })
+                
                 
                 ########## Regret ##########
                 
@@ -191,6 +202,7 @@ class windfallRegret:
                 
                 # Replace regret value in risk dictionary
                 risk[rule][ind_dic]['regret'] = reg_value
+                
                 
                 ########## Windfall ##########
                 
@@ -220,13 +232,6 @@ class windfallRegret:
             
             # Loop through each discipline's windfall-regret values
             for ind_dic, dic in enumerate(windreg[rule]):
-                
-                # Print percent of space that would remain in discipline
-                # DO NOT DO CALCULATIONS HERE...DO THEM BEFORE HERE!!!
-                print(f"Discipline {ind_dic+1} would go from "
-                      f"{round((dic['non_reduced'].shape[0]/self.Df[ind_dic]['tp_actual'])*100, 2)}% to "
-                      f"{round((dic['reduced'].shape[0]/self.Df[ind_dic]['tp_actual'])*100, 2)}%"
-                      f" of its original design space remaining!")
                 
                 # Make a copy of discipline taking the input rules into account
                 d_copy = copy.deepcopy(self.Df[ind_dic])
