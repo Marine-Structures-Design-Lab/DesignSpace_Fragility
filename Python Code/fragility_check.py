@@ -11,7 +11,12 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from exponential_reduction import calcExponential
+import random
 
+
+"""
+FUNCTIONS
+"""
 
 
 
@@ -21,7 +26,8 @@ CLASS
 """
 class checkFragility:
     
-    def __init__(self, risk):
+    def __init__(self, Discips, risk):
+        self.D = Discips
         self.risk = risk
         return
     
@@ -54,44 +60,107 @@ class checkFragility:
             if max_risk[rule]["value"] > threshold: max_risk[rule]["fragile"] = True
             else: max_risk[rule]["fragile"] = False
         
-        
-        # This is temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        fragile = False
-        
-        return fragile, max_risk
+        # Return results from the basic fragility assessment
+        return max_risk
     
     
-    def newRules(self, max_risk):
+    def newCombo(self, net_wr, original_banned_rules):
         
-        # Initialize an empty list of rule combinations
-        rule_combos = []
+        # Create an empty set for banned rules
+        banned_rules = set()
+        
+        # Create an empty set for tracking rule combinations that do not lead to fragile design space
+        good_combos = set()
         
         # Loop through each rule combination
-        for rule, lis in self.risk.items():
-            rule
+        for rule_tup, net_dic in net_wr.items():
             
-            # Add rule combination to list if it is not fragile
-            #if lis
+            # Check if rule combination leads to fragile design space
+            if net_dic['fragile'] == True:
+                
+                # Loop through each rule in the tuple
+                for rule in rule_tup:
+                    
+                    # Add each rule to the set of banned rules
+                    banned_rules.add(rule)
             
+            # Do following because rule combination does not lead to fragile design space
+            else:
+                
+                # Add tuple to the set of good combinations
+                good_combos.add(rule_tup)
+        
+        # Choose a random good combo as the the final combo
+        final_combo = random.choice(list(good_combos))
+        
+        # Loop through each good rule combination
+        for rule_tup in good_combos:
             
+            # Loop through each rule in the tuple
+            for rule in rule_tup:
+                
+                # Remove rule from banned rule set if there
+                banned_rules.discard(rule)
+        
+        # Add the newest banned rules to the original set of banned rules
+        original_banned_rules |= banned_rules
+        
+        # Return the non-fragile rule combination and ALL banned relationals
+        return final_combo, original_banned_rules
+    
+    
+    def throwOut(self, rule_combos):
+        
+        # Loop through each rule combination
+        for rule_tup in rule_combos:
             
+            # Initialize a set tracking variables of tuple
+            symb_set = set()
             
+            # Loop through each rule in the tuple
+            for rule in rule_tup:
+                
+                # Get free symbols of the rule
+                free_symbs = rule.free_symbols
+                
+                # Add these symbols to the set for the tuple
+                symb_set |= free_symbs
+            
+            # Initialize a set tracking indices of disciplines involved
+            frag_set = set()
+            
+            # Loop through each discipline
+            for ind_discip, dic_discip in enumerate(self.D):
+                
+                # Check if any symbols of the rule tuple are in list of
+                # inputs of the discipline
+                if any(symb_var in dic_discip['ins'] for symb_var in symb_set):
+                    
+                    # Add index to the fragility set list
+                    frag_set.add(ind_discip)
+            
+            # Flag to determine whether to skip to the next rule_tup
+            skip_rule_tup = False
+            
+            # Loop through set of disciplines involved with rule tuple
+            for ind_discip in frag_set:
+                
+                # Check if discipline IS forcing a space reduction
+                if self.D[ind_discip]['force_reduction'][0] == True:
+                    
+                    # Set flag and break to move to next rule tuple
+                    skip_rule_tup = True
+                    break
+            
+            # Check if flag was set and continue to next rule tuple
+            if skip_rule_tup:
+                continue
+            
+            # Remove the tuple from the rule combos
+            rule_combos.remove(rule_tup)
         
         
         
         
-        return 
-    
-    
-    def newBanned(self):
         
-        # Loop through each rule combination and add individual rule(s) to
-        # banned set if it is Fraile
-        
-        
-        return
-    
-    
-    
-    # Function for adding rule to a temporary banned rule list
-    
+        return rule_combos

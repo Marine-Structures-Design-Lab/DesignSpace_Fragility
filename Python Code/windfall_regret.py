@@ -222,9 +222,6 @@ class windfallRegret:
         return risk
     
     
-    # Surfaces are temporary and may need adjustment to fit other SBD problems
-    # Allllllllll of the rules need to be listed at the bottom rather than just newest rule
-    ### b/c windreg messed up in calcWindRegret...might make sense now.......
     def plotWindRegret(self, windreg):
         
         # Loop through each new rule (set) being proposed
