@@ -96,7 +96,7 @@ net_risk_threshold = 0.1
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
     [0.2,   # p1: x-intercept (0 <= p1 < p3)
-     2.0,   # p2: Steepness (any real, positive number)
+     3.0,   # p2: Steepness (any real, positive number)
      1.0,   # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
@@ -368,7 +368,7 @@ while iters < iters_max + temp_amount:
                 ### COMMENT THIS OUT IN SIMULATIONS
                 if iter_rem == 0 or iters > 0.99*iters_max:
                     windregret.plotWindRegret(wr)
-                    iter_rem = 1
+                    iter_rem = 10
                 iter_rem -= 1
                 
                 # Initialize a fragility check object
