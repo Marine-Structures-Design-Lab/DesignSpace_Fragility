@@ -187,6 +187,7 @@ plotExponential(exp_parameters)
 
 # Create empty lists for new rules and index of discipline proposing each rule
 irules_new = []
+irules_fragility = []
 irules_discip = []
 
 # Initialize lists for windfall and regret calculations
@@ -209,6 +210,9 @@ risk = []
 force_reduction = False
 force_reduction_counter = 0
 
+# Create a copy of the disciplines for fragility tracking
+Discips_fragility = copy.deepcopy(Discips)
+
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max + temp_amount:
     
@@ -229,13 +233,13 @@ while iters < iters_max + temp_amount:
             print(f"Exploring because space reduction cannot be forced for Discipline {ind_dic+1}!")
             break
     
-    
-    ###########################################################################
-    ####################### SPACE REDUCTIONS / FRAGILITY ######################
-    ###########################################################################
-    
     # Check that we are not to jump straight to exploration
     if not just_explore:
+        
+        
+        #######################################################################
+        ##################### INDIVIDUAL SPACE REDUCTIONS #####################
+        #######################################################################
         
         # Loop through each disicipline
         for i in range(0, len(Discips)):
@@ -276,7 +280,9 @@ while iters < iters_max + temp_amount:
         print("Individually proposed input rules: " + str(irules_new))
         
         
-        ########## PRESENT INFORMATION CHECKS / DOMINANCE ##########
+        #######################################################################
+        ###################### UNIVERSAL SPACE REDUCTIONS #####################
+        #######################################################################
         
         # Check if new input rules list is filled with any rules
         if irules_new:
@@ -290,11 +296,24 @@ while iters < iters_max + temp_amount:
             # Determine if discipline can veto proposal or if dominance forces it
             irules_new, pf, pf_std = \
                 merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
-            
-            # Append passfail data and time iteration to list if still proposed
+                
+            # Check if new rules are still being proposed
             if irules_new:
+                
+                # Append passfail data to list
                 passfail.append(copy.deepcopy(pf))
                 passfail_std.append(copy.deepcopy(pf_std))
+                
+                # Save INITIAL non-reduced data of time iteration for fragility
+                if irules_fragility == []:
+                    pf_fragility = []
+                    pf_std_fragility = []
+                    first_key = next(iter(pf.keys()))
+                    for item1, item2 in zip(pf[first_key], pf_std[first_key]):
+                        pf_fragility.append(item1['non_reduced'])
+                        pf_std_fragility.append(item2['non_reduced'])
+                
+                # Append time to passfail data
                 passfail[-1]['time'] = iters
                 passfail_std[-1]['time'] = iters
                 
@@ -302,7 +321,9 @@ while iters < iters_max + temp_amount:
         print("Universally proposed input rules: " + str(irules_new))
         
         
-        ##### FRAGILITY / FUTURE INFORMATION CHECK #####
+        #######################################################################
+        ######################### FRAGILITY ASSESSMENT ########################
+        #######################################################################
         
         # Check if new input rules list is STILL filled with any rules
         if irules_new:
@@ -332,10 +353,10 @@ while iters < iters_max + temp_amount:
                 ##### PROBABILITY-BASED #####
                     
                 # Initialize a windfall and regret object
-                windregret = windfallRegret(Discips)
+                windregret = windfallRegret(Discips, Discips_fragility, irules_fragility)
                 
                 # Calculate windfall and regret for remaining design spaces
-                wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos)
+                wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos, pf_fragility, pf_std_fragility)
                 
                 # Quantify risk or potential of space reduction for each discipline
                 ### Positive value means potential for regret or windfall ADDED
@@ -345,19 +366,20 @@ while iters < iters_max + temp_amount:
                 # Plot the potential for windfall and regret throughout each
                 # discipline's design space for the current rule (set)
                 ### COMMENT THIS OUT IN SIMULATIONS
-                if iter_rem == 0 or iters > 0.99*iters_max:
-                    windregret.plotWindRegret(wr)
-                    iter_rem = 8
-                iter_rem -= 1
+                # if iter_rem == 0 or iters > 0.99*iters_max:
+                #     windregret.plotWindRegret(wr)
+                #     iter_rem = 8
+                # iter_rem -= 1
                 
                 # Initialize a fragility check object
-                fragile = checkFragility()
+                fragile = checkFragility(ris)
                 
                 # Execute fragility assessment and increase fragility counter
-                isfragile, net_wr = fragile.basicCheck(ris, iters, iters_max)
+                isfragile, net_wr = fragile.basicCheck(iters, iters_max)
                 fragility_counter += 1
                 
                 # If fragility is all good, break fragility loop
+                #if all(dic["value"] == False for dic in net_wr.values()):
                 if not isfragile:
                     
                     # Append all of the findings to the list of dictionaries
@@ -413,22 +435,49 @@ while iters < iters_max + temp_amount:
                 
                 # Fragile and reduction forced, revise and try again - May not need this if it is just pass!
                 else:
-                    # Figure out what part(s) of the rule set is failing
-                    # Return back to the start of the fragility while loop - edit irules_new?
-                    break # Edit this later probably...might not need it anymore
+                    
+                    # Continue to reduced combination length if all current combinations are fragile
+                    if all(dic["value"] == True for dic in net_wr.values()): continue
+                    
+                    # Determine which rule combination to proceed with based on fragility
+                    #irules_new = fragile.newRules(net_wr)
+                    
+                    
+                    #
+                    
+                    
+                    # Add any individual rules that are apart of a fragile combo to a temporary banned set
+                    
+                    
+                    
+                    break # Edit this later probably...might not need it anymore at all
                 
-            # If no fragility check, fragility counter maxed out, or not fragile,
+            # If no fragility check, fragility counter maxed out?, or not fragile,
             # continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - ADD TO A TEMPORARY BANNED RULE LIST?
             if not fragility or fragility_counter>=fragility_max or not isfragile:
                 force_reduction = False
                 force_reduction_counter = 0
+                
+                # Add new input rules to the list of the current time stamp
+                irules_fragility += irules_new
+                
+                
+                
+                
                 # Reset criteria for space reduction? - I don't think so...only if next time iteration
                 continue
-                
+            
+            
+            
+            
+            
             # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
             elif not force_reduction:
                 force_reduction = False # Placeholder...change boolean to checkSpace method call
+                
+                # Reset new input rules to empty list, not going through with them
                 irules_new = []
+                
                 
                 # Adjust criteria for proposing space reduction if should be forced
                 if force_reduction:
@@ -543,11 +592,23 @@ while iters < iters_max + temp_amount:
         Discips[i]['force_reduction'][1] = 0
         Discips[i]['part_params'] = copy.deepcopy(part_params)
     
+    # Reset all of the fragility input rules back to an empty list
+    irules_fragility = []
+    
+    # Make a copy of the disciplines for fragility-tracking purposes
+    Discips_fragility = copy.deepcopy(Discips)
+    
+    # Track the time of the fragility copy
+    time_fragility = iters
+    
     # Increase the time count
     iters += temp_amount
     
     # Reset the just explore value to False
     just_explore = False
+    
+    # Reset temporarily banned rules to an empty set
+    banned_rules = set()
     
     # Reset the reduction counter to 0 - WILL NOT NEED THIS ANY LONGER!!!!!!!!!!!!!!!!
     force_reduction_counter = 0
@@ -560,129 +621,3 @@ while iters < iters_max + temp_amount:
 
 # NEED TO MAKE SURE I ADD THE VERY LAST INPUT RULES IF THERE ARE ANY!!!!
 # THEN PLOT FIGURES AND GET FINAL RESULTS OUTSIDE OF THE WHILE LOOP!!!
-
-
-
-
-
-
-
-################################### TEMPORARY #################################
-# import matplotlib.pyplot as plt
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Visualize the points in the space remaining
-# # Loop through each discipline
-# for i in range(0,len(Discips)):
-    
-#     # Print percent of space that remains in discipline
-#     print(f"Discipline {i+1} has "
-#       f"{round((np.shape(Discips[i]['space_remaining'])[0]/ \
-#            Discips[i]['tp_actual'])*100, 2)}"
-#       f"% of its original design space remaining")
-
-#     # Initialize an empty list for storing numpy arrays
-#     l = []
-    
-#     # Surface plot
-#     j = np.linspace(0, 1, 4000)
-#     k = np.linspace(0, 1, 4000)
-#     j, k = np.meshgrid(j, k)
-    
-#     if i == 0:
-#         l.append(0.8*j**2 + 2*k**2 - 0.0)
-#         l.append(0.8*j**2 + 2*k**2 - 0.4)
-#         l.append(0.8*j**2 + 2*k**2 - 1.2)
-#         l.append(0.8*j**2 + 2*k**2 - 1.6)
-#     elif i == 1:
-#         l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
-#         l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
-#         l.append(-k**3+np.sqrt(0.2))
-#         l.append(-k**3+np.sqrt(0.5))
-#     else:
-#         l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
-#         l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
-#         l.append((np.cos(3*j)+0.8)**3)
-#         l.append((np.cos(3*j)+1.6)**3)
-    
-#     # Replace out-of-bounds z_values with np.nan
-#     l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
-    
-#     # Initialize plot
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111, projection='3d')
-    
-#     # Initialize colors for plots
-#     colors = ['teal', 'teal', 'magenta', 'magenta']
-    
-#     # Plot every surface
-#     for m in range(0,len(l)):
-#         if i < 2:
-#             ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.5, rstride=100, cstride=100)
-#         else:
-#             ax.plot_surface( l[m], j, k, color=colors[m], alpha=0.5, rstride=100, cstride=100)
-    
-#     # Accumulate the space remaining data
-#     ax.scatter(Discips[i]['space_remaining'][:,0], \
-#                 Discips[i]['space_remaining'][:,1], \
-#                 Discips[i]['space_remaining'][:,2], c='black', s=10, alpha=0.4)
-    
-    
-#     # Gather and plot passing and failing remaining tested input indices
-#     pass_ind = np.where(Discips[i]['pass?'])[0].tolist()
-#     fail_ind = np.where(np.array(Discips[i]['pass?']) == False)[0].tolist()
-#     ax.scatter(Discips[i]['tested_ins'][pass_ind,0], \
-#                 Discips[i]['tested_ins'][pass_ind,1], \
-#                 Discips[i]['tested_ins'][pass_ind,2], c='green', alpha=1)
-#     ax.scatter(Discips[i]['tested_ins'][fail_ind,0], \
-#                 Discips[i]['tested_ins'][fail_ind,1], \
-#                 Discips[i]['tested_ins'][fail_ind,2], c='red', alpha=1)
-    
-#     # Gather and plot passing and failing eliminated tested input indices
-#     pass_ind = np.where(Discips[i]['eliminated']['pass?'])[0].tolist()
-#     fail_ind = np.where(np.array(Discips[i]['eliminated']['pass?']) == False)[0].tolist()
-#     ax.scatter(Discips[i]['eliminated']['tested_ins'][pass_ind,0], \
-#                 Discips[i]['eliminated']['tested_ins'][pass_ind,1], \
-#                 Discips[i]['eliminated']['tested_ins'][pass_ind,2], c='green', alpha=1)
-#     ax.scatter(Discips[i]['eliminated']['tested_ins'][fail_ind,0], \
-#                 Discips[i]['eliminated']['tested_ins'][fail_ind,1], \
-#                 Discips[i]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
-    
-#     # Set axis limits
-#     ax.set_xlim([0, 1])
-#     ax.set_ylim([0, 1])
-#     ax.set_zlim([0, 1])
-    
-#     # Set labels and title
-#     ax.set_xlabel(Discips[i]['ins'][0])
-#     ax.set_ylabel(Discips[i]['ins'][1])
-#     ax.set_zlabel(Discips[i]['ins'][2])
-#     ax.set_title('Discipline '+ str(i+1) + ' Remaining Input Space')
-    
-#     # Show plot
-#     plt.show()
-
-###############################################################################
-# Choose the final design or the final group of designs

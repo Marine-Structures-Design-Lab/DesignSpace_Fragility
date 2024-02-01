@@ -23,20 +23,22 @@ from merge_constraints import sharedIndices
 FUNCTION
 """
 # Function for repeated sharedIndices data
-
-
-
+# FRAGILITY NEEDS TO BE CHECKED WITH ALL OF THE INPUT RULES ALREADY PROPOSED FOR A CURRENT TIME STAMP!
+# aka non-reduced design space needs to be the one before ANY rules have been proposed for that specific time stamp!
+# Consider making some sort of a copy for it...
 """
 CLASS
 """
 class windfallRegret:
     
-    def __init__(self, Discips):
+    def __init__(self, Discips, Discips_fragility, irules_fragility):
         self.D = Discips
+        self.Df = Discips_fragility
+        self.irf = irules_fragility
         return
     
     
-    def calcWindRegret(self, passfail, passfail_std):
+    def calcWindRegret(self, passfail, passfail_std, pf_fragility, pf_std_fragility):
         
         # Initialize empty dictionaries
         windreg = {}
@@ -47,43 +49,45 @@ class windfallRegret:
         for rule, lis in passfail.items():
             
             # Add empty list to dictionaries
-            windreg[rule] = []
-            run_wind[rule] = []
-            run_reg[rule] = []
+            windreg[rule+tuple(self.irf)] = []
+            run_wind[rule+tuple(self.irf)] = []
+            run_reg[rule+tuple(self.irf)] = []
             
             # Loop through each discipline's passfail data
             for ind_dic, dic in enumerate(lis):
                 
                 # Create empty dictionaries for discipline
-                windreg[rule].append({})
-                run_wind[rule].append({})
-                run_reg[rule].append({})
+                windreg[rule+tuple(self.irf)].append({})
+                run_wind[rule+tuple(self.irf)].append({})
+                run_reg[rule+tuple(self.irf)].append({})
                 
                 # Loop through each design space of discipline
                 for ds, arr in dic.items():
                     
                     # Initialize empty arrays and values
-                    windreg[rule][ind_dic][ds] = np.empty_like(arr)
-                    run_wind[rule][ind_dic][ds] = 0.0
-                    run_reg[rule][ind_dic][ds] = 0.0
+                    windreg[rule+tuple(self.irf)][ind_dic][ds] = np.empty_like(pf_fragility[ind_dic])
+                    run_wind[rule+tuple(self.irf)][ind_dic][ds] = 0.0
+                    run_reg[rule+tuple(self.irf)][ind_dic][ds] = 0.0
                 
-                # Make a copy of discipline taking the input rule into account
-                d_copy = copy.deepcopy(self.D[ind_dic])
+                # Make a copy of discipline taking the input rules into account
+                d_copy = copy.deepcopy(self.Df[ind_dic])
                 
                 # Move values to eliminated section of discipline copy
-                d_copy = sortPoints([d_copy], list(rule))
+                d_copy = sortPoints([d_copy], list(rule)+self.irf)
                 
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
-                    sharedIndices(self.D[ind_dic]['space_remaining'],
+                    sharedIndices(self.Df[ind_dic]['space_remaining'],
                                   d_copy[0]['space_remaining'])
                 
-                # Loop through each passfail value of the non-reduced matrix
-                for ind_pf, pf in enumerate(dic['non_reduced']):
+                # THE ISSUE STARTS HERE WITH THE PASSFAIL VALUES..... 
+                # TAKE PASSFAIL DATA FROM PROPER TIME STAMP!!!!!!!!!!!!!!!!!!!!!!
+                # Loop through each passfail value of the non-reduceddddddddddddddddddddddd!!!!!!!!!!!!!!!! matrix
+                ###### NEED ORIGINAL PASSFAIL TO BE THE ORIGINAL PREDICTIONS BEFORE ANYYYYYY OF THE NEW TIME ITERATIONS RULES APPLIED
+                for ind_pf, pf in enumerate(pf_fragility[ind_dic]):
                     
                     # Convert passfail prediction to complementary probability
-                    prob_feas = 1.0 - stats.norm.cdf(abs(pf)/\
-                        passfail_std[rule][ind_dic]['non_reduced'][ind_pf])
+                    prob_feas = 1.0 - stats.norm.cdf(abs(pf) / pf_std_fragility[ind_dic][ind_pf])
                     
                     # Check if point is in both non-reduced and reduced matrices
                     if ind_pf in indices_in_both:
@@ -91,24 +95,25 @@ class windfallRegret:
                         # Check if point predicted infeasible (windfall chance)
                         if pf < 0:
                             
+                            # Consider changing rule key to include ALL OF THE RULES??? CREATE A NEW TUPLE?...add the tuple?????
                             # Add pos. probability to the proper dictionary arrays
-                            windreg[rule][ind_dic]['non_reduced'][ind_pf] = prob_feas
-                            windreg[rule][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = prob_feas
                                         
                             # Add to proper running windfall count
-                            run_wind[rule][ind_dic]['non_reduced'] += prob_feas
-                            run_wind[rule][ind_dic]['reduced'] += prob_feas
+                            run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
+                            run_wind[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
                                         
                         # Do below if point predicted feasible (regret chance)
                         else:
                                         
                             # Add neg. probability to the proper dictionary arrays
-                            windreg[rule][ind_dic]['non_reduced'][ind_pf] = -prob_feas
-                            windreg[rule][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = -prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = -prob_feas
                                         
                             # Add to proper running regret count
-                            run_reg[rule][ind_dic]['non_reduced'] += prob_feas
-                            run_reg[rule][ind_dic]['reduced'] += prob_feas
+                            run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
+                            run_reg[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
                             
                     # Do below if point is not in both non-reduced and reduced matrices
                     else:
@@ -117,32 +122,30 @@ class windfallRegret:
                         if pf < 0:
                             
                             # Add pos. probability to the proper dictionary arrays (Should I do leftover or put these values in reduced for graphing?)
-                            windreg[rule][ind_dic]['non_reduced'][ind_pf] = prob_feas
-                            windreg[rule][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = -prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = -prob_feas
                                             
                             # Add to proper running windfall count (Do I want to use leftover key at all?)
-                            run_wind[rule][ind_dic]['non_reduced'] += prob_feas
-                            run_reg[rule][ind_dic]['reduced'] += prob_feas
+                            run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
+                            run_reg[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
                         
                         # Do below if point is predicted feasible (non-reduced: regret chance, reduced: windfall chance)
                         else:
                                         
                             # Add neg. probability to the proper dictionary arrays
-                            windreg[rule][ind_dic]['non_reduced'][ind_pf] = -prob_feas
-                            windreg[rule][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = prob_feas
                                         
                             # Add to proper running windfall count
-                            run_reg[rule][ind_dic]['non_reduced'] += prob_feas
-                            run_wind[rule][ind_dic]['reduced'] += prob_feas
+                            run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
+                            run_wind[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
                             
                 # Loop through each design space of discipline
                 for ds, arr in dic.items():
                 
                     # Divide probabilistic sums by number of remaining points - CHECK THAT I AM DIVIDING BY CORRECT THING AND SHOULDN'T BE TP_ACTUAL
-                    run_wind[rule][ind_dic][ds] = run_wind[rule][ind_dic][ds] / self.D[ind_dic]['space_remaining'].shape[0]
-                    run_reg[rule][ind_dic][ds] = run_reg[rule][ind_dic][ds] / self.D[ind_dic]['space_remaining'].shape[0]
-                
-                # Consider plotting windfall or regret over time for each variable combination!
+                    run_wind[rule+tuple(self.irf)][ind_dic][ds] = run_wind[rule+tuple(self.irf)][ind_dic][ds] / self.Df[ind_dic]['space_remaining'].shape[0]
+                    run_reg[rule+tuple(self.irf)][ind_dic][ds] = run_reg[rule+tuple(self.irf)][ind_dic][ds] / self.Df[ind_dic]['space_remaining'].shape[0]
                         
         # Returning windfall and regret information for new rule(s)
         return windreg, run_wind, run_reg
@@ -204,6 +207,8 @@ class windfallRegret:
     
     
     # Surfaces are temporary and may need adjustment to fit other SBD problems
+    # Allllllllll of the rules need to be listed at the bottom rather than just newest rule
+    ### b/c windreg messed up in calcWindRegret...might make sense now.......
     def plotWindRegret(self, windreg):
         
         # Loop through each new rule (set) being proposed
