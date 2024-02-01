@@ -15,13 +15,6 @@ import random
 
 
 """
-FUNCTIONS
-"""
-
-
-
-
-"""
 CLASS
 """
 class checkFragility:
@@ -156,11 +149,8 @@ class checkFragility:
             if skip_rule_tup:
                 continue
             
-            # Remove the tuple from the rule combos
+            # Remove the tuple from the rule combos since it was not flagged
             rule_combos.remove(rule_tup)
         
-        
-        
-        
-        
+        # Return the updated list of rule combinations
         return rule_combos

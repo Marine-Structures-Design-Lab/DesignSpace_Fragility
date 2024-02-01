@@ -175,11 +175,6 @@ running_windfall = []
 running_regret = []
 risk = []
 
-# Set the initial forced reduction value to false and establish a counter
-############################################################################### THESE MAY NOT BE NEEDED LATER
-force_reduction = False
-force_reduction_counter = 0
-
 # Create a copy of the disciplines for fragility tracking
 Discips_fragility = copy.deepcopy(Discips)
 
@@ -256,7 +251,7 @@ while iters < iters_max + temp_amount:
                 irules_discip.append(i)
             
         # Check up on new rules
-        print("Individually proposed input rules: " + str(irules_new))
+        print(f"Individually proposed input rules: {irules_new}")
         
         
         #######################################################################
@@ -298,7 +293,7 @@ while iters < iters_max + temp_amount:
                 passfail_std[-1]['time'] = iters
                 
         # Check up on new rules
-        print("Universally proposed input rules: " + str(irules_new))
+        print(f"Universally proposed input rules: {irules_new}")
         
         
         #######################################################################
@@ -317,18 +312,15 @@ while iters < iters_max + temp_amount:
                 # Determine the current rule combination length being checked
                 combo_len = len(irules_new) - fragility_counter
                 
-                # Break if the while loop rule combination length is less than 1????????????????
-                # THROW OUT THE RULE SET!!!!!!
+                # Break if the while loop rule combination length is less than 1
                 if combo_len < 1:
-                    
-                    irules_new = []
                     break
                 
                 # Gather rule combination(s) of current length in a list of tuples
                 rule_combos = list(itertools.combinations(irules_new, combo_len))
                 
-                # Set initial large length for rule combination list
-                rule_combos_len = 10000000
+                # Set initial large length for rule combination LIST
+                combo_list_len = 10000000
                 
                 # Initialize a boolean variable for breaking the fragility loop
                 break_fragility = False
@@ -336,13 +328,11 @@ while iters < iters_max + temp_amount:
                 # Increase fragility counter by one
                 fragility_counter += 1
                 
-                
-                
                 # Assess fragility of rule combo(s) while list not empty or repeated
-                while rule_combos and len(rule_combos) < rule_combos_len:
+                while rule_combos and len(rule_combos) < combo_list_len:
                     
                     # Retrieve the current length of the rule combos list
-                    rule_combos_len = len(rule_combos)
+                    combo_list_len = len(rule_combos)
                     
                     # Gather passfail data of rule combination(s) in smaller dictionary
                     pf_combos = {key: pf[key] for key in rule_combos}
@@ -381,6 +371,10 @@ while iters < iters_max + temp_amount:
                         running_regret.append(copy.deepcopy({final_combo: run_reg[final_combo]}))
                         risk.append(copy.deepcopy({final_combo: ris[final_combo]}))
                         
+                        # Plot the potential for windfall and regret throughout
+                        # each discipline's design space for the final combo
+                        windregret.plotWindRegret({final_combo: wr[final_combo]})
+                        
                         # Append time to the dictionaries
                         windreg[-1]['time'] = iters
                         running_windfall[-1]['time'] = iters
@@ -391,94 +385,40 @@ while iters < iters_max + temp_amount:
                         break_fragility = True
                         break
                         
-                    # Fragility is not okay...want to determine if I should throw
-                    # out any new rule combos because reduction is not being forced
+                    # Since fragility is not okay, determine if any rule combos
+                    # should be removed because reduction is not being forced
                     rule_combos = fragile.throwOut(rule_combos)
-                
-                
-                
-                
                 
                 # Check if fragility loop broken because no fragile spaces
                 if break_fragility == True:
                     
-                    # Delete any input rules that are not in the rule combos!!!!
+                    # Reassign new input rules as the items in the final combo
+                    irules_new = list(final_combo)
                     
+                    # Add new input rules to the list of the current time stamp
+                    irules_fragility += irules_new
                     
+                    # Check up on final input rules
+                    print(f"Final input rules after fragility check: {irules_new}")
                     
-                    
+                    # Break the fragility loop
                     break
-                    
-                        
-                    
                 
-                # Fragile and reduction forced, revise and try again - May not need this if it is just pass!
+                # Do following since fragile loop broken because went through all possible combinations and still fragile
                 else:
                     
-                    # Continue to reduced combination length if all current combinations are fragile
-                    if all(dic["value"] == True for dic in net_wr.values()): continue
+                    # Add input rules to set of banned rules
+                    banned_rules.update(irules_new)
                     
-                    # Determine which rule combination to proceed with based on fragility
-                    #irules_new = fragile.newRules(net_wr)
+                    # Reset the input rules to an empty list
+                    irules_new = []
                     
-                    
-                    #
-                    
-                    
-                    # Add any individual rules that are apart of a fragile combo to a temporary banned set
-                    
-                    
-                    
-                    break # Edit this later probably...might not need it anymore at all
-                
-            # If no fragility check or not fragile, continue with the proposed/last revised reduction ----- THROW THE RULE OUT??? - ADD TO A TEMPORARY BANNED RULE LIST?
-            if not fragility or not any(dic["fragile"] == True for dic in net_wr.values()):
-                force_reduction = False
-                force_reduction_counter = 0
-                
-                # Add new input rules to the list of the current time stamp
-                irules_fragility += irules_new
-                
-                
-                
-                
-                # Reset criteria for space reduction? - I don't think so...only if next time iteration
-                continue
-            
-            
-            
-            
-            
-            # If reduction is not forced, check if it should be (Turn code in elif into function call because code repeated below!)
-            elif not force_reduction:
-                force_reduction = False # Placeholder...change boolean to checkSpace method call
-                
-                # Reset new input rules to empty list, not going through with them
-                irules_new = []
-                
-                
-                # Adjust criteria for proposing space reduction if should be forced
-                if force_reduction:
-                    pass # Placeholder...change to checkSpace method call to adjust criteria
-                    # DO NOT CHANGE FORCE_REDUCTION BACK TO TRUE HERE
-                    # DO NOT INCREASE FORCE REDUCTION COUNTER BY 1 HERE
-                    continue
-             
-                    
+                    # Break the fragility loop
+                    break
         
-        
-        # Move plotting somewhere over here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # Plot the potential for windfall and regret throughout each
-        # discipline's design space for the current rule (set)
-        # windregret.plotWindRegret(wr)
-        
-        
-        
-        
-        
-        # If no new input rules, determine if time remaining paired with the design
-        ### space remaining warrants a space reduction to be forced
-        else:
+        # If no new input rules, determine if time remaining paired with the
+        ### design space remaining warrants a space reduction to be forced
+        if not irules_new:
             
             # Create an object for the changeReduction class
             red_change = changeReduction(Discips)
@@ -497,19 +437,9 @@ while iters < iters_max + temp_amount:
                 # Adjust the criteria for the necessary discipline(s)
                 Discips = red_change.adjustCriteria()
                 
-                # DO NOT CHANGE FORCE_REDUCTION BACK TO FALSE HERE
-                force_reduction_counter += 1 # This counter is not needed in the fragility loop
-                # because a forced reduction will not leave the fragility loop until
-                # a space reduction is actually made and committed to 
+                # Reset back to time iteration's while loop without exploring
                 continue
-
             
-    
-    
-
-    
-    
-    
     
     ###########################################################################
     ############################### EXPLORATION ###############################
@@ -591,8 +521,6 @@ while iters < iters_max + temp_amount:
     # Reset temporarily banned rules to an empty set
     banned_rules = set()
     
-    # Reset the reduction counter to 0 - WILL NOT NEED THIS ANY LONGER!!!!!!!!!!!!!!!!
-    force_reduction_counter = 0
 
 
 

@@ -152,8 +152,6 @@ class changeReduction:
                     min(self.d[i]['part_params']['disc_crit'][0] + \
                         self.d[i]['part_params']['disc_crit'][1], 0.7)
             
-            # THIS MAY GO IN ITS OWN METHOD based on how adjustCriteria is
-            # called elsewhere in the script file!!!
             # Increase the discipline's forced reduction counter by 1
             self.d[i]['force_reduction'][1] += 1
         
