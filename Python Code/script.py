@@ -373,7 +373,7 @@ while iters < iters_max + temp_amount:
                         
                         # Plot the potential for windfall and regret throughout
                         # each discipline's design space for the final combo
-                        windregret.plotWindRegret({final_combo: wr[final_combo]})
+                        # windregret.plotWindRegret({final_combo: wr[final_combo]})
                         
                         # Append time to the dictionaries
                         windreg[-1]['time'] = iters
@@ -398,9 +398,6 @@ while iters < iters_max + temp_amount:
                     # Add new input rules to the list of the current time stamp
                     irules_fragility += irules_new
                     
-                    # Check up on final input rules
-                    print(f"Final input rules after fragility check: {irules_new}")
-                    
                     # Break the fragility loop
                     break
                 
@@ -415,9 +412,20 @@ while iters < iters_max + temp_amount:
                     
                     # Break the fragility loop
                     break
-        
+            
+            # Check up on final input rules if fragility check executed
+            if fragility:
+                print(f"Final input rules after fragility check: {irules_new}")
+            else:
+                print("No fragility check executed!")
+            
+            # Check if space reductions still need to be forced!
+            
+            
+            
+            
         # If no new input rules, determine if time remaining paired with the
-        ### design space remaining warrants a space reduction to be forced
+        ### design space remaining warrants a space reduction to be forced -- maybe change this to an else!!!!!!
         if not irules_new:
             
             # Create an object for the changeReduction class
