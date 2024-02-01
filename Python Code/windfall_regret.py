@@ -31,8 +31,7 @@ CLASS
 """
 class windfallRegret:
     
-    def __init__(self, Discips, Discips_fragility, irules_fragility):
-        self.D = Discips
+    def __init__(self, Discips_fragility, irules_fragility):
         self.Df = Discips_fragility
         self.irf = irules_fragility
         return
@@ -65,7 +64,7 @@ class windfallRegret:
                 for ds, arr in dic.items():
                     
                     # Initialize empty arrays and values
-                    windreg[rule+tuple(self.irf)][ind_dic][ds] = np.empty_like(pf_fragility[ind_dic])
+                    windreg[rule+tuple(self.irf)][ind_dic][ds] = np.array([], dtype=float)
                     run_wind[rule+tuple(self.irf)][ind_dic][ds] = 0.0
                     run_reg[rule+tuple(self.irf)][ind_dic][ds] = 0.0
                 
@@ -80,10 +79,7 @@ class windfallRegret:
                     sharedIndices(self.Df[ind_dic]['space_remaining'],
                                   d_copy[0]['space_remaining'])
                 
-                # THE ISSUE STARTS HERE WITH THE PASSFAIL VALUES..... 
-                # TAKE PASSFAIL DATA FROM PROPER TIME STAMP!!!!!!!!!!!!!!!!!!!!!!
-                # Loop through each passfail value of the non-reduceddddddddddddddddddddddd!!!!!!!!!!!!!!!! matrix
-                ###### NEED ORIGINAL PASSFAIL TO BE THE ORIGINAL PREDICTIONS BEFORE ANYYYYYY OF THE NEW TIME ITERATIONS RULES APPLIED
+                # Loop through each passfail value of the NON-REDUCED array
                 for ind_pf, pf in enumerate(pf_fragility[ind_dic]):
                     
                     # Convert passfail prediction to complementary probability
@@ -96,9 +92,11 @@ class windfallRegret:
                         if pf < 0:
                             
                             # Consider changing rule key to include ALL OF THE RULES??? CREATE A NEW TUPLE?...add the tuple?????
-                            # Add pos. probability to the proper dictionary arrays
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
-                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = prob_feas
+                            # Add pos. probability to the proper dictionary arrays - Add value to bottom instead
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], prob_feas)
+                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['reduced'], prob_feas)
+                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
+                            # windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = prob_feas
                                         
                             # Add to proper running windfall count
                             run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -108,8 +106,10 @@ class windfallRegret:
                         else:
                                         
                             # Add neg. probability to the proper dictionary arrays
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
-                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = -prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], -prob_feas)
+                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['reduced'], -prob_feas)
+                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
+                            # windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = -prob_feas
                                         
                             # Add to proper running regret count
                             run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -122,8 +122,10 @@ class windfallRegret:
                         if pf < 0:
                             
                             # Add pos. probability to the proper dictionary arrays (Should I do leftover or put these values in reduced for graphing?)
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
-                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = -prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], prob_feas)
+                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['leftover'], -prob_feas)
+                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
+                            # windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = -prob_feas
                                             
                             # Add to proper running windfall count (Do I want to use leftover key at all?)
                             run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -133,8 +135,10 @@ class windfallRegret:
                         else:
                                         
                             # Add neg. probability to the proper dictionary arrays
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
-                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = prob_feas
+                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], -prob_feas)
+                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['leftover'], prob_feas)
+                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
+                            # windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = prob_feas
                                         
                             # Add to proper running windfall count
                             run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -220,19 +224,19 @@ class windfallRegret:
                 # Print percent of space that would remain in discipline
                 # DO NOT DO CALCULATIONS HERE...DO THEM BEFORE HERE!!!
                 print(f"Discipline {ind_dic+1} would go from "
-                      f"{round((dic['non_reduced'].shape[0]/self.D[ind_dic]['tp_actual'])*100, 2)}% to "
-                      f"{round((dic['reduced'].shape[0]/self.D[ind_dic]['tp_actual'])*100, 2)}%"
+                      f"{round((dic['non_reduced'].shape[0]/self.Df[ind_dic]['tp_actual'])*100, 2)}% to "
+                      f"{round((dic['reduced'].shape[0]/self.Df[ind_dic]['tp_actual'])*100, 2)}%"
                       f" of its original design space remaining!")
                 
-                # Make a copy of discipline taking the input rule into account
-                d_copy = copy.deepcopy(self.D[ind_dic])
+                # Make a copy of discipline taking the input rules into account
+                d_copy = copy.deepcopy(self.Df[ind_dic])
                 
                 # Move values to eliminated section of discipline copy
-                d_copy = sortPoints([d_copy], list(rule))
+                d_copy = sortPoints([d_copy], list(rule)+self.irf)
                 
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
-                    sharedIndices(self.D[ind_dic]['space_remaining'],
+                    sharedIndices(self.Df[ind_dic]['space_remaining'],
                                   d_copy[0]['space_remaining'])
                 
                 # Add each list to a different dictionary key
@@ -292,9 +296,9 @@ class windfallRegret:
                     wr_discrete = (np.digitize(arr, bins=levels) - 6) / 10.0
                     
                     # Plot discretized space remaining points for design space
-                    scatter = ax.scatter(self.D[ind_dic]['space_remaining'][diction[ds], 0], \
-                                         self.D[ind_dic]['space_remaining'][diction[ds], 1], \
-                                         self.D[ind_dic]['space_remaining'][diction[ds], 2], \
+                    scatter = ax.scatter(self.Df[ind_dic]['space_remaining'][diction[ds], 0], \
+                                         self.Df[ind_dic]['space_remaining'][diction[ds], 1], \
+                                         self.Df[ind_dic]['space_remaining'][diction[ds], 2], \
                                          c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, vmin=-0.5, vmax=0.5)
                     
                     # Adjust the colorbar to reflect the levels
@@ -308,25 +312,25 @@ class windfallRegret:
                     cbar.ax.set_yticklabels(tick_labels)
                     
                     # Gather and plot passing and failing remaining tested input indices
-                    pass_ind = np.where(self.D[ind_dic]['pass?'])[0].tolist()
-                    fail_ind = np.where(np.array(self.D[ind_dic]['pass?']) == False)[0].tolist()
-                    ax.scatter(self.D[ind_dic]['tested_ins'][pass_ind,0], \
-                               self.D[ind_dic]['tested_ins'][pass_ind,1], \
-                               self.D[ind_dic]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                    ax.scatter(self.D[ind_dic]['tested_ins'][fail_ind,0], \
-                               self.D[ind_dic]['tested_ins'][fail_ind,1], \
-                               self.D[ind_dic]['tested_ins'][fail_ind,2], c='red', alpha=1)
+                    pass_ind = np.where(self.Df[ind_dic]['pass?'])[0].tolist()
+                    fail_ind = np.where(np.array(self.Df[ind_dic]['pass?']) == False)[0].tolist()
+                    ax.scatter(self.Df[ind_dic]['tested_ins'][pass_ind,0], \
+                               self.Df[ind_dic]['tested_ins'][pass_ind,1], \
+                               self.Df[ind_dic]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                    ax.scatter(self.Df[ind_dic]['tested_ins'][fail_ind,0], \
+                               self.Df[ind_dic]['tested_ins'][fail_ind,1], \
+                               self.Df[ind_dic]['tested_ins'][fail_ind,2], c='red', alpha=1)
                     
                     # Gather and plot passing and failing eliminated tested input indices
-                    if 'eliminated' in self.D[ind_dic]:
-                        pass_ind = np.where(self.D[ind_dic]['eliminated']['pass?'])[0].tolist()
-                        fail_ind = np.where(np.array(self.D[ind_dic]['eliminated']['pass?']) == False)[0].tolist()
-                        ax.scatter(self.D[ind_dic]['eliminated']['tested_ins'][pass_ind,0], \
-                                   self.D[ind_dic]['eliminated']['tested_ins'][pass_ind,1], \
-                                   self.D[ind_dic]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                        ax.scatter(self.D[ind_dic]['eliminated']['tested_ins'][fail_ind,0], \
-                                   self.D[ind_dic]['eliminated']['tested_ins'][fail_ind,1], \
-                                   self.D[ind_dic]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
+                    if 'eliminated' in self.Df[ind_dic]:
+                        pass_ind = np.where(self.Df[ind_dic]['eliminated']['pass?'])[0].tolist()
+                        fail_ind = np.where(np.array(self.Df[ind_dic]['eliminated']['pass?']) == False)[0].tolist()
+                        ax.scatter(self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,0], \
+                                   self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,1], \
+                                   self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                        ax.scatter(self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,0], \
+                                   self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,1], \
+                                   self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
                     
                     # Set axis limits
                     ax.set_xlim([0, 1])
@@ -334,9 +338,9 @@ class windfallRegret:
                     ax.set_zlim([0, 1])
                     
                     # Set labels and title
-                    ax.set_xlabel(self.D[ind_dic]['ins'][0])
-                    ax.set_ylabel(self.D[ind_dic]['ins'][1])
-                    ax.set_zlabel(self.D[ind_dic]['ins'][2])
+                    ax.set_xlabel(self.Df[ind_dic]['ins'][0])
+                    ax.set_ylabel(self.Df[ind_dic]['ins'][1])
+                    ax.set_zlabel(self.Df[ind_dic]['ins'][2])
                     ax.set_title(f"Discipline {ind_dic+1} {ds} input space")
                     plt.figtext(0.5, 0.01, f"New input rule set: {str(rule)}", ha="center", fontsize=10, va="bottom")
                     

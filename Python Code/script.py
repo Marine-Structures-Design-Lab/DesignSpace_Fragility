@@ -96,7 +96,7 @@ net_risk_threshold = 0.1
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
     [0.2,   # p1: x-intercept (0 <= p1 < p3)
-     5.0,   # p2: Steepness (any real, positive number)
+     2.0,   # p2: Steepness (any real, positive number)
      1.0,   # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
@@ -304,7 +304,7 @@ while iters < iters_max + temp_amount:
                 passfail.append(copy.deepcopy(pf))
                 passfail_std.append(copy.deepcopy(pf_std))
                 
-                # Save INITIAL non-reduced data of time iteration for fragility
+                # Gather INITIAL passfail data of NON-REDUCED array
                 if irules_fragility == []:
                     pf_fragility = []
                     pf_std_fragility = []
@@ -353,7 +353,7 @@ while iters < iters_max + temp_amount:
                 ##### PROBABILITY-BASED #####
                     
                 # Initialize a windfall and regret object
-                windregret = windfallRegret(Discips, Discips_fragility, irules_fragility)
+                windregret = windfallRegret(Discips_fragility, irules_fragility)
                 
                 # Calculate windfall and regret for remaining design spaces
                 wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos, pf_fragility, pf_std_fragility)
@@ -366,10 +366,10 @@ while iters < iters_max + temp_amount:
                 # Plot the potential for windfall and regret throughout each
                 # discipline's design space for the current rule (set)
                 ### COMMENT THIS OUT IN SIMULATIONS
-                # if iter_rem == 0 or iters > 0.99*iters_max:
-                #     windregret.plotWindRegret(wr)
-                #     iter_rem = 8
-                # iter_rem -= 1
+                if iter_rem == 0 or iters > 0.99*iters_max:
+                    windregret.plotWindRegret(wr)
+                    iter_rem = 1
+                iter_rem -= 1
                 
                 # Initialize a fragility check object
                 fragile = checkFragility(ris)
