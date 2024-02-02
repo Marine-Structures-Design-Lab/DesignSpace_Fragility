@@ -58,18 +58,18 @@ class exploreSpace:
         # Fixed if statements for exploration time based on time remaining
         ### Welcome to add to, eliminate, or manipulate these as desired
         if self.it < 0.2*self.itm:
-            return max(int(0.20*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.20*time_rem),min(time_rem,2*max(self.rt)))
         elif self.it < 0.35*self.itm:
-            return max(int(0.18*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.18*time_rem),min(time_rem,2*max(self.rt)))
         elif self.it < 0.5*self.itm:
-            return max(int(0.15*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.15*time_rem),min(time_rem,2*max(self.rt)))
         elif self.it < 0.6*self.itm:
-            return max(int(0.12*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.12*time_rem),min(time_rem,2*max(self.rt)))
         elif self.it < 0.7*self.itm:
-            return max(int(0.10*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.10*time_rem),min(time_rem,2*max(self.rt)))
         elif self.it < 0.8*self.itm:
-            return max(int(0.07*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.07*time_rem),min(time_rem,2*max(self.rt)))
         elif self.it < 0.9*self.itm:
-            return max(int(0.04*time_rem),min(time_rem,3*max(self.rt)))
+            return max(int(0.04*time_rem),min(time_rem,2*max(self.rt)))
         else:
-            return min(time_rem,3*max(self.rt))
+            return min(time_rem,2*max(self.rt))

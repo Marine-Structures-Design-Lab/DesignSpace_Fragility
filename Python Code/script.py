@@ -43,16 +43,30 @@ from input_vals import getInput
 from output_vals import getOutput
 from calc_rules import calcRules
 from output_success import checkOutput
+from convert_numpy import convertNumpy
 import numpy as np
 import copy
 import itertools
-import time
+import sys
+import datetime
+import json
+
+
+"""
+PREPARE DATA
+"""
+# Generate a unique identifier for each run
+run_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+# Redirect stdout to a file
+original_stdout = sys.stdout  # Save reference to the original standard output
+log_file_path = f"console_output_{run_id}.txt"
+sys.stdout = open(log_file_path, 'w')
 
 
 ###############################################################################
 ################################ PROBLEM SETUP ################################
 ###############################################################################
-start_time = time.time()
 """
 USER INPUTS
 """
@@ -578,5 +592,25 @@ if irules_new:
 # Add any new input rules to the list
 Input_Rules += irules_new
 
-end_time = time.time()
-print(f"Execution time: {end_time - start_time} seconds")
+# Convert array to list for JSON file
+space_remaining_converted = convertNumpy(Space_Remaining)
+
+# Write Space_Remaining data to a file
+space_remaining_file_path = f"space_remaining_{run_id}.json"
+with open(space_remaining_file_path, 'w') as f:
+    json.dump(space_remaining_converted, f, indent=4)
+
+# Optional: Print a completion message (still redirected to file)
+print(
+      f"Simulation completed. Space remaining data saved to "
+      f"{space_remaining_file_path}"
+      )
+
+# Reset stdout to its original value
+sys.stdout.close()
+sys.stdout = original_stdout
+
+# Optional: Print a message to console after resetting stdout
+print(f"Simulation run {run_id} completed successfully.")
+
+
