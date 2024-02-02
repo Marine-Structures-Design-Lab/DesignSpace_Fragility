@@ -55,12 +55,13 @@ import json
 """
 PREPARE DATA
 """
-# Generate a unique identifier for each run
+# Establish ID for test case
+test_case_id = 'TC1'
 run_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
 # Redirect stdout to a file
-original_stdout = sys.stdout  # Save reference to the original standard output
-log_file_path = f"console_output_{run_id}.txt"
+original_stdout = sys.stdout
+log_file_path = f"console_output_{test_case_id}_{run_id}.txt"
 sys.stdout = open(log_file_path, 'w')
 
 
@@ -596,7 +597,7 @@ Input_Rules += irules_new
 space_remaining_converted = convertNumpy(Space_Remaining)
 
 # Write Space_Remaining data to a file
-space_remaining_file_path = f"space_remaining_{run_id}.json"
+space_remaining_file_path = f"space_remaining_{test_case_id}_{run_id}.json"
 with open(space_remaining_file_path, 'w') as f:
     json.dump(space_remaining_converted, f, indent=4)
 
@@ -611,6 +612,6 @@ sys.stdout.close()
 sys.stdout = original_stdout
 
 # Optional: Print a message to console after resetting stdout
-print(f"Simulation run {run_id} completed successfully.")
+print(f"Simulation run {test_case_id}_{run_id} completed successfully.")
 
 

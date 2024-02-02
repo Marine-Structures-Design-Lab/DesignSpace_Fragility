@@ -38,7 +38,7 @@ def load_and_convert(json_file_path):
 
 
 # Specify the name of your JSON file
-file_name = "space_remaining_20240202114637.json"  # Replace YYYYMMDDHHMMSS with the actual timestamp
+file_name = "space_remaining_TC1_20240202123018.json"  # Replace YYYYMMDDHHMMSS with the actual timestamp
 
 # Load the data using the function
 loaded_data = load_and_convert(file_name)
