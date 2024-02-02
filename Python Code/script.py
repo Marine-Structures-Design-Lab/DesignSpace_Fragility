@@ -47,11 +47,13 @@ from output_success import checkOutput
 import numpy as np
 import copy
 import itertools
+import time
 
 
 ###############################################################################
 ################################ PROBLEM SETUP ################################
 ###############################################################################
+start_time = time.time()
 """
 USER INPUTS
 """
@@ -96,7 +98,7 @@ exp_parameters = np.array(\
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_shift = 0.1  # Should be a positive float
+fragility_shift = 0.2  # Should be a positive float
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -294,7 +296,7 @@ while iters < iters_max + temp_amount:
                 
         # Check up on new rules
         print(f"Universally proposed input rules: {irules_new}")
-        
+        # May want to add updates on space remaining when no fragility assessed!!!!!
         
         #######################################################################
         ######################### FRAGILITY ASSESSMENT ########################
@@ -531,3 +533,5 @@ while iters < iters_max + temp_amount:
 if irules_new: Discips = sortPoints(Discips, irules_new)
 Input_Rules += irules_new
 
+end_time = time.time()
+print(f"Execution time: {end_time - start_time} seconds")
