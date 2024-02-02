@@ -29,12 +29,11 @@ LIBRARIES
 """
 from vars_def import setProblem
 from uniform_grid import uniformGrid
-from exponential_reduction import plotExponential
+# from exponential_reduction import plotExponential
 from point_sorter import sortPoints
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from reduction_change import changeReduction
-# from distribution_check import checkDistributions
 from windfall_regret import windfallRegret
 from fragility_check import checkFragility
 from exploration_amount import exploreSpace
@@ -171,7 +170,7 @@ for i in range(0,len(Discips)):
         })
 
 # Print a visual of the minimum space reduction vs. time remaining pace
-plotExponential(exp_parameters)
+# plotExponential(exp_parameters)
 
 # Create empty lists for new rules and index of discipline proposing each rule
 irules_new = []
@@ -317,7 +316,6 @@ while iters < iters_max + temp_amount:
                 
         # Check up on new rules
         print(f"Universally proposed input rules: {irules_new}")
-        # May want to add updates on space remaining when no fragility assessed!!!!!
         
         #######################################################################
         ######################### FRAGILITY ASSESSMENT ########################
@@ -335,12 +333,12 @@ while iters < iters_max + temp_amount:
                 # Determine the current rule combination length being checked
                 combo_len = len(irules_new) - fragility_counter
                 
-                # Break if the while loop rule combination length is less than 1
+                # Break if while loop rule combination length is less than 1
                 if combo_len < 1:
                     break
                 
-                # Gather rule combination(s) of current length in a list of tuples
-                rule_combos = list(itertools.combinations(irules_new, combo_len))
+                # Gather rule combo(s) of current length in a list of tuples
+                rule_combos=list(itertools.combinations(irules_new, combo_len))
                 
                 # Set initial large length for rule combination SET
                 combo_list_len = 10000000
@@ -351,52 +349,63 @@ while iters < iters_max + temp_amount:
                 # Increase fragility counter by one
                 fragility_counter += 1
                 
-                # Assess fragility of rule combo(s) while list not empty or repeated
+                # Assess fragility rule combo(s) if list not empty or repeated
                 while rule_combos and len(rule_combos) < combo_list_len:
                     
                     # Retrieve the current length of the rule combos list
                     combo_list_len = len(rule_combos)
                     
-                    # Gather passfail data of rule combination(s) in smaller dictionary
+                    # Gather passfail data of rule combo(s) in smaller diction
                     pf_combos = {key: pf[key] for key in rule_combos}
                     pf_std_combos = {key: pf_std[key] for key in rule_combos}
                     
                     
                     ##### PROBABILITY-BASED #####
                         
-                    # Initialize a windfall and regret object -- Issue begins here
-                    windregret = windfallRegret(Discips_fragility, irules_fragility)
+                    # Initialize a windfall and regret object
+                    windregret = windfallRegret(Discips_fragility, 
+                                                irules_fragility)
                     
                     # Calculate windfall and regret for remaining design spaces
-                    wr, run_wind, run_reg = windregret.calcWindRegret(pf_combos, pf_std_combos, pf_fragility, pf_std_fragility)
+                    wr, run_wind, run_reg = windregret.calcWindRegret\
+                        (pf_combos, pf_std_combos, pf_fragility, 
+                         pf_std_fragility)
                     
-                    # Quantify risk or potential of space reduction for each discipline
-                    ### Positive value means potential for regret or windfall ADDED
-                    ### Negative value means potential for regret or windfall REDUCED
+                    # Quantify risk or potential of space reduction
+                    ### Positive value means pot. regret or windfall ADDED
+                    ### Negative value means pot. regret or windfall REDUCED
                     ris = windregret.quantRisk(run_wind, run_reg, wr)
                     
                     # Initialize a fragility check object
                     fragile = checkFragility(Discips, ris)
                     
                     # Execute fragility assessment
-                    net_wr = fragile.basicCheck(iters, iters_max, exp_parameters, fragility_shift)
+                    net_wr = fragile.basicCheck(iters, iters_max,
+                                                exp_parameters, 
+                                                fragility_shift)
 
-                    # Check if ANY of the rule combinations do not lead to a fragile design space
+                    # Check if ANY rule combos do not lead to fragile space
                     if any(dic["fragile"] == False for dic in net_wr.values()):
                         
                         # Select rule combination to move forward with and add
                         # to banned rule set
-                        final_combo, banned_rules = fragile.newCombo(net_wr, banned_rules)
+                        final_combo, banned_rules = \
+                            fragile.newCombo(net_wr, banned_rules)
                         
-                        # Append all of the findings to the list of dictionaries
-                        windreg.append(copy.deepcopy({final_combo: wr[final_combo]}))
-                        running_windfall.append(copy.deepcopy({final_combo: run_wind[final_combo]}))
-                        running_regret.append(copy.deepcopy({final_combo: run_reg[final_combo]}))
-                        risk.append(copy.deepcopy({final_combo: ris[final_combo]}))
+                        # Append all findings to the list of dictionaries
+                        windreg.append(copy.deepcopy\
+                            ({final_combo: wr[final_combo]}))
+                        running_windfall.append(copy.deepcopy\
+                            ({final_combo: run_wind[final_combo]}))
+                        running_regret.append(copy.deepcopy\
+                            ({final_combo: run_reg[final_combo]}))
+                        risk.append(copy.deepcopy\
+                            ({final_combo: ris[final_combo]}))
                         
                         # Plot the potential for windfall and regret throughout
                         # each discipline's design space for the final combo
-                        # windregret.plotWindRegret({final_combo: wr[final_combo]})
+                        # windregret.plotWindRegret\
+                            # ({final_combo: wr[final_combo]})
                         
                         # Append time to the dictionaries
                         windreg[-1]['time'] = iters
@@ -404,7 +413,8 @@ while iters < iters_max + temp_amount:
                         running_regret[-1]['time'] = iters
                         risk[-1]['time'] = iters
                         
-                        # Break the rule_combo loop and set flag for breaking fragility loop
+                        # Break the rule combo loop and set flag for breaking 
+                        # fragility loop
                         break_fragility = True
                         break
                         
@@ -424,10 +434,11 @@ while iters < iters_max + temp_amount:
                     # Break the fragility loop
                     break
                 
-                # Do following since fragile loop broken because went through all possible combinations and still fragile
+                # Do following since fragile loop broken because went through 
+                # all possible combinations and still fragile
                 else:
                     
-                    # Add input rules to set of banned rules - NEED TO CHECK ON THIS
+                    # Add input rules to set of banned rules
                     banned_rules.update(irules_new)
                     
                     # Reset the input rules to an empty list
@@ -438,7 +449,7 @@ while iters < iters_max + temp_amount:
             
             # Check up on final input rules if fragility check executed
             if fragility:
-                print(f"Final NEW input rules after fragility check: {irules_new}")
+                print(f"Final input rules after fragility check: {irules_new}")
             else:
                 print("No fragility check executed!")
             
@@ -459,7 +470,7 @@ while iters < iters_max + temp_amount:
             Discips = red_change.forceReduction(space_rem, iters, iters_max, 
                                                 exp_parameters)
             
-            # Perform the following commands if a space reduction should be forced
+            # Perform following commands if a space reduction should be forced
             if any(dictionary.get("force_reduction", False)[0] == True \
                    for dictionary in Discips):
                 
