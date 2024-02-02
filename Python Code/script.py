@@ -88,8 +88,8 @@ run_time = [2, 3, 4]    # Must all be positive integers!
 
 # Set exponential function parameters dictating minimum space reduction pace
 exp_parameters = np.array(\
-    [0.1,   # p1: x-intercept (0 <= p1 < p3)
-     2.4,   # p2: Steepness (any real, positive number)
+    [0.2,   # p1: x-intercept (0 <= p1 < p3)
+     2.2,   # p2: Steepness (any real, positive number)
      1.0,   # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
@@ -527,12 +527,7 @@ while iters < iters_max + temp_amount:
     # Reset temporarily banned rules to an empty set
     banned_rules = set()
     
+# Add any final rules to the list and sort the disciplines
+if irules_new: Discips = sortPoints(Discips, irules_new)
+Input_Rules += irules_new
 
-
-
-
-
-
-
-# NEED TO MAKE SURE I ADD THE VERY LAST INPUT RULES IF THERE ARE ANY!!!!
-# THEN PLOT FIGURES AND GET FINAL RESULTS OUTSIDE OF THE WHILE LOOP!!!
