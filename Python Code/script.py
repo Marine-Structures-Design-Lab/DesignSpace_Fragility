@@ -65,7 +65,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -97,8 +97,8 @@ exp_parameters = np.array(\
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = True       # True = yes, False = no
-fragility_shift = 0.2  # Should be a positive float
+fragility = False       # True = yes, False = no
+fragility_shift = 0.0  # Should be a positive float
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -145,6 +145,9 @@ Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 iters = 0
 temp_amount = 0
 
+# Initialize a list of empty lists for data collection
+Space_Remaining = [[] for _ in Discips]
+
 # Loop through each discipline
 for i in range(0,len(Discips)):
     
@@ -160,6 +163,12 @@ for i in range(0,len(Discips)):
     # Initialize an array for estimating the space remaining for the discipline
     Discips[i]['space_remaining'], Discips[i]['tp_actual'] = \
         uniformGrid(total_points, len(Discips[i]['ins']))
+        
+    # Collect space remaining information for the discipline
+    Space_Remaining[i].append({
+        'iter': 0,
+        'space_remaining': copy.deepcopy(Discips[i]['space_remaining'])
+        })
 
 # Print a visual of the minimum space reduction vs. time remaining pace
 plotExponential(exp_parameters)
@@ -186,8 +195,20 @@ banned_rules = {}
 # Begin the design exploration and reduction process with allotted timeline
 while iters < iters_max + temp_amount:
     
+    # Check if time is greater than 0 and new input rules are being proposed
+    if iters > 0 and irules_new: 
+        
+        # Move data within each discipline according to the new rule
+        Discips = sortPoints(Discips, irules_new)
+        
+        # Gather points for space remaining data
+        for ind_discip, dic_discip in enumerate(Discips):
+            Space_Remaining[ind_discip].append({
+                'iter': copy.deepcopy(iters),
+                'space_remaining': copy.deepcopy(dic_discip['space_remaining'])
+                })
+    
     # Add any new input rules to the list
-    if iters > 0 and irules_new: Discips = sortPoints(Discips, irules_new)
     Input_Rules += irules_new
     
     # Reset the input rules to an empty list
@@ -528,9 +549,22 @@ while iters < iters_max + temp_amount:
     
     # Reset temporarily banned rules to an empty set
     banned_rules = set()
+
+
+# Final check if any new input rules are being proposed
+if irules_new: 
     
-# Add any final rules to the list and sort the disciplines
-if irules_new: Discips = sortPoints(Discips, irules_new)
+    # Move data within each discipline according to the new rule
+    Discips = sortPoints(Discips, irules_new)
+    
+    # Gather points for space remaining data
+    for ind_discip, dic_discip in enumerate(Discips):
+        Space_Remaining[ind_discip].append({
+            'iter': copy.deepcopy(iters),
+            'space_remaining': copy.deepcopy(dic_discip['space_remaining'])
+            })
+
+# Add any new input rules to the list
 Input_Rules += irules_new
 
 end_time = time.time()
