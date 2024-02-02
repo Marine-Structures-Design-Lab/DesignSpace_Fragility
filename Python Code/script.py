@@ -319,7 +319,7 @@ while iters < iters_max + temp_amount:
                 # Gather rule combination(s) of current length in a list of tuples
                 rule_combos = list(itertools.combinations(irules_new, combo_len))
                 
-                # Set initial large length for rule combination LIST
+                # Set initial large length for rule combination SET
                 combo_list_len = 10000000
                 
                 # Initialize a boolean variable for breaking the fragility loop
@@ -341,7 +341,7 @@ while iters < iters_max + temp_amount:
                     
                     ##### PROBABILITY-BASED #####
                         
-                    # Initialize a windfall and regret object
+                    # Initialize a windfall and regret object -- Issue begins here
                     windregret = windfallRegret(Discips_fragility, irules_fragility)
                     
                     # Calculate windfall and regret for remaining design spaces
@@ -392,8 +392,8 @@ while iters < iters_max + temp_amount:
                 # Check if fragility loop broken because no fragile spaces
                 if break_fragility == True:
                     
-                    # Reassign new input rules as the items in the final combo
-                    irules_new = list(final_combo)
+                    # Reassign NEW input rules as the items in the final combo
+                    irules_new = list(set(final_combo) ^ set(irules_fragility))
                     
                     # Add new input rules to the list of the current time stamp
                     irules_fragility += irules_new
@@ -404,7 +404,7 @@ while iters < iters_max + temp_amount:
                 # Do following since fragile loop broken because went through all possible combinations and still fragile
                 else:
                     
-                    # Add input rules to set of banned rules
+                    # Add input rules to set of banned rules - NEED TO CHECK ON THIS
                     banned_rules.update(irules_new)
                     
                     # Reset the input rules to an empty list
@@ -415,18 +415,16 @@ while iters < iters_max + temp_amount:
             
             # Check up on final input rules if fragility check executed
             if fragility:
-                print(f"Final input rules after fragility check: {irules_new}")
+                print(f"Final NEW input rules after fragility check: {irules_new}")
             else:
                 print("No fragility check executed!")
             
-            # Check if space reductions still need to be forced!
-            
-            
-            
+            # Reset back to while loop for time iterations - no exploring
+            continue
             
         # If no new input rules, determine if time remaining paired with the
-        ### design space remaining warrants a space reduction to be forced -- maybe change this to an else!!!!!!
-        if not irules_new:
+        ### design space remaining warrants a space reduction to be forced
+        else:
             
             # Create an object for the changeReduction class
             red_change = changeReduction(Discips)
@@ -445,7 +443,7 @@ while iters < iters_max + temp_amount:
                 # Adjust the criteria for the necessary discipline(s)
                 Discips = red_change.adjustCriteria()
                 
-                # Reset back to time iteration's while loop without exploring
+                # Reset back to while loop for time iterations - no exploring
                 continue
             
     

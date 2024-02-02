@@ -44,7 +44,7 @@ class windfallRegret:
         run_wind = {}
         run_reg = {}
         
-        # Loop through each new rule (set) being proposed
+        # Loop through each new rule combo being proposed
         for rule, lis in passfail.items():
             
             # Add empty list to dictionaries
