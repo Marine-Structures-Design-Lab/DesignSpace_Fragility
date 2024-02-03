@@ -43,25 +43,34 @@ from input_vals import getInput
 from output_vals import getOutput
 from calc_rules import calcRules
 from output_success import checkOutput
-from convert_numpy import convertNumpy
 import numpy as np
 import copy
 import itertools
-import sys
+import argparse
 import datetime
-import json
+import os
+import sys
+import h5py
 
 
 """
 PREPARE DATA
 """
-# Establish ID for test case
-test_case_id = 'TC3'
-run_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+# Prepare for capturing console outputs and saving simulation data
+parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
+parser.add_argument('--run_id', 
+                    type=str, help="Unique identifier for this run.", 
+                    default=None)
+args = parser.parse_args()
 
-# Redirect stdout to a file
+# Set up unique identifier
+current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+run_id = args.run_id if args.run_id else str(os.getpid())
+unique_identifier = f"{current_time}_{run_id}"
+
+# Redirect to stdout file
 original_stdout = sys.stdout
-log_file_path = f"console_output_{test_case_id}_{run_id}.txt"
+log_file_path = f"console_output_{unique_identifier}.txt"
 sys.stdout = open(log_file_path, 'w')
 
 
@@ -593,25 +602,27 @@ if irules_new:
 # Add any new input rules to the list
 Input_Rules += irules_new
 
-# Convert array to list for JSON file
-space_remaining_converted = convertNumpy(Space_Remaining)
-
 # Write Space_Remaining data to a file
-space_remaining_file_path = f"space_remaining_{test_case_id}_{run_id}.json"
-with open(space_remaining_file_path, 'w') as f:
-    json.dump(space_remaining_converted, f, indent=4)
+space_remaining_file_path = f"space_remaining_{unique_identifier}.hdf5"
+with h5py.File(space_remaining_file_path, 'w') as hdf_file:
+    for i, discipline_list in enumerate(Space_Remaining):
+        for j, data_point in enumerate(discipline_list):
+            iter_group=hdf_file.create_group(f"Discipline_{i}/Data_Point_{j}")
+            iter_group.attrs['iter'] = data_point['iter']
+            iter_group.create_dataset("space_remaining", 
+                                      data=data_point['space_remaining'], 
+                                      compression="gzip")
 
-# Optional: Print a completion message (still redirected to file)
-print(
-      f"Simulation completed. Space remaining data saved to "
-      f"{space_remaining_file_path}"
-      )
+# Printing completion message to the redirected stdout
+print(f"Simulation completed. Space remaining data saved to "
+      f"{space_remaining_file_path}")
 
-# Reset stdout to its original value
+# Reset stdout to its original value and close the file
 sys.stdout.close()
 sys.stdout = original_stdout
 
-# Optional: Print a message to console after resetting stdout
-print(f"Simulation run {test_case_id}_{run_id} completed successfully.")
+# Print a message to console after resetting stdout
+print(f"Simulation run completed successfully. "
+      f"Unique ID: {unique_identifier}.")
 
 
