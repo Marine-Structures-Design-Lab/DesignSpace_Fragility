@@ -31,6 +31,11 @@ def determine_feasibility(test_case, test_case_name):
 
 
 
+# I DON'T THINK THE AVERAGES ARE NECESSARILY BEING CALCULATED CORRECTLY...
+# MIGHT JUST BE AVERAGING AT EACH RECORDED ITERATION AND NOT ACCOUNTING FOR FACT
+# THAT NO NEW DATA MEANS SPACE REMAINING IS STAYING UNCHANGED
+# Make sure ascending order does not matter.....
+
 
 
 
@@ -47,6 +52,9 @@ def process_test_case(test_case, test_case_name):
                 discipline_results[discipline_name] = {}
             if discipline_name not in initial_sizes:
                 initial_sizes[discipline_name] = None
+                
+
+                
             for data_point in discipline_data:
                 iter_num = data_point['iter']
                 time_percentage = (iter_num / iteration_scale) * 100  # Calculate percentage of time spent
@@ -118,7 +126,7 @@ with open('load_data.py') as file:
 os.chdir(original_dir)
 
 
-test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_4']
+test_case_names = ['Test_Case_1', 'Test_Case_2']
 all_discipline_data = {}
 
 for test_case_name in test_case_names:
