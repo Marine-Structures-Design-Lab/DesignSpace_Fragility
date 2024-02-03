@@ -18,7 +18,7 @@ import os
 # Then can work on adding other test case data...move this function (create_plots) to Simulation_Results
 # and have it pull from each folder...leave load data script in each folder though
 def determine_feasibility(test_case, test_case_name):
-    
+    # MAKE A COPY OF THE FIRST ONE AND DO THE COPYING AND THE INDICES THING AGAIN SO I DON'T HAVE TO KEEP CHECKING FEASIBILITY!!!
     
     
     return
@@ -60,6 +60,8 @@ def process_test_case(test_case, test_case_name):
     return discipline_results
 
 
+
+# I WANT TEST CASES IN LEGEND BY COLOR...AND THEN I'LL EXPLAIN IN CAPTION SOLID VS DASHED VS STARRED LINES FOR SPACE REMAINING, FEASIBLE, INFEASIBLE
 def plot_disciplines_separately(aggregate_data):
     for discipline, time_data in aggregate_data.items():
         plt.figure(figsize=(10, 6))
@@ -76,6 +78,8 @@ def plot_disciplines_separately(aggregate_data):
         plt.title(f'Average Percentage of Space Remaining vs. Percentage of Time Spent for {discipline}')
         plt.xlabel('Percentage of Time Spent (%)')
         plt.ylabel('Average Percentage of Space Remaining (%)')
+        plt.xlim([0, 100])
+        plt.ylim([0, 100])
         plt.legend()
         plt.grid(True)
         plt.show()
