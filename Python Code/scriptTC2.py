@@ -56,6 +56,9 @@ import h5py
 """
 PREPARE DATA
 """
+# Establish Test Case
+test_id = "TC2"
+
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
 parser.add_argument('--run_id', 
@@ -66,7 +69,7 @@ args = parser.parse_args()
 # Set up unique identifier
 current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 run_id = args.run_id if args.run_id else str(os.getpid())
-unique_identifier = f"{current_time}_{run_id}"
+unique_identifier = f"{test_id}_{current_time}_{run_id}"
 
 # Redirect to stdout file
 original_stdout = sys.stdout
