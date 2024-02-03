@@ -103,8 +103,22 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
+os.chdir('./Test Case 3/Space_Remaining')
+with open('load_data.py') as file:
+    exec(file.read())
 
-test_case_names = ['Test_Case_1', 'Test_Case_2']
+# Change back to the original directory
+os.chdir(original_dir)
+
+os.chdir('./Test Case 4/Space_Remaining')
+with open('load_data.py') as file:
+    exec(file.read())
+
+# Change back to the original directory
+os.chdir(original_dir)
+
+
+test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_4']
 all_discipline_data = {}
 
 for test_case_name in test_case_names:
