@@ -7,6 +7,32 @@ Created on Sat Feb  3 14:06:34 2024
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+
+
+
+
+
+# Add list with pass and fail data to each run
+# After this is added...can add most recent update to code from chatgpt
+# Then can work on adding other test case data...move this function (create_plots) to Simulation_Results
+# and have it pull from each folder...leave load data script in each folder though
+def determine_feasibility(test_case, test_case_name):
+    
+    
+    
+    return
+
+
+
+
+
+
+
+
+
+
+
 
 
 def process_test_case(test_case, test_case_name):
@@ -34,31 +60,6 @@ def process_test_case(test_case, test_case_name):
     return discipline_results
 
 
-
-def aggregate_and_average(disciplines_data):
-    aggregated_data = {}
-    for discipline, data_points in disciplines_data.items():
-        if discipline not in aggregated_data:
-            aggregated_data[discipline] = {}
-        for iter_num, space_remaining in data_points:
-            if iter_num not in aggregated_data[discipline]:
-                aggregated_data[discipline][iter_num] = []
-            aggregated_data[discipline][iter_num].append(space_remaining)
-    
-    # Calculate average
-    average_data = {discipline: [] for discipline in aggregated_data}
-    for discipline, iter_data in aggregated_data.items():
-        for iter_num, values in iter_data.items():
-            average_percentage = np.mean(values)  # Assuming values are percentages
-            average_data[discipline].append((iter_num, average_percentage))
-    
-    # Sort by iteration number
-    for discipline in average_data:
-        average_data[discipline] = sorted(average_data[discipline], key=lambda x: x[0])
-    
-    return average_data
-
-
 def plot_disciplines_separately(aggregate_data):
     for discipline, time_data in aggregate_data.items():
         plt.figure(figsize=(10, 6))
@@ -80,21 +81,31 @@ def plot_disciplines_separately(aggregate_data):
         plt.show()
 
 
+# Save the current directory's path
+original_dir = os.getcwd()
 
-
-
+# Read in the data from each test case
+os.chdir('./Test Case 1/Space_Remaining')
 with open('load_data.py') as file:
     exec(file.read())
 
+# Change back to the original directory
+os.chdir(original_dir)
+
+os.chdir('./Test Case 2/Space_Remaining')
+with open('load_data.py') as file:
+    exec(file.read())
+
+# Change back to the original directory
+os.chdir(original_dir)
 
 
-
-
-test_case_names = ['Test_Case_1']
+test_case_names = ['Test_Case_1', 'Test_Case_2']
 all_discipline_data = {}
 
 for test_case_name in test_case_names:
     test_case = globals()[test_case_name]  # Retrieve the test case variable
+    # Create pass / fail booleans for test case
     processed_data = process_test_case(test_case, test_case_name)
     for discipline, data in processed_data.items():
         if discipline not in all_discipline_data:
