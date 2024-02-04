@@ -9,21 +9,8 @@ Created on Sat Feb  3 14:06:34 2024
 LIBRARIES
 """
 import matplotlib.pyplot as plt
-import os
-import sys
 import numpy as np
 import pickle
-
-# Add the parent directory to sys.path
-parent_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-sys.path.append(parent_dir)
-
-# Import desired functions / classes
-from output_success import checkOutput
-from vars_def import setProblem
-from create_key import createKey
-from get_constraints import getConstraints
-from output_vals import getOutput
 
 
 """
@@ -98,12 +85,8 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     # Initialize an empty dictionary for percentage of infeasible space data
     infeas_space = {}
     
-    # Filter dictionary first -- COME BACK FOR THIS HERE AND IN THE FOR LOOP BELOW!!!!!!!!!!!!!!
-    filtered_case = {k: v for k, v in test_case.items() if k in ['Run_1', 'Run_2']}
-    
     # Loop through each run of the test case
-    for run_name, discips in filtered_case.items():
-    # for run_name, discips in test_case.items():
+    for run_name, discips in test_case.items():
         
         # Initialize empty dictionaries for the run
         space_rem[run_name] = {}
@@ -315,28 +298,6 @@ def plot_disciplines(all_disciplines_data, feas_disciplines_data):
         plt.legend()
         plt.grid(True)
         plt.show()
-
-
-
-
-
-# Add list with pass and fail data to each run
-# After this is added...can add most recent update to code from chatgpt
-# Then can work on adding other test case data...move this function (create_plots) to Simulation_Results
-# and have it pull from each folder...leave load data script in each folder though
-def determine_feasibility(test_case, test_case_name):
-    # MAKE A COPY OF THE FIRST ONE AND DO THE COPYING AND THE INDICES THING AGAIN SO I DON'T HAVE TO KEEP CHECKING FEASIBILITY!!!
-    
-    
-    return
-
-
-
-
-
-
-
-
 
 
 """
