@@ -10,6 +10,87 @@ import matplotlib.pyplot as plt
 import os
 
 
+# Determine all times when data was collected for the test case
+def createTimeData(test_case):
+    
+    # Create empty set for all the times
+    set_of_times = set()
+    
+    # Loop through each run of the test case
+    for run_name, discips in test_case.items():
+        
+        # Loop through each instance of data being collected
+        for data_ind, data_dic in enumerate(discips[0]):
+            
+            # Add to set of times that data was collected
+            set_of_times.add(data_dic['iter'])
+    
+    # Return the set of times
+    return set_of_times
+
+
+def fillSpaceRemaining(test_case, set_of_times):
+    
+    # Create a list of the times and sort them in ascending order
+    list_of_times = sorted(list(set_of_times))
+    
+    # Initialize an empty dictionary for space remaining data
+    space_rem = {}
+    
+    # Loop through each run of the test case
+    for run_name, discips in test_case.items():
+        
+        # Initialize an empty dictionary for the test case
+        space_rem[run_name] = {}
+        
+        # Loop through each discipline of the run
+        for ind_discip, list_discip in enumerate(discips):
+            
+            # Create a name for the discipline based on the index of the data
+            discip_name = f"Discipline_{ind_discip + 1}"
+            
+            # Initialize an empty dictionary for the discipline
+            space_rem[run_name][discip_name] = {}
+            
+            # Loop through each value in the list of times
+            for time in list_of_times:
+                
+                # Assign time to a key for the dictionary
+                space_rem[run_name][discip_name][time] = set()
+            
+            # Loop through each data point in the list
+            for ind_data, dic_data in enumerate(list_discip):
+                
+                # Add size of the numpy array to the proper iteration set
+                space_rem[run_name][discip_name][dic_data['iter']].add\
+                    (len(dic_data['space_remaining']))
+            
+            # Loop back through the list of times
+            for ind_time, time in enumerate(list_of_times):
+                
+                # Check if set is empty
+                if not space_rem[run_name][discip_name][time]:
+                    
+                    # Add minimum time from one earlier time
+                    space_rem[run_name][discip_name][time].add(min(space_rem[run_name][discip_name][list_of_times[ind_time-1]]))
+    
+    # Return the dictionary of filled in time information
+    return space_rem
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37,31 +118,84 @@ def determine_feasibility(test_case, test_case_name):
 # Make sure ascending order does not matter.....
 
 
+# For each run, 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Fill in missing times and take averages of repeated times
 
 def process_test_case(test_case, test_case_name):
+    
+    # Create an empty list for storing processed data of each discipline
     discipline_results = {}
+    
+    #
     initial_sizes = {}
     iteration_scale = 200 if test_case_name in ['Test_Case_1', 'Test_Case_2'] else 1000  # Determine scaling factor
 
+
+    # Loop through each run of the test case having a list of results for each discipline
     for run_name, disciplines in test_case.items():
+        
+        # Create 
+        
+        # Loop through each discipline having a different recorded point of data
         for discipline_index, discipline_data in enumerate(disciplines):
+            
+            # Create a name for the discipline based on the index of the data
             discipline_name = f"Discipline_{discipline_index + 1}"
+            
+            # Add an empty dictionary for the discipline name if it does not already exist for the discipline results
             if discipline_name not in discipline_results:
                 discipline_results[discipline_name] = {}
+                
+            # Add an empty dictionary for the discipline name if it does not already exist for the initial sizes
             if discipline_name not in initial_sizes:
                 initial_sizes[discipline_name] = None
                 
-
-                
+            # Loop through each recorded point for the discipline having a dictionary of the time iteration and space remaining array at that time
             for data_point in discipline_data:
+                
+                # Assign the iteration value of the data point to a variable
                 iter_num = data_point['iter']
-                time_percentage = (iter_num / iteration_scale) * 100  # Calculate percentage of time spent
-                space_remaining = len(data_point['space_remaining'])  # Get current size
+                
+                # Calculate the percent of project time spent up to that iteration
+                time_percentage = (iter_num / iteration_scale) * 100
+                
+                # Determine the number of discretized points remaining for data point
+                space_remaining = len(data_point['space_remaining'])
+                
+                # Check if the iteration value is zero
                 if iter_num == 0:
-                    initial_sizes[discipline_name] = space_remaining  # Set initial size
+                    
+                    # Set the initial number of discretized points for the discipline before simulation started
+                    initial_sizes[discipline_name] = space_remaining
+                
+                # Calculate the percentage of space remaining for the data point
                 percentage_space_remaining = (space_remaining / initial_sizes[discipline_name]) * 100
+                
+                ######################## this is where things are going wrong
+                # If percentage of time remaining does not exist yet, create a key with an empty list for it
                 if time_percentage not in discipline_results[discipline_name]:
                     discipline_results[discipline_name][time_percentage] = []
                 discipline_results[discipline_name][time_percentage].append((test_case_name, percentage_space_remaining))
@@ -93,10 +227,14 @@ def plot_disciplines_separately(aggregate_data):
         plt.show()
 
 
+
+"""
+DATA COLLECTION
+"""
 # Save the current directory's path
 original_dir = os.getcwd()
 
-# Read in the data from each test case
+# Read in the data from Test Case 1
 os.chdir('./Test Case 1/Space_Remaining')
 with open('load_data.py') as file:
     exec(file.read())
@@ -104,6 +242,7 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
+# Read in the data from Test Case 2
 os.chdir('./Test Case 2/Space_Remaining')
 with open('load_data.py') as file:
     exec(file.read())
@@ -111,6 +250,7 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
+# Read in the data from Test Case 3
 os.chdir('./Test Case 3/Space_Remaining')
 with open('load_data.py') as file:
     exec(file.read())
@@ -118,6 +258,7 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
+# Read in the data from Test Case 4
 os.chdir('./Test Case 4/Space_Remaining')
 with open('load_data.py') as file:
     exec(file.read())
@@ -126,21 +267,69 @@ with open('load_data.py') as file:
 os.chdir(original_dir)
 
 
-test_case_names = ['Test_Case_1', 'Test_Case_2']
-all_discipline_data = {}
+"""
+DATA ORGANIZATION
+"""
+# Identify the test cases whose data will be assessed
+test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
 
+# Initialize an empty dictionary for data of all disciplines
+all_discipline_data = {
+    "Discipline_1": {},
+    "Discipline_2": {},
+    "Discipline_3": {}
+    }
+
+
+# Loop through each test case / name
 for test_case_name in test_case_names:
-    test_case = globals()[test_case_name]  # Retrieve the test case variable
-    # Create pass / fail booleans for test case
-    processed_data = process_test_case(test_case, test_case_name)
-    for discipline, data in processed_data.items():
-        if discipline not in all_discipline_data:
-            all_discipline_data[discipline] = {}
-        for time_percentage, percentages in data.items():
-            if time_percentage not in all_discipline_data[discipline]:
-                all_discipline_data[discipline][time_percentage] = []
-            all_discipline_data[discipline][time_percentage].extend(percentages)
+    
+    # Retrieve variable whose name matches the string
+    test_case = globals()[test_case_name]
+    
+    # Determine all of the times when data was recorded
+    set_of_times = createTimeData(test_case)
+    
+    # Determine space remaining at each one of those times for each test run
+    space_rem = fillSpaceRemaining(test_case, set_of_times)
+    
+    
+    
+        
+        
+    
+    
+            
+            
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # # Create pass / fail booleans for test case!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    # # [What is this function doing?]
+    # processed_data = process_test_case(test_case, test_case_name)
+    
+    # # 
+    # for discipline, data in processed_data.items():
+    #     if discipline not in all_discipline_data:
+    #         all_discipline_data[discipline] = {}
+    #     for time_percentage, percentages in data.items():
+    #         if time_percentage not in all_discipline_data[discipline]:
+    #             all_discipline_data[discipline][time_percentage] = []
+    #         all_discipline_data[discipline][time_percentage].extend(percentages)
 
-plot_disciplines_separately(all_discipline_data)
+#plot_disciplines_separately(all_discipline_data)
 
 
