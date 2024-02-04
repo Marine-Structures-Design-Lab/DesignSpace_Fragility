@@ -43,6 +43,23 @@ def sharedIndices(larger_array, smaller_array):
     
     return indices
 
+def countBooleans(index_list, bool_list):
+    
+    # Initialize counters for True and False values
+    true_count = 0
+    false_count = 0
+    
+    # Loop through the index list to find the corresponding boolean values
+    for index in index_list:
+        if bool_list[index]:
+            true_count += 1
+        else:
+            false_count += 1
+    
+    # Return the sum of the true and false counts
+    return true_count, false_count
+
+
 
 
 
@@ -78,12 +95,20 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     # Initialize an empty dictionary for percentage of feasible space data
     feas_space = {}
     
+    # Initialize an empty dictionary for percentage of infeasible space data
+    infeas_space = {}
+    
+    # Filter dictionary first -- COME BACK FOR THIS HERE AND IN THE FOR LOOP BELOW!!!!!!!!!!!!!!
+    filtered_case = {k: v for k, v in test_case.items() if k in ['Run_1', 'Run_2']}
+    
     # Loop through each run of the test case
-    for run_name, discips in test_case.items():
+    for run_name, discips in filtered_case.items():
+    # for run_name, discips in test_case.items():
         
         # Initialize empty dictionaries for the run
         space_rem[run_name] = {}
         feas_space[run_name] = {}
+        infeas_space[run_name] = {}
         
         # Loop through each discipline of the run
         for ind_discip, list_discip in enumerate(discips):
@@ -94,6 +119,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
             # Initialize empty dictionaries for the discipline
             space_rem[run_name][discip_name] = {}
             feas_space[run_name][discip_name] = {}
+            infeas_space[run_name][discip_name] = {}
             
             # Loop through each value in the list of times
             for time in list_of_times:
@@ -101,6 +127,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 # Assign time to a key for the dictionaries
                 space_rem[run_name][discip_name][time] = []
                 feas_space[run_name][discip_name][time] = []
+                infeas_space[run_name][discip_name][time] = []
             
             # Loop through each data point in the list
             for ind_data, dic_data in enumerate(list_discip):
@@ -110,50 +137,76 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                     (len(dic_data['space_remaining']))
                 
                 # Determine shared indices between space remaining arrays
-                # matches = sharedIndices(Discips[ind_discip]['tested_outs'], dic_data['space_remaining'])
+                matches = sharedIndices(Discips[ind_discip]['tested_ins'], 
+                                        dic_data['space_remaining'])
                 
-                # Count True and False values for indices in both
+                # Count and record True and False values for indices in both
+                true_count, false_count = countBooleans(matches, 
+                                            Discips[ind_discip]['pass?'])
                 
-                
-                
-                # Feasibility analysis function based on True and False Values!!!
-                
-                
-                
-                
-                
+                # Append counts to the correct dictionary
+                feas_space[run_name][discip_name][dic_data['iter']].append\
+                    (true_count)
+                infeas_space[run_name][discip_name][dic_data['iter']].append\
+                    (false_count)
             
             # Loop back through the list of times
             for ind_time, time in enumerate(list_of_times):
                 
-                # Check if list is empty
+                # Check if space remaining list is empty
                 if not space_rem[run_name][discip_name][time]:
                     
-                    # Add minimum time from one earlier time
+                    # Add minimum space remaining from one earlier time
                     space_rem[run_name][discip_name][time].append(min(\
                         space_rem[run_name][discip_name][list_of_times\
                         [ind_time-1]]))
+                
+                # Check if feasible space list is empty
+                if not feas_space[run_name][discip_name][time]:
+                    
+                    # Add minimum feasible count from one earlier time
+                    feas_space[run_name][discip_name][time].append(min(\
+                        feas_space[run_name][discip_name][list_of_times\
+                        [ind_time-1]]))
+                
+                # Check if infeasible space list is empty
+                if not infeas_space[run_name][discip_name][time]:
+                    
+                    # Add minimum infeasible count from one earlier time
+                    infeas_space[run_name][discip_name][time].append(min(\
+                        infeas_space[run_name][discip_name][list_of_times\
+                        [ind_time-1]]))
     
-    # Return the dictionary of filled in time information
-    return space_rem
+    # Return the dictionaries of filled in time information
+    return space_rem, feas_space, infeas_space
 
 
-def findAverages(space_rem):
+def findAverages(space_rem, feas_rem, infeas_rem):
     
     # Initialize an empty dictionary for average space remaining data
     average_rem = {}
     
+    # Initialize an empty dictionary for average feasible count
+    average_feas = {}
+    
+    # Initialize an empty dictionary for average infeasible count
+    average_infeas = {}
+    
     # Loop through each discipline
     for discip_name, sr_dic in space_rem['Run_1'].items():
         
-        # Initialize an empty dictionary for the discipline
+        # Initialize empty dictionaries for the discipline
         average_rem[discip_name] = {}
+        average_feas[discip_name] = {}
+        average_infeas[discip_name] = {}
 
         # Loop through each time that space remaining data is accounted for
         for time, sr_set in sr_dic.items():
             
-            # Initalize a time key for summation part of averaging
+            # Initalize time keys for summation part of averaging
             average_rem[discip_name][time] = 0.0
+            average_feas[discip_name][time] = 0.0
+            average_infeas[discip_name][time] = 0.0
     
     # Loop through each run of the test case
     for run_name, discips in space_rem.items():
@@ -166,6 +219,18 @@ def findAverages(space_rem):
                 
                 # Add midpoint of the space remaining to the proper summation
                 average_rem[discip_name][time] += (min(sr_lis) + max(sr_lis))/2
+            
+            # Loop through each time that feasible space data is accounted for
+            for time, fr_lis in feas_rem[run_name][discip_name].items():
+                
+                # Add midpoint of the space remaining to the proper summation
+                average_feas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
+            
+            # Loop through each time that infeasible space data accounted for
+            for time, ir_lis in infeas_rem[run_name][discip_name].items():
+                
+                # Add midpoint of the space remaining to the proper summation
+                average_infeas[discip_name][time]+=(min(ir_lis)+max(ir_lis))/2
         
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
@@ -173,51 +238,74 @@ def findAverages(space_rem):
         # Loop through each time that space remaining data is accounted for
         for time in ar_dic.keys():
             
-            # Divide summation by the number of test cases run
+            # Divide summations by the number of test cases run
             average_rem[discip_name][time] = \
                 average_rem[discip_name][time] / len(space_rem)
+            average_feas[discip_name][time] = \
+                average_feas[discip_name][time] / len(space_rem)
+            average_infeas[discip_name][time] = \
+                average_infeas[discip_name][time] / len(space_rem)
             
     # Return the data for the average space remaining at each time
-    return average_rem
+    return average_rem, average_feas, average_infeas
 
 
-def findPercentages(average_rem):
+def findPercentages(average_rem, average_feas, average_infeas):
     
     # Initialize an empty dictionary for percent of space remaining data
     percent_rem = {}
     
+    # Initialize an empty dictionary for percent of feasible space
+    percent_feas = {}
+    
+    # Initialize an empty dictionary for percent of infeasible space
+    percent_infeas = {}
+    
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
         
-        # Initialize an empty dictionary for the discipline
+        # Initialize empty dictionaries for the discipline
         percent_rem[discip_name] = {}
+        percent_feas[discip_name] = {}
+        percent_infeas[discip_name] = {}
         
         # Loop through each time that average remaining is accounted for
         for time, ar in ar_dic.items():
             
             # Compute the percentage of the average space remaining
             percent_rem[discip_name][time] = ar / ar_dic[0] * 100
+            
+            # Compute percentage of average feasible space in remaining space
+            percent_feas[discip_name][time] = average_feas[discip_name][time] / ar * 100
+            
+            # Compute percentage of average infeasible space in remaining space
+            percent_infeas[discip_name][time] = average_infeas[discip_name][time] / ar * 100
     
     # Return the percentage of the average space remaining
-    return percent_rem
+    return percent_rem, percent_feas, percent_infeas
 
 
 # I WANT TEST CASES IN LEGEND BY COLOR...AND THEN I'LL EXPLAIN IN CAPTION SOLID VS DASHED VS STARRED LINES FOR SPACE REMAINING, FEASIBLE, INFEASIBLE
-def plot_disciplines(all_disciplines_data):
-    for discipline, test_cases_data in all_disciplines_data.items():
+def plot_disciplines(all_disciplines_data, feas_disciplines_data):
+    for discipline, all_test_cases_data in all_disciplines_data.items():
         plt.figure(figsize=(10, 6))  # Create a new figure for each discipline
+        feas_test_cases_data = feas_disciplines_data.get(discipline, {})
         
-        for test_case, data_points in test_cases_data.items():
-            # Sort the data points by iteration number (x-axis)
+        # Plot for all_disciplines_data
+        for test_case, data_points in all_test_cases_data.items():
             sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
-            
-            # Calculate the percentage of time spent
             max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
             x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
             y_values = [value for _, value in sorted_data_points]
-            
-            # Plot the line for this test case
-            plt.plot(x_values, y_values, label=test_case)
+            plt.plot(x_values, y_values, label=f'{test_case} (All)', linestyle='-')
+        
+        # Plot for feas_disciplines_data
+        for test_case, data_points in feas_test_cases_data.items():
+            sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
+            max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
+            x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
+            y_values = [value for _, value in sorted_data_points]
+            plt.plot(x_values, y_values, label=f'{test_case} (Feas)', linestyle='--')
         
         plt.title(f'{discipline} - Percentage of Space Remaining Over Time')
         plt.xlabel('Percentage of Time Spent (%)')
@@ -227,6 +315,7 @@ def plot_disciplines(all_disciplines_data):
         plt.legend()
         plt.grid(True)
         plt.show()
+
 
 
 
@@ -256,25 +345,32 @@ POST-PROCESSING
 # Upload saved data
 with open('Discips.pkl', 'rb') as f:
     Discips = pickle.load(f)
-
 with open('Test_Case_1.pkl', 'rb') as f:
     Test_Case_1 = pickle.load(f)
-
 with open('Test_Case_2.pkl', 'rb') as f:
     Test_Case_2 = pickle.load(f)
-
 with open('Test_Case_3.pkl', 'rb') as f:
     Test_Case_3 = pickle.load(f)
-
 with open('Test_Case_4.pkl', 'rb') as f:
     Test_Case_4 = pickle.load(f)
 
 # Identify the test cases whose data will be assessed
 test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
-# test_case_names = ['Test_Case_1']
 
-# Initialize a dictionary for data pertinent to each discipline
+# Initialize a dictionaries for data pertinent to each discipline
 all_disciplines_data = {
+    'Discipline_1': {},
+    'Discipline_2': {},
+    'Discipline_3': {}
+    }
+# Initialize a dictionary for data pertinent to each discipline
+feas_disciplines_data = {
+    'Discipline_1': {},
+    'Discipline_2': {},
+    'Discipline_3': {}
+    }
+# Initialize a dictionary for data pertinent to each discipline
+infeas_disciplines_data = {
     'Discipline_1': {},
     'Discipline_2': {},
     'Discipline_3': {}
@@ -290,22 +386,32 @@ for test_case_name in test_case_names:
     set_of_times = createTimeData(test_case_name)
     
     # Determine space remaining at each one of those times for each test run
-    space_rem = fillSpaceRemaining(test_case, set_of_times, Discips)
+    space_rem, feas_rem, infeas_rem = fillSpaceRemaining(test_case, 
+                                                         set_of_times, 
+                                                         Discips)
     
     # Determine average space remaining at each time over all of the runs
-    average_rem = findAverages(space_rem)
+    average_rem, average_feas, average_infeas = findAverages(space_rem, 
+                                                             feas_rem, 
+                                                             infeas_rem)
     
     # Convert averages into percentages
-    percent_rem = findPercentages(average_rem)
+    percent_rem, percent_feas, percent_infeas = findPercentages(average_rem,
+                                                                average_feas,
+                                                                average_infeas)
     
     # Loop through disciplines
     for discip_name in all_disciplines_data.keys():
         
-        # Add results to new key within dictionary
+        # Add results to new key within dictionaries
         all_disciplines_data[discip_name][test_case_name] = \
             percent_rem[discip_name]
+        feas_disciplines_data[discip_name][test_case_name] = \
+            percent_feas[discip_name]
+        infeas_disciplines_data[discip_name][test_case_name] = \
+            percent_infeas[discip_name]
 
-# Plot the results - This could probably be put elsewhere
-plot_disciplines(all_disciplines_data)
+# Plot the results
+plot_disciplines(all_disciplines_data, feas_disciplines_data)
 
 
