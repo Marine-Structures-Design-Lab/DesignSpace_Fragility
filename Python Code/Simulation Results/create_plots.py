@@ -40,7 +40,7 @@ def fillSpaceRemaining(test_case, set_of_times):
     # Loop through each run of the test case
     for run_name, discips in test_case.items():
         
-        # Initialize an empty dictionary for the test case
+        # Initialize an empty dictionary for the run
         space_rem[run_name] = {}
         
         # Loop through each discipline of the run
@@ -72,17 +72,105 @@ def fillSpaceRemaining(test_case, set_of_times):
                 if not space_rem[run_name][discip_name][time]:
                     
                     # Add minimum time from one earlier time
-                    space_rem[run_name][discip_name][time].add(min(space_rem[run_name][discip_name][list_of_times[ind_time-1]]))
+                    space_rem[run_name][discip_name][time].add(min(space_rem\
+                        [run_name][discip_name][list_of_times[ind_time-1]]))
     
     # Return the dictionary of filled in time information
     return space_rem
 
 
+def findAverages(space_rem):
+    
+    # Initialize an empty dictionary for average space remaining data
+    average_rem = {}
+    
+    # Loop through each discipline
+    for discip_name, sr_dic in space_rem['Run_1'].items():
+        
+        # Initialize an empty dictionary for the discipline
+        average_rem[discip_name] = {}
+
+        # Loop through each time that space remaining data is accounted for
+        for time, sr_set in sr_dic.items():
+            
+            # Initalize a time key for summation part of averaging
+            average_rem[discip_name][time] = 0.0
+    
+    # Loop through each run of the test case
+    for run_name, discips in space_rem.items():
+        
+        # Loop through each discipline of the run
+        for discip_name, sr_dic in discips.items():
+            
+            # Loop through each time that space remaining data is accounted for
+            for time, sr_set in sr_dic.items():
+                
+                # Add midpoint of the space remaining to the proper summation
+                average_rem[discip_name][time] += (min(sr_set) + max(sr_set))/2
+        
+    # Loop through each discipline
+    for discip_name, ar_dic in average_rem.items():
+        
+        # Loop through each time that space remaining data is accounted for
+        for time in ar_dic.keys():
+            
+            # Divide summation by the number of test cases run
+            average_rem[discip_name][time] = \
+                average_rem[discip_name][time] / len(space_rem)
+            
+    # Return the data for the average space remaining at each time
+    return average_rem
+
+
+def findPercentages(average_rem):
+    
+    # Initialize an empty dictionary for percent of space remaining data
+    percent_rem = {}
+    
+    # Loop through each discipline
+    for discip_name, ar_dic in average_rem.items():
+        
+        # Initialize an empty dictionary for the discipline
+        percent_rem[discip_name] = {}
+        
+        # Loop through each time that average remaining is accounted for
+        for time, ar in ar_dic.items():
+            
+            # Compute the percentage of the average space remaining
+            percent_rem[discip_name][time] = ar / ar_dic[0] * 100
+    
+    # Return the percentage of the average space remaining
+    return percent_rem
 
 
 
 
 
+
+
+
+# I WANT TEST CASES IN LEGEND BY COLOR...AND THEN I'LL EXPLAIN IN CAPTION SOLID VS DASHED VS STARRED LINES FOR SPACE REMAINING, FEASIBLE, INFEASIBLE
+def plot_disciplines_separately(aggregate_data):
+    for discipline, time_data in aggregate_data.items():
+        plt.figure(figsize=(10, 6))
+        test_cases = set()
+        for time_percentage, data_points in time_data.items():
+            for test_case_name, _ in data_points:
+                test_cases.add(test_case_name)
+        
+        for test_case_name in sorted(test_cases):
+            time_percentages = sorted(time_data.keys())
+            percentages = [np.mean([percentage_space_remaining for tc_name, percentage_space_remaining in time_data[time_percentage] if tc_name == test_case_name]) for time_percentage in time_percentages]
+            plt.plot(time_percentages, percentages, label=test_case_name)
+        
+        plt.title(f'Average Percentage of Space Remaining vs. Percentage of Time Spent for {discipline}')
+        plt.xlabel('Percentage of Time Spent (%)')
+        plt.ylabel('Average Percentage of Space Remaining (%)')
+        plt.xlim([0, 100])
+        plt.ylim([0, 100])
+        plt.legend()
+        plt.grid(True)
+        plt.show()
 
 
 
@@ -112,13 +200,6 @@ def determine_feasibility(test_case, test_case_name):
 
 
 
-# I DON'T THINK THE AVERAGES ARE NECESSARILY BEING CALCULATED CORRECTLY...
-# MIGHT JUST BE AVERAGING AT EACH RECORDED ITERATION AND NOT ACCOUNTING FOR FACT
-# THAT NO NEW DATA MEANS SPACE REMAINING IS STAYING UNCHANGED
-# Make sure ascending order does not matter.....
-
-
-# For each run, 
 
 
 
@@ -137,94 +218,6 @@ def determine_feasibility(test_case, test_case_name):
 
 
 
-
-
-
-
-
-# Fill in missing times and take averages of repeated times
-
-def process_test_case(test_case, test_case_name):
-    
-    # Create an empty list for storing processed data of each discipline
-    discipline_results = {}
-    
-    #
-    initial_sizes = {}
-    iteration_scale = 200 if test_case_name in ['Test_Case_1', 'Test_Case_2'] else 1000  # Determine scaling factor
-
-
-    # Loop through each run of the test case having a list of results for each discipline
-    for run_name, disciplines in test_case.items():
-        
-        # Create 
-        
-        # Loop through each discipline having a different recorded point of data
-        for discipline_index, discipline_data in enumerate(disciplines):
-            
-            # Create a name for the discipline based on the index of the data
-            discipline_name = f"Discipline_{discipline_index + 1}"
-            
-            # Add an empty dictionary for the discipline name if it does not already exist for the discipline results
-            if discipline_name not in discipline_results:
-                discipline_results[discipline_name] = {}
-                
-            # Add an empty dictionary for the discipline name if it does not already exist for the initial sizes
-            if discipline_name not in initial_sizes:
-                initial_sizes[discipline_name] = None
-                
-            # Loop through each recorded point for the discipline having a dictionary of the time iteration and space remaining array at that time
-            for data_point in discipline_data:
-                
-                # Assign the iteration value of the data point to a variable
-                iter_num = data_point['iter']
-                
-                # Calculate the percent of project time spent up to that iteration
-                time_percentage = (iter_num / iteration_scale) * 100
-                
-                # Determine the number of discretized points remaining for data point
-                space_remaining = len(data_point['space_remaining'])
-                
-                # Check if the iteration value is zero
-                if iter_num == 0:
-                    
-                    # Set the initial number of discretized points for the discipline before simulation started
-                    initial_sizes[discipline_name] = space_remaining
-                
-                # Calculate the percentage of space remaining for the data point
-                percentage_space_remaining = (space_remaining / initial_sizes[discipline_name]) * 100
-                
-                ######################## this is where things are going wrong
-                # If percentage of time remaining does not exist yet, create a key with an empty list for it
-                if time_percentage not in discipline_results[discipline_name]:
-                    discipline_results[discipline_name][time_percentage] = []
-                discipline_results[discipline_name][time_percentage].append((test_case_name, percentage_space_remaining))
-    return discipline_results
-
-
-
-# I WANT TEST CASES IN LEGEND BY COLOR...AND THEN I'LL EXPLAIN IN CAPTION SOLID VS DASHED VS STARRED LINES FOR SPACE REMAINING, FEASIBLE, INFEASIBLE
-def plot_disciplines_separately(aggregate_data):
-    for discipline, time_data in aggregate_data.items():
-        plt.figure(figsize=(10, 6))
-        test_cases = set()
-        for time_percentage, data_points in time_data.items():
-            for test_case_name, _ in data_points:
-                test_cases.add(test_case_name)
-        
-        for test_case_name in sorted(test_cases):
-            time_percentages = sorted(time_data.keys())
-            percentages = [np.mean([percentage_space_remaining for tc_name, percentage_space_remaining in time_data[time_percentage] if tc_name == test_case_name]) for time_percentage in time_percentages]
-            plt.plot(time_percentages, percentages, label=test_case_name)
-        
-        plt.title(f'Average Percentage of Space Remaining vs. Percentage of Time Spent for {discipline}')
-        plt.xlabel('Percentage of Time Spent (%)')
-        plt.ylabel('Average Percentage of Space Remaining (%)')
-        plt.xlim([0, 100])
-        plt.ylim([0, 100])
-        plt.legend()
-        plt.grid(True)
-        plt.show()
 
 
 
@@ -273,14 +266,6 @@ DATA ORGANIZATION
 # Identify the test cases whose data will be assessed
 test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
 
-# Initialize an empty dictionary for data of all disciplines
-all_discipline_data = {
-    "Discipline_1": {},
-    "Discipline_2": {},
-    "Discipline_3": {}
-    }
-
-
 # Loop through each test case / name
 for test_case_name in test_case_names:
     
@@ -293,7 +278,11 @@ for test_case_name in test_case_names:
     # Determine space remaining at each one of those times for each test run
     space_rem = fillSpaceRemaining(test_case, set_of_times)
     
+    # Determine average space remaining at each time over all of the runs
+    average_rem = findAverages(space_rem)
     
+    # Convert averages into percentages
+    percent_rem = findPercentages(average_rem)
     
         
         
