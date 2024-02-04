@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import numpy as np
+import pickle
 
 # Add the parent directory to sys.path
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
@@ -22,6 +23,7 @@ from output_success import checkOutput
 from vars_def import setProblem
 from create_key import createKey
 from get_constraints import getConstraints
+from output_vals import getOutput
 
 
 """
@@ -108,7 +110,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                     (len(dic_data['space_remaining']))
                 
                 # Determine shared indices between space remaining arrays
-                matches = sharedIndices(Discips[ind_discip]['tested_outs'], dic_data['space_remaining'])
+                # matches = sharedIndices(Discips[ind_discip]['tested_outs'], dic_data['space_remaining'])
                 
                 # Count True and False values for indices in both
                 
@@ -245,74 +247,31 @@ def determine_feasibility(test_case, test_case_name):
 
 
 
-"""
-DATA COLLECTION
-"""
-# Save the current directory's path
-original_dir = os.getcwd()
 
-# Read in the data from Test Case 1
-os.chdir('./Test Case 1/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
-
-# Change back to the original directory
-os.chdir(original_dir)
-
-# Read in the data from Test Case 2
-os.chdir('./Test Case 2/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
-
-# Change back to the original directory
-os.chdir(original_dir)
-
-# Read in the data from Test Case 3
-os.chdir('./Test Case 3/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
-
-# Change back to the original directory
-os.chdir(original_dir)
-
-# Read in the data from Test Case 4
-os.chdir('./Test Case 4/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
-
-# Change back to the original directory
-os.chdir(original_dir)
 
 
 """
 POST-PROCESSING
 """
-# Establish disciplines and initial rules for the design problem of interest
-prob = setProblem()
-Discips, Input_Rules, Output_Rules = prob.SBD1()
+# Upload saved data
+with open('Discips.pkl', 'rb') as f:
+    Discips = pickle.load(f)
 
-# Loop through each discipline of the design problem
-for i in range(0, len(Discips)):
-    
-    # Create a key for tested outputs of discipline if it does not exist
-    Discips[i] = createKey('tested_outs', Discips[i])
-    
-    # Populate tested outputs with each initial space remaining array
-    Discips[i]['tested_outs'] = Test_Case_1['Run_1'][i][0]['space_remaining']
-    
-    # Determine current output value rules for the discipline to meet
-    output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
-    
-    # Create a key for passing and failing of outputs if it does not exist
-    Discips[i] = createKey('pass?',Discips[i])
-    
-    # Check whether the output points pass or fail
-    outchk = checkOutput(Discips[i], output_rules)
-    Discips[i] = outchk.basicCheck()
-    
+with open('Test_Case_1.pkl', 'rb') as f:
+    Test_Case_1 = pickle.load(f)
+
+with open('Test_Case_2.pkl', 'rb') as f:
+    Test_Case_2 = pickle.load(f)
+
+with open('Test_Case_3.pkl', 'rb') as f:
+    Test_Case_3 = pickle.load(f)
+
+with open('Test_Case_4.pkl', 'rb') as f:
+    Test_Case_4 = pickle.load(f)
+
 # Identify the test cases whose data will be assessed
-#test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
-test_case_names = ['Test_Case_1']
+test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
+# test_case_names = ['Test_Case_1']
 
 # Initialize a dictionary for data pertinent to each discipline
 all_disciplines_data = {
