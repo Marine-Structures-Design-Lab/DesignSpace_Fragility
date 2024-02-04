@@ -5,13 +5,15 @@ Created on Sat Feb  3 14:06:34 2024
 @author: joeyvan
 """
 
-import numpy as np
+"""
+LIBRARIES
+"""
 import matplotlib.pyplot as plt
 import os
 
 
 # Determine all times when data was collected for the test case
-def createTimeData(test_case):
+def createTimeData(test_case, test_case_name):
     
     # Create empty set for all the times
     set_of_times = set()
@@ -24,6 +26,11 @@ def createTimeData(test_case):
             
             # Add to set of times that data was collected
             set_of_times.add(data_dic['iter'])
+    
+    # Add 40 to the set of times of the first two test cases - no reductions
+    # were made until 68 of any runs, so need to capture this in graphs
+    if test_case_name == 'Test_Case_1' or test_case_name == 'Test_Case_2':
+        set_of_times.add(40)
     
     # Return the set of times
     return set_of_times
@@ -143,41 +150,31 @@ def findPercentages(average_rem):
     return percent_rem
 
 
-
-
-
-
-
-
 # I WANT TEST CASES IN LEGEND BY COLOR...AND THEN I'LL EXPLAIN IN CAPTION SOLID VS DASHED VS STARRED LINES FOR SPACE REMAINING, FEASIBLE, INFEASIBLE
-def plot_disciplines_separately(aggregate_data):
-    for discipline, time_data in aggregate_data.items():
-        plt.figure(figsize=(10, 6))
-        test_cases = set()
-        for time_percentage, data_points in time_data.items():
-            for test_case_name, _ in data_points:
-                test_cases.add(test_case_name)
+def plot_disciplines(all_disciplines_data):
+    for discipline, test_cases_data in all_disciplines_data.items():
+        plt.figure(figsize=(10, 6))  # Create a new figure for each discipline
         
-        for test_case_name in sorted(test_cases):
-            time_percentages = sorted(time_data.keys())
-            percentages = [np.mean([percentage_space_remaining for tc_name, percentage_space_remaining in time_data[time_percentage] if tc_name == test_case_name]) for time_percentage in time_percentages]
-            plt.plot(time_percentages, percentages, label=test_case_name)
+        for test_case, data_points in test_cases_data.items():
+            # Sort the data points by iteration number (x-axis)
+            sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
+            
+            # Calculate the percentage of time spent
+            max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
+            x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
+            y_values = [value for _, value in sorted_data_points]
+            
+            # Plot the line for this test case
+            plt.plot(x_values, y_values, label=test_case)
         
-        plt.title(f'Average Percentage of Space Remaining vs. Percentage of Time Spent for {discipline}')
+        plt.title(f'{discipline} - Percentage of Space Remaining Over Time')
         plt.xlabel('Percentage of Time Spent (%)')
-        plt.ylabel('Average Percentage of Space Remaining (%)')
+        plt.ylabel('Percentage of Space Remaining (%)')
         plt.xlim([0, 100])
         plt.ylim([0, 100])
         plt.legend()
         plt.grid(True)
         plt.show()
-
-
-
-
-
-
-
 
 
 
@@ -191,18 +188,6 @@ def determine_feasibility(test_case, test_case_name):
     
     
     return
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -261,10 +246,17 @@ os.chdir(original_dir)
 
 
 """
-DATA ORGANIZATION
+POST-PROCESSING
 """
 # Identify the test cases whose data will be assessed
 test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
+
+# Initialize a dictionary for data pertinent to each discipline
+all_disciplines_data = {
+    'Discipline_1': {},
+    'Discipline_2': {},
+    'Discipline_3': {}
+    }
 
 # Loop through each test case / name
 for test_case_name in test_case_names:
@@ -273,7 +265,7 @@ for test_case_name in test_case_names:
     test_case = globals()[test_case_name]
     
     # Determine all of the times when data was recorded
-    set_of_times = createTimeData(test_case)
+    set_of_times = createTimeData(test_case, test_case_name)
     
     # Determine space remaining at each one of those times for each test run
     space_rem = fillSpaceRemaining(test_case, set_of_times)
@@ -284,41 +276,14 @@ for test_case_name in test_case_names:
     # Convert averages into percentages
     percent_rem = findPercentages(average_rem)
     
+    # Loop through disciplines
+    for discip_name in all_disciplines_data.keys():
         
-        
-    
-    
-            
-            
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # # Create pass / fail booleans for test case!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
-    # # [What is this function doing?]
-    # processed_data = process_test_case(test_case, test_case_name)
-    
-    # # 
-    # for discipline, data in processed_data.items():
-    #     if discipline not in all_discipline_data:
-    #         all_discipline_data[discipline] = {}
-    #     for time_percentage, percentages in data.items():
-    #         if time_percentage not in all_discipline_data[discipline]:
-    #             all_discipline_data[discipline][time_percentage] = []
-    #         all_discipline_data[discipline][time_percentage].extend(percentages)
+        # Add results to new key within dictionary
+        all_disciplines_data[discip_name][test_case_name] = \
+            percent_rem[discip_name]
 
-#plot_disciplines_separately(all_discipline_data)
+# Plot the results
+plot_disciplines(all_disciplines_data)
 
 
