@@ -13,24 +13,13 @@ import os
 
 
 # Determine all times when data was collected for the test case
-def createTimeData(test_case, test_case_name):
+# Consult console output logs
+def createTimeData(test_case_name):
     
-    # Create empty set for all the times
-    set_of_times = set()
-    
-    # Loop through each run of the test case
-    for run_name, discips in test_case.items():
-        
-        # Loop through each instance of data being collected
-        for data_ind, data_dic in enumerate(discips[0]):
-            
-            # Add to set of times that data was collected
-            set_of_times.add(data_dic['iter'])
-    
-    # Add 40 to the set of times of the first two test cases - no reductions
-    # were made until 68 of any runs, so need to capture this in graphs
     if test_case_name == 'Test_Case_1' or test_case_name == 'Test_Case_2':
-        set_of_times.add(40)
+        set_of_times = {0, 40, 68, 91, 107, 118, 127, 135, 143, 151, 159, 167, 175, 183, 191, 199, 200}
+    else:
+        set_of_times = {0, 200, 344, 462, 542, 596, 644, 679, 711, 731, 749, 766, 782, 797, 811, 819, 827, 835, 843, 851, 859, 867, 875, 883, 891, 899, 907, 915, 923, 931, 939, 947, 955, 963, 971, 979, 987, 995, 1000}
     
     # Return the set of times
     return set_of_times
@@ -265,7 +254,7 @@ for test_case_name in test_case_names:
     test_case = globals()[test_case_name]
     
     # Determine all of the times when data was recorded
-    set_of_times = createTimeData(test_case, test_case_name)
+    set_of_times = createTimeData(test_case_name)
     
     # Determine space remaining at each one of those times for each test run
     space_rem = fillSpaceRemaining(test_case, set_of_times)
