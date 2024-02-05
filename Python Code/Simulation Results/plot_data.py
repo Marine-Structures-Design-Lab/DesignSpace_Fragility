@@ -12,6 +12,8 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
 
 
 
@@ -51,7 +53,7 @@ def plot_disciplines(all_disciplines_data, feas_disciplines_data):
         plt.show()
 
 
-def plot_3d_heatmap_for_discipline(test_case_data, discipline_index):
+def plot_3d_heatmap_for_discipline(test_case_data, discipline_index, ins):
     """
     Plots a 3D heatmap for the specified discipline across all runs at the 1000th iteration.
 
@@ -73,9 +75,18 @@ def plot_3d_heatmap_for_discipline(test_case_data, discipline_index):
     # Calculating point densities
     kde = gaussian_kde(all_points.T)
     density = kde(all_points.T)
-
+    
+    # Normalize density for alpha mapping (transparency)
+    density_normalized = (density - density.min()) / (density.max() - density.min())
+    alphas = 0.005 + 0.045 * density_normalized
+    
+    # Create figure
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
+    
+    # Scatter plot with variable transparency, using a fixed color for simplicity
+    colors = np.full(all_points.shape[0], 'tan')  # Use a single color for all points
+    scatter = ax.scatter(all_points[:, 0], all_points[:, 1], all_points[:, 2], c=colors, alpha=alphas)
     
     # Initialize an empty list for storing numpy arrays
     l = []
@@ -110,20 +121,22 @@ def plot_3d_heatmap_for_discipline(test_case_data, discipline_index):
     # Plot every surface
     for m in range(0, len(l)):
         if discipline_index < 2:
-            ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.1, rstride=100, cstride=100)
+            ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.8, rstride=100, cstride=100)
         else:
-            ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.1, rstride=100, cstride=100)
+            ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.8, rstride=100, cstride=100)
+
+    # Set axis limits
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.set_zlim([0, 1])
     
-    # Scatter plot with density as color
-    scatter = ax.scatter(all_points[:, 0], all_points[:, 1], all_points[:, 2], c=density, cmap='inferno')
-
-    # Adding color bar to indicate density
-    plt.colorbar(scatter, ax=ax, label='Density')
-
-    ax.set_xlabel('X Axis')
-    ax.set_ylabel('Y Axis')
-    ax.set_zlabel('Z Axis')
-    plt.title(f'3D Heat Map for Discipline {discipline_index + 1}')
+    # Set labels and title
+    ax.set_xlabel(ins[0])
+    ax.set_ylabel(ins[1])
+    ax.set_zlabel(ins[2])
+    ax.set_title(f"Discipline {discipline_index+1} Design Space")
+    
+    # Create the graph
     plt.show()
 
 
@@ -142,11 +155,13 @@ SCRIPT
 #     feas2_disciplines_data = pickle.load(f)
 with open('Test_Case_3.pkl', 'rb') as f:
     Test_Case_3 = pickle.load(f)
+with open('Discips.pkl', 'rb') as f:
+    Discips = pickle.load(f)
 
 # Create Heat Map Plot of Test Case 3
-plot_3d_heatmap_for_discipline(Test_Case_3, 0)  # For the first discipline
-plot_3d_heatmap_for_discipline(Test_Case_3, 1)  # For the second discipline
-plot_3d_heatmap_for_discipline(Test_Case_3, 2)  # For the third discipline
+plot_3d_heatmap_for_discipline(Test_Case_3, 0, Discips[0]['ins'])  # For the first discipline
+plot_3d_heatmap_for_discipline(Test_Case_3, 1, Discips[1]['ins'])  # For the second discipline
+plot_3d_heatmap_for_discipline(Test_Case_3, 2, Discips[2]['ins'])  # For the third discipline
 
 
 # Create line plots for Disciplines 1, 2, and 3
