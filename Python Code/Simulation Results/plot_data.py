@@ -12,45 +12,71 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
+from matplotlib.lines import Line2D
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
-
-
 
 
 """
 PLOTS
 """
-# I WANT TEST CASES IN LEGEND BY COLOR...AND THEN I'LL EXPLAIN IN CAPTION SOLID VS DASHED VS STARRED LINES FOR SPACE REMAINING, FEASIBLE, INFEASIBLE
-def plot_disciplines(all_disciplines_data, feas_disciplines_data):
+def plot_disciplines(all_disciplines_data, feas1_disciplines_data, feas2_disciplines_data):
+    colors = ['darkorange', 'firebrick', 'violet', 'forestgreen']  # Define four colors for test cases
+    line_styles = ['-', '--', ':']  # Define three line styles for data groups
+    data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']  # Define data group names
+    
     for discipline, all_test_cases_data in all_disciplines_data.items():
-        plt.figure(figsize=(10, 6))  # Create a new figure for each discipline
-        feas_test_cases_data = feas_disciplines_data.get(discipline, {})
+        plt.figure(figsize=(10, 5))  # Create a new figure for each discipline
         
-        # Plot for all_disciplines_data
-        for test_case, data_points in all_test_cases_data.items():
-            sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
-            max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
-            x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
-            y_values = [value for _, value in sorted_data_points]
-            plt.plot(x_values, y_values, label=f'{test_case} (All)', linestyle='-')
+        # Define custom legend handles for the colors (test cases)
+        color_handles = [Line2D([0], [0], marker='o', color='w', label=f'Test Case {i+1}',
+                                markerfacecolor=color, markersize=10) for i, color in enumerate(colors)]
+        # Define custom legend handles for the line styles (data groups)
+        line_style_handles = [Line2D([0], [0], color='black', linewidth=2, linestyle=ls, label=data_groups[i])
+                              for i, ls in enumerate(line_styles)]
         
-        # Plot for feas_disciplines_data
-        for test_case, data_points in feas_test_cases_data.items():
-            sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
-            max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
-            x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
-            y_values = [value for _, value in sorted_data_points]
-            plt.plot(x_values, y_values, label=f'{test_case} (Feas)', linestyle='--')
+        feas1_test_cases_data = feas1_disciplines_data.get(discipline, {})
+        feas2_test_cases_data = feas2_disciplines_data.get(discipline, {})
+        color_idx = 0  # Initialize color index
         
-        plt.title(f'{discipline} - Percentage of Space Remaining Over Time')
-        plt.xlabel('Percentage of Time Spent (%)')
-        plt.ylabel('Percentage of Space Remaining (%)')
+        # Helper function to plot data
+        def plot_data(data, label_prefix, linestyle):
+            nonlocal color_idx  # Use the outer color_idx variable
+            for test_case, data_points in data.items():
+                sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
+                max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
+                x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
+                y_values = [value for _, value in sorted_data_points]
+                
+                # Check if the current linestyle is the dotted one and increase linewidth if it is
+                if linestyle == ':':
+                    linewidth = 2.0  # Specify the larger size for the dotted line here
+                else:
+                    linewidth = 1.5  # Default linewidth for other linestyles
+                
+                plt.plot(x_values, y_values, label=f'{test_case} ({label_prefix})', color=colors[color_idx % len(colors)], linestyle=linestyle, linewidth=linewidth)
+                color_idx += 1  # Move to the next color for the next test case
+
+        
+        # Plot for all disciplines data with the first line style
+        plot_data(all_test_cases_data, 'All', line_styles[0])
+        color_idx = 0  # Reset color index for consistency across groups
+        # Plot for feas1 disciplines data with the second line style
+        plot_data(feas2_test_cases_data, 'Feas2', line_styles[1])
+        color_idx = 0  # Reset color index for consistency across groups
+        # Plot for feas2 disciplines data with the third line style
+        plot_data(feas1_test_cases_data, 'Feas1', line_styles[2])
+        
+        # Adjust legend to include both custom color and linestyle handles
+        plt.legend(handles=color_handles + line_style_handles, loc='upper left')
+        
+        plt.xlabel('Elapsed Project Time (%)')
+        plt.ylabel('Size of Design Space (%)')
         plt.xlim([0, 100])
         plt.ylim([0, 100])
-        plt.legend()
         plt.grid(True)
         plt.show()
+
 
 
 def plot_3d_heatmap_for_discipline(test_case_data, discipline_index, ins):
@@ -147,29 +173,22 @@ def plot_3d_heatmap_for_discipline(test_case_data, discipline_index, ins):
 SCRIPT
 """
 # Upload saved data
-# with open('all_disciplines.pkl', 'rb') as f:
-#     all_disciplines_data = pickle.load(f)
-# with open('feas1_disciplines.pkl', 'rb') as f:
-#     feas1_disciplines_data = pickle.load(f)
-# with open('feas2_disciplines.pkl', 'rb') as f:
-#     feas2_disciplines_data = pickle.load(f)
+with open('all_disciplines.pkl', 'rb') as f:
+    all_disciplines_data = pickle.load(f)
+with open('feas1_disciplines.pkl', 'rb') as f:
+    feas1_disciplines_data = pickle.load(f)
+with open('feas2_disciplines.pkl', 'rb') as f:
+    feas2_disciplines_data = pickle.load(f)
 with open('Test_Case_3.pkl', 'rb') as f:
     Test_Case_3 = pickle.load(f)
 with open('Discips.pkl', 'rb') as f:
     Discips = pickle.load(f)
 
 # Create Heat Map Plot of Test Case 3
-plot_3d_heatmap_for_discipline(Test_Case_3, 0, Discips[0]['ins'])  # For the first discipline
-plot_3d_heatmap_for_discipline(Test_Case_3, 1, Discips[1]['ins'])  # For the second discipline
-plot_3d_heatmap_for_discipline(Test_Case_3, 2, Discips[2]['ins'])  # For the third discipline
+# plot_3d_heatmap_for_discipline(Test_Case_3, 0, Discips[0]['ins'])  # For the first discipline
+# plot_3d_heatmap_for_discipline(Test_Case_3, 1, Discips[1]['ins'])  # For the second discipline
+# plot_3d_heatmap_for_discipline(Test_Case_3, 2, Discips[2]['ins'])  # For the third discipline
 
 
 # Create line plots for Disciplines 1, 2, and 3
-
-
-
-
-
-
-# Plot the results
-#plot_disciplines(all_disciplines_data, feas1_disciplines_data)
+plot_disciplines(all_disciplines_data, feas1_disciplines_data, feas2_disciplines_data)
