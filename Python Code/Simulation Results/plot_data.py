@@ -121,9 +121,9 @@ def plot_3d_heatmap_for_discipline(test_case_data, discipline_index, ins):
     # Plot every surface
     for m in range(0, len(l)):
         if discipline_index < 2:
-            ax.plot_surface(j, k, l[m], color=colors[m], alpha=1.0, rstride=100, cstride=100)
+            ax.plot_surface(j, k, l[m], color=colors[m], alpha=0.8, rstride=100, cstride=100)
         else:
-            ax.plot_surface(l[m], j, k, color=colors[m], alpha=1.0, rstride=100, cstride=100)
+            ax.plot_surface(l[m], j, k, color=colors[m], alpha=0.8, rstride=100, cstride=100)
 
     # Set axis limits
     ax.set_xlim([0, 1])
