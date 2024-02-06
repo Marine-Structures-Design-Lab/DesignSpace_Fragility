@@ -314,25 +314,25 @@ class windfallRegret:
                     cbar.ax.set_yticklabels(tick_labels)
                     
                     # Gather and plot passing and failing remaining tested input indices
-                    pass_ind = np.where(self.Df[ind_dic]['pass?'])[0].tolist()
-                    fail_ind = np.where(np.array(self.Df[ind_dic]['pass?']) == False)[0].tolist()
-                    ax.scatter(self.Df[ind_dic]['tested_ins'][pass_ind,0], \
-                               self.Df[ind_dic]['tested_ins'][pass_ind,1], \
-                               self.Df[ind_dic]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                    ax.scatter(self.Df[ind_dic]['tested_ins'][fail_ind,0], \
-                               self.Df[ind_dic]['tested_ins'][fail_ind,1], \
-                               self.Df[ind_dic]['tested_ins'][fail_ind,2], c='red', alpha=1)
+                    # pass_ind = np.where(self.Df[ind_dic]['pass?'])[0].tolist()
+                    # fail_ind = np.where(np.array(self.Df[ind_dic]['pass?']) == False)[0].tolist()
+                    # ax.scatter(self.Df[ind_dic]['tested_ins'][pass_ind,0], \
+                    #            self.Df[ind_dic]['tested_ins'][pass_ind,1], \
+                    #            self.Df[ind_dic]['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                    # ax.scatter(self.Df[ind_dic]['tested_ins'][fail_ind,0], \
+                    #            self.Df[ind_dic]['tested_ins'][fail_ind,1], \
+                    #            self.Df[ind_dic]['tested_ins'][fail_ind,2], c='red', alpha=1)
                     
                     # Gather and plot passing and failing eliminated tested input indices
-                    if 'eliminated' in self.Df[ind_dic]:
-                        pass_ind = np.where(self.Df[ind_dic]['eliminated']['pass?'])[0].tolist()
-                        fail_ind = np.where(np.array(self.Df[ind_dic]['eliminated']['pass?']) == False)[0].tolist()
-                        ax.scatter(self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,0], \
-                                   self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,1], \
-                                   self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
-                        ax.scatter(self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,0], \
-                                   self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,1], \
-                                   self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
+                    # if 'eliminated' in self.Df[ind_dic]:
+                    #     pass_ind = np.where(self.Df[ind_dic]['eliminated']['pass?'])[0].tolist()
+                    #     fail_ind = np.where(np.array(self.Df[ind_dic]['eliminated']['pass?']) == False)[0].tolist()
+                    #     ax.scatter(self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,0], \
+                    #                self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,1], \
+                    #                self.Df[ind_dic]['eliminated']['tested_ins'][pass_ind,2], c='lightgreen', alpha=1)
+                    #     ax.scatter(self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,0], \
+                    #                self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,1], \
+                    #                self.Df[ind_dic]['eliminated']['tested_ins'][fail_ind,2], c='red', alpha=1)
                     
                     # Set axis limits
                     ax.set_xlim([0, 1])
@@ -343,17 +343,17 @@ class windfallRegret:
                     ax.set_xlabel(self.Df[ind_dic]['ins'][0])
                     ax.set_ylabel(self.Df[ind_dic]['ins'][1])
                     ax.set_zlabel(self.Df[ind_dic]['ins'][2])
-                    ax.set_title(f"Discipline {ind_dic+1} {ds} input space")
-                    plt.figtext(0.5, 0.01, f"New input rule set: {str(rule)}", ha="center", fontsize=10, va="bottom")
+                    # ax.set_title(f"Discipline {ind_dic+1} {ds} input space")
+                    # plt.figtext(0.5, 0.01, f"New input rule set: {str(rule)}", ha="center", fontsize=10, va="bottom")
                     
                     # Create proxy artists for the legend
-                    legend_elements = [Line2D([0], [0], marker='o', color='w', label='Feasible',
-                                              markersize=10, markerfacecolor='lightgreen'),
-                                        Line2D([0], [0], marker='o', color='w', label='Infeasible',
-                                              markersize=10, markerfacecolor='red')]
+                    # legend_elements = [Line2D([0], [0], marker='o', color='w', label='Feasible',
+                    #                           markersize=10, markerfacecolor='lightgreen'),
+                    #                     Line2D([0], [0], marker='o', color='w', label='Infeasible',
+                    #                           markersize=10, markerfacecolor='red')]
                     
                     # Add the legend to your axis
-                    ax.legend(handles=legend_elements, loc='upper left')
+                    # ax.legend(handles=legend_elements, loc='upper left')
                     
                     # Show plot
                     plt.show()

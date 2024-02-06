@@ -91,7 +91,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 200    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -123,8 +123,8 @@ exp_parameters = np.array(\
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = False       # True = yes, False = no
-fragility_shift = 0.0  # Should be a positive float
+fragility = True       # True = yes, False = no
+fragility_shift = 0.2  # Should be a positive float
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -431,8 +431,8 @@ while iters < iters_max + temp_amount:
                         
                         # Plot the potential for windfall and regret throughout
                         # each discipline's design space for the final combo
-                        # windregret.plotWindRegret\
-                            # ({final_combo: wr[final_combo]})
+                        windregret.plotWindRegret\
+                            ({final_combo: wr[final_combo]})
                         
                         # Append time to the dictionaries
                         windreg[-1]['time'] = iters
