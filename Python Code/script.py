@@ -361,8 +361,7 @@ while iters < iters_max + temp_amount:
                 combo_len = len(irules_new) - fragility_counter
                 
                 # Break if while loop rule combination length is less than 1
-                if combo_len < 1:
-                    break
+                if combo_len < 1: break
                 
                 # Gather rule combo(s) of current length in a list of tuples
                 rule_combos=list(itertools.combinations(irules_new, combo_len))
@@ -431,8 +430,8 @@ while iters < iters_max + temp_amount:
                         
                         # Plot the potential for windfall and regret throughout
                         # each discipline's design space for the final combo
-                        windregret.plotWindRegret\
-                            ({final_combo: wr[final_combo]})
+                        # windregret.plotWindRegret\
+                        #     ({final_combo: wr[final_combo]})
                         
                         # Append time to the dictionaries
                         windreg[-1]['time'] = iters
@@ -449,7 +448,7 @@ while iters < iters_max + temp_amount:
                     # should be removed because reduction is not being forced
                     rule_combos = fragile.throwOut(rule_combos)
                 
-                # Check if fragility loop broken because no fragile spaces
+                # Check if rule combo loop broken because no fragile spaces
                 if break_fragility == True:
                     
                     # Reassign NEW input rules as the items in the final combo
@@ -461,18 +460,21 @@ while iters < iters_max + temp_amount:
                     # Break the fragility loop
                     break
                 
-                # Do following since fragile loop broken because went through 
-                # all possible combinations and still fragile
+                # Do the following because there is always a fragile space for 
+                # all rule combos
                 else:
                     
-                    # Add input rules to set of banned rules
-                    banned_rules.update(irules_new)
-                    
-                    # Reset the input rules to an empty list
-                    irules_new = []
-                    
-                    # Break the fragility loop
-                    break
+                    # Check if all rule combos thrown out because not forced
+                    if not rule_combos:
+                        
+                        # Add input rules to set of banned rules
+                        banned_rules.update(irules_new)
+                        
+                        # Reset the input rules to an empty list
+                        irules_new = []
+                        
+                        # Break the fragility loop
+                        break
             
             # Check up on final input rules if fragility check executed
             if fragility:

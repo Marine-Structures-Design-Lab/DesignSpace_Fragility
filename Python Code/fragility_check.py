@@ -34,7 +34,7 @@ class checkFragility:
         # Initialize an empty dictionary for tracking max risk values
         max_risk = {}
         
-        # Loop through each rule combination - NEWWWWWWW
+        # Loop through each new rule combination
         for rule, lis in self.risk.items():
             
             # Initialize a max risk value to a large negative value
