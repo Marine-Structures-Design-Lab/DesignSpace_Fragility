@@ -202,27 +202,27 @@ class test_reduction_change(unittest.TestCase):
         self.Discips[0]['part_params']['dist_crit'][0] = 1.0
         self.Discips[0]['part_params']['disc_crit'][0] = 1.0
         
-        # Ensure all criteria remain at 1.0
+        # Ensure all criteria scale back to their max value
         self.Discips = self.cr.adjustCriteria()
         self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.5)
         self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
         self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
         self.Discips = self.cr.adjustCriteria()
         self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.5)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.7)
         self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
         self.Discips = self.cr.adjustCriteria()
         self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.5)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.7)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.7)
         self.Discips = self.cr.adjustCriteria()
-        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 1.0)
-        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 1.0)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['cdf_crit'][0], 0.5)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['fail_crit'][0], 0.5)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['dist_crit'][0], 0.7)
+        self.assertAlmostEqual(self.Discips[0]['part_params']['disc_crit'][0], 0.7)
         
         
 """
