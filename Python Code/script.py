@@ -360,8 +360,17 @@ while iters < iters_max + temp_amount:
                 # Determine the current rule combination length being checked
                 combo_len = len(irules_new) - fragility_counter
                 
-                # Break if while loop rule combination length is less than 1
-                if combo_len < 1: break
+                # Check if while loop rule combination length is less than 1
+                if combo_len < 1: 
+                    
+                    # Add input rules to set of banned rules
+                    banned_rules.update(irules_new)
+                    
+                    # Reset the input rules to an empty list
+                    irules_new = []
+                    
+                    # Break the fragility loop
+                    break
                 
                 # Gather rule combo(s) of current length in a list of tuples
                 rule_combos=list(itertools.combinations(irules_new, combo_len))
@@ -460,21 +469,17 @@ while iters < iters_max + temp_amount:
                     # Break the fragility loop
                     break
                 
-                # Do the following because there is always a fragile space for 
-                # all rule combos
-                else:
+                # Check if all rule combos thrown out because not forced
+                elif not rule_combos:
                     
-                    # Check if all rule combos thrown out because not forced
-                    if not rule_combos:
-                        
-                        # Add input rules to set of banned rules
-                        banned_rules.update(irules_new)
-                        
-                        # Reset the input rules to an empty list
-                        irules_new = []
-                        
-                        # Break the fragility loop
-                        break
+                    # Add input rules to set of banned rules
+                    banned_rules.update(irules_new)
+                    
+                    # Reset the input rules to an empty list
+                    irules_new = []
+                    
+                    # Break the fragility loop
+                    break
             
             # Check up on final input rules if fragility check executed
             if fragility:
