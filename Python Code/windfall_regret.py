@@ -14,7 +14,7 @@ import numpy as np
 import copy
 import scipy.stats as stats
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
+# from matplotlib.lines import Line2D
 from point_sorter import sortPoints
 from merge_constraints import sharedIndices
 
@@ -26,6 +26,16 @@ FUNCTION
 # FRAGILITY NEEDS TO BE CHECKED WITH ALL OF THE INPUT RULES ALREADY PROPOSED FOR A CURRENT TIME STAMP!
 # aka non-reduced design space needs to be the one before ANY rules have been proposed for that specific time stamp!
 # Consider making some sort of a copy for it...
+
+
+
+
+
+
+
+
+
+
 """
 CLASS
 """
