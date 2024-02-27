@@ -375,7 +375,7 @@ def getPredictions(discip, rule, pf_mean, pf_std):
     -------
     passfail : Dictionary
         Predicted passing or failing amounts for each design space of
-        discipline considering the particular rule
+        discipline considering the particular rule set
     passfail_std : Dictionary
         Standard deviations associated with categorized passing or failing
         amounts
@@ -514,12 +514,12 @@ class mergeConstraints:
         Returns
         -------
         opinions : Dictionary
-            Each key in the dictionary corresponds with a rule being proposed,
-            and each value is a numpy array keeping track of the opinion that
-            each discipline has of the particular rule
+            Each key in the dictionary corresponds with a rule set being
+            proposed, and each value is a numpy array keeping track of the
+            opinion that each discipline has of the particular rule
         passfail : Dictionary
             Predicted passing or failure amounts for the non-reduced, reduced,
-            and leftover design spaces of each discipline for each rule
+            and leftover design spaces of each discipline for each rule set
         passfail_std : Dictionary
             Standard deviations associated with the predicted passing or
             failure amounts
@@ -588,13 +588,13 @@ class mergeConstraints:
         opinions : Dictionary
             Each key in the dictionary corresponds with a rule being proposed,
             and each value is a numpy array keeping track of the opinion that
-            each discipline has of the particular rule
+            each discipline has of the particular rule set
         irules_discip : List of integers
             Index of the discipline proposing a particular rule that coincides
             with the input rule list.
         passfail : Dictionary
             Predicted passing or failure amounts for the non-reduced, reduced,
-            and leftover design spaces of each discipline for each rule
+            and leftover design spaces of each discipline for each rule set
         passfail_std : Dictionary
             Standard deviations associated with the predicted passing or
             failure amounts
@@ -603,7 +603,7 @@ class mergeConstraints:
         -------
         rules_new : List
             Contains updated sympy Or relationals and/or inequalities for rules
-            that only consist of one argument after enduring merging process.
+            after enduring merging process.
         passfail : Dictionary
             Predicted passing or failure amounts for the non-reduced, reduced,
             and leftover design spaces of each discipline of the new rule list
