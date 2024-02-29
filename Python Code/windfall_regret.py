@@ -1,6 +1,10 @@
 """
 SUMMARY:
-
+Uses formed perceptions of feasibility within each discipline's design space to
+determine potentials for regret and windfall before quantifying the risk of a
+space reduction decision by calculating the added potentials relative to
+leaving the design spaces untouched.  Also visualizes these potentials for
+regret and windfall (for SBD1 problem, specifically).
 
 CREATOR:
 Joseph B. Van Houten
@@ -42,6 +46,14 @@ CLASS
 class windfallRegret:
     
     def __init__(self, Discips_fragility, irules_fragility):
+        """
+        Parameters
+        ----------
+        Discips_fragility : TYPE
+            DESCRIPTION.
+        irules_fragility : TYPE
+            DESCRIPTION.
+        """
         self.Df = Discips_fragility
         self.irf = irules_fragility
         return

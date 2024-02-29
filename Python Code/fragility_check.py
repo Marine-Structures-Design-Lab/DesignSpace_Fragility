@@ -102,6 +102,11 @@ class checkFragility:
         return final_combo, original_banned_rules
     
     
+    
+    
+    
+    
+    
     def throwOut(self, rule_combos):
         
         # Loop through each rule combination
