@@ -370,14 +370,8 @@ while iters < iters_max + temp_amount:
                 # Gather rule combo(s) of current length in a list of tuples
                 rule_combos=list(itertools.combinations(irules_new, combo_len))
                 
-                # Set initial large length for rule combination SET
-                combo_list_len = 10000000
-                
                 # Increase fragility counter by one
                 fragility_counter += 1
-                
-                # Retrieve the current length of the rule combos list
-                combo_list_len = len(rule_combos)
                 
                 # Gather passfail data of rule combo(s) in smaller diction
                 pf_combos = {key: pf[key] for key in rule_combos}
