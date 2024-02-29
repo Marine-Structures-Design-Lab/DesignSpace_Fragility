@@ -26,15 +26,55 @@ from merge_constraints import sharedIndices
 """
 FUNCTION
 """
-# Function for repeated sharedIndices data
-# FRAGILITY NEEDS TO BE CHECKED WITH ALL OF THE INPUT RULES ALREADY PROPOSED FOR A CURRENT TIME STAMP!
-# aka non-reduced design space needs to be the one before ANY rules have been proposed for that specific time stamp!
-# Consider making some sort of a copy for it...
+def initializeWR(irf, passfail):
+    
+    # Initialize empty dictionaries
+    windreg = {}
+    run_wind = {}
+    run_reg = {}
+    
+    # Loop through each new rule combo being proposed
+    for rule, lis in passfail.items():
+        
+        # Add empty list to dictionaries
+        windreg[rule+tuple(irf)] = []
+        run_wind[rule+tuple(irf)] = []
+        run_reg[rule+tuple(irf)] = []
+        
+        # Loop through each discipline's passfail data
+        for ind_dic, dic in enumerate(lis):
+            
+            # Create empty dictionaries for discipline
+            windreg[rule+tuple(irf)].append({})
+            run_wind[rule+tuple(irf)].append({})
+            run_reg[rule+tuple(irf)].append({})
+            
+            # Loop through each design space of discipline
+            for ds, arr in dic.items():
+                
+                # Initialize empty arrays and values
+                windreg[rule+tuple(irf)][ind_dic][ds] = np.array([], dtype=float)
+                run_wind[rule+tuple(irf)][ind_dic][ds] = 0.0
+                run_reg[rule+tuple(irf)][ind_dic][ds] = 0.0
+    
+    # Return initialized dictionaries for windfall and regret tracking
+    return windreg, run_wind, run_reg
 
 
-
-
-
+def getIndices(Df, irf, ind_dic, rule):
+    
+    # Make a copy of discipline taking the input rules into account
+    d_copy = copy.deepcopy(Df[ind_dic])
+    
+    # Move values to eliminated section of discipline copy
+    d_copy = sortPoints([d_copy], list(rule)+irf)
+    
+    # Create different index lists for input rule
+    all_indices, indices_in_both, indices_not_in_B = sharedIndices\
+        (Df[ind_dic]['space_remaining'], d_copy[0]['space_remaining'])
+    
+    # Return index information
+    return all_indices, indices_in_both, indices_not_in_B
 
 
 
@@ -62,44 +102,17 @@ class windfallRegret:
     def calcWindRegret(self, passfail, passfail_std, pf_fragility, pf_std_fragility):
         
         # Initialize empty dictionaries
-        windreg = {}
-        run_wind = {}
-        run_reg = {}
+        windreg, run_wind, run_reg = initializeWR(self.irf, passfail)
         
         # Loop through each new rule combo being proposed
         for rule, lis in passfail.items():
             
-            # Add empty list to dictionaries
-            windreg[rule+tuple(self.irf)] = []
-            run_wind[rule+tuple(self.irf)] = []
-            run_reg[rule+tuple(self.irf)] = []
-            
             # Loop through each discipline's passfail data
             for ind_dic, dic in enumerate(lis):
                 
-                # Create empty dictionaries for discipline
-                windreg[rule+tuple(self.irf)].append({})
-                run_wind[rule+tuple(self.irf)].append({})
-                run_reg[rule+tuple(self.irf)].append({})
-                
-                # Loop through each design space of discipline
-                for ds, arr in dic.items():
-                    
-                    # Initialize empty arrays and values
-                    windreg[rule+tuple(self.irf)][ind_dic][ds] = np.array([], dtype=float)
-                    run_wind[rule+tuple(self.irf)][ind_dic][ds] = 0.0
-                    run_reg[rule+tuple(self.irf)][ind_dic][ds] = 0.0
-                
-                # Make a copy of discipline taking the input rules into account
-                d_copy = copy.deepcopy(self.Df[ind_dic])
-                
-                # Move values to eliminated section of discipline copy
-                d_copy = sortPoints([d_copy], list(rule)+self.irf)
-                
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
-                    sharedIndices(self.Df[ind_dic]['space_remaining'],
-                                  d_copy[0]['space_remaining'])
+                    getIndices(self.Df, self.irf, ind_dic, rule)
                 
                 # Loop through each passfail value of the NON-REDUCED array
                 for ind_pf, pf in enumerate(pf_fragility[ind_dic]):
@@ -252,16 +265,9 @@ class windfallRegret:
             # Loop through each discipline's windfall-regret values
             for ind_dic, dic in enumerate(windreg[rule]):
                 
-                # Make a copy of discipline taking the input rules into account
-                d_copy = copy.deepcopy(self.Df[ind_dic])
-                
-                # Move values to eliminated section of discipline copy
-                d_copy = sortPoints([d_copy], list(rule)+self.irf)
-                
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
-                    sharedIndices(self.Df[ind_dic]['space_remaining'],
-                                  d_copy[0]['space_remaining'])
+                    getIndices(self.Df, self.irf, ind_dic, rule)
                 
                 # Add each list to a different dictionary key
                 diction = {"non_reduced": all_indices, 
