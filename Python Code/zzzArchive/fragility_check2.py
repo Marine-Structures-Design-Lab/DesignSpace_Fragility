@@ -101,3 +101,61 @@ class checkFragility:
         # Return the non-fragile rule combination and ALL banned relationals
         return final_combo, original_banned_rules
     
+    
+    
+    
+    
+    
+    
+    def throwOut(self, rule_combos):
+        
+        # Loop through each rule combination
+        for rule_tup in rule_combos:
+            
+            # Initialize a set tracking variables of tuple
+            symb_set = set()
+            
+            # Loop through each rule in the tuple
+            for rule in rule_tup:
+                
+                # Get free symbols of the rule
+                free_symbs = rule.free_symbols
+                
+                # Add these symbols to the set for the tuple
+                symb_set |= free_symbs
+            
+            # Initialize a set tracking indices of disciplines involved
+            frag_set = set()
+            
+            # Loop through each discipline
+            for ind_discip, dic_discip in enumerate(self.D):
+                
+                # Check if any symbols of the rule tuple are in list of
+                # inputs of the discipline
+                if any(symb_var in dic_discip['ins'] for symb_var in symb_set):
+                    
+                    # Add index to the fragility set list
+                    frag_set.add(ind_discip)
+            
+            # Flag to determine whether to skip to the next rule_tup
+            skip_rule_tup = False
+            
+            # Loop through set of disciplines involved with rule tuple
+            for ind_discip in frag_set:
+                
+                # Check if discipline IS forcing a space reduction
+                if self.D[ind_discip]['force_reduction'][0] == True:
+                    
+                    # Set flag and break to move to next rule tuple
+                    skip_rule_tup = True
+                    break
+            
+            # Check if flag was set and continue to next rule tuple
+            if skip_rule_tup:
+                continue
+            
+            # Remove the tuple from the rule combos since it was not flagged
+            rule_combos.remove(rule_tup)
+        
+        # Return the updated list of rule combinations
+        return rule_combos
