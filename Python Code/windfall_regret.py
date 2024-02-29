@@ -77,6 +77,34 @@ def getIndices(Df, irf, ind_dic, rule):
     return all_indices, indices_in_both, indices_not_in_B
 
 
+def complementProb(pf, pf_std_fragility):
+    
+    # Convert passfail prediction to complementary probability
+    prob_feas = 1.0 - stats.norm.cdf(abs(pf) / pf_std_fragility)
+    
+    # Return complementary probability
+    return prob_feas
+
+
+
+# Return a new positive or negative prob_feas value for assignment
+def assignWR():
+    
+    
+    
+    return
+
+
+# Return a new positive or negative prob_feas value for assignment
+def assignRunning():
+    
+    
+    
+    return
+
+
+
+
 
 
 
@@ -118,7 +146,7 @@ class windfallRegret:
                 for ind_pf, pf in enumerate(pf_fragility[ind_dic]):
                     
                     # Convert passfail prediction to complementary probability
-                    prob_feas = 1.0 - stats.norm.cdf(abs(pf) / pf_std_fragility[ind_dic][ind_pf])
+                    prob_feas = complementProb(pf, pf_std_fragility[ind_dic][ind_pf])
                     
                     # Check if point is in both non-reduced and reduced matrices
                     if ind_pf in indices_in_both:
@@ -126,12 +154,9 @@ class windfallRegret:
                         # Check if point predicted infeasible (windfall chance)
                         if pf < 0:
                             
-                            # Consider changing rule key to include ALL OF THE RULES??? CREATE A NEW TUPLE?...add the tuple?????
                             # Add pos. probability to the proper dictionary arrays - Add value to bottom instead
                             windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], prob_feas)
                             windreg[rule+tuple(self.irf)][ind_dic]['reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['reduced'], prob_feas)
-                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
-                            # windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = prob_feas
                                         
                             # Add to proper running windfall count
                             run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -143,8 +168,6 @@ class windfallRegret:
                             # Add neg. probability to the proper dictionary arrays
                             windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], -prob_feas)
                             windreg[rule+tuple(self.irf)][ind_dic]['reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['reduced'], -prob_feas)
-                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
-                            # windreg[rule+tuple(self.irf)][ind_dic]['reduced'][indices_in_both.index(ind_pf)] = -prob_feas
                                         
                             # Add to proper running regret count
                             run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -156,13 +179,11 @@ class windfallRegret:
                         # Check if point is predicted infeasible (non-reduced: windfall chance, reduced: regret chance)
                         if pf < 0:
                             
-                            # Add pos. probability to the proper dictionary arrays (Should I do leftover or put these values in reduced for graphing?)
+                            # Add pos. probability to the proper dictionary arrays
                             windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], prob_feas)
                             windreg[rule+tuple(self.irf)][ind_dic]['leftover'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['leftover'], -prob_feas)
-                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = prob_feas
-                            # windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = -prob_feas
                                             
-                            # Add to proper running windfall count (Do I want to use leftover key at all?)
+                            # Add to proper running windfall count
                             run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
                             run_reg[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
                         
@@ -172,8 +193,6 @@ class windfallRegret:
                             # Add neg. probability to the proper dictionary arrays
                             windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], -prob_feas)
                             windreg[rule+tuple(self.irf)][ind_dic]['leftover'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['leftover'], prob_feas)
-                            # windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'][ind_pf] = -prob_feas
-                            # windreg[rule+tuple(self.irf)][ind_dic]['leftover'][indices_not_in_B.index(ind_pf)] = prob_feas
                                         
                             # Add to proper running windfall count
                             run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
@@ -182,7 +201,7 @@ class windfallRegret:
                 # Loop through each design space of discipline
                 for ds, arr in dic.items():
                 
-                    # Divide probabilistic sums by number of remaining points - CHECK THAT I AM DIVIDING BY CORRECT THING AND SHOULDN'T BE TP_ACTUAL
+                    # Divide probabilistic sums by number of remaining points
                     run_wind[rule+tuple(self.irf)][ind_dic][ds] = run_wind[rule+tuple(self.irf)][ind_dic][ds] / self.Df[ind_dic]['space_remaining'].shape[0]
                     run_reg[rule+tuple(self.irf)][ind_dic][ds] = run_reg[rule+tuple(self.irf)][ind_dic][ds] / self.Df[ind_dic]['space_remaining'].shape[0]
                         
