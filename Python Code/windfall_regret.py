@@ -86,22 +86,66 @@ def complementProb(pf, pf_std_fragility):
     return prob_feas
 
 
-
 # Return a new positive or negative prob_feas value for assignment
-def assignWR():
+def assignWR(prob_feas, ind_pf, indices_in_both, pf):
     
+    # Initialize empty dictionaries
+    wr = {}
+    run_wind = {}
+    run_reg = {}
     
+    # Check if point is in both non-reduced and reduced matrices
+    if ind_pf in indices_in_both:
+        
+        # Check if point predicted infeasible (windfall chance)
+        if pf < 0:
+            
+            # Assign complementary probability with proper sign
+            wr['non_reduced'] = prob_feas
+            wr['reduced'] = prob_feas
+            
+            # Assign to proper running windfall count
+            run_wind['non_reduced'] = prob_feas
+            run_wind['reduced'] = prob_feas
+                        
+        # Do below if point predicted feasible (regret chance)
+        else:
+                        
+            # Assign complementary probability with proper sign
+            wr['non_reduced'] = -prob_feas
+            wr['reduced'] = -prob_feas
+            
+            # Assign to proper running regret count
+            run_reg['non_reduced'] = prob_feas
+            run_reg['reduced'] = prob_feas
+            
+    # Do below if point is not in both non-reduced and reduced matrices
+    else:
+        
+        # Check if point is predicted infeasible (non-reduced: windfall chance, reduced: regret chance)
+        if pf < 0:
+            
+            # Assign complementary probability with proper sign
+            wr['non_reduced'] = prob_feas
+            wr['leftover'] = -prob_feas
+            
+            # Assign to proper running windfall and regret counts
+            run_wind['non_reduced'] = prob_feas
+            run_reg['reduced'] = prob_feas
+        
+        # Do below if point is predicted feasible (non-reduced: regret chance, reduced: windfall chance)
+        else:
+                        
+            # Assign complementary probability with proper sign
+            wr['non_reduced'] = -prob_feas
+            wr['leftover'] = prob_feas
+            
+            # Assign to proper running windfall and regret counts
+            run_reg['non_reduced'] = prob_feas
+            run_wind['reduced'] = prob_feas
     
-    return
-
-
-# Return a new positive or negative prob_feas value for assignment
-def assignRunning():
-    
-    
-    
-    return
-
+    # Return complementary probability dictionaries
+    return wr, run_wind, run_reg
 
 
 
@@ -148,55 +192,26 @@ class windfallRegret:
                     # Convert passfail prediction to complementary probability
                     prob_feas = complementProb(pf, pf_std_fragility[ind_dic][ind_pf])
                     
-                    # Check if point is in both non-reduced and reduced matrices
-                    if ind_pf in indices_in_both:
+                    # Prepare complementary probabilities for proper assignment
+                    wr, r_wind, r_reg = assignWR(prob_feas, ind_pf, indices_in_both, pf)
+                    
+                    # Loop through each key-value pair in wr dictionary
+                    for ds, comp_prob in wr.items():
                         
-                        # Check if point predicted infeasible (windfall chance)
-                        if pf < 0:
-                            
-                            # Add pos. probability to the proper dictionary arrays - Add value to bottom instead
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], prob_feas)
-                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['reduced'], prob_feas)
-                                        
-                            # Add to proper running windfall count
-                            run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
-                            run_wind[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
-                                        
-                        # Do below if point predicted feasible (regret chance)
-                        else:
-                                        
-                            # Add neg. probability to the proper dictionary arrays
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], -prob_feas)
-                            windreg[rule+tuple(self.irf)][ind_dic]['reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['reduced'], -prob_feas)
-                                        
-                            # Add to proper running regret count
-                            run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
-                            run_reg[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
-                            
-                    # Do below if point is not in both non-reduced and reduced matrices
-                    else:
+                        # Append value to list of values of proper windreg key
+                        windreg[rule+tuple(self.irf)][ind_dic][ds] = np.append(windreg[rule+tuple(self.irf)][ind_dic][ds], comp_prob)
+                    
+                    # Loop through each key-value pair in r_wind dictionary
+                    for ds, comp_prob in r_wind.items():
                         
-                        # Check if point is predicted infeasible (non-reduced: windfall chance, reduced: regret chance)
-                        if pf < 0:
-                            
-                            # Add pos. probability to the proper dictionary arrays
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], prob_feas)
-                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['leftover'], -prob_feas)
-                                            
-                            # Add to proper running windfall count
-                            run_wind[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
-                            run_reg[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
+                        # Add probability to proper running windfall sum
+                        run_wind[rule+tuple(self.irf)][ind_dic][ds] += r_wind[ds]
+                    
+                    # Loop through each key-value pair in r_reg dictionary
+                    for ds, comp_prob in r_reg.items():
                         
-                        # Do below if point is predicted feasible (non-reduced: regret chance, reduced: windfall chance)
-                        else:
-                                        
-                            # Add neg. probability to the proper dictionary arrays
-                            windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['non_reduced'], -prob_feas)
-                            windreg[rule+tuple(self.irf)][ind_dic]['leftover'] = np.append(windreg[rule+tuple(self.irf)][ind_dic]['leftover'], prob_feas)
-                                        
-                            # Add to proper running windfall count
-                            run_reg[rule+tuple(self.irf)][ind_dic]['non_reduced'] += prob_feas
-                            run_wind[rule+tuple(self.irf)][ind_dic]['reduced'] += prob_feas
+                        # Add probability to proper running regret sum
+                        run_reg[rule+tuple(self.irf)][ind_dic][ds] += r_reg[ds]
                             
                 # Loop through each design space of discipline
                 for ds, arr in dic.items():
