@@ -148,10 +148,6 @@ def assignWR(prob_feas, ind_pf, indices_in_both, pf):
     return wr, run_wind, run_reg
 
 
-
-
-
-
 """
 CLASS
 """
@@ -161,17 +157,55 @@ class windfallRegret:
         """
         Parameters
         ----------
-        Discips_fragility : TYPE
-            DESCRIPTION.
-        irules_fragility : TYPE
-            DESCRIPTION.
+        Discips_fragility : List of dictionaries
+            Contains all of the relevant data pertaining to each discipline
+            before any reductions have been made for the current time stamp
+        irules_fragility : List
+            Sympy And or Or relationals or inequalities describing each new
+            being proposed of the current time stamp
         """
         self.Df = Discips_fragility
         self.irf = irules_fragility
         return
     
     
-    def calcWindRegret(self, passfail, passfail_std, pf_fragility, pf_std_fragility):
+    def calcWindRegret(self, passfail, passfail_std, pf_fragility,
+                       pf_std_fragility):
+        """
+        Description
+        -----------
+        Gathers windfall and regret data for non-reduced, reduced, and leftover
+        design spaces.  The windreg data is used for plotting purposes.  The
+        run_wind and run_reg data is used for risk quantification.
+
+        Parameters
+        ----------
+        passfail : Dictionary
+            Pass-fail predictions for the non-reduced, reduced, and leftover
+            design spaces of rule combinations from newest round of fragility
+            assessment
+        passfail_std : Dictionary
+            Standard deviations of pass-fail predictions described above
+        pf_fragility : List of numpy arrays
+            Pass-fail predictions for the non-reduced design spaces of each
+            discipline before any new rule(s) are proposed in the current time
+            stamp
+        pf_std_fragility : List of numpy arrays
+            Standard deviations of pass-fail predictions described above
+        
+        Returns
+        -------
+        windreg : Dictionary
+            Windfall and regret data for each discretized point remaining in
+            the non-reduced, reduced, and leftover design spaces of each 
+            discipline for all of the rules proposed in the current time stamp
+        run_wind : Dictionary
+            Fraction of windfall potential in remaining design spaces for all
+            of the rules proposed in the current time stamp
+        run_reg : Dictionary
+            Fraction of regret potential in remaining design spaces for all of
+            the rules proposed in the current time stamp
+        """
         
         # Initialize empty dictionaries
         windreg, run_wind, run_reg = initializeWR(self.irf, passfail)
@@ -190,22 +224,26 @@ class windfallRegret:
                 for ind_pf, pf in enumerate(pf_fragility[ind_dic]):
                     
                     # Convert passfail prediction to complementary probability
-                    prob_feas = complementProb(pf, pf_std_fragility[ind_dic][ind_pf])
+                    prob_feas = complementProb\
+                        (pf, pf_std_fragility[ind_dic][ind_pf])
                     
                     # Prepare complementary probabilities for proper assignment
-                    wr, r_wind, r_reg = assignWR(prob_feas, ind_pf, indices_in_both, pf)
+                    wr, r_wind, r_reg = assignWR(prob_feas, ind_pf,
+                                                 indices_in_both, pf)
                     
                     # Loop through each key-value pair in wr dictionary
                     for ds, comp_prob in wr.items():
                         
                         # Append value to list of values of proper windreg key
-                        windreg[rule+tuple(self.irf)][ind_dic][ds] = np.append(windreg[rule+tuple(self.irf)][ind_dic][ds], comp_prob)
+                        windreg[rule+tuple(self.irf)][ind_dic][ds] = np.append\
+                            (windreg[rule+tuple(self.irf)][ind_dic][ds],
+                             comp_prob)
                     
                     # Loop through each key-value pair in r_wind dictionary
                     for ds, comp_prob in r_wind.items():
                         
                         # Add probability to proper running windfall sum
-                        run_wind[rule+tuple(self.irf)][ind_dic][ds] += r_wind[ds]
+                        run_wind[rule+tuple(self.irf)][ind_dic][ds]+=r_wind[ds]
                     
                     # Loop through each key-value pair in r_reg dictionary
                     for ds, comp_prob in r_reg.items():
@@ -217,8 +255,12 @@ class windfallRegret:
                 for ds, arr in dic.items():
                 
                     # Divide probabilistic sums by number of remaining points
-                    run_wind[rule+tuple(self.irf)][ind_dic][ds] = run_wind[rule+tuple(self.irf)][ind_dic][ds] / self.Df[ind_dic]['space_remaining'].shape[0]
-                    run_reg[rule+tuple(self.irf)][ind_dic][ds] = run_reg[rule+tuple(self.irf)][ind_dic][ds] / self.Df[ind_dic]['space_remaining'].shape[0]
+                    run_wind[rule+tuple(self.irf)][ind_dic][ds] = \
+                        run_wind[rule+tuple(self.irf)][ind_dic][ds] / \
+                            self.Df[ind_dic]['space_remaining'].shape[0]
+                    run_reg[rule+tuple(self.irf)][ind_dic][ds] = \
+                        run_reg[rule+tuple(self.irf)][ind_dic][ds] / \
+                            self.Df[ind_dic]['space_remaining'].shape[0]
                         
         # Returning windfall and regret information for new rule(s)
         return windreg, run_wind, run_reg
