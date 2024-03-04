@@ -395,11 +395,10 @@ while iters < iters_max + temp_amount:
                 ris = windregret.quantRisk(run_wind, run_reg, wr)
                 
                 # Initialize a fragility check object
-                fragile = checkFragility(Discips, ris)
+                fragile = checkFragility(ris)
                 
                 # Execute fragility assessment
-                net_wr = fragile.basicCheck(iters, iters_max,
-                                            exp_parameters, 
+                net_wr = fragile.basicCheck(iters, iters_max, exp_parameters, 
                                             fragility_shift)
 
                 # Check if ANY rule combos do not lead to fragile space

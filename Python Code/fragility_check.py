@@ -1,6 +1,9 @@
 """
 SUMMARY:
-
+Performs a basic check on the fragility of all design spaces based on the
+endured added risk of all the input rule(s) of a current time stamp, and then
+selects an input rule combination to move forward with if multiple ones being
+proposed do not create any fragile design spaces.
 
 CREATOR:
 Joseph B. Van Houten
@@ -19,16 +22,45 @@ CLASS
 """
 class checkFragility:
     
-    def __init__(self, Discips, risk):
-        self.D = Discips
+    def __init__(self, risk):
+        """
+        Parameters
+        ----------
+        risk : Dictionary
+            Added potentials for regret and windfall accompanying a set of
+            input rule(s) for the current timestamp
+        """
         self.risk = risk
         return
     
     
-    # Return a true or false boolean value if fragile or not
     def basicCheck(self, iters, iters_max, p, shift):
+        """
+        Description
+        -----------
+        Return the maximum endured risk for the input rule combo(s) being
+        considered as well as a boolean value indicating whether the endured
+        added risk exceeds the maximum threshold at the particular time.
+
+        Parameters
+        ----------
+        iters : TYPE
+            DESCRIPTION.
+        iters_max : TYPE
+            DESCRIPTION.
+        p : TYPE
+            DESCRIPTION.
+        shift : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        max_risk : TYPE
+            DESCRIPTION.
+
+        """
         
-        # Establish exponential threshold for declaring a design space fragile after a space reduction
+        # Establish exponential fragility threshold
         threshold = max(calcExponential(iters/iters_max, p), 0.0) + shift
         
         # Initialize an empty dictionary for tracking max risk values
@@ -47,10 +79,11 @@ class checkFragility:
                 net_risk = dic['regret'] - dic['windfall']
                 
                 # Update max risk value
-                max_risk[rule]["value"] = max(max_risk[rule]["value"], net_risk)
+                max_risk[rule]["value"] = max(max_risk[rule]["value"],net_risk)
             
             # Set boolean value depending on max risk value
-            if max_risk[rule]["value"] > threshold: max_risk[rule]["fragile"] = True
+            if max_risk[rule]["value"] > threshold: 
+                max_risk[rule]["fragile"] = True
             else: max_risk[rule]["fragile"] = False
         
         # Return results from the basic fragility assessment
@@ -58,6 +91,29 @@ class checkFragility:
     
     
     def newCombo(self, net_wr, original_banned_rules):
+        """
+        Description
+        -----------
+        Selects one rule combo to move forward from the all of the rule
+        combo(s) not leading to any fragile design spaces while adding any
+        rule(s) that only lead to fragile design spaces to the banned rule
+        list.
+
+        Parameters
+        ----------
+        net_wr : TYPE
+            DESCRIPTION.
+        original_banned_rules : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        final_combo : TYPE
+            DESCRIPTION.
+        original_banned_rules : TYPE
+            DESCRIPTION.
+
+        """
         
         # Create an empty set for banned rules
         banned_rules = set()
