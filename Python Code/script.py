@@ -570,7 +570,7 @@ if irules_new:
 # Add any new input rules to the list
 Input_Rules += irules_new
 
-# Write Space_Remaining data to a file
+# Write Space_Remaining data to an .hdf5 file
 space_remaining_file_path = f"space_remaining_{unique_identifier}.hdf5"
 with h5py.File(space_remaining_file_path, 'w') as hdf_file:
     for i, discipline_list in enumerate(Space_Remaining):

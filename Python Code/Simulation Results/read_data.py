@@ -1,13 +1,18 @@
-# -*- coding: utf-8 -*-
 """
-Created on Sun Feb  4 13:16:58 2024
+SUMMARY:
+Reads all of the space remaining data from each test case and gathers passing
+and failing information of original space remaining arrays for each discipline
+from SBD1 problem.
 
-@author: joeyvan
+CREATOR:
+Joseph B. Van Houten
+joeyvan@umich.edu
 """
 
 """
 LIBRARIES
 """
+# Import python libraries
 import os
 import sys
 import pickle
@@ -23,8 +28,9 @@ from create_key import createKey
 from get_constraints import getConstraints
 from output_vals import getOutput
 
+
 """
-DATA READING
+READ DATA
 """
 # Save the current directory's path
 original_dir = os.getcwd()
@@ -61,8 +67,9 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
+
 """
-POST-PROCESSING
+POST-PROCESS
 """
 # Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
@@ -96,7 +103,7 @@ for i in range(0, len(Discips)):
 
 
 """
-SAVING DATA
+SAVE DATA
 """
 # Saving the objects
 with open('Discips.pkl', 'wb') as f:

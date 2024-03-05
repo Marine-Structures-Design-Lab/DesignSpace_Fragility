@@ -1,8 +1,12 @@
-# -*- coding: utf-8 -*-
 """
-Created on Sat Feb  3 14:06:34 2024
+SUMMARY:
+Extract average data from each test case that tracks the total space remaining,
+feasible space remaining, and feasible-to-total space remaining in each
+discipline over the elapsed project timeline.
 
-@author: joeyvan
+CREATOR:
+Joseph B. Van Houten
+joeyvan@umich.edu
 """
 
 """
@@ -16,6 +20,25 @@ import pickle
 SECONDARY FUNCTIONS
 """
 def sharedIndices(larger_array, smaller_array):
+    """
+    Description
+    -----------
+    Finds the indices in the original space remaining array that still exist in
+    the reduced space remaining array.
+
+    Parameters
+    ----------
+    larger_array : Numpy array
+        Original space remaining array
+    smaller_array : Numpy array
+        Reduced space remaining array
+
+    Returns
+    -------
+    indices : List of integers
+        Indices in the larger numpy array with matching data points to the
+        smaller numpy array
+    """
     
     # Initialize an empty list to store indices
     indices = []
@@ -25,19 +48,44 @@ def sharedIndices(larger_array, smaller_array):
         
         # Find the index in the larger array where the row matches
         index = np.where((larger_array == row).all(axis=1))[0][0]
+        
+        # Append that index to the list of indices
         indices.append(index)
     
+    # Return the list of indices
     return indices
 
 
 def countBooleans(index_list, bool_list):
+    """
+    Description
+    -----------
+    Counts the remaining number of passing data points for the reduced design
+    space.
+
+    Parameters
+    ----------
+    index_list : List of integers
+        Indices of the original design space that still remain
+    bool_list : List of booleans
+        Passing and Failing information for the original design space
+
+    Returns
+    -------
+    true_count : Integer
+        Remaining number of passing data points in the reduced design space
+    """
     
     # Initialize counter for True values
     true_count = 0
     
     # Loop through the index list to find the corresponding boolean values
     for index in index_list:
+        
+        # Check if the data point at the particular index is passing
         if bool_list[index]:
+            
+            # Add one to the True values counter
             true_count += 1
     
     # Return the sum of the true count
@@ -47,9 +95,25 @@ def countBooleans(index_list, bool_list):
 """
 MAIN FUNCTIONS
 """
-# Determine all times data was collected for test case - consult console output
 def createTimeData(test_case_name):
+    """
+    Description
+    -----------
+    Determine all of the times that data was collected for a test case by
+    consulting the console output files.
+
+    Parameters
+    ----------
+    test_case_name : String
+        Name of the particular test case that was run
+
+    Returns
+    -------
+    set_of_times : Set
+        All of the time iterations when data was gathered
+    """
     
+    # Change the time sets below based on the experiments run
     if test_case_name == 'Test_Case_1' or test_case_name == 'Test_Case_2':
         set_of_times = {0, 40, 68, 91, 107, 118, 127, 135, 143, 151, 159, 167, 
                         175, 183, 191, 199, 200}
@@ -64,6 +128,31 @@ def createTimeData(test_case_name):
 
 
 def fillSpaceRemaining(test_case, set_of_times, Discips):
+    """
+    Description
+    -----------
+    Goes through all of the runs for a test case and organizes the total and
+    feasible space remaining such that their are data points for every time
+    iteration.
+
+    Parameters
+    ----------
+    test_case : Dictionary
+        Contains elapsed space remaining data for each run of a test case
+    set_of_times : Set
+        All of the time iterations when data was gathered
+    Discips : Dictionary
+        Contains information relevant to each discipline of the design problem
+
+    Returns
+    -------
+    space_rem : Dictionary
+        Tracks the total space remaining for each run of a test case over the
+        elapsed iterations
+    feas_rem : Dictionary
+        Tracks the feasible space remaining for each run of a test case over
+        the elapsed iterations
+    """
     
     # Create a list of the times and sort them in ascending order
     list_of_times = sorted(list(set_of_times))
@@ -233,7 +322,7 @@ def findPercentages(average_rem, average_feas):
 
 
 """
-POST-PROCESSING
+SCRIPT
 """
 # Upload saved data
 with open('Discips.pkl', 'rb') as f:
@@ -299,14 +388,11 @@ for test_case_name in test_case_names:
         feas2_disciplines_data[discip_name][test_case_name] = \
             percent_feas2[discip_name]
 
-# Save the necessary data
+# Save the new data
 with open('all_disciplines.pkl', 'wb') as f:
     pickle.dump(all_disciplines_data, f)
-
 with open('feas1_disciplines.pkl', 'wb') as f:
     pickle.dump(feas1_disciplines_data, f)
-
 with open('feas2_disciplines.pkl', 'wb') as f:
     pickle.dump(feas2_disciplines_data, f)
-
 

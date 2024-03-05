@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
 """
-Created on Sun Feb  4 14:00:45 2024
+SUMMARY:
 
-@author: joeyvan
+
+CREATOR:
+Joseph B. Van Houten
+joeyvan@umich.edu
 """
 
 """
@@ -13,12 +15,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
 from matplotlib.lines import Line2D
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import Normalize
+# from matplotlib.cm import ScalarMappable
+# from matplotlib.colors import Normalize
 
 
 """
-PLOTS
+FUNCTIONS
 """
 def plot_disciplines(all_disciplines_data, feas1_disciplines_data, feas2_disciplines_data):
     colors = ['darkorange', 'firebrick', 'violet', 'forestgreen']  # Define four colors for test cases
