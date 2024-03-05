@@ -44,20 +44,21 @@ class checkFragility:
 
         Parameters
         ----------
-        iters : TYPE
-            DESCRIPTION.
-        iters_max : TYPE
-            DESCRIPTION.
-        p : TYPE
-            DESCRIPTION.
-        shift : TYPE
-            DESCRIPTION.
+        iters : Integer
+            Current time iteration of design problem.
+        iters_max : Integer
+            Amount of time iterations allotted to carry out design problem.
+        p : Numpy array
+            Exponential function parameters dictating space reduction pace.
+        shift : Integer
+            Amount to shift exponential function for adaptation to setting
+            maximum risk threshold
 
         Returns
         -------
-        max_risk : TYPE
-            DESCRIPTION.
-
+        max_risk : Dictionary
+            Endured risk for space reduction and boolean indicating whether the
+            maximum risk threshold has been exceeded
         """
         
         # Establish exponential fragility threshold
@@ -98,27 +99,32 @@ class checkFragility:
         combo(s) not leading to any fragile design spaces while adding any
         rule(s) that only lead to fragile design spaces to the banned rule
         list.
-
+        
         Parameters
         ----------
-        net_wr : TYPE
-            DESCRIPTION.
-        original_banned_rules : TYPE
-            DESCRIPTION.
-
+        net_wr : Dictionary
+            Endured risk for space reduction and boolean indicating whether the
+            maximum risk threshold has been exceeded
+        original_banned_rules : Set
+            Sympy And or Or relationals or inequalities that make up the input
+            rule set that cannot be proposed by any disciplines for the current
+            time stamp
+        
         Returns
         -------
-        final_combo : TYPE
-            DESCRIPTION.
-        original_banned_rules : TYPE
-            DESCRIPTION.
-
+        final_combo : Tuple
+            Sympy And or Or relationals or inequalities that make up the input
+            rule(s) that the design manager is moving forward with
+        original_banned_rules : Set
+            Sympy And or Or relationals or inequalities that make up the
+            updated input rule set that cannot be proposed by any disciplines
+            for the current time stamp
         """
         
         # Create an empty set for banned rules
         banned_rules = set()
         
-        # Create an empty set for tracking rule combinations that do not lead to fragile design space
+        # Create empty set for rule combos not leading to fragile design space
         good_combos = set()
         
         # Loop through each rule combination
@@ -133,7 +139,7 @@ class checkFragility:
                     # Add each rule to the set of banned rules
                     banned_rules.add(rule)
             
-            # Do following because rule combination does not lead to fragile design space
+            # Do following as rule combo does not lead to fragile design space
             else:
                 
                 # Add tuple to the set of good combinations
