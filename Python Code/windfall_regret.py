@@ -511,11 +511,10 @@ class windfallRegret:
                     # Initialize an empty list for storing numpy arrays
                     l = []
                     
-                    # Surface plot
+                    # Create surface plots
                     j = np.linspace(0, 1, 4000)
                     k = np.linspace(0, 1, 4000)
                     j, k = np.meshgrid(j, k)
-                    
                     if ind_dic == 0:
                         l.append(0.8*j**2 + 2*k**2 - 0.0)
                         l.append(0.8*j**2 + 2*k**2 - 0.4)

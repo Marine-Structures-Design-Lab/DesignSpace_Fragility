@@ -229,6 +229,29 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
 
 
 def findAverages(space_rem, feas_rem):
+    """
+    Description
+    -----------
+    Finds the average total space and feasible space remaining for each
+    discipline, at each time stamp, of each test case, across all of the runs
+    of that test case.
+
+    Parameters
+    ----------
+    space_rem : Dictionary
+        Tracks the total space remaining for each run of a test case over the
+        elapsed iterations
+    feas_rem : Dictionary
+        Tracks the feasible space remaining for each run of a test case over
+        the elapsed iterations
+
+    Returns
+    -------
+    average_rem : Dictionary
+        Average total space remaining over elapsed project time
+    average_feas : Dictionary
+        Average feasible space remaining over elapsed project time
+    """
     
     # Initialize an empty dictionary for average space remaining data
     average_rem = {}
@@ -285,6 +308,30 @@ def findAverages(space_rem, feas_rem):
 
 
 def findPercentages(average_rem, average_feas):
+    """
+    Description
+    -----------
+    Converts the average total space remaining and average feasible space
+    remaining into percentages, while also calculating the percentage of 
+    average feasible space remaining to average total space remaining.
+
+    Parameters
+    ----------
+    average_rem : Dictionary
+        Average total space remaining over elapsed project time
+    average_feas : Dictionary
+        Average feasible space remaining over elapsed project time
+
+    Returns
+    -------
+    percent_rem : Dictionary
+        Average percentage of total space remaining.
+    percent_feas1 : TYPE
+        Average percentage of feasible space to total space remaining.
+    percent_feas2 : TYPE
+        Average percentage of feasible space remaining.
+
+    """
     
     # Initialize an empty dictionary for percent of space remaining data
     percent_rem = {}
@@ -395,4 +442,3 @@ with open('feas1_disciplines.pkl', 'wb') as f:
     pickle.dump(feas1_disciplines_data, f)
 with open('feas2_disciplines.pkl', 'wb') as f:
     pickle.dump(feas2_disciplines_data, f)
-
