@@ -371,74 +371,79 @@ def findPercentages(average_rem, average_feas):
 """
 SCRIPT
 """
-# Upload saved data
-with open('Discips.pkl', 'rb') as f:
-    Discips = pickle.load(f)
-with open('Test_Case_1.pkl', 'rb') as f:
-    Test_Case_1 = pickle.load(f)
-with open('Test_Case_2.pkl', 'rb') as f:
-    Test_Case_2 = pickle.load(f)
-with open('Test_Case_3.pkl', 'rb') as f:
-    Test_Case_3 = pickle.load(f)
-with open('Test_Case_4.pkl', 'rb') as f:
-    Test_Case_4 = pickle.load(f)
-
-# Identify the test cases whose data will be assessed
-test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 'Test_Case_4']
-
-# Initialize a dictionaries for data pertinent to each discipline
-all_disciplines_data = {
-    'Discipline_1': {},
-    'Discipline_2': {},
-    'Discipline_3': {}
-    }
-# Initialize a dictionary for data pertinent to each discipline
-feas1_disciplines_data = {
-    'Discipline_1': {},
-    'Discipline_2': {},
-    'Discipline_3': {}
-    }
-# Initialize a dictionary for data pertinent to each discipline
-feas2_disciplines_data = {
-    'Discipline_1': {},
-    'Discipline_2': {},
-    'Discipline_3': {}
-    }
-
-# Loop through each test case / name
-for test_case_name in test_case_names:
+# Ensure this script is only run when it is being executed directly
+if __name__ == "__main__":
     
-    # Retrieve variable whose name matches the string
-    test_case = globals()[test_case_name]
+    # Upload saved data
+    with open('Discips.pkl', 'rb') as f:
+        Discips = pickle.load(f)
+    with open('Test_Case_1.pkl', 'rb') as f:
+        Test_Case_1 = pickle.load(f)
+    with open('Test_Case_2.pkl', 'rb') as f:
+        Test_Case_2 = pickle.load(f)
+    with open('Test_Case_3.pkl', 'rb') as f:
+        Test_Case_3 = pickle.load(f)
+    with open('Test_Case_4.pkl', 'rb') as f:
+        Test_Case_4 = pickle.load(f)
     
-    # Determine all of the times when data was recorded
-    set_of_times = createTimeData(test_case_name)
+    # Identify the test cases whose data will be assessed
+    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3',
+                       'Test_Case_4']
     
-    # Determine space remaining at each one of those times for each test run
-    space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times, Discips)
+    # Initialize a dictionaries for data pertinent to each discipline
+    all_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
+    # Initialize a dictionary for data pertinent to each discipline
+    feas1_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
+    # Initialize a dictionary for data pertinent to each discipline
+    feas2_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
     
-    # Determine average space remaining at each time over all of the runs
-    average_rem, average_feas = findAverages(space_rem, feas_rem)
-    
-    # Convert averages into percentages
-    percent_rem, percent_feas1, percent_feas2 = findPercentages(average_rem,
-                                                                average_feas)
-    
-    # Loop through disciplines
-    for discip_name in all_disciplines_data.keys():
+    # Loop through each test case / name
+    for test_case_name in test_case_names:
         
-        # Add results to new key within dictionaries
-        all_disciplines_data[discip_name][test_case_name] = \
-            percent_rem[discip_name]
-        feas1_disciplines_data[discip_name][test_case_name] = \
-            percent_feas1[discip_name]
-        feas2_disciplines_data[discip_name][test_case_name] = \
-            percent_feas2[discip_name]
-
-# Save the new data
-with open('all_disciplines.pkl', 'wb') as f:
-    pickle.dump(all_disciplines_data, f)
-with open('feas1_disciplines.pkl', 'wb') as f:
-    pickle.dump(feas1_disciplines_data, f)
-with open('feas2_disciplines.pkl', 'wb') as f:
-    pickle.dump(feas2_disciplines_data, f)
+        # Retrieve variable whose name matches the string
+        test_case = globals()[test_case_name]
+        
+        # Determine all of the times when data was recorded
+        set_of_times = createTimeData(test_case_name)
+        
+        # Determine space remaining at each of those times for each test run
+        space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times,
+                                                 Discips)
+        
+        # Determine average space remaining at each time over all of the runs
+        average_rem, average_feas = findAverages(space_rem, feas_rem)
+        
+        # Convert averages into percentages
+        percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
+                                                                  average_feas)
+        
+        # Loop through disciplines
+        for discip_name in all_disciplines_data.keys():
+            
+            # Add results to new key within dictionaries
+            all_disciplines_data[discip_name][test_case_name] = \
+                percent_rem[discip_name]
+            feas1_disciplines_data[discip_name][test_case_name] = \
+                percent_feas1[discip_name]
+            feas2_disciplines_data[discip_name][test_case_name] = \
+                percent_feas2[discip_name]
+    
+    # Save the new data
+    with open('all_disciplines.pkl', 'wb') as f:
+        pickle.dump(all_disciplines_data, f)
+    with open('feas1_disciplines.pkl', 'wb') as f:
+        pickle.dump(feas1_disciplines_data, f)
+    with open('feas2_disciplines.pkl', 'wb') as f:
+        pickle.dump(feas2_disciplines_data, f)
