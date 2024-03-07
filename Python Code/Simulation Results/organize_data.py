@@ -132,7 +132,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     Description
     -----------
     Goes through all of the runs for a test case and organizes the total and
-    feasible space remaining such that their are data points for every time
+    feasible space remaining such that there are data points for every time
     iteration.
 
     Parameters
@@ -326,9 +326,9 @@ def findPercentages(average_rem, average_feas):
     -------
     percent_rem : Dictionary
         Average percentage of total space remaining.
-    percent_feas1 : TYPE
+    percent_feas1 : Dictionary
         Average percentage of feasible space to total space remaining.
-    percent_feas2 : TYPE
+    percent_feas2 : Dictionary
         Average percentage of feasible space remaining.
 
     """
