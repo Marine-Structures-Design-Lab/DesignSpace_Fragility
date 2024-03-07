@@ -83,7 +83,7 @@ class checkFragility:
                 max_risk[rule]["value"] = max(max_risk[rule]["value"],net_risk)
             
             # Set boolean value depending on max risk value
-            if max_risk[rule]["value"] > threshold: 
+            if max_risk[rule]["value"] > threshold:
                 max_risk[rule]["fragile"] = True
             else: max_risk[rule]["fragile"] = False
         
@@ -95,7 +95,7 @@ class checkFragility:
         """
         Description
         -----------
-        Selects one rule combo to move forward from the all of the rule
+        Selects one rule combo to move forward with from the all of the rule
         combo(s) not leading to any fragile design spaces while adding any
         rule(s) that only lead to fragile design spaces to the banned rule
         list.
