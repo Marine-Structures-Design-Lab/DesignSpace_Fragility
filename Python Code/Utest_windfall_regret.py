@@ -10,8 +10,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from windfall_regret import windfallRegret, initializeWR, getIndices, \
-    complementProb, assignWR
+from windfall_regret import windfallRegret, initializeWR, complementProb, \
+    assignWR
 import unittest
 import sympy as sp
 import numpy as np
@@ -31,14 +31,76 @@ class test_windfall_regret(unittest.TestCase):
         x = sp.symbols('x1:7')
         
         # Create set of input rules already adopted
-        rule1 = x[0] > 0.5
-        rule2 = sp.And(x[3] > 0.1, x[3] < 0.5)
+        rule1 = x[0] < 0.5
+        rule2 = sp.And(x[3] > 0.05, x[3] < 0.55)
         rule3 = sp.Or(x[4] > 0.7, x[5] < 0.8)
         self.irf = [rule1, rule2, rule3]
+        irules_fragility = [rule1, rule2, rule3]
         
         # Create new set of input rules being proposed
-        self.rule4 = x[1] < 0.7
+        self.rule4 = x[2] < 0.7
         self.rule5 = sp.Or(x[0] > 0.3, x[5] < 0.4)
+        
+        # Initialize Discipline information at the beginning of the time stamp
+        Discips_fragility = [
+            {'space_remaining': np.array([[0.0, 0.0, 0.0],
+                                          [0.0, 0.0, 0.1],
+                                          [0.0, 0.0, 0.2],
+                                          [0.0, 0.0, 0.3],
+                                          [0.0, 0.0, 0.4],
+                                          [0.6, 0.0, 0.5],
+                                          [0.6, 0.0, 0.6],
+                                          [0.6, 0.0, 0.7],
+                                          [0.6, 0.0, 0.8],
+                                          [0.6, 0.0, 0.9]]),
+             'tp_actual': 100,
+             'tested_ins': np.zeros((10,3)),
+             'tested_outs': np.zeros((10,3)),
+             'Fail_Amount': np.zeros(10),
+             'Pass_Amount': np.zeros(10),
+             'pass?': [False, False, False, False, False, False, False, False,
+                       False, False],
+             'ins': [x[0], x[1], x[2]]},
+            {'space_remaining': np.array([[0.0, 0.0, 0.0],
+                                          [1.0, 0.1, 0.0],
+                                          [1.0, 0.2, 0.0],
+                                          [1.0, 0.3, 0.0],
+                                          [1.0, 0.4, 0.0],
+                                          [1.0, 0.5, 0.0],
+                                          [0.0, 0.6, 0.0],
+                                          [0.0, 0.7, 0.0],
+                                          [0.0, 0.8, 0.0],
+                                          [0.0, 0.9, 0.0]]),
+             'tp_actual': 100,
+             'tested_ins': np.zeros((10,3)),
+             'tested_outs': np.zeros((10,3)),
+             'Fail_Amount': np.zeros(10),
+             'Pass_Amount': np.zeros(10),
+             'pass?': [False, False, False, False, False, False, False, False,
+                       False, False],
+             'ins': [x[2], x[3], x[4]]},
+            {'space_remaining': np.array([[0.0, 0.6, 0.9],
+                                          [0.1, 0.5, 1.0],
+                                          [0.2, 0.0, 0.0],
+                                          [0.3, 0.0, 0.0],
+                                          [0.2, 0.7, 0.7],
+                                          [0.4, 0.8, 0.8],
+                                          [0.2, 0.9, 0.9],
+                                          [0.7, 0.0, 0.0],
+                                          [0.8, 0.0, 0.0],
+                                          [0.9, 0.0, 0.0]]),
+             'tp_actual': 100,
+             'tested_ins': np.zeros((10,3)),
+             'tested_outs': np.zeros((10,3)),
+             'Fail_Amount': np.zeros(10),
+             'Pass_Amount': np.zeros(10),
+             'pass?': [False, False, False, False, False, False, False, False,
+                       False, False],
+             'ins': [x[0], x[4], x[5]]}
+        ]
+        
+        # Create an object call
+        self.windregret = windfallRegret(Discips_fragility, irules_fragility)
         
         
     def test_initialize_wr(self):
@@ -48,35 +110,35 @@ class test_windfall_regret(unittest.TestCase):
         
         # Create passfail dictionaries with new input rule(s)
         passfail1 = {(self.rule4, self.rule5): \
-            [{'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))},
-             {'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))},
-             {'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))}]}
+            [{'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)},
+             {'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)},
+             {'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)}]}
         passfail2 = {(self.rule4,): \
-            [{'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))},
-             {'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))},
-             {'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))}],
+            [{'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)},
+             {'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)},
+             {'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)}],
                      (self.rule5,): \
-            [{'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))},
-             {'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))},
-             {'non_reduced': np.empty((0,3)),
-              'reduced': np.empty((0,3)),
-              'leftover': np.empty((0,3))}]}
+            [{'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)},
+             {'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)},
+             {'non_reduced': np.empty(0),
+              'reduced': np.empty(0),
+              'leftover': np.empty(0)}]}
         
         # Determine expected windfall and regret dictionaries
         exp_windreg1 = {(self.rule4, self.rule5) + tuple(self.irf): \
@@ -271,7 +333,7 @@ class test_windfall_regret(unittest.TestCase):
         
         # Run the function and check that proper dictionaries are produced
         for ind, val in enumerate(pf):
-            wr, run_wind, run_reg = assignWR(prob_feas, ind, indices_in_both, val)
+            wr, run_wind, run_reg = assignWR(prob_feas,ind,indices_in_both,val)
             self.assertDictEqual(wr, exp_wr[ind])
             self.assertDictEqual(run_wind, exp_run_wind[ind])
             self.assertDictEqual(run_reg, exp_run_reg[ind])
@@ -281,6 +343,64 @@ class test_windfall_regret(unittest.TestCase):
         """
         Unit tests for the calcWindRegret method
         """
+        
+        # Create passfail dictionary with new input rules
+        passfail = {(self.rule4, self.rule5): \
+            [{'non_reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5]),
+              'reduced': np.array([0.1, 0.2, 0.3, 0.4, 0.5]),
+              'leftover': np.array([])},
+             {'non_reduced': np.array([0.2, 0.3, 0.4, 0.5, 0.6]),
+              'reduced': np.array([]),
+              'leftover': np.array([0.2, 0.3, 0.4, 0.5, 0.6])},
+             {'non_reduced': np.array([0.3, 0.4, 0.5, 0.6, 0.7]),
+              'reduced': np.array([0.3, 0.4, 0.6]),
+              'leftover': np.array([0.5, 0.7])}]}
+        
+        # Create passfail standard deviation dictionary with new input rules
+        passfail_std = {(self.rule4, self.rule5): \
+            [{'non_reduced': np.ones(5),
+              'reduced': np.ones(5),
+              'leftover': np.array([])},
+             {'non_reduced': np.ones(5),
+              'reduced': np.array([]),
+              'leftover': np.ones(5)},
+             {'non_reduced': np.ones(5),
+              'reduced': np.ones(3),
+              'leftover': np.ones(2)}]}
+        
+        # Create passfail data at the beginning of the time stamp
+        pf_fragility = [
+            np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
+            np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
+            np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+        ]
+        
+        # Create passfail standard deviation data at beginning of time stamp
+        pf_std_fragility = [np.ones(10), np.ones(10), np.ones(10)]
+        
+        # Determine expected windfall and regret dictionaries
+        exp_windreg = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': np.array([]),
+              'reduced': np.array([]),
+              'leftover': np.array([])},
+             {'non_reduced': np.array([]),
+              'reduced': np.array([]),
+              'leftover': np.array([])},
+             {'non_reduced': np.array([]),
+              'reduced': np.array([]),
+              'leftover': np.array([])}]}
+        
+        
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
     
     def test_quant_risk(self):
