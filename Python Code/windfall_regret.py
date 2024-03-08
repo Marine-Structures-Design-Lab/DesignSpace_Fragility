@@ -332,7 +332,7 @@ class windfallRegret:
                     prob_feas = complementProb\
                         (pf, pf_std_fragility[ind_dic][ind_pf])
                     
-                    # Prepare complementary probabilities for proper assignment
+                    # Prepare complementary probability for proper assignments
                     wr, r_wind, r_reg = assignWR(prob_feas, ind_pf,
                                                  indices_in_both, pf)
                     
