@@ -14,6 +14,7 @@ from windfall_regret import windfallRegret, initializeWR, getIndices, \
     complementProb, assignWR
 import unittest
 import sympy as sp
+import numpy as np
 
 
 """
@@ -23,18 +24,204 @@ class test_windfall_regret(unittest.TestCase):
 
     def setUp(self):
         """
-        
+        Initialize variables for functions and methods
         """
         
+        # Initialize sympy input variables
+        x = sp.symbols('x1:7')
         
+        # Create set of input rules already adopted
+        rule1 = x[0] > 0.5
+        rule2 = sp.And(x[3] > 0.1, x[3] < 0.5)
+        rule3 = sp.Or(x[4] > 0.7, x[5] < 0.8)
+        self.irf = [rule1, rule2, rule3]
         
+        # Create new set of input rules being proposed
+        self.rule4 = x[1] < 0.7
+        self.rule5 = sp.Or(x[0] > 0.3, x[5] < 0.4)
         
         
     def test_initialize_wr(self):
         """
         Unit tests for the initalizeWR function
         """
-
+        
+        # Create passfail dictionaries with new input rule(s)
+        passfail1 = {(self.rule4, self.rule5): \
+            [{'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))},
+             {'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))},
+             {'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))}]}
+        passfail2 = {(self.rule4,): \
+            [{'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))},
+             {'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))},
+             {'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))}],
+                     (self.rule5,): \
+            [{'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))},
+             {'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))},
+             {'non_reduced': np.empty((0,3)),
+              'reduced': np.empty((0,3)),
+              'leftover': np.empty((0,3))}]}
+        
+        # Determine expected windfall and regret dictionaries
+        exp_windreg1 = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)},
+             {'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)},
+             {'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)}]}
+        exp_windreg2 = {(self.rule4,) + tuple(self.irf): \
+            [{'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)},
+             {'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)},
+             {'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)}],
+                        (self.rule5,) + tuple(self.irf): \
+            [{'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)},
+             {'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)},
+             {'non_reduced': np.array([], dtype=float),
+              'reduced': np.array([], dtype=float),
+              'leftover': np.array([], dtype=float)}]}
+        exp_run_wind1 = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0}]}
+        exp_run_wind2 = {(self.rule4,) + tuple(self.irf): \
+            [{'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0}],
+                         (self.rule5,) + tuple(self.irf): \
+            [{'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0}]}
+        exp_run_reg1 = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0}]}
+        exp_run_reg2 = {(self.rule4,) + tuple(self.irf): \
+            [{'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0}],
+                        (self.rule5,) + tuple(self.irf): \
+            [{'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0},
+             {'non_reduced': 0.0,
+              'reduced': 0.0,
+              'leftover': 0.0}]}
+        
+        # Run the function
+        windreg1, run_wind1, run_reg1 = initializeWR(self.irf, passfail1)
+        windreg2, run_wind2, run_reg2 = initializeWR(self.irf, passfail2)
+        
+        # Ensure that proper keys are produced in each dictionary
+        self.assertSetEqual(set(windreg1.keys()), set(exp_windreg1.keys()))
+        self.assertSetEqual(set(windreg2.keys()), set(exp_windreg2.keys()))
+        self.assertSetEqual(set(run_reg1.keys()), set(exp_run_reg1.keys()))
+        self.assertSetEqual(set(run_reg2.keys()), set(exp_run_reg2.keys()))
+        self.assertSetEqual(set(run_wind1.keys()), set(exp_run_wind1.keys()))
+        self.assertSetEqual(set(run_wind2.keys()), set(exp_run_wind2.keys()))
+        
+        # Ensure each key has a list of the proper size
+        for key in exp_windreg1.keys():
+            self.assertEqual(len(windreg1[key]), len(exp_windreg1[key]))
+        for key in exp_windreg2.keys():
+            self.assertEqual(len(windreg2[key]), len(exp_windreg2[key]))
+        for key in exp_run_reg1.keys():
+            self.assertEqual(len(run_reg1[key]), len(exp_run_reg1[key]))
+        for key in exp_run_reg2.keys():
+            self.assertEqual(len(run_reg2[key]), len(exp_run_reg2[key]))
+        for key in exp_run_wind1.keys():
+            self.assertEqual(len(run_wind1[key]), len(exp_run_wind1[key]))
+        for key in exp_run_wind2.keys():
+            self.assertEqual(len(run_wind2[key]), len(exp_run_wind2[key]))
+        
+        # Ensure that proper keys are produced in each inner dictionary
+        for key1, list_dics in exp_windreg1.items():
+            for ind, dic in enumerate(list_dics):
+                self.assertSetEqual(set(windreg1[key1][ind].keys()),
+                                    set(list_dics[ind].keys()))
+        for key1, list_dics in exp_windreg2.items():
+            for ind, dic in enumerate(list_dics):
+                self.assertSetEqual(set(windreg2[key1][ind].keys()),
+                                    set(list_dics[ind].keys()))
+        for key1, list_dics in exp_run_reg1.items():
+            for ind, dic in enumerate(list_dics):
+                self.assertSetEqual(set(run_reg1[key1][ind].keys()),
+                                    set(list_dics[ind].keys()))
+        for key1, list_dics in exp_run_reg2.items():
+            for ind, dic in enumerate(list_dics):
+                self.assertSetEqual(set(run_reg2[key1][ind].keys()),
+                                    set(list_dics[ind].keys()))
+        for key1, list_dics in exp_run_wind1.items():
+            for ind, dic in enumerate(list_dics):
+                self.assertSetEqual(set(run_wind1[key1][ind].keys()),
+                                    set(list_dics[ind].keys()))
+        for key1, list_dics in exp_run_wind2.items():
+            for ind, dic in enumerate(list_dics):
+                self.assertSetEqual(set(run_wind2[key1][ind].keys()),
+                                    set(list_dics[ind].keys()))
+    
     
     def test_complement_prob(self):
         """
