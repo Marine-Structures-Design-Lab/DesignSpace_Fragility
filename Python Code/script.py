@@ -386,8 +386,7 @@ while iters < iters_max + temp_amount:
                 
                 # Calculate windfall and regret for remaining design spaces
                 wr, run_wind, run_reg = windregret.calcWindRegret\
-                    (pf_combos, pf_std_combos, pf_fragility, 
-                     pf_std_fragility)
+                    (pf_combos, pf_fragility, pf_std_fragility)
                 
                 # Quantify risk or potential of space reduction
                 ### Positive value means pot. regret or windfall ADDED

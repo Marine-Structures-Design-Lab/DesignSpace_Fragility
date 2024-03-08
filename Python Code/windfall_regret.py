@@ -274,8 +274,7 @@ class windfallRegret:
         return
     
     
-    def calcWindRegret(self, passfail, passfail_std, pf_fragility,
-                       pf_std_fragility):
+    def calcWindRegret(self, passfail, pf_fragility, pf_std_fragility):
         """
         Description
         -----------
@@ -289,8 +288,6 @@ class windfallRegret:
             Pass-fail predictions for the non-reduced, reduced, and leftover
             design spaces of rule combinations from newest round of fragility
             assessment
-        passfail_std : Dictionary
-            Standard deviations of pass-fail predictions described above
         pf_fragility : List of numpy arrays
             Pass-fail predictions for the non-reduced design spaces of each
             discipline before any new rule(s) are proposed in the current time

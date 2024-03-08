@@ -29,6 +29,7 @@ class test_windfall_regret(unittest.TestCase):
         
         # Initialize sympy input variables
         x = sp.symbols('x1:7')
+        y = sp.symbols('y1:6')
         
         # Create set of input rules already adopted
         rule1 = x[0] < 0.5
@@ -60,7 +61,8 @@ class test_windfall_regret(unittest.TestCase):
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
-             'ins': [x[0], x[1], x[2]]},
+             'ins': [x[0], x[1], x[2]],
+             'outs': [y[0]]},
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                           [1.0, 0.1, 0.0],
                                           [1.0, 0.2, 0.0],
@@ -78,7 +80,8 @@ class test_windfall_regret(unittest.TestCase):
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
-             'ins': [x[2], x[3], x[4]]},
+             'ins': [x[2], x[3], x[4]],
+             'outs': [y[1], y[2]]},
             {'space_remaining': np.array([[0.0, 0.6, 0.9],
                                           [0.1, 0.5, 1.0],
                                           [0.2, 0.0, 0.0],
@@ -96,7 +99,8 @@ class test_windfall_regret(unittest.TestCase):
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
-             'ins': [x[0], x[4], x[5]]}
+             'ins': [x[0], x[4], x[5]],
+             'outs': [y[3], y[4]]}
         ]
         
         # Create an object call
@@ -356,18 +360,6 @@ class test_windfall_regret(unittest.TestCase):
               'reduced': np.array([0.3, 0.4, 0.6]),
               'leftover': np.array([0.5, 0.7])}]}
         
-        # Create passfail standard deviation dictionary with new input rules
-        passfail_std = {(self.rule4, self.rule5): \
-            [{'non_reduced': np.ones(5),
-              'reduced': np.ones(5),
-              'leftover': np.array([])},
-             {'non_reduced': np.ones(5),
-              'reduced': np.array([]),
-              'leftover': np.ones(5)},
-             {'non_reduced': np.ones(5),
-              'reduced': np.ones(3),
-              'leftover': np.ones(2)}]}
-        
         # Create passfail data at the beginning of the time stamp
         pf_fragility = [
             np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
@@ -380,15 +372,20 @@ class test_windfall_regret(unittest.TestCase):
         
         # Determine expected windfall and regret dictionaries
         exp_windreg = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': np.array([]),
+            [{'non_reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539]),
+              'reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387]),
+              'leftover': np.array([0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539])},
+             {'non_reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539]),
               'reduced': np.array([]),
-              'leftover': np.array([])},
-             {'non_reduced': np.array([]),
-              'reduced': np.array([]),
-              'leftover': np.array([])},
-             {'non_reduced': np.array([]),
-              'reduced': np.array([]),
-              'leftover': np.array([])}]}
+              'leftover': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539])},
+             {'non_reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539]),
+              'reduced': np.array([0.3820885778, 0.3445782584, 0.2742531178]),
+              'leftover': np.array([0.4601721627, 0.4207402906, 0.3085375387, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539])}]}
+        
+        # Run the method
+        windreg, run_wind, run_reg = self.windregret.calcWindRegret(passfail, pf_fragility, pf_std_fragility)
+        
+        # Do an almostEqual between each value in expected to actual while looping through expected
         
         
             
