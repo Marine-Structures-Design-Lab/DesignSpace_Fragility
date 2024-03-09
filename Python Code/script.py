@@ -52,7 +52,7 @@ import h5py
 PREPARE DATA
 """
 # Establish Test Case
-test_id = "TC1"
+test_id = "TC4"
 
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
