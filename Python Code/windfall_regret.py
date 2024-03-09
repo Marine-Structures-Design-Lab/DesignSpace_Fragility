@@ -413,7 +413,7 @@ class windfallRegret:
             for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], 
                                                               run_wind[rule])):
                 
-                # Calculated non-reduced and reduced percentages
+                # Calculate non-reduced and reduced percentages
                 nrp = round((windreg[rule][ind_dic]['non_reduced'].shape[0] / \
                     self.Df[ind_dic]['tp_actual'])*100, 2)
                 rp = round((windreg[rule][ind_dic]['reduced'].shape[0] / \

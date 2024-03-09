@@ -56,7 +56,7 @@ class test_windfall_regret(unittest.TestCase):
                                           [0.6, 0.0, 0.9]]),
              'tp_actual': 100,
              'tested_ins': np.zeros((10,3)),
-             'tested_outs': np.zeros((10,3)),
+             'tested_outs': np.zeros((10,1)),
              'Fail_Amount': np.zeros(10),
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
@@ -75,7 +75,7 @@ class test_windfall_regret(unittest.TestCase):
                                           [0.0, 0.9, 0.0]]),
              'tp_actual': 100,
              'tested_ins': np.zeros((10,3)),
-             'tested_outs': np.zeros((10,3)),
+             'tested_outs': np.zeros((10,2)),
              'Fail_Amount': np.zeros(10),
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
@@ -94,7 +94,7 @@ class test_windfall_regret(unittest.TestCase):
                                           [0.9, 0.0, 0.0]]),
              'tp_actual': 100,
              'tested_ins': np.zeros((10,3)),
-             'tested_outs': np.zeros((10,3)),
+             'tested_outs': np.zeros((10,2)),
              'Fail_Amount': np.zeros(10),
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
@@ -364,7 +364,8 @@ class test_windfall_regret(unittest.TestCase):
         pf_fragility = [
             np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
             np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
-            np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+            np.array([-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 
+                      -1.0])
         ]
         
         # Create passfail standard deviation data at beginning of time stamp
@@ -372,45 +373,165 @@ class test_windfall_regret(unittest.TestCase):
         
         # Determine expected windfall and regret dictionaries
         exp_windreg = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539]),
-              'reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387]),
-              'leftover': np.array([0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539])},
-             {'non_reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539]),
+            [{'non_reduced': np.array([-0.4601721627, -0.4207402906, 
+                                       -0.3820885778, -0.3445782584, 
+                                       -0.3085375387, -0.2742531178, 
+                                       -0.2419636522, -0.2118553986, 
+                                       -0.1840601253, -0.1586552539]),
+              'reduced': np.array([-0.4601721627, -0.4207402906, -0.3820885778, 
+                                   -0.3445782584, -0.3085375387]),
+              'leftover': np.array([0.2742531178, 0.2419636522, 0.2118553986, 
+                                    0.1840601253, 0.1586552539])},
+             {'non_reduced': np.array([-0.4601721627, -0.4207402906, 
+                                       -0.3820885778, -0.3445782584, 
+                                       -0.3085375387, -0.2742531178, 
+                                       -0.2419636522, -0.2118553986, 
+                                       -0.1840601253, -0.1586552539]),
               'reduced': np.array([]),
-              'leftover': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539])},
-             {'non_reduced': np.array([0.4601721627, 0.4207402906, 0.3820885778, 0.3445782584, 0.3085375387, 0.2742531178, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539]),
+              'leftover': np.array([0.4601721627, 0.4207402906, 0.3820885778, 
+                                    0.3445782584, 0.3085375387, 0.2742531178, 
+                                    0.2419636522, 0.2118553986, 0.1840601253, 
+                                    0.1586552539])},
+             {'non_reduced': np.array([0.4601721627, 0.4207402906, 
+                                       0.3820885778, 0.3445782584, 
+                                       0.3085375387, 0.2742531178, 
+                                       0.2419636522, 0.2118553986, 
+                                       0.1840601253, 0.1586552539]),
               'reduced': np.array([0.3820885778, 0.3445782584, 0.2742531178]),
-              'leftover': np.array([0.4601721627, 0.4207402906, 0.3085375387, 0.2419636522, 0.2118553986, 0.1840601253, 0.1586552539])}]}
+              'leftover': np.array([-0.4601721627, -0.4207402906,
+                                    -0.3085375387, -0.2419636522,
+                                    -0.2118553986, -0.1840601253, 
+                                    -0.1586552539])}]}
+        
+        # Determine expected running windfall dictionaries
+        exp_run_wind = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': 0.0000000000,
+              'reduced': 0.1070787548,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.0000000000,
+              'reduced': 0.2986904376,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.2986904376,
+              'reduced': 0.1000919954,
+              'leftover': 0.0000000000}]}
+        
+        # Determine expected running regret dictionaries
+        exp_run_reg = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': 0.2986904376,
+              'reduced': 0.1916116828,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.2986904376,
+              'reduced': 0.0000000000,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.0000000000,
+              'reduced': 0.1985984422,
+              'leftover': 0.0000000000}]}
         
         # Run the method
-        windreg, run_wind, run_reg = self.windregret.calcWindRegret(passfail, pf_fragility, pf_std_fragility)
+        windreg, run_wind, run_reg = \
+            self.windregret.calcWindRegret(passfail, pf_fragility, 
+                                           pf_std_fragility)
         
-        # Do an almostEqual between each value in expected to actual while looping through expected
+        # Ensure actual windreg arrays match up with expected arrays
+        for rule, list_dics in exp_windreg.items():
+            for ind, dic in enumerate(list_dics):
+                for ds, array in dic.items():
+                    np.testing.assert_almost_equal(windreg[rule][ind][ds], 
+                                                   array)
         
+        # Ensure actual running windfall values match up with expected values
+        for rule, list_dics in exp_run_wind.items():
+            for ind, dic in enumerate(list_dics):
+                for ds, val in dic.items():
+                    self.assertAlmostEqual(run_wind[rule][ind][ds], val)
         
-            
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        # Ensure actual running regret values match up with expected values
+        for rule, list_dics in exp_run_reg.items():
+            for ind, dic in enumerate(list_dics):
+                for ds, val in dic.items():
+                    self.assertAlmostEqual(run_reg[rule][ind][ds], val)
     
     
     def test_quant_risk(self):
         """
         Unit tests for the quantRisk method
         """
-    
-    
-    
-    
-    
-    
-    
+        
+        # Initialize windfall and regret dictionaries
+        windreg = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': np.array([-0.4601721627, -0.4207402906, 
+                                       -0.3820885778, -0.3445782584, 
+                                       -0.3085375387, -0.2742531178, 
+                                       -0.2419636522, -0.2118553986, 
+                                       -0.1840601253, -0.1586552539]),
+              'reduced': np.array([-0.4601721627, -0.4207402906, -0.3820885778, 
+                                   -0.3445782584, -0.3085375387]),
+              'leftover': np.array([0.2742531178, 0.2419636522, 0.2118553986, 
+                                    0.1840601253, 0.1586552539])},
+             {'non_reduced': np.array([-0.4601721627, -0.4207402906, 
+                                       -0.3820885778, -0.3445782584, 
+                                       -0.3085375387, -0.2742531178, 
+                                       -0.2419636522, -0.2118553986, 
+                                       -0.1840601253, -0.1586552539]),
+              'reduced': np.array([]),
+              'leftover': np.array([0.4601721627, 0.4207402906, 0.3820885778, 
+                                    0.3445782584, 0.3085375387, 0.2742531178, 
+                                    0.2419636522, 0.2118553986, 0.1840601253, 
+                                    0.1586552539])},
+             {'non_reduced': np.array([0.4601721627, 0.4207402906, 
+                                       0.3820885778, 0.3445782584, 
+                                       0.3085375387, 0.2742531178, 
+                                       0.2419636522, 0.2118553986, 
+                                       0.1840601253, 0.1586552539]),
+              'reduced': np.array([0.3820885778, 0.3445782584, 0.2742531178]),
+              'leftover': np.array([-0.4601721627, -0.4207402906,
+                                    -0.3085375387, -0.2419636522,
+                                    -0.2118553986, -0.1840601253, 
+                                    -0.1586552539])}]}
+        
+        # Initialize running windfall dictionaries
+        run_wind = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': 0.0000000000,
+              'reduced': 0.1070787548,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.0000000000,
+              'reduced': 0.2986904376,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.2986904376,
+              'reduced': 0.1000919954,
+              'leftover': 0.0000000000}]}
+        
+        # Initialize running regret dictionaries
+        run_reg = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'non_reduced': 0.2986904376,
+              'reduced': 0.1916116828,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.2986904376,
+              'reduced': 0.0000000000,
+              'leftover': 0.0000000000},
+             {'non_reduced': 0.0000000000,
+              'reduced': 0.1985984422,
+              'leftover': 0.0000000000}]}
+        
+        # Determine expected risk dictionaries
+        exp_risk = {(self.rule4, self.rule5) + tuple(self.irf): \
+            [{'regret': -0.3584940839,
+              'windfall': 1070787546.9999999},
+             {'regret': -1.0,
+              'windfall': 2986904375.0},
+             {'regret': 1985984421.0,
+              'windfall': -0.664897222}]}
+        
+        # Run the method
+        risk = self.windregret.quantRisk(run_wind, run_reg, windreg)
+        
+        # Ensure actual risk values match up with expected values
+        for rule, list_dics in exp_risk.items():
+            for ind, dic in enumerate(list_dics):
+                for pot, val in dic.items():
+                    self.assertAlmostEqual(risk[rule][ind][pot], val)
+
+
 """
 SCRIPT
 """
