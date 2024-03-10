@@ -272,8 +272,8 @@ with open('feas1_disciplines.pkl', 'rb') as f:
     feas1_disciplines_data = pickle.load(f)
 with open('feas2_disciplines.pkl', 'rb') as f:
     feas2_disciplines_data = pickle.load(f)
-with open('Test_Case_3.pkl', 'rb') as f:
-    Test_Case_3 = pickle.load(f)
+# with open('Test_Case_3.pkl', 'rb') as f:
+#     Test_Case_3 = pickle.load(f)
 with open('Discips.pkl', 'rb') as f:
     Discips = pickle.load(f)
 
