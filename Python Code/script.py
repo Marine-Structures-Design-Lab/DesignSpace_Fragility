@@ -26,6 +26,7 @@ from vars_def import setProblem
 from uniform_grid import uniformGrid
 # from exponential_reduction import plotExponential
 from point_sorter import sortPoints
+from design_changes import changeDesign
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints
 from reduction_change import changeReduction
@@ -124,6 +125,12 @@ auto_accept = True     # True = yes, False = no
 fragility = False       # True = yes, False = no
 fragility_shift = 0.0  # Should be a positive float
 
+# Indicate when and to what design space(s) a design change should occur
+### Keep these in list form and have each design change type match up with a
+### time for it to occur...times must be in ascending order!
+change_design = ['Outputs']  # Options: Inputs, Analyses, Outputs, Requirements
+change_time = [0.5]          # Fraction of elapsed time(s) before change occurs
+
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
 # when forcing a space reduction (2nd value)
@@ -168,6 +175,9 @@ Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
 temp_amount = 0
+
+# Initialize design change counter to 0
+change_counter = 0
 
 # Initialize a list of empty lists for data collection
 Space_Remaining = [[] for _ in Discips]
@@ -238,6 +248,26 @@ while iters < iters_max + temp_amount:
     # Reset the input rules to an empty list
     irules_new = []
     irules_discip = []
+    
+    # Check if time has been reached for a design change to occur
+    if change_counter < len(change_time) and \
+        (iters/iters_max) > change_time[change_counter]:
+        
+        # Set the change type
+        change_type = change_design[change_counter]
+        
+        # Establish an object for the design change
+        change = changeDesign(Discips, Input_Rules, Output_Rules)
+        
+        # Call the proper method based on the type of design change
+        Discips, Input_Rules, Output_Rules = getattr(change, change_type)()
+        
+        # Reevaluate and update ALL previously explored points
+        Discips = change.reevaluatePoints()
+        
+        # Increase change counter by 1!
+        change_counter += 1
+    
     
     # Override to exploration if any discipline maxed out partition parameters
     just_explore = False
