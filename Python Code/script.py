@@ -52,7 +52,7 @@ import h5py
 PREPARE DATA
 """
 # Establish Test Case
-test_id = "TC4"
+test_id = "TC1"
 
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
@@ -86,7 +86,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 600    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -116,10 +116,13 @@ exp_parameters = np.array(\
      1.0,   # p3: Max percent of time to force reductions (p1 < p3 <=1)
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
+# Decide if ANY reduction proposed by discipline should be accepted by default
+auto_accept = True     # True = yes, False = no
+
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = True       # True = yes, False = no
-fragility_shift = 0.2  # Should be a positive float
+fragility = False       # True = yes, False = no
+fragility_shift = 0.0  # Should be a positive float
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -297,7 +300,15 @@ while iters < iters_max + temp_amount:
         # Check up on new rules
         print(f"Individually proposed input rules: {irules_new}")
         
-        
+        # Check if any newly proposed rules are to be automatically accepted
+        if irules_new and auto_accept:
+            
+            # Indicate that design manager automatically accepted rules
+            print("Rules automatically accepted by design manager!")
+            
+            # Reset back to while loop for time iterations - no exploring
+            continue
+            
         #######################################################################
         ###################### UNIVERSAL SPACE REDUCTIONS #####################
         #######################################################################
