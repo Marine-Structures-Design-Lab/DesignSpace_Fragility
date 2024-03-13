@@ -138,34 +138,41 @@ def fillSpaceRemaining(test_case, set_of_times, Discips, Discips2):
         All of the time iterations when data was gathered
     Discips : Dictionary
         Contains information relevant to each discipline of the design problem
-    Discips : Dictionary
+    Discips2 : Dictionary
         DESCRIPTION.
 
     Returns
     -------
-    space_rem : Dictionary
+    space_remBC : Dictionary
         Tracks the total space remaining for each run of a test case over the
         elapsed iterations
-    feas_rem : Dictionary
+    space_remAC : Dictionary
+        DESCRIPTION.
+    feas_remBC : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
+    feas_remAC : Dictionary
     """
     
     # Create a list of the times and sort them in ascending order
     list_of_times = sorted(list(set_of_times))
     
     # Initialize an empty dictionary for space remaining data
-    space_rem = {}
+    space_remBC = {}
+    space_remAC = {}
     
     # Initialize an empty dictionary for percentage of feasible space data
-    feas_rem = {}
+    feas_remBC = {}
+    feas_remAC = {}
     
     # Loop through each run of the test case
     for run_name, discips in test_case.items():
         
         # Initialize empty dictionaries for the run
-        space_rem[run_name] = {}
-        feas_rem[run_name] = {}
+        space_remBC[run_name] = {}
+        space_remAC[run_name] = {}
+        feas_remBC[run_name] = {}
+        feas_remAC[run_name] = {}
         
         # Loop through each discipline of the run
         for ind_discip, list_discip in enumerate(discips):
@@ -174,58 +181,107 @@ def fillSpaceRemaining(test_case, set_of_times, Discips, Discips2):
             discip_name = f"Discipline_{ind_discip + 1}"
             
             # Initialize empty dictionaries for the discipline
-            space_rem[run_name][discip_name] = {}
-            feas_rem[run_name][discip_name] = {}
+            space_remBC[run_name][discip_name] = {}
+            space_remAC[run_name][discip_name] = {}
+            feas_remBC[run_name][discip_name] = {}
+            feas_remAC[run_name][discip_name] = {}
             
             # Loop through each value in the list of times
             for time in list_of_times:
                 
-                # Assign time to a key for the dictionaries
-                space_rem[run_name][discip_name][time] = []
-                feas_rem[run_name][discip_name][time] = []
+                if time <= 324:
+                    
+                    # Assign time to a key for the dictionaries
+                    space_remBC[run_name][discip_name][time] = []
+                    feas_remBC[run_name][discip_name][time] = []
+                
+                if time >= 324:
+                    
+                    # Assign time to a key for the dictionaries
+                    space_remAC[run_name][discip_name][time] = []
+                    feas_remAC[run_name][discip_name][time] = []
             
             # Loop through each data point in the list
             for ind_data, dic_data in enumerate(list_discip):
                 
-                # Add size of the numpy array to the proper iteration list
-                space_rem[run_name][discip_name][dic_data['iter']].append\
-                    (len(dic_data['space_remaining']))
+                if dic_data['iter'] <= 324:
                 
-                # Determine shared indices between space remaining arrays
-                matches = sharedIndices(Discips[ind_discip]['tested_ins'], 
-                                        dic_data['space_remaining'])
+                    # Add size of the numpy array to the proper iteration list
+                    space_remBC[run_name][discip_name][dic_data['iter']].append\
+                        (len(dic_data['space_remaining']))
+                    
+                    # Determine shared indices between space remaining arrays
+                    matches = sharedIndices(Discips[ind_discip]['tested_ins'], 
+                                            dic_data['space_remaining'])
+                    
+                    # Count and record True values for indices in both
+                    true_count=countBooleans(matches, Discips[ind_discip]['pass?'])
+                    
+                    # Append count to the feasible dictionary
+                    feas_remBC[run_name][discip_name][dic_data['iter']].append\
+                        (true_count)
                 
-                # Count and record True values for indices in both
-                true_count=countBooleans(matches, Discips[ind_discip]['pass?'])
-                
-                # Append count to the feasible dictionary
-                feas_rem[run_name][discip_name][dic_data['iter']].append\
-                    (true_count)
+                if dic_data['iter'] >= 324:
+                    
+                    # Add size of the numpy array to the proper iteration list
+                    space_remAC[run_name][discip_name][dic_data['iter']].append\
+                        (len(dic_data['space_remaining']))
+                    
+                    # Determine shared indices between space remaining arrays
+                    matches = sharedIndices(Discips2[ind_discip]['tested_ins'], 
+                                            dic_data['space_remaining'])
+                    
+                    # Count and record True values for indices in both
+                    true_count=countBooleans(matches, Discips2[ind_discip]['pass?'])
+                    
+                    # Append count to the feasible dictionary
+                    feas_remAC[run_name][discip_name][dic_data['iter']].append\
+                        (true_count)
             
             # Loop back through the list of times
             for ind_time, time in enumerate(list_of_times):
                 
-                # Check if space remaining list is empty
-                if not space_rem[run_name][discip_name][time]:
+                if time <= 324:
                     
-                    # Add minimum space remaining from one earlier time
-                    space_rem[run_name][discip_name][time].append(min(\
-                        space_rem[run_name][discip_name][list_of_times\
-                        [ind_time-1]]))
-                
-                # Check if feasible space list is empty
-                if not feas_rem[run_name][discip_name][time]:
+                    # Check if space remaining list is empty
+                    if not space_remBC[run_name][discip_name][time]:
+                        
+                        # Add minimum space remaining from one earlier time
+                        space_remBC[run_name][discip_name][time].append(min(\
+                            space_remBC[run_name][discip_name][list_of_times\
+                            [ind_time-1]]))
                     
-                    # Add minimum feasible count from one earlier time
-                    feas_rem[run_name][discip_name][time].append(min(\
-                        feas_rem[run_name][discip_name][list_of_times\
-                        [ind_time-1]]))
+                    # Check if feasible space list is empty
+                    if not feas_remBC[run_name][discip_name][time]:
+                        
+                        # Add minimum feasible count from one earlier time
+                        feas_remBC[run_name][discip_name][time].append(min(\
+                            feas_remBC[run_name][discip_name][list_of_times\
+                            [ind_time-1]]))
+                            
+                if time >= 324:
+                    
+                    # Check if space remaining list is empty
+                    if not space_remAC[run_name][discip_name][time]:
+                        
+                        # Add minimum space remaining from one earlier time
+                        space_remAC[run_name][discip_name][time].append(min(\
+                            space_remAC[run_name][discip_name][list_of_times\
+                            [ind_time-1]]))
+                    
+                    # Check if feasible space list is empty
+                    if not feas_remAC[run_name][discip_name][time]:
+                        
+                        # Add minimum feasible count from one earlier time
+                        feas_remAC[run_name][discip_name][time].append(min(\
+                            feas_remAC[run_name][discip_name][list_of_times\
+                            [ind_time-1]]))
     
     # Return the dictionaries of filled in time information
-    return space_rem, feas_rem
+    return space_remBC, space_remAC, feas_remBC, feas_remAC
 
 
-def findAverages(space_rem, feas_rem):
+def findAverages(space_remBC, space_remAC, feas_remBC, feas_remAC):
     """
     Description
     -----------
@@ -235,10 +291,16 @@ def findAverages(space_rem, feas_rem):
 
     Parameters
     ----------
-    space_rem : Dictionary
+    space_remBC : Dictionary
         Tracks the total space remaining for each run of a test case over the
         elapsed iterations
-    feas_rem : Dictionary
+    space_remAC : Dictionary
+        Tracks the total space remaining for each run of a test case over the
+        elapsed iterations
+    feas_remBC : Dictionary
+        Tracks the feasible space remaining for each run of a test case over
+        the elapsed iterations
+    feas_remAC : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
 
@@ -415,11 +477,11 @@ if __name__ == "__main__":
         set_of_times = createTimeData(test_case_name)
         
         # Determine space remaining at each of those times for each test run
-        space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times,
-                                                 Discips, Discips2)
+        space_remBC, space_remAC, feas_remBC, feas_remAC = \
+            fillSpaceRemaining(test_case, set_of_times, Discips, Discips2)
         
         # Determine average space remaining at each time over all of the runs
-        average_rem, average_feas = findAverages(space_rem, feas_rem)
+        average_rem, average_feas = findAverages(space_remBC, space_remAC, feas_remBC, feas_remAC)
         
         # Convert averages into percentages
         percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
