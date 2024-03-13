@@ -121,8 +121,8 @@ def createTimeData(test_case_name):
     # Return the set of times
     return set_of_times
 
-
-def fillSpaceRemaining(test_case, set_of_times, Discips):
+# AT 324...DO BOTH DISCIPS...DISCIPS2 SECOND!!!
+def fillSpaceRemaining(test_case, set_of_times, Discips, Discips2):
     """
     Description
     -----------
@@ -138,6 +138,8 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
         All of the time iterations when data was gathered
     Discips : Dictionary
         Contains information relevant to each discipline of the design problem
+    Discips : Dictionary
+        DESCRIPTION.
 
     Returns
     -------
@@ -372,18 +374,17 @@ if __name__ == "__main__":
     # Upload saved data
     with open('Discips.pkl', 'rb') as f:
         Discips = pickle.load(f)
+    with open('Discips2.pkl', 'rb') as f:
+        Discips2 = pickle.load(f)
     with open('Test_Case_1.pkl', 'rb') as f:
         Test_Case_1 = pickle.load(f)
     with open('Test_Case_2.pkl', 'rb') as f:
         Test_Case_2 = pickle.load(f)
     with open('Test_Case_3.pkl', 'rb') as f:
         Test_Case_3 = pickle.load(f)
-    with open('Test_Case_4.pkl', 'rb') as f:
-        Test_Case_4 = pickle.load(f)
     
     # Identify the test cases whose data will be assessed
-    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3',
-                       'Test_Case_4']
+    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3']
     
     # Initialize a dictionaries for data pertinent to each discipline
     all_disciplines_data = {
@@ -415,7 +416,7 @@ if __name__ == "__main__":
         
         # Determine space remaining at each of those times for each test run
         space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times,
-                                                 Discips)
+                                                 Discips, Discips2)
         
         # Determine average space remaining at each time over all of the runs
         average_rem, average_feas = findAverages(space_rem, feas_rem)
