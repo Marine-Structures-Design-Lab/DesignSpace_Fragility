@@ -59,14 +59,6 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
-# Read in the data from Test Case 4
-os.chdir('./Test Case 4/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
-
-# Change back to the original directory
-os.chdir(original_dir)
-
 
 """
 POST-PROCESS
@@ -117,6 +109,3 @@ with open('Test_Case_2.pkl', 'wb') as f:
 
 with open('Test_Case_3.pkl', 'wb') as f:
     pickle.dump(Test_Case_3, f)
-
-with open('Test_Case_4.pkl', 'wb') as f:
-    pickle.dump(Test_Case_4, f)
