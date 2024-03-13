@@ -258,8 +258,24 @@ def fillSpaceRemaining(test_case, set_of_times, Discips, Discips2):
                         feas_remBC[run_name][discip_name][time].append(min(\
                             feas_remBC[run_name][discip_name][list_of_times\
                             [ind_time-1]]))
+                
+                if time == 324:
+                    
+                    # Check if space remaining list is empty
+                    if not space_remAC[run_name][discip_name][time]:
+                        
+                        # Add minimum space remaining from one earlier time
+                        space_remAC[run_name][discip_name][time].append(min(\
+                            space_remBC[run_name][discip_name][276]))
+                    
+                    # Check if feasible space list is empty
+                    if not feas_remAC[run_name][discip_name][time]:
+                        
+                        # Add minimum feasible count from one earlier time
+                        feas_remAC[run_name][discip_name][time].append(min(\
+                            feas_remBC[run_name][discip_name][276]))
                             
-                if time >= 324:
+                if time > 324:
                     
                     # Check if space remaining list is empty
                     if not space_remAC[run_name][discip_name][time]:
@@ -281,7 +297,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips, Discips2):
     return space_remBC, space_remAC, feas_remBC, feas_remAC
 
 
-def findAverages(space_remBC, space_remAC, feas_remBC, feas_remAC):
+def findAverages(space_rem, feas_rem):
     """
     Description
     -----------
@@ -291,16 +307,10 @@ def findAverages(space_remBC, space_remAC, feas_remBC, feas_remAC):
 
     Parameters
     ----------
-    space_remBC : Dictionary
+    space_rem : Dictionary
         Tracks the total space remaining for each run of a test case over the
         elapsed iterations
-    space_remAC : Dictionary
-        Tracks the total space remaining for each run of a test case over the
-        elapsed iterations
-    feas_remBC : Dictionary
-        Tracks the feasible space remaining for each run of a test case over
-        the elapsed iterations
-    feas_remAC : Dictionary
+    feas_rem : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
 
@@ -450,21 +460,39 @@ if __name__ == "__main__":
     
     # Initialize a dictionaries for data pertinent to each discipline
     all_disciplines_data = {
-        'Discipline_1': {},
-        'Discipline_2': {},
-        'Discipline_3': {}
+        'Discipline_1': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}},
+        'Discipline_2': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}},
+        'Discipline_3': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}}
         }
     # Initialize a dictionary for data pertinent to each discipline
     feas1_disciplines_data = {
-        'Discipline_1': {},
-        'Discipline_2': {},
-        'Discipline_3': {}
+        'Discipline_1': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}},
+        'Discipline_2': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}},
+        'Discipline_3': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}}
         }
     # Initialize a dictionary for data pertinent to each discipline
     feas2_disciplines_data = {
-        'Discipline_1': {},
-        'Discipline_2': {},
-        'Discipline_3': {}
+        'Discipline_1': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}},
+        'Discipline_2': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}},
+        'Discipline_3': {'Test_Case_1': {'BC': {}, 'AC': {}},
+                         'Test_Case_2': {'BC': {}, 'AC': {}},
+                         'Test_Case_3': {'BC': {}, 'AC': {}}}
         }
     
     # Loop through each test case / name
@@ -481,22 +509,31 @@ if __name__ == "__main__":
             fillSpaceRemaining(test_case, set_of_times, Discips, Discips2)
         
         # Determine average space remaining at each time over all of the runs
-        average_rem, average_feas = findAverages(space_remBC, space_remAC, feas_remBC, feas_remAC)
+        average_remBC, average_feasBC = findAverages(space_remBC, feas_remBC)
+        average_remAC, average_feasAC = findAverages(space_remAC, feas_remAC)
         
         # Convert averages into percentages
-        percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
-                                                                  average_feas)
+        percent_remBC, percent_feas1BC, percent_feas2BC = \
+            findPercentages(average_remBC, average_feasBC)
+        percent_remAC, percent_feas1AC, percent_feas2AC = \
+            findPercentages(average_remAC, average_feasAC)
         
         # Loop through disciplines
         for discip_name in all_disciplines_data.keys():
             
             # Add results to new key within dictionaries
-            all_disciplines_data[discip_name][test_case_name] = \
-                percent_rem[discip_name]
-            feas1_disciplines_data[discip_name][test_case_name] = \
-                percent_feas1[discip_name]
-            feas2_disciplines_data[discip_name][test_case_name] = \
-                percent_feas2[discip_name]
+            all_disciplines_data[discip_name][test_case_name]['BC'] = \
+                percent_remBC[discip_name]
+            all_disciplines_data[discip_name][test_case_name]['AC'] = \
+                percent_remAC[discip_name]
+            feas1_disciplines_data[discip_name][test_case_name]['BC'] = \
+                percent_feas1BC[discip_name]
+            feas1_disciplines_data[discip_name][test_case_name]['AC'] = \
+                percent_feas1AC[discip_name]
+            feas2_disciplines_data[discip_name][test_case_name]['BC'] = \
+                percent_feas2BC[discip_name]
+            feas2_disciplines_data[discip_name][test_case_name]['AC'] = \
+                percent_feas2BC[discip_name]
     
     # Save the new data
     with open('all_disciplines.pkl', 'wb') as f:
