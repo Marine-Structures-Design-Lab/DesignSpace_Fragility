@@ -27,6 +27,7 @@ from vars_def import setProblem
 from create_key import createKey
 from get_constraints import getConstraints
 from output_vals import getOutput
+from design_changes import changeDesign
 
 
 """
@@ -63,35 +64,46 @@ os.chdir(original_dir)
 """
 POST-PROCESS
 """
-# Establish disciplines and initial rules for the design problem of interest
+# Establish disciplines and rules for the design problem of interest
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = prob.SBD1()
+change = changeDesign(Discips, Input_Rules, Output_Rules)
+Discips2, Input_Rules2, Output_Rules2 = change.Reqs()
 
 # Loop through each discipline of the design problem
 for i in range(0, len(Discips)):
     
     # Create a key for tested inputs of discipline if it does not exist
-    Discips[i] = createKey('tested_ins',Discips[i])
+    Discips[i] = createKey('tested_ins', Discips[i])
+    Discips2[i] = createKey('tested_ins', Discips2[i])
     
     # Populate tested inputs with each initial space remaining array
     Discips[i]['tested_ins'] = Test_Case_1['Run_1'][i][0]['space_remaining']
+    Discips2[i]['tested_ins'] = Test_Case_1['Run_1'][i][0]['space_remaining']
     
     # Create a key for tested outputs of discipline if it does not exist
     Discips[i] = createKey('tested_outs', Discips[i])
+    Discips2[i] = createKey('tested_outs', Discips2[i])
     
     # Get output points from equations
     outpts = getOutput(Discips[i])
     Discips[i] = outpts.getValues()
+    outpts2 = getOutput(Discips2[i])
+    Discips2[i] = outpts2.getValues()
     
     # Determine current output value rules for the discipline to meet
     output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
+    output_rules2 = getConstraints(Discips2[i]['outs'], Output_Rules2)
     
     # Create a key for passing and failing of outputs if it does not exist
-    Discips[i] = createKey('pass?',Discips[i])
+    Discips[i] = createKey('pass?', Discips[i])
+    Discips2[i] = createKey('pass?', Discips2[i])
     
     # Check whether the output points pass or fail
     outchk = checkOutput(Discips[i], output_rules)
     Discips[i] = outchk.basicCheck()
+    outchk2 = checkOutput(Discips2[i], output_rules2)
+    Discips2[i] = outchk2.basicCheck()
 
 
 """
@@ -100,6 +112,9 @@ SAVE DATA
 # Saving the objects
 with open('Discips.pkl', 'wb') as f:
     pickle.dump(Discips, f)
+
+with open('Discips2.pkl', 'wb') as f:
+    pickle.dump(Discips2, f)
 
 with open('Test_Case_1.pkl', 'wb') as f:
     pickle.dump(Test_Case_1, f)
