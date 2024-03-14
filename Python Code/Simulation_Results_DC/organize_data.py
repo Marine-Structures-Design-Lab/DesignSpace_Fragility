@@ -376,7 +376,7 @@ def findAverages(space_rem, feas_rem):
     return average_rem, average_feas
 
 
-def findPercentages(average_rem, average_feas):
+def findPercentages(average_rem, average_feas, average_rem2):
     """
     Description
     -----------
@@ -423,7 +423,7 @@ def findPercentages(average_rem, average_feas):
         for time, ar in ar_dic.items():
             
             # Compute the percentage of the average space remaining
-            percent_rem[discip_name][time] = ar / ar_dic[0] * 100
+            percent_rem[discip_name][time] = ar / average_rem2[discip_name][0] * 100
             
             # Compute percentage of average feasible space in remaining space
             percent_feas1[discip_name][time] = average_feas[discip_name][time]\
@@ -431,7 +431,7 @@ def findPercentages(average_rem, average_feas):
             
             # Compute percentage of average feasible space in original space
             percent_feas2[discip_name][time] = average_feas[discip_name][time]\
-                / ar_dic[0] * 100
+                / average_rem2[discip_name][0] * 100
     
     # Return the percentage of the average space remaining
     return percent_rem, percent_feas1, percent_feas2
@@ -514,9 +514,9 @@ if __name__ == "__main__":
         
         # Convert averages into percentages
         percent_remBC, percent_feas1BC, percent_feas2BC = \
-            findPercentages(average_remBC, average_feasBC)
+            findPercentages(average_remBC, average_feasBC, average_remBC)
         percent_remAC, percent_feas1AC, percent_feas2AC = \
-            findPercentages(average_remAC, average_feasAC)
+            findPercentages(average_remAC, average_feasAC, average_remBC)
         
         # Loop through disciplines
         for discip_name in all_disciplines_data.keys():
