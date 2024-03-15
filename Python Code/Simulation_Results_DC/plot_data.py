@@ -20,145 +20,101 @@ from matplotlib.lines import Line2D
 """
 SECONDARY FUNCTION
 """
-def plotData(data, label_prefix, linestyle, colors, color_idx):
+def plotData(data, label_prefix, linestyle, colors, color_idx, max_iteration):
     """
-    Description
-    -----------
-    Plots data points for each test case within a given dataset.
+    Plots data points for each test case within a given dataset, considering
+    different maximum iterations for "BC" and "AC" categories.
 
     Parameters
     ----------
     data : Dictionary
-        Each key is a test case identifier and each value is another dictionary
+        Each key is an iteration number (as a string or integer) and each value is another dictionary
         mapping iteration numbers to data points.
     label_prefix : String
         A prefix for the label that will be added before each test case's
-        identifier in the plot legend
+        identifier in the plot legend.
     linestyle : String
-        Style of line for plotting
+        Style of line for plotting.
     colors : List
-        Color of line for plotting
+        Color of line for plotting.
     color_idx : Integer
         Current position in the `colors` list from which to start coloring the
-        plotted lines
+        plotted lines.
+    max_iteration : Integer
+        The maximum iteration number for the dataset, used to scale the x-axis.
 
     Returns
     -------
     color_idx : Integer
-        Updated position in the `colors` list
+        Updated position in the `colors` list.
     """
     
-    # Loop through each test case's data
-    for test_case, data_points in data.items():
-        
-        # Sort data points by its time iteration keys
-        sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
-        
-        # Find maximum of sorted data
-        max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
-        
-        # Gather x and y data point percentages
-        x_values = [iteration / max_iteration * 100 \
-                    for iteration, _ in sorted_data_points]
-        y_values = [value for _, value in sorted_data_points]
-        
-        # Define custom linewidth for particular line styles
-        if linestyle == ':':
-            linewidth = 2.0
-        else:
-            linewidth = 1.5
-        
-        # Plot the data
-        plt.plot(x_values, y_values, label=f'{test_case} ({label_prefix})',
-                 color=colors[color_idx % len(colors)], linestyle=linestyle,
-                 linewidth=linewidth)
-        
-        # Increase the color index by 1
-        color_idx += 1
-        
-    # Return the updated color index
+    # Ensure iteration keys are sorted numerically
+    sorted_data = sorted(data.items(), key=lambda x: int(x[0]))
+    
+    # Generate x and y values
+    x_values = [int(iteration) / max_iteration * 100 for iteration, _ in sorted_data]
+    y_values = [value for _, value in sorted_data]
+    
+    # Plotting logic
+    plt.plot(x_values, y_values, label=f'{label_prefix}',
+             color=colors[color_idx % len(colors)], linestyle=linestyle, linewidth=2)
+    
+    # Increment color index for next call
+    color_idx += 1
+    
     return color_idx
+
+
+def find_max_iteration(phase_data):
+    max_iter = 0
+    for test_case, phases in phase_data.items():
+        for phase in ['BC', 'AC']:
+            if phase in phases:
+                iterations = list(map(int, phases[phase].keys()))
+                if iterations:
+                    max_iter = max(max_iter, max(iterations))
+    return max_iter
+
+
+
 
 
 """
 FUNCTIONS
 """
-def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
-                    feas2_disciplines_data):
-    """
-    Description
-    -----------
-    Visualizes the progression of design spaces across different disciplines by
-    plotting data for space remaining, feasible space remaining, and
-    feasible-to-remaining space.
+def plotDisciplines(all_disciplines_data, feas1_disciplines_data):
+    colors = ['darkorange', 'firebrick', 'violet']
+    line_styles = ['-', ':']
+    data_groups = ['Total Space', 'Feasible-to-Remaining Space']
 
-    Parameters
-    ----------
-    all_disciplines_data : Dictionary
-        Contains total space remaining data for each discipline over elapsed
-        time
-    feas1_disciplines_data : Dictionary
-        Contains feasible-to-remaining space data for each discipline over
-        elapsed time
-    feas2_disciplines_data : Dictionary
-        Contains feasible space remaining data for each discipline over elapsed
-        time
-    """
-    
-    # Initialize colors and line styles
-    colors = ['darkorange', 'firebrick', 'violet', 'forestgreen']
-    line_styles = ['-', '--', ':']
-    data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
-    
-    # Loop through each discipline's data
-    for discipline, all_test_cases_data in all_disciplines_data.items():
-        
-        # Initialize figure
+    for discipline in all_disciplines_data:
         plt.figure(figsize=(10, 5))
+        max_iteration_bc = find_max_iteration(all_disciplines_data[discipline])
+        max_iteration_ac = find_max_iteration(all_disciplines_data[discipline])
         
-        # Create custom legend labels
-        color_handles = [Line2D([0], [0], marker='o', color='w',
-                         label=f'Test Case {i+1}', markerfacecolor=color,
-                         markersize=10) for i, color in enumerate(colors)]
-        line_style_handles = [Line2D([0], [0], color='black', linewidth=2,
-                              linestyle=ls, label=data_groups[i]) \
-                              for i, ls in enumerate(line_styles)]
+        for category, phase_data in [("BC", max_iteration_bc), ("AC", max_iteration_ac)]:
+            color_idx = 0
+            for test_case in all_disciplines_data[discipline]:
+                if category in all_disciplines_data[discipline][test_case]:
+                    # Example call to a modified plotData function, pass phase-specific max_iteration
+                    color_idx = plotData(all_disciplines_data[discipline][test_case][category], 
+                                         f'{test_case} ({category})', line_styles[0], colors, color_idx, phase_data)
+            for test_case in feas1_disciplines_data[discipline]:
+                if category in feas1_disciplines_data[discipline][test_case]:
+                    # Example call to a modified plotData function, pass phase-specific max_iteration
+                    color_idx = plotData(feas1_disciplines_data[discipline][test_case][category], 
+                                         f'{test_case} ({category})', line_styles[1], colors, color_idx, phase_data)
         
-        # Retrieve disciplines of feasible space data
-        feas1_test_cases_data = feas1_disciplines_data.get(discipline, {})
-        feas2_test_cases_data = feas2_disciplines_data.get(discipline, {})
-        
-        # Plot data for space remaining
-        color_idx = 0
-        color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
-                             colors, color_idx)
-        
-        # Plot data for feasible space remaining
-        color_idx = 0
-        color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], 
-                             colors, color_idx)
-        
-        # Plot data for feasible-to-remaining space
-        color_idx = 0
-        color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
-                             colors, color_idx)
-        
-        # Plot legend
-        plt.legend(handles=color_handles+line_style_handles, loc='upper left')
-        
-        # Set x- and y-axis labels
+        plt.legend(handles=[Line2D([0], [0], color=colors[i], lw=2, label=f'Test Case {i+1}') for i in range(len(colors))] +
+                   [Line2D([0], [0], color='black', lw=2, linestyle=ls, label=dg) for ls, dg in zip(line_styles, data_groups)])
         plt.xlabel('Elapsed Project Time (%)')
         plt.ylabel('Size of Design Space (%)')
-        
-        # Set x- and y-axis limits
         plt.xlim([0, 100])
         plt.ylim([0, 100])
-        
-        # Plot gridlines
         plt.grid(True)
-        
-        # Show graph
         plt.show()
+
 
 
 def plotHeatmaps(test_case_data, discipline_index, ins):
@@ -276,10 +232,11 @@ with open('feas2_disciplines.pkl', 'rb') as f:
 #     Test_Case_3 = pickle.load(f)
 with open('Discips.pkl', 'rb') as f:
     Discips = pickle.load(f)
+with open('Discips2.pkl', 'rb') as f:
+    Discips2 = pickle.load(f)
 
 # Create line plots for Disciplines 1, 2, and 3
-plotDisciplines(all_disciplines_data, feas1_disciplines_data,
-                feas2_disciplines_data)
+plotDisciplines(all_disciplines_data, feas1_disciplines_data)
 
 # Create Heat Map Plot of Test Case 3 for each discipline
 # plotHeatmaps(Test_Case_3, 0, Discips[0]['ins'])

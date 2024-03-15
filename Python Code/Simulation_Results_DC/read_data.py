@@ -66,8 +66,10 @@ POST-PROCESS
 """
 # Establish disciplines and rules for the design problem of interest
 prob = setProblem()
+prob2 = setProblem()
 Discips, Input_Rules, Output_Rules = prob.SBD1()
-change = changeDesign(Discips, Input_Rules, Output_Rules)
+Discips2, Input_Rules2, Output_Rules2 = prob2.SBD1()
+change = changeDesign(Discips2, Input_Rules2, Output_Rules2)
 Discips2, Input_Rules2, Output_Rules2 = change.Reqs()
 
 # Loop through each discipline of the design problem
