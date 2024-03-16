@@ -343,7 +343,11 @@ def getPerceptions(discip, gpr_params):
     gpr = initializeFit(discip, x_train, y_train, **gpr_params)
     
     # Predict passfail data at every point in non-reduced design space
-    pf_mean, pf_std = gpr.predict(discip['space_remaining'], return_std=True)
+    if len(discip['space_remaining']) > 0:
+        pf_mean,pf_std = gpr.predict(discip['space_remaining'],return_std=True)
+    else:
+        pf_mean = np.empty(0)
+        pf_std = np.empty(0)
     
     # Return trained GPR
     return pf_mean, pf_std
