@@ -230,10 +230,10 @@ with open('feas2_disciplines.pkl', 'rb') as f:
     feas2_disciplines_data = pickle.load(f)
 # with open('Test_Case_3.pkl', 'rb') as f:
 #     Test_Case_3 = pickle.load(f)
-with open('Discips.pkl', 'rb') as f:
-    Discips = pickle.load(f)
-with open('Discips2.pkl', 'rb') as f:
-    Discips2 = pickle.load(f)
+# with open('Discips.pkl', 'rb') as f:
+#     Discips = pickle.load(f)
+# with open('Discips2.pkl', 'rb') as f:
+#     Discips2 = pickle.load(f)
 
 # Create line plots for Disciplines 1, 2, and 3
 plotDisciplines(all_disciplines_data, feas1_disciplines_data)
