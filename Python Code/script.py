@@ -128,8 +128,8 @@ fragility_shift = 0.0  # Should be a positive float
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
 ### time for it to occur...times must be in ascending order!
-change_design = ['Reqs']  # Options: Inputs, Analyses, Outputs, Reqs
-change_time = [0.5]          # Fraction of elapsed time(s) before change occurs
+change_design = ['Analyses']  # Options: Inputs, Analyses, Outputs, Reqs
+change_time = [0.7]          # Fraction of elapsed time(s) before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
