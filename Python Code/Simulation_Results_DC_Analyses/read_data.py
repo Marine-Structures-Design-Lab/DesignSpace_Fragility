@@ -104,9 +104,6 @@ SAVE DATA
 with open('Discips.pkl', 'wb') as f:
     pickle.dump(Discips, f)
 
-with open('Discips2.pkl', 'wb') as f:
-    pickle.dump(Discips2, f)
-
 with open('Test_Case_1.pkl', 'wb') as f:
     pickle.dump(Test_Case_1, f)
 
