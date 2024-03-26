@@ -106,7 +106,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     """
     
     # Initialize colors and line styles
-    colors = ['darkorange', 'firebrick', 'violet', 'forestgreen']
+    colors = ['darkorange', 'firebrick', 'violet']
     line_styles = ['-', '--', ':']
     data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
     
