@@ -79,12 +79,12 @@ class changeDesign:
         y = sp.symbols('y1:6')
         
         # Adjust the list of output rules
-        output_rules = [sp.Or(sp.And(y[0]>=0.0,y[0]<=0.3),
-                              sp.And(y[0]>=1.3,y[0]<=1.8)),
-                        sp.And(y[1]>=0.3,y[1]<=0.5),
-                        sp.And(y[2]>=0.3,y[2]<=0.6),
-                        sp.And(y[3]>=0.2,y[3]<=0.7),
-                        sp.And(y[4]>=0.6,y[4]<=1.4)]
+        output_rules = [sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4),\
+                              sp.And(y[0]>=1.2,y[0]<=1.6)),
+                        sp.And(y[1]>=0.5,y[1]<=0.7),
+                        sp.And(y[2]>=0.2,y[2]<=0.5),
+                        sp.And(y[3]>=0.0,y[3]<=0.5),
+                        sp.And(y[4]>=0.0,y[4]<=0.8)]
         
         # Assign new output rules to the problem
         self.Out_Rules = output_rules
