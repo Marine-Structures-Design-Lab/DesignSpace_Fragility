@@ -357,12 +357,16 @@ class windfallRegret:
                 for ds, arr in dic.items():
                 
                     # Divide probabilistic sums by number of remaining points
-                    run_wind[rule+tuple(self.irf)][ind_dic][ds] = \
-                        run_wind[rule+tuple(self.irf)][ind_dic][ds] / \
-                            self.Df[ind_dic]['space_remaining'].shape[0]
-                    run_reg[rule+tuple(self.irf)][ind_dic][ds] = \
-                        run_reg[rule+tuple(self.irf)][ind_dic][ds] / \
-                            self.Df[ind_dic]['space_remaining'].shape[0]
+                    if self.Df[ind_dic]['space_remaining'].shape[0] > 0:
+                        run_wind[rule+tuple(self.irf)][ind_dic][ds] = \
+                            run_wind[rule+tuple(self.irf)][ind_dic][ds] / \
+                                self.Df[ind_dic]['space_remaining'].shape[0]
+                        run_reg[rule+tuple(self.irf)][ind_dic][ds] = \
+                            run_reg[rule+tuple(self.irf)][ind_dic][ds] / \
+                                self.Df[ind_dic]['space_remaining'].shape[0]
+                    else:
+                        run_wind[rule+tuple(self.irf)][ind_dic][ds] = 0.0
+                        run_reg[rule+tuple(self.irf)][ind_dic][ds] = 0.0
                         
         # Returning windfall and regret information for new rule(s)
         return windreg, run_wind, run_reg
