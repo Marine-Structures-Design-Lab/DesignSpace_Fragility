@@ -15,6 +15,49 @@ LIBRARIES
 import numpy as np
 import pickle
 
+"""
+TERTIARY FUNCTIONS
+"""
+def universalContribution(Discips, index, ind_discip):
+    
+    # Initialize numerator and denominator values for fraction
+    numerator = 0
+    denominator = 0
+    
+    # Loop through each interdependent discipline
+    for i, discip in enumerate(Discips):
+        
+        # Skip to next discipline if the same discipline as the design point
+        if i == ind_discip: continue
+
+        # Determine indices in interdependent discipline that share an input
+        # design variable with main discipline
+        var_inter = [discip['ins'].index(var) \
+                     for var in Discips[ind_discip]['ins'] \
+                     if var in discip['ins']]
+        
+        # Loop through each interdependent variable index
+        for j in var_inter:
+            
+            # Determine index of variable in main discipline matching 
+            # interdependent variable discipline
+            var_main = Discips[ind_discip]['ins'].index(discip['ins'][j])
+            
+            # Find interdependent design point indices with interdependent 
+            # design point variable value matching main discipline design point 
+            # variable value
+            mask = np.isclose(discip['space_remaining'][:, j], Discips[ind_discip]['space_remaining'][index, var_main])
+            
+            # Add to the numerator for number of times that interdependent
+            # discipline's pass? value is True
+            numerator += np.sum(discip['pass?'][mask])
+            
+            # Add to the denominator for each masked index
+            denominator += np.sum(mask)
+    
+    # Return the fraction of universal feasibility
+    return numerator / denominator if denominator > 0 else 0
+
 
 """
 SECONDARY FUNCTIONS
@@ -56,19 +99,21 @@ def sharedIndices(larger_array, smaller_array):
     return indices
 
 
-def countBooleans(index_list, bool_list):
+def countBooleans(index_list, Discips, ind_discip):
     """
     Description
     -----------
     Counts the remaining number of passing data points for the reduced design
-    space.
+    space.  For each passing point, also counts that point's 'universal'
+    feasibility contribution based on fraction of pass points remaining in
+    other interdependent disciplines for its particular value.
 
     Parameters
     ----------
     index_list : List of integers
         Indices of the original design space that still remain
-    bool_list : List of booleans
-        Passing and Failing information for the original design space
+    Discips : Dictionary
+        Revisit!!
 
     Returns
     -------
@@ -76,20 +121,26 @@ def countBooleans(index_list, bool_list):
         Remaining number of passing data points in the reduced design space
     """
     
-    # Initialize counter for True values
+    # Initialize counter for discipline's True values
     true_count = 0
+    
+    # Initialize counter for universal True values
+    true_count_all = 0
     
     # Loop through the index list to find the corresponding boolean values
     for index in index_list:
         
         # Check if the data point at the particular index is passing
-        if bool_list[index]:
+        if Discips[ind_discip]['pass?'][index]:
             
-            # Add one to the True values counter
+            # Add 1 to the discipline's True values counter
             true_count += 1
-    
-    # Return the sum of the true count
-    return true_count
+            
+            # Add 0 or 1 to the universal True values counter
+            true_count_all += universalContribution(Discips, index, ind_discip)
+            
+    # Return the sum of the true count and the universal true count
+    return true_count, true_count_all
 
 
 """
@@ -194,7 +245,9 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                                         dic_data['space_remaining'])
                 
                 # Count and record True values for indices in both
-                true_count=countBooleans(matches, Discips[ind_discip]['pass?'])
+                true_count, true_count_all = \
+                    countBooleans(matches, Discips, ind_discip)
+                print(true_count, true_count_all)
                 
                 # Append count to the feasible dictionary
                 feas_rem[run_name][discip_name][dic_data['iter']].append\
