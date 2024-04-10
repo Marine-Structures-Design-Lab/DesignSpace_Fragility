@@ -49,7 +49,7 @@ def universalContribution(Discips, index, ind_discip, discips, ind_data):
             # Find interdependent design point indices with interdependent 
             # design point variable value matching main discipline design point 
             # variable value
-            mask = np.isclose(discips[i][ind_data]['space_remaining'][:, j], discips[ind_discip][ind_data]['space_remaining'][index, var_main])
+            mask = np.isclose(Discips[i]['tested_ins'][:, j], discips[ind_discip][ind_data]['space_remaining'][index, var_main])
             
             # Add to the numerator for number of times that interdependent
             # discipline's pass? value is True
