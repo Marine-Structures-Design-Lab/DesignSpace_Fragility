@@ -296,7 +296,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     return space_rem, feas_rem, ufeas_rem
 
 
-def findAverages(space_rem, feas_rem):
+def findAverages(space_rem, feas_rem, ufeas_rem):
     """
     Description
     -----------
@@ -327,12 +327,16 @@ def findAverages(space_rem, feas_rem):
     # Initialize an empty dictionary for average feasible count
     average_feas = {}
     
+    # Initialize an empty dictionary for average universal feasbile count
+    average_ufeas = {}
+    
     # Loop through each discipline
     for discip_name, sr_dic in space_rem['Run_1'].items():
         
         # Initialize empty dictionaries for the discipline
         average_rem[discip_name] = {}
         average_feas[discip_name] = {}
+        average_ufeas[discip_name] = {}
 
         # Loop through each time that space remaining data is accounted for
         for time, sr_set in sr_dic.items():
@@ -340,6 +344,7 @@ def findAverages(space_rem, feas_rem):
             # Initalize time keys for summation part of averaging
             average_rem[discip_name][time] = 0.0
             average_feas[discip_name][time] = 0.0
+            average_ufeas[discip_name][time] = 0.0
     
     # Loop through each run of the test case
     for run_name, discips in space_rem.items():
@@ -358,6 +363,12 @@ def findAverages(space_rem, feas_rem):
                 
                 # Add midpoint of the space remaining to the proper summation
                 average_feas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
+            
+            # Loop thru each time universal feasible space data accounted for
+            for time, fr_lis in ufeas_rem[run_name][discip_name].items():
+                
+                # Add midpoint of the space remaining to the proper summation
+                average_ufeas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
         
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
@@ -370,12 +381,14 @@ def findAverages(space_rem, feas_rem):
                 average_rem[discip_name][time] / len(space_rem)
             average_feas[discip_name][time] = \
                 average_feas[discip_name][time] / len(space_rem)
+            average_ufeas[discip_name][time] = \
+                average_ufeas[discip_name][time] / len(space_rem)
             
     # Return the data for the average space remaining at each time
-    return average_rem, average_feas
+    return average_rem, average_feas, average_ufeas
 
 
-def findPercentages(average_rem, average_feas):
+def findPercentages(average_rem, average_feas, average_ufeas):
     """
     Description
     -----------
@@ -410,6 +423,12 @@ def findPercentages(average_rem, average_feas):
     # Initialize second empty dictionary for percent of feasible space
     percent_feas2 = {}
     
+    # Initialize first empty dictionary for percent of universal feasible space
+    percent_ufeas1 = {}
+    
+    # Initialize second empty dictionary for percent universal feasible space
+    percent_ufeas2 = {}
+    
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
         
@@ -417,6 +436,8 @@ def findPercentages(average_rem, average_feas):
         percent_rem[discip_name] = {}
         percent_feas1[discip_name] = {}
         percent_feas2[discip_name] = {}
+        percent_ufeas1[discip_name] = {}
+        percent_ufeas2[discip_name] = {}
         
         # Loop through each time that average remaining is accounted for
         for time, ar in ar_dic.items():
@@ -431,9 +452,17 @@ def findPercentages(average_rem, average_feas):
             # Compute percentage of average feasible space in original space
             percent_feas2[discip_name][time] = average_feas[discip_name][time]\
                 / ar_dic[0] * 100
+            
+            # Compute percent of average universal feasible space in remaining
+            percent_ufeas1[discip_name][time] = average_ufeas[discip_name][time]\
+                / ar * 100
+            
+            # Compute percent of average universal feasible space in original
+            percent_ufeas2[discip_name][time] = average_ufeas[discip_name][time]\
+                / ar_dic[0] * 100
     
     # Return the percentage of the average space remaining
-    return percent_rem, percent_feas1, percent_feas2
+    return percent_rem, percent_feas1, percent_feas2, percent_ufeas1, percent_ufeas2
 
 
 """
@@ -473,6 +502,18 @@ if __name__ == "__main__":
         'Discipline_2': {},
         'Discipline_3': {}
         }
+    # Initialize a dictionary for data pertinent to each discipline
+    ufeas1_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
+    # Initialize a dictionary for data pertinent to each discipline
+    ufeas2_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
     
     # Loop through each test case / name
     for test_case_name in test_case_names:
@@ -492,8 +533,9 @@ if __name__ == "__main__":
             feas_rem, ufeas_rem)
         
         # Convert averages into percentages
-        percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
-                                                                  average_feas)
+        percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
+            percent_ufeas2 = findPercentages(average_rem, average_feas, 
+            average_ufeas)
         
         # Loop through disciplines
         for discip_name in all_disciplines_data.keys():
@@ -505,6 +547,10 @@ if __name__ == "__main__":
                 percent_feas1[discip_name]
             feas2_disciplines_data[discip_name][test_case_name] = \
                 percent_feas2[discip_name]
+            ufeas1_disciplines_data[discip_name][test_case_name] = \
+                percent_ufeas1[discip_name]
+            ufeas2_disciplines_data[discip_name][test_case_name] = \
+                percent_ufeas2[discip_name]
     
     # Save the new data
     with open('all_disciplines.pkl', 'wb') as f:
@@ -513,3 +559,7 @@ if __name__ == "__main__":
         pickle.dump(feas1_disciplines_data, f)
     with open('feas2_disciplines.pkl', 'wb') as f:
         pickle.dump(feas2_disciplines_data, f)
+    with open('ufeas1_disciplines.pkl', 'wb') as f:
+        pickle.dump(ufeas1_disciplines_data, f)
+    with open('ufeas2_disciplines.pkl', 'wb') as f:
+        pickle.dump(ufeas2_disciplines_data, f)
