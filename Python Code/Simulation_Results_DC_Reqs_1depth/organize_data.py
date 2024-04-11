@@ -18,7 +18,7 @@ import pickle
 """
 TERTIARY FUNCTIONS
 """
-def universalContribution(Discips, index, ind_discip, discips, ind_data):
+def universalContribution(Discips, index, ind_discip, ind_data):
     
     # Initialize numerator and denominator values for fraction
     numerator = 0
@@ -49,7 +49,7 @@ def universalContribution(Discips, index, ind_discip, discips, ind_data):
             # Find interdependent design point indices with interdependent 
             # design point variable value matching main discipline design point 
             # variable value
-            mask = np.isclose(Discips[i]['tested_ins'][:, j], discips[ind_discip][ind_data]['space_remaining'][index, var_main])
+            mask = np.isclose(Discips[i]['tested_ins'][:, j], Discips[ind_discip]['tested_ins'][index, var_main])
             
             # Add to the numerator for number of times that interdependent
             # discipline's pass? value is True
@@ -102,7 +102,7 @@ def sharedIndices(larger_array, smaller_array):
     return indices
 
 
-def countBooleans(index_list, Discips, ind_discip, discips, ind_data):
+def countBooleans(index_list, Discips, ind_discip, ind_data):
     """
     Description
     -----------
@@ -140,7 +140,7 @@ def countBooleans(index_list, Discips, ind_discip, discips, ind_data):
             true_count += 1
             
             # Add 0 or 1 to the universal True values counter
-            true_count_all += universalContribution(Discips, index, ind_discip, discips, ind_data)
+            true_count_all += universalContribution(Discips, index, ind_discip, ind_data)
             
     # Return the sum of the true count and the universal true count
     return true_count, true_count_all
@@ -249,7 +249,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 
                 # Count and record True values for indices in both
                 true_count, true_count_all = \
-                    countBooleans(matches, Discips, ind_discip, discips, ind_data)
+                    countBooleans(matches, Discips, ind_discip, ind_data)
                 print(true_count, true_count_all)
                 
                 # Append count to the feasible dictionary
