@@ -212,12 +212,16 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     # Initialize an empty dictionary for percentage of feasible space data
     feas_rem = {}
     
+    # Initialize an empty dictionary for universal feasible space data
+    ufeas_rem = {}
+    
     # Loop through each run of the test case
     for run_name, discips in test_case.items():
         
         # Initialize empty dictionaries for the run
         space_rem[run_name] = {}
         feas_rem[run_name] = {}
+        ufeas_rem[run_name] = {}
         
         # Loop through each discipline of the run
         for ind_discip, list_discip in enumerate(discips):
@@ -228,6 +232,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
             # Initialize empty dictionaries for the discipline
             space_rem[run_name][discip_name] = {}
             feas_rem[run_name][discip_name] = {}
+            ufeas_rem[run_name][discip_name] = {}
             
             # Loop through each value in the list of times
             for time in list_of_times:
@@ -235,6 +240,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 # Assign time to a key for the dictionaries
                 space_rem[run_name][discip_name][time] = []
                 feas_rem[run_name][discip_name][time] = []
+                ufeas_rem[run_name][discip_name][time] = []
             
             # Loop through each data point in the list
             for ind_data, dic_data in enumerate(list_discip):
@@ -250,11 +256,14 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 # Count and record True values for indices in both
                 true_count, true_count_all = \
                     countBooleans(matches, Discips, ind_discip, ind_data)
-                print(true_count, true_count_all)
                 
-                # Append count to the feasible dictionary
+                # Append first count to the feasible dictionary
                 feas_rem[run_name][discip_name][dic_data['iter']].append\
                     (true_count)
+                
+                # Append second count to the universal feasible dictionary
+                ufeas_rem[run_name][discip_name][dic_data['iter']].append\
+                    (true_count_all)
             
             # Loop back through the list of times
             for ind_time, time in enumerate(list_of_times):
@@ -274,9 +283,17 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                     feas_rem[run_name][discip_name][time].append(min(\
                         feas_rem[run_name][discip_name][list_of_times\
                         [ind_time-1]]))
+                        
+                # Check if universal feasible space list is empty
+                if not ufeas_rem[run_name][discip_name][time]:
+                    
+                    # Add minimum feasible count from one earlier time
+                    ufeas_rem[run_name][discip_name][time].append(min(\
+                        ufeas_rem[run_name][discip_name][list_of_times\
+                        [ind_time-1]]))
     
     # Return the dictionaries of filled in time information
-    return space_rem, feas_rem
+    return space_rem, feas_rem, ufeas_rem
 
 
 def findAverages(space_rem, feas_rem):
@@ -467,11 +484,12 @@ if __name__ == "__main__":
         set_of_times = createTimeData(test_case_name)
         
         # Determine space remaining at each of those times for each test run
-        space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times,
-                                                 Discips)
+        space_rem, feas_rem, ufeas_rem = fillSpaceRemaining(test_case, 
+            set_of_times, Discips)
         
         # Determine average space remaining at each time over all of the runs
-        average_rem, average_feas = findAverages(space_rem, feas_rem)
+        average_rem, average_feas, average_ufeas = findAverages(space_rem, 
+            feas_rem, ufeas_rem)
         
         # Convert averages into percentages
         percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
