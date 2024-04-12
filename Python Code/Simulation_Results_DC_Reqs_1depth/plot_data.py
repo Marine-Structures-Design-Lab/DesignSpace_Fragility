@@ -20,46 +20,39 @@ from matplotlib.lines import Line2D
 """
 SECONDARY FUNCTION
 """
-def plotData(data, label_prefix, linestyle, colors, color_idx):
+def plotData(data, label_prefix, linestyle, colors, color_idx, marker=None):
     """
-    Description
-    -----------
     Plots data points for each test case within a given dataset.
-
+    
     Parameters
     ----------
     data : Dictionary
-        Each key is a test case identifier and each value is another dictionary
+        Each key is a test case identifier, and each value is another dictionary
         mapping iteration numbers to data points.
     label_prefix : String
         A prefix for the label that will be added before each test case's
-        identifier in the plot legend
+        identifier in the plot legend.
     linestyle : String
-        Style of line for plotting
+        Style of line for plotting. Use 'None' for no line.
     colors : List
-        Color of line for plotting
+        List of colors for plotting lines.
     color_idx : Integer
         Current position in the `colors` list from which to start coloring the
-        plotted lines
+        plotted lines.
+    marker : String, optional
+        Marker style. Default is None, which means no marker.
 
     Returns
     -------
     color_idx : Integer
-        Updated position in the `colors` list
+        Updated position in the `colors` list.
     """
     
-    # Loop through each test case's data
     for test_case, data_points in data.items():
-        
-        # Sort data points by its time iteration keys
         sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
-        
-        # Find maximum of sorted data
         max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
         
-        # Gather x and y data point percentages
-        x_values = [iteration / max_iteration * 100 \
-                    for iteration, _ in sorted_data_points]
+        x_values = [iteration / max_iteration * 100 for iteration, _ in sorted_data_points]
         y_values = [value for _, value in sorted_data_points]
         
         # Define custom linewidth for particular line styles
@@ -68,83 +61,60 @@ def plotData(data, label_prefix, linestyle, colors, color_idx):
         else:
             linewidth = 1.5
         
-        # Plot the data
-        plt.plot(x_values, y_values, label=f'{test_case} ({label_prefix})',
+        plt.plot(x_values, y_values, label=f'{label_prefix} {test_case}',
                  color=colors[color_idx % len(colors)], linestyle=linestyle,
-                 linewidth=linewidth)
+                 linewidth=linewidth, marker=marker)
         
-        # Increase the color index by 1
         color_idx += 1
-        
-    # Return the updated color index
+    
     return color_idx
 
 
 """
 FUNCTIONS
 """
-def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
-                    feas2_disciplines_data):
-    """
-    Description
-    -----------
-    Visualizes the progression of design spaces across different disciplines by
-    plotting data for space remaining, feasible space remaining, and
-    feasible-to-remaining space.
-
-    Parameters
-    ----------
-    all_disciplines_data : Dictionary
-        Contains total space remaining data for each discipline over elapsed
-        time
-    feas1_disciplines_data : Dictionary
-        Contains feasible-to-remaining space data for each discipline over
-        elapsed time
-    feas2_disciplines_data : Dictionary
-        Contains feasible space remaining data for each discipline over elapsed
-        time
-    """
-    
-    # Initialize colors and line styles
+def plotDisciplines(all_disciplines_data, feas1_disciplines_data, feas2_disciplines_data, ufeas1_disciplines_data, ufeas2_disciplines_data):
+    # Initialize colors
     colors = ['darkorange', 'firebrick', 'violet']
-    line_styles = ['-', '--', ':']
-    data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
+    # Line styles: Solid, Dashed, Dotted, DashDot, and No line (use markers only)
+    line_styles = ['-', '--', ':', '-.', 'None']
+    markers = ['', '', '', '', '*']  # Corresponding markers, with '*' for the last style
+    data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining', 'Universal Feasible', 'Universal-to-Remaining']
     
-    # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
-        
-        # Initialize figure
         plt.figure(figsize=(10, 5))
         
-        # Create custom legend labels
-        color_handles = [Line2D([0], [0], marker='o', color='w',
-                         label=f'Test Case {i+1}', markerfacecolor=color,
-                         markersize=10) for i, color in enumerate(colors)]
-        line_style_handles = [Line2D([0], [0], color='black', linewidth=2,
-                              linestyle=ls, label=data_groups[i]) \
-                              for i, ls in enumerate(line_styles)]
+        color_handles = [Line2D([0], [0], marker='o', color='w', label=f'Test Case {i+1}', markerfacecolor=color, markersize=10) for i, color in enumerate(colors)]
+        line_style_handles = [Line2D([0], [0], color='black', linewidth=2, linestyle=ls, marker=mk, label=data_groups[i]) for i, (ls, mk) in enumerate(zip(line_styles, markers))]
         
         # Retrieve disciplines of feasible space data
         feas1_test_cases_data = feas1_disciplines_data.get(discipline, {})
         feas2_test_cases_data = feas2_disciplines_data.get(discipline, {})
+        ufeas1_test_cases_data = ufeas1_disciplines_data.get(discipline, {})
+        ufeas2_test_cases_data = ufeas2_disciplines_data.get(discipline, {})
         
         # Plot data for space remaining
         color_idx = 0
-        color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
-                             colors, color_idx)
+        color_idx = plotData(all_test_cases_data, 'All', line_styles[0], colors, 0, markers[0])
         
         # Plot data for feasible space remaining
         color_idx = 0
-        color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], 
-                             colors, color_idx)
+        color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], colors, 0, markers[1])
         
         # Plot data for feasible-to-remaining space
         color_idx = 0
-        color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
-                             colors, color_idx)
+        color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], colors, 0, markers[2])
+        
+        # Plot data for universal feasible space remaining
+        color_idx = 0
+        color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], colors, 0, markers[3])
+        
+        # Plot data for universal feasible-to-remaining space
+        color_idx = 0
+        color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], colors, 0, markers[4])
         
         # Plot legend
-        plt.legend(handles=color_handles+line_style_handles, loc='upper left')
+        plt.legend(handles=color_handles + line_style_handles, loc='upper left')
         
         # Set x- and y-axis labels
         plt.xlabel('Elapsed Project Time (%)')
@@ -272,6 +242,10 @@ with open('feas1_disciplines.pkl', 'rb') as f:
     feas1_disciplines_data = pickle.load(f)
 with open('feas2_disciplines.pkl', 'rb') as f:
     feas2_disciplines_data = pickle.load(f)
+with open('ufeas1_disciplines.pkl', 'rb') as f:
+    ufeas1_disciplines_data = pickle.load(f)
+with open('ufeas2_disciplines.pkl', 'rb') as f:
+    ufeas2_disciplines_data = pickle.load(f)
 # with open('Test_Case_3.pkl', 'rb') as f:
 #     Test_Case_3 = pickle.load(f)
 # with open('Discips.pkl', 'rb') as f:
@@ -279,7 +253,8 @@ with open('feas2_disciplines.pkl', 'rb') as f:
 
 # Create line plots for Disciplines 1, 2, and 3
 plotDisciplines(all_disciplines_data, feas1_disciplines_data,
-                feas2_disciplines_data)
+                feas2_disciplines_data, ufeas1_disciplines_data,
+                ufeas2_disciplines_data)
 
 # Create Heat Map Plot of Test Case 3 for each discipline
 # plotHeatmaps(Test_Case_3, 0, Discips[0]['ins'])
