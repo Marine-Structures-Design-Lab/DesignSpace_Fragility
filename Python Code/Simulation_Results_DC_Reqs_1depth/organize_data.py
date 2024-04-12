@@ -229,6 +229,9 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     feas_rem : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
+    ufeas_rem : Dictionary
+        Tracks the universal feasible space remaining for each run of a test
+        case over the elapsed iterations
     """
     
     # Create a list of the times and sort them in ascending order
@@ -340,6 +343,9 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
     feas_rem : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
+    ufeas_rem : Dictionary
+        Tracks the universal feasible space remaining for each run of a test
+        case over the elapsed iterations
 
     Returns
     -------
@@ -347,6 +353,8 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
         Average total space remaining over elapsed project time
     average_feas : Dictionary
         Average feasible space remaining over elapsed project time
+    average_ufeas : Dictionary
+        Average universal feasible space remaining over elapsed project time
     """
     
     # Initialize an empty dictionary for average space remaining data
@@ -430,16 +438,21 @@ def findPercentages(average_rem, average_feas, average_ufeas):
         Average total space remaining over elapsed project time
     average_feas : Dictionary
         Average feasible space remaining over elapsed project time
+    average_ufeas : Dictionary
+        Average universal feasible space remaining over elapsed project time
 
     Returns
     -------
     percent_rem : Dictionary
-        Average percentage of total space remaining.
+        Average percentage of total space remaining
     percent_feas1 : Dictionary
-        Average percentage of feasible space to total space remaining.
+        Average percentage of feasible space to total space remaining
     percent_feas2 : Dictionary
-        Average percentage of feasible space remaining.
-
+        Average percentage of feasible space remaining
+    percent_ufeas1 : Dictionary
+        Average universal percentage of feasible space to total space remaining
+    percent_ufeas2 : Dictionary
+        Average universal percentage of feasible space remaining
     """
     
     # Initialize an empty dictionary for percent of space remaining data
