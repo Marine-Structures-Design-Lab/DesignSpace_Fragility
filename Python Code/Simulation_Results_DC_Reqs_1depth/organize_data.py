@@ -36,9 +36,9 @@ def universalContribution(Discips, index, ind_discip):
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
-
+    Float
+        Fraction of potential feasible designs remaining in interdependent
+        disciplines for a design point
     """
     
     # Initialize numerator and denominator values for fraction
@@ -130,7 +130,7 @@ def countBooleans(index_list, Discips, ind_discip):
     -----------
     Counts the remaining number of passing data points for the reduced design
     space.  For each passing point, also counts that point's 'universal'
-    feasibility contribution based on fraction of pass points remaining in
+    feasibility contribution based on fraction of passing points remaining in
     other interdependent disciplines for its particular value.
 
     Parameters
@@ -138,12 +138,18 @@ def countBooleans(index_list, Discips, ind_discip):
     index_list : List of integers
         Indices of the original design space that still remain
     Discips : Dictionary
-        Revisit!!
+        All of the information pertaining to each discipline
+    ind_discip : Integer
+        Main discipline of a design point
 
     Returns
     -------
     true_count : Integer
         Remaining number of passing data points in the reduced design space
+    true_count_all : Float
+        Total sum of the fraction of potential feasible designs remaining
+        within interdependent discipline's for each design point remaining
+        in the main discipline's reduced design space
     """
     
     # Initialize counter for discipline's True values
