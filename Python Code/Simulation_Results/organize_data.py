@@ -196,9 +196,14 @@ def createTimeData(test_case_name):
     """
     
     # Change the time sets below based on the experiments run
-    set_of_times = {0, 120, 206, 276, 324, 357, 386, 407, 426, 438, 449, 459,
-                    468, 477, 485, 493, 501, 509, 517, 525, 533, 541, 549, 557,
-                    565, 573, 581, 589, 597, 600}
+    if test_case_name == 'Test_Case_1' or test_case_name == 'Test_Case_2':
+        set_of_times = {0, 40, 68, 91, 107, 118, 127, 135, 143, 151, 159, 167,
+                        175, 183, 191, 199, 200}
+    else:
+        set_of_times = {0, 200, 344, 462, 542, 596, 644, 679, 711, 731, 749,
+                        766, 782, 797, 811, 819, 827, 835, 843, 851, 859, 867,
+                        875, 883, 891, 899, 907, 915, 923, 931, 939, 947, 955,
+                        963, 971, 979, 987, 995, 1000}
     
     # Return the set of times
     return set_of_times
@@ -522,9 +527,12 @@ if __name__ == "__main__":
         Test_Case_2 = pickle.load(f)
     with open('Test_Case_3.pkl', 'rb') as f:
         Test_Case_3 = pickle.load(f)
+    with open('Test_Case_4.pkl', 'rb') as f:
+        Test_Case_4 = pickle.load(f)
     
     # Identify the test cases whose data will be assessed
-    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3']
+    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 
+                       'Test_Case_4']
     
     # Initialize a dictionaries for data pertinent to each discipline
     all_disciplines_data = {
