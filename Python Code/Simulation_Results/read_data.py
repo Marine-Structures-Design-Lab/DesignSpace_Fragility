@@ -27,6 +27,7 @@ from vars_def import setProblem
 from create_key import createKey
 from get_constraints import getConstraints
 from output_vals import getOutput
+from design_changes import changeDesign
 
 
 """
@@ -59,19 +60,11 @@ with open('load_data.py') as file:
 # Change back to the original directory
 os.chdir(original_dir)
 
-# Read in the data from Test Case 4
-os.chdir('./Test Case 4/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
-
-# Change back to the original directory
-os.chdir(original_dir)
-
 
 """
 POST-PROCESS
 """
-# Establish disciplines and initial rules for the design problem of interest
+# Establish disciplines and rules for the design problem of interest
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = prob.SBD1()
 
@@ -79,7 +72,7 @@ Discips, Input_Rules, Output_Rules = prob.SBD1()
 for i in range(0, len(Discips)):
     
     # Create a key for tested inputs of discipline if it does not exist
-    Discips[i] = createKey('tested_ins',Discips[i])
+    Discips[i] = createKey('tested_ins', Discips[i])
     
     # Populate tested inputs with each initial space remaining array
     Discips[i]['tested_ins'] = Test_Case_1['Run_1'][i][0]['space_remaining']
@@ -95,7 +88,7 @@ for i in range(0, len(Discips)):
     output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
     
     # Create a key for passing and failing of outputs if it does not exist
-    Discips[i] = createKey('pass?',Discips[i])
+    Discips[i] = createKey('pass?', Discips[i])
     
     # Check whether the output points pass or fail
     outchk = checkOutput(Discips[i], output_rules)
@@ -117,6 +110,3 @@ with open('Test_Case_2.pkl', 'wb') as f:
 
 with open('Test_Case_3.pkl', 'wb') as f:
     pickle.dump(Test_Case_3, f)
-
-with open('Test_Case_4.pkl', 'wb') as f:
-    pickle.dump(Test_Case_4, f)

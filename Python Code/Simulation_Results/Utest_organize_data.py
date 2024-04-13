@@ -10,9 +10,10 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from organize_data import sharedIndices, countBooleans, fillSpaceRemaining, \
-    findAverages, findPercentages
+from organize_data import universalContribution, sharedIndices, countBooleans,\
+    fillSpaceRemaining, findAverages, findPercentages
 import unittest
+import sympy as sp
 import numpy as np
 
 
@@ -20,6 +21,79 @@ import numpy as np
 CLASSES
 """
 class test_organize_data(unittest.TestCase):
+    
+    def test_universal_contribution(self):
+        """
+        Unit tests for the universalContribution function
+        """
+        
+        # Create sympy input variables
+        x = sp.symbols('x1:7')
+        
+        # Create discipline data
+        Discips = [
+            {'tested_ins': np.array([[0.1, 0.2, 0.3],
+                                     [0.4, 0.5, 0.6],
+                                     [0.7, 0.8, 0.9],
+                                     [1.0, 0.0, 0.1],
+                                     [0.2, 0.3, 0.4]]),
+             'pass?': [True, False, True, False, True],
+             'ins': [x[0], x[1], x[2]]},
+            {'tested_ins': np.array([[0.1, 0.2, 0.3],
+                                     [0.1, 0.5, 0.3],
+                                     [0.7, 0.8, 0.5],
+                                     [1.0, 0.2, 0.1],
+                                     [0.2, 0.3, 0.3]]),
+             'pass?': [False, True, False, True, False],
+             'ins': [x[2], x[3], x[4]]},
+            {'tested_ins': np.array([[0.1, 0.2, 0.3],
+                                     [0.1, 0.5, 0.3],
+                                     [0.1, 0.8, 0.2],
+                                     [1.0, 0.0, 0.1],
+                                     [0.2, 0.2, 0.3]]),
+             'pass?': [True, True, False, False, True],
+             'ins': [x[0], x[4], x[5]]}
+        ]
+        
+        # Choose design point index in first discipline
+        index = 0
+        ind_discip = 0
+        
+        # Determine the expected fraction for first discipline
+        exp_frac = 2.0/3.0
+        
+        # Run the function
+        frac = universalContribution(Discips, index, ind_discip)
+        
+        # Check that expected fraction almost equals actual fraction
+        self.assertAlmostEqual(frac, exp_frac)
+        
+        # Choose design point index in second discipline
+        index = 0
+        ind_discip = 1
+        
+        # Determine the expected fraction for second discipline
+        exp_frac = 0
+        
+        # Run the function
+        frac = universalContribution(Discips, index, ind_discip)
+        
+        # Check that expected fraction almost equals actual fraction
+        self.assertAlmostEqual(frac, exp_frac)
+        
+        # Choose design point index in third discipline
+        index = 1
+        ind_discip = 2
+        
+        # Determine the expected fraction for third discipline
+        exp_frac = 1.0/2.0
+        
+        # Run the function
+        frac = universalContribution(Discips, index, ind_discip)
+        
+        # Check that expected fraction almost equals actual fraction
+        self.assertAlmostEqual(frac, exp_frac)
+        
     
     def test_shared_indices(self):
         """
@@ -63,20 +137,63 @@ class test_organize_data(unittest.TestCase):
         Unit tests for the countBooleans function
         """
         
+        # Create sympy input variables
+        x = sp.symbols('x1:7')
+        
+        # Create discipline data
+        Discips = [
+            {'tested_ins': np.array([[0.1, 0.2, 0.3],
+                                     [0.4, 0.5, 0.6],
+                                     [0.7, 0.8, 0.9],
+                                     [1.0, 0.0, 0.1],
+                                     [0.2, 0.3, 0.4]]),
+             'pass?': [True, False, True, False, True],
+             'ins': [x[0], x[1], x[2]]},
+            {'tested_ins': np.array([[0.1, 0.2, 0.3],
+                                     [0.1, 0.5, 0.3],
+                                     [0.3, 0.8, 0.5],
+                                     [1.0, 0.2, 0.1],
+                                     [0.2, 0.3, 0.3]]),
+             'pass?': [False, True, False, True, False],
+             'ins': [x[2], x[3], x[4]]},
+            {'tested_ins': np.array([[0.1, 0.2, 0.3],
+                                     [0.1, 0.5, 0.3],
+                                     [0.1, 0.8, 0.2],
+                                     [1.0, 0.0, 0.1],
+                                     [0.2, 0.2, 0.3]]),
+             'pass?': [True, True, False, False, True],
+             'ins': [x[0], x[4], x[5]]}
+        ]
+        
         # Create a list of integers corresponding to specific boolean values
-        index_list = [0, 3, 4, 6, 2]
+        index_list = [0, 4, 2]
+
+        # Run the function for the first discipline
+        true_count, true_count_all = countBooleans(index_list, Discips, 0)
+        exp_tc = 3
+        exp_tca = 2.0/4.0 + 1.0/1.0 + 0.0
         
-        # Create a list of boolean values
-        bool_list = [True, False, True, False, False, False, True, False, True]
+        # Check that expected true counts match actual true counts
+        self.assertAlmostEqual(true_count, exp_tc)
+        self.assertAlmostEqual(true_count_all, exp_tca)
+
+        # Run the function for the second discipline
+        true_count, true_count_all = countBooleans(index_list, Discips, 1)
+        exp_tc = 0
+        exp_tca = 0.0
         
-        # Determine the expected true count
-        exp_ans = 3
+        # Check that expected true counts match actual true counts
+        self.assertAlmostEqual(true_count, exp_tc)
+        self.assertAlmostEqual(true_count_all, exp_tca)
         
-        # Run the function
-        true_count = countBooleans(index_list, bool_list)
+        # Run the function for the third discipline
+        true_count, true_count_all = countBooleans(index_list, Discips, 2)
+        exp_tc = 2
+        exp_tca = 1.0/1.0 + 1.0/1.0
         
-        # Check that expected true count matches actual true count
-        self.assertEqual(true_count, exp_ans)
+        # Check that expected true counts match actual true counts
+        self.assertAlmostEqual(true_count, exp_tc)
+        self.assertAlmostEqual(true_count_all, exp_tca)
         
     
     def test_fill_space_remaining(self):
@@ -166,13 +283,33 @@ class test_organize_data(unittest.TestCase):
                 }
             }
         }
+        expected_ufeas_rem = {
+            'Run_1': {
+                'Discipline_1': {
+                    0: [0],
+                    100: [0],
+                    150: [0],
+                    200: [0]
+                }
+            },
+            'Run_2': {
+                'Discipline_1': {
+                    0: [0],
+                    100: [0, 0],
+                    150: [0],
+                    200: [0]
+                }
+            }
+        }
         
         # Run the function
-        space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times, Discips)
+        space_rem, feas_rem, ufeas_rem = fillSpaceRemaining(test_case, 
+                                             set_of_times, Discips)
         
         # Check that the function produces the expected output
         self.assertDictEqual(space_rem, expected_space_rem)
         self.assertDictEqual(feas_rem, expected_feas_rem)
+        self.assertDictEqual(ufeas_rem, expected_ufeas_rem)
     
     
     def test_find_averages(self):
@@ -220,6 +357,26 @@ class test_organize_data(unittest.TestCase):
             }
         }
         
+        # Create universal feasible space remaining data
+        ufeas_rem = {
+            'Run_1': {
+                'Discipline_1': {
+                    0: [1.2],
+                    100: [1],
+                    150: [0.5],
+                    200: [0]
+                }
+            },
+            'Run_2': {
+                'Discipline_1': {
+                    0: [5],
+                    100: [2.3, 2.3],
+                    150: [2.0],
+                    200: [0.0]
+                }
+            }
+        }
+        
         # Determine expected total space and feasible space averages
         expected_average_rem = {
             'Discipline_1': {
@@ -237,13 +394,23 @@ class test_organize_data(unittest.TestCase):
                 200: 0.5
             }
         }
+        expected_average_ufeas = {
+            'Discipline_1': {
+                0: 3.1,
+                100: 1.65,
+                150: 1.25,
+                200: 0.0
+            }
+        }
         
         # Run the function
-        average_rem, average_feas = findAverages(space_rem, feas_rem)
+        average_rem, average_feas, average_ufeas = findAverages(space_rem, 
+                                                       feas_rem, ufeas_rem)
         
         # Check that the function produces the expected output
         self.assertDictEqual(average_rem, expected_average_rem)
         self.assertDictEqual(average_feas, expected_average_feas)
+        self.assertDictEqual(average_ufeas, expected_average_ufeas)
     
     
     def test_find_percentages(self):
@@ -268,6 +435,16 @@ class test_organize_data(unittest.TestCase):
                 100: 2.0,
                 150: 2.0,
                 200: 0.5
+            }
+        }
+        
+        # Create average universal feasible space remaining data
+        average_ufeas = {
+            'Discipline_1': {
+                0: 3.1,
+                100: 1.65,
+                150: 1.25,
+                200: 0.0
             }
         }
         
@@ -296,15 +473,34 @@ class test_organize_data(unittest.TestCase):
                 200: 5.0
             }
         }
+        expected_percent_ufeas1 = {
+            'Discipline_1': {
+                0: 31.0,
+                100: 1.65/7.5*100,
+                150: 1.25/7*100,
+                200: 0.0/3*100
+            }
+        }
+        expected_percent_ufeas2 = {
+            'Discipline_1': {
+                0: 31.0,
+                100: 16.499999999999996,
+                150: 12.5,
+                200: 0.0
+            }
+        }
         
         # Run the function
-        percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
-                                                                  average_feas)
+        percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
+            percent_ufeas2 = findPercentages(average_rem, average_feas, 
+                                             average_ufeas)
         
         # Check that the function produces the expected output
         self.assertDictEqual(percent_rem, expected_percent_rem)
         self.assertDictEqual(percent_feas1, expected_percent_feas1)
         self.assertDictEqual(percent_feas2, expected_percent_feas2)
+        self.assertDictEqual(percent_ufeas1, expected_percent_ufeas1)
+        self.assertDictEqual(percent_ufeas2, expected_percent_ufeas2)
 
 
 """
