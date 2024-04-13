@@ -15,6 +15,74 @@ LIBRARIES
 import numpy as np
 import pickle
 
+"""
+TERTIARY FUNCTIONS
+"""
+def universalContribution(Discips, index, ind_discip):
+    """
+    Description
+    -----------
+    Determine the fraction of possible feasible solutions for a design point in
+    interdependent discipline's when it is passing in the main discipline.
+
+    Parameters
+    ----------
+    Discips : Dictionary
+        All of the information pertaining to each discipline
+    index : Integer
+        Row of the discretized design point in the original design space
+    ind_discip : Integer
+        Main discipline of a design point
+
+    Returns
+    -------
+    Float
+        Fraction of potential feasible designs remaining in interdependent
+        disciplines for a design point
+    """
+    
+    # Initialize numerator and denominator values for fraction
+    numerator = 0
+    denominator = 0
+    
+    # Loop through each interdependent discipline
+    for i, discip in enumerate(Discips):
+        
+        # Skip to next discipline if the same discipline as the design point
+        if i == ind_discip: continue
+
+        # Convert list to a numpy array
+        discip_pass_array = np.array(discip['pass?'])
+
+        # Determine indices in interdependent discipline that share an input
+        # design variable with main discipline
+        var_inter = [discip['ins'].index(var) \
+                     for var in Discips[ind_discip]['ins'] \
+                     if var in discip['ins']]
+        
+        # Loop through each interdependent variable index
+        for j in var_inter:
+            
+            # Determine index of variable in main discipline matching 
+            # interdependent variable discipline
+            var_main = Discips[ind_discip]['ins'].index(discip['ins'][j])
+            
+            # Find interdependent design point indices with interdependent 
+            # design point variable value matching main discipline design point 
+            # variable value
+            mask = np.isclose(Discips[i]['tested_ins'][:, j], 
+                Discips[ind_discip]['tested_ins'][index, var_main])
+            
+            # Add to the numerator for number of times that interdependent
+            # discipline's pass? value is True
+            numerator += np.sum(discip_pass_array[mask])
+            
+            # Add to the denominator for each masked index
+            denominator += np.sum(mask)
+    
+    # Return the fraction of universal feasibility
+    return numerator / denominator if denominator > 0 else 0
+
 
 """
 SECONDARY FUNCTIONS
@@ -56,40 +124,54 @@ def sharedIndices(larger_array, smaller_array):
     return indices
 
 
-def countBooleans(index_list, bool_list):
+def countBooleans(index_list, Discips, ind_discip):
     """
     Description
     -----------
     Counts the remaining number of passing data points for the reduced design
-    space.
+    space.  For each passing point, also counts that point's 'universal'
+    feasibility contribution based on fraction of passing points remaining in
+    other interdependent disciplines for its particular value.
 
     Parameters
     ----------
     index_list : List of integers
         Indices of the original design space that still remain
-    bool_list : List of booleans
-        Passing and Failing information for the original design space
+    Discips : Dictionary
+        All of the information pertaining to each discipline
+    ind_discip : Integer
+        Main discipline of a design point
 
     Returns
     -------
     true_count : Integer
         Remaining number of passing data points in the reduced design space
+    true_count_all : Float
+        Total sum of the fraction of potential feasible designs remaining
+        within interdependent discipline's for each design point remaining
+        in the main discipline's reduced design space
     """
     
-    # Initialize counter for True values
+    # Initialize counter for discipline's True values
     true_count = 0
+    
+    # Initialize counter for universal True values
+    true_count_all = 0
     
     # Loop through the index list to find the corresponding boolean values
     for index in index_list:
         
         # Check if the data point at the particular index is passing
-        if bool_list[index]:
+        if Discips[ind_discip]['pass?'][index]:
             
-            # Add one to the True values counter
+            # Add 1 to the discipline's True values counter
             true_count += 1
-    
-    # Return the sum of the true count
-    return true_count
+            
+            # Add 0 or 1 to the universal True values counter
+            true_count_all += universalContribution(Discips, index, ind_discip)
+            
+    # Return the sum of the true count and the universal true count
+    return true_count, true_count_all
 
 
 """
@@ -147,6 +229,9 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     feas_rem : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
+    ufeas_rem : Dictionary
+        Tracks the universal feasible space remaining for each run of a test
+        case over the elapsed iterations
     """
     
     # Create a list of the times and sort them in ascending order
@@ -158,12 +243,16 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     # Initialize an empty dictionary for percentage of feasible space data
     feas_rem = {}
     
+    # Initialize an empty dictionary for universal feasible space data
+    ufeas_rem = {}
+    
     # Loop through each run of the test case
     for run_name, discips in test_case.items():
         
         # Initialize empty dictionaries for the run
         space_rem[run_name] = {}
         feas_rem[run_name] = {}
+        ufeas_rem[run_name] = {}
         
         # Loop through each discipline of the run
         for ind_discip, list_discip in enumerate(discips):
@@ -174,6 +263,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
             # Initialize empty dictionaries for the discipline
             space_rem[run_name][discip_name] = {}
             feas_rem[run_name][discip_name] = {}
+            ufeas_rem[run_name][discip_name] = {}
             
             # Loop through each value in the list of times
             for time in list_of_times:
@@ -181,6 +271,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 # Assign time to a key for the dictionaries
                 space_rem[run_name][discip_name][time] = []
                 feas_rem[run_name][discip_name][time] = []
+                ufeas_rem[run_name][discip_name][time] = []
             
             # Loop through each data point in the list
             for ind_data, dic_data in enumerate(list_discip):
@@ -194,11 +285,16 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                                         dic_data['space_remaining'])
                 
                 # Count and record True values for indices in both
-                true_count=countBooleans(matches, Discips[ind_discip]['pass?'])
+                true_count, true_count_all = countBooleans(matches, Discips,
+                                                           ind_discip)
                 
-                # Append count to the feasible dictionary
+                # Append first count to the feasible dictionary
                 feas_rem[run_name][discip_name][dic_data['iter']].append\
                     (true_count)
+                
+                # Append second count to the universal feasible dictionary
+                ufeas_rem[run_name][discip_name][dic_data['iter']].append\
+                    (true_count_all)
             
             # Loop back through the list of times
             for ind_time, time in enumerate(list_of_times):
@@ -218,12 +314,20 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                     feas_rem[run_name][discip_name][time].append(min(\
                         feas_rem[run_name][discip_name][list_of_times\
                         [ind_time-1]]))
+                        
+                # Check if universal feasible space list is empty
+                if not ufeas_rem[run_name][discip_name][time]:
+                    
+                    # Add minimum feasible count from one earlier time
+                    ufeas_rem[run_name][discip_name][time].append(min(\
+                        ufeas_rem[run_name][discip_name][list_of_times\
+                        [ind_time-1]]))
     
     # Return the dictionaries of filled in time information
-    return space_rem, feas_rem
+    return space_rem, feas_rem, ufeas_rem
 
 
-def findAverages(space_rem, feas_rem):
+def findAverages(space_rem, feas_rem, ufeas_rem):
     """
     Description
     -----------
@@ -239,6 +343,9 @@ def findAverages(space_rem, feas_rem):
     feas_rem : Dictionary
         Tracks the feasible space remaining for each run of a test case over
         the elapsed iterations
+    ufeas_rem : Dictionary
+        Tracks the universal feasible space remaining for each run of a test
+        case over the elapsed iterations
 
     Returns
     -------
@@ -246,6 +353,8 @@ def findAverages(space_rem, feas_rem):
         Average total space remaining over elapsed project time
     average_feas : Dictionary
         Average feasible space remaining over elapsed project time
+    average_ufeas : Dictionary
+        Average universal feasible space remaining over elapsed project time
     """
     
     # Initialize an empty dictionary for average space remaining data
@@ -254,12 +363,16 @@ def findAverages(space_rem, feas_rem):
     # Initialize an empty dictionary for average feasible count
     average_feas = {}
     
+    # Initialize an empty dictionary for average universal feasbile count
+    average_ufeas = {}
+    
     # Loop through each discipline
     for discip_name, sr_dic in space_rem['Run_1'].items():
         
         # Initialize empty dictionaries for the discipline
         average_rem[discip_name] = {}
         average_feas[discip_name] = {}
+        average_ufeas[discip_name] = {}
 
         # Loop through each time that space remaining data is accounted for
         for time, sr_set in sr_dic.items():
@@ -267,6 +380,7 @@ def findAverages(space_rem, feas_rem):
             # Initalize time keys for summation part of averaging
             average_rem[discip_name][time] = 0.0
             average_feas[discip_name][time] = 0.0
+            average_ufeas[discip_name][time] = 0.0
     
     # Loop through each run of the test case
     for run_name, discips in space_rem.items():
@@ -285,6 +399,12 @@ def findAverages(space_rem, feas_rem):
                 
                 # Add midpoint of the space remaining to the proper summation
                 average_feas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
+            
+            # Loop thru each time universal feasible space data accounted for
+            for time, fr_lis in ufeas_rem[run_name][discip_name].items():
+                
+                # Add midpoint of the space remaining to the proper summation
+                average_ufeas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
         
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
@@ -297,12 +417,14 @@ def findAverages(space_rem, feas_rem):
                 average_rem[discip_name][time] / len(space_rem)
             average_feas[discip_name][time] = \
                 average_feas[discip_name][time] / len(space_rem)
+            average_ufeas[discip_name][time] = \
+                average_ufeas[discip_name][time] / len(space_rem)
             
     # Return the data for the average space remaining at each time
-    return average_rem, average_feas
+    return average_rem, average_feas, average_ufeas
 
 
-def findPercentages(average_rem, average_feas):
+def findPercentages(average_rem, average_feas, average_ufeas):
     """
     Description
     -----------
@@ -316,16 +438,21 @@ def findPercentages(average_rem, average_feas):
         Average total space remaining over elapsed project time
     average_feas : Dictionary
         Average feasible space remaining over elapsed project time
+    average_ufeas : Dictionary
+        Average universal feasible space remaining over elapsed project time
 
     Returns
     -------
     percent_rem : Dictionary
-        Average percentage of total space remaining.
+        Average percentage of total space remaining
     percent_feas1 : Dictionary
-        Average percentage of feasible space to total space remaining.
+        Average percentage of feasible space to total space remaining
     percent_feas2 : Dictionary
-        Average percentage of feasible space remaining.
-
+        Average percentage of feasible space remaining
+    percent_ufeas1 : Dictionary
+        Average universal percentage of feasible space to total space remaining
+    percent_ufeas2 : Dictionary
+        Average universal percentage of feasible space remaining
     """
     
     # Initialize an empty dictionary for percent of space remaining data
@@ -337,6 +464,12 @@ def findPercentages(average_rem, average_feas):
     # Initialize second empty dictionary for percent of feasible space
     percent_feas2 = {}
     
+    # Initialize first empty dictionary for percent of universal feasible space
+    percent_ufeas1 = {}
+    
+    # Initialize second empty dictionary for percent universal feasible space
+    percent_ufeas2 = {}
+    
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
         
@@ -344,6 +477,8 @@ def findPercentages(average_rem, average_feas):
         percent_rem[discip_name] = {}
         percent_feas1[discip_name] = {}
         percent_feas2[discip_name] = {}
+        percent_ufeas1[discip_name] = {}
+        percent_ufeas2[discip_name] = {}
         
         # Loop through each time that average remaining is accounted for
         for time, ar in ar_dic.items():
@@ -358,9 +493,18 @@ def findPercentages(average_rem, average_feas):
             # Compute percentage of average feasible space in original space
             percent_feas2[discip_name][time] = average_feas[discip_name][time]\
                 / ar_dic[0] * 100
+            
+            # Compute percent of average universal feasible space in remaining
+            percent_ufeas1[discip_name][time] = \
+                average_ufeas[discip_name][time] / ar * 100
+            
+            # Compute percent of average universal feasible space in original
+            percent_ufeas2[discip_name][time] = \
+                average_ufeas[discip_name][time] / ar_dic[0] * 100
     
     # Return the percentage of the average space remaining
-    return percent_rem, percent_feas1, percent_feas2
+    return percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
+        percent_ufeas2
 
 
 """
@@ -400,6 +544,18 @@ if __name__ == "__main__":
         'Discipline_2': {},
         'Discipline_3': {}
         }
+    # Initialize a dictionary for data pertinent to each discipline
+    ufeas1_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
+    # Initialize a dictionary for data pertinent to each discipline
+    ufeas2_disciplines_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
     
     # Loop through each test case / name
     for test_case_name in test_case_names:
@@ -411,15 +567,17 @@ if __name__ == "__main__":
         set_of_times = createTimeData(test_case_name)
         
         # Determine space remaining at each of those times for each test run
-        space_rem, feas_rem = fillSpaceRemaining(test_case, set_of_times,
-                                                 Discips)
+        space_rem, feas_rem, ufeas_rem = fillSpaceRemaining(test_case, 
+            set_of_times, Discips)
         
         # Determine average space remaining at each time over all of the runs
-        average_rem, average_feas = findAverages(space_rem, feas_rem)
+        average_rem, average_feas, average_ufeas = findAverages(space_rem, 
+            feas_rem, ufeas_rem)
         
         # Convert averages into percentages
-        percent_rem, percent_feas1, percent_feas2=findPercentages(average_rem,
-                                                                  average_feas)
+        percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
+            percent_ufeas2 = findPercentages(average_rem, average_feas, 
+            average_ufeas)
         
         # Loop through disciplines
         for discip_name in all_disciplines_data.keys():
@@ -431,6 +589,10 @@ if __name__ == "__main__":
                 percent_feas1[discip_name]
             feas2_disciplines_data[discip_name][test_case_name] = \
                 percent_feas2[discip_name]
+            ufeas1_disciplines_data[discip_name][test_case_name] = \
+                percent_ufeas1[discip_name]
+            ufeas2_disciplines_data[discip_name][test_case_name] = \
+                percent_ufeas2[discip_name]
     
     # Save the new data
     with open('all_disciplines.pkl', 'wb') as f:
@@ -439,3 +601,7 @@ if __name__ == "__main__":
         pickle.dump(feas1_disciplines_data, f)
     with open('feas2_disciplines.pkl', 'wb') as f:
         pickle.dump(feas2_disciplines_data, f)
+    with open('ufeas1_disciplines.pkl', 'wb') as f:
+        pickle.dump(ufeas1_disciplines_data, f)
+    with open('ufeas2_disciplines.pkl', 'wb') as f:
+        pickle.dump(ufeas2_disciplines_data, f)

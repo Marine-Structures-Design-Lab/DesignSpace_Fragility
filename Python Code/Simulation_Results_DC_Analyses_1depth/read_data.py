@@ -68,7 +68,7 @@ POST-PROCESS
 prob = setProblem()
 Discips, Input_Rules, Output_Rules = prob.SBD1()
 change = changeDesign(Discips, Input_Rules, Output_Rules)
-Discips, Input_Rules, Output_Rules = change.Reqs()
+Discips, Input_Rules, Output_Rules = change.Analyses()
 
 # Loop through each discipline of the design problem
 for i in range(0, len(Discips)):
