@@ -495,15 +495,16 @@ def findPercentages(average_rem, average_feas, average_ufeas):
                 / ar_dic[0] * 100
             
             # Compute percent of average universal feasible space in remaining
-            percent_ufeas1[discip_name][time] = average_ufeas[discip_name][time]\
-                / ar * 100
+            percent_ufeas1[discip_name][time] = \
+                average_ufeas[discip_name][time] / ar * 100
             
             # Compute percent of average universal feasible space in original
-            percent_ufeas2[discip_name][time] = average_ufeas[discip_name][time]\
-                / ar_dic[0] * 100
+            percent_ufeas2[discip_name][time] = \
+                average_ufeas[discip_name][time] / ar_dic[0] * 100
     
     # Return the percentage of the average space remaining
-    return percent_rem, percent_feas1, percent_feas2, percent_ufeas1, percent_ufeas2
+    return percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
+        percent_ufeas2
 
 
 """
