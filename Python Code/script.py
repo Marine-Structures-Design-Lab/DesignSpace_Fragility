@@ -24,7 +24,7 @@ LIBRARIES
 """
 from vars_def import setProblem
 from uniform_grid import uniformGrid
-# from exponential_reduction import plotExponential
+from exponential_reduction import plotExponential
 from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
@@ -87,7 +87,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 600    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -118,18 +118,18 @@ exp_parameters = np.array(\
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Decide if ANY reduction proposed by discipline should be accepted by default
-auto_accept = True     # True = yes, False = no
+auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = False       # True = yes, False = no
-fragility_shift = 0.0  # Should be a positive float
+fragility = True       # True = yes, False = no
+fragility_shift = 0.2  # Should be a positive float
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
 ### time for it to occur...times must be in ascending order!
-change_design = ['Analyses']  # Options: Inputs, Analyses, Outputs, Reqs
-change_time = [0.7]          # Fraction of elapsed time(s) before change occurs
+change_design = []  # Options: Inputs, Analyses, Outputs, Reqs
+change_time = []          # Fraction of elapsed time(s) before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -461,8 +461,8 @@ while iters < iters_max + temp_amount:
                     
                     # Plot the potential for windfall and regret throughout
                     # each discipline's design space for the final combo
-                    # windregret.plotWindRegret\
-                    #     ({final_combo: wr[final_combo]})
+                    windregret.plotWindRegret\
+                        ({final_combo: wr[final_combo]})
                     
                     # Append time to the dictionaries
                     windreg[-1]['time'] = iters
