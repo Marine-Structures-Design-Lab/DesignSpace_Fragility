@@ -14,6 +14,7 @@ LIBRARIES
 """
 from point_sorter import sortPoints
 from sklearn.gaussian_process.kernels import RBF
+from sklearn.preprocessing import StandardScaler
 from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
 from scipy.optimize import fsolve
@@ -339,17 +340,28 @@ def getPerceptions(discip, gpr_params):
     # Initialize data for training a GPR
     x_train, y_train = trainData(discip)
     
-    # Train GPR
-    gpr = initializeFit(discip, x_train, y_train, **gpr_params)
+    # Standardize the training data
+    scaler_x = StandardScaler()
+    x_train_scaled = scaler_x.fit_transform(x_train)
+    scaler_y = StandardScaler()
+    y_train_scaled = scaler_y.fit_transform(y_train.reshape(-1, 1)).ravel()
     
-    # Predict passfail data at every point in non-reduced design space
-    if len(discip['space_remaining']) > 0:
-        pf_mean,pf_std = gpr.predict(discip['space_remaining'],return_std=True)
+    # Train GPR
+    gpr = initializeFit(discip, x_train_scaled, y_train_scaled, **gpr_params)
+    
+    # Standardize the x-data for which pass-fail amounts will be predicted
+    x_space_scaled = scaler_x.transform(discip['space_remaining'])
+    
+    # Predict pass-fail data at every point in non-reduced design space
+    if len(x_space_scaled) > 0:
+        pf_mean_scaled, pf_std = gpr.predict(x_space_scaled, return_std=True)
+        pf_mean = \
+            scaler_y.inverse_transform(pf_mean_scaled.reshape(-1, 1)).ravel()
     else:
         pf_mean = np.empty(0)
         pf_std = np.empty(0)
     
-    # Return trained GPR
+    # Return the predicted data
     return pf_mean, pf_std
 
 

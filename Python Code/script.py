@@ -24,7 +24,7 @@ LIBRARIES
 """
 from vars_def import setProblem
 from uniform_grid import uniformGrid
-from exponential_reduction import plotExponential
+# from exponential_reduction import plotExponential
 from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
@@ -123,7 +123,7 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_shift = 0.2  # Should be a positive float
+fragility_shift = 1.0  # Should be a positive float
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
@@ -567,7 +567,7 @@ while iters < iters_max + temp_amount:
         Discips[i] = createNumpy('Fail_Amount', Discips[i])
         Discips[i] = createNumpy('Pass_Amount', Discips[i])
         
-        # Determine the extent to which failing points fail
+        # Determine the extent to which points pass and fail
         Discips[i] = outchk.rmsFail()
         
         # Reset discipline's reduction counter to 0 and criteria to defaults
