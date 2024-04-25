@@ -143,7 +143,7 @@ def initializeFit(discip, x_train, y_train, **kwargs):
     
     # Extract parameters from kwargs or set default values
     length_scale_bounds = kwargs.get('length_scale_bounds', (1e-2, 1e3))
-    alpha = kwargs.get('alpha', 0.00001)
+    alpha = kwargs.get('alpha', (0.4 / np.sqrt(len(x_train))) ** 2)
     
     # Initialize Gaussian kernel
     kernel = 1.0 * RBF(length_scale=np.ones(len(discip['ins'])), 
