@@ -18,6 +18,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
 from scipy.optimize import fsolve
+import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import itertools
@@ -142,7 +143,7 @@ def initializeFit(discip, x_train, y_train, **kwargs):
     """
     
     # Extract parameters from kwargs or set default values
-    length_scale_bounds = kwargs.get('length_scale_bounds', (1e-2, 1e3))
+    length_scale_bounds = kwargs.get('length_scale_bounds', (1e-3, 1e2))
     alpha = kwargs.get('alpha', (0.4 / np.sqrt(len(x_train))) ** 2)
     
     # Initialize Gaussian kernel
@@ -345,18 +346,32 @@ def getPerceptions(discip, gpr_params):
     x_train_scaled = scaler_x.fit_transform(x_train)
     scaler_y = StandardScaler()
     y_train_scaled = scaler_y.fit_transform(y_train.reshape(-1, 1)).ravel()
+
+    # Plot histograms of y_train before and after scaling
+    plt.figure(figsize=(12, 5))
+    
+    plt.subplot(1, 2, 1)
+    plt.hist(y_train, bins=30, alpha=0.7, color='blue')
+    plt.title('Histogram of y_train')
+    
+    plt.subplot(1, 2, 2)
+    plt.hist(y_train_scaled, bins=30, alpha=0.7, color='green')
+    plt.title('Histogram of y_train_scaled')
+    
+    plt.show()
+
     
     # Train GPR
-    gpr = initializeFit(discip, x_train_scaled, y_train_scaled, **gpr_params)
+    gpr = initializeFit(discip, x_train_scaled, y_train, **gpr_params)
     
     # Standardize the x-data for which pass-fail amounts will be predicted
     x_space_scaled = scaler_x.transform(discip['space_remaining'])
     
     # Predict pass-fail data at every point in non-reduced design space
     if len(x_space_scaled) > 0:
-        pf_mean_scaled, pf_std = gpr.predict(x_space_scaled, return_std=True)
-        pf_mean = \
-            scaler_y.inverse_transform(pf_mean_scaled.reshape(-1, 1)).ravel()
+        pf_mean, pf_std = gpr.predict(x_space_scaled, return_std=True)
+        # pf_mean = \
+        #     scaler_y.inverse_transform(pf_mean_scaled.reshape(-1, 1)).ravel()
     else:
         pf_mean = np.empty(0)
         pf_std = np.empty(0)
