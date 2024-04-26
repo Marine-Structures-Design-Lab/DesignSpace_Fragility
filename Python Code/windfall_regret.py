@@ -443,7 +443,8 @@ class windfallRegret:
                 # Calculate the potential for regret for the space reduction
                 ### + value indicates added potential for regret
                 ### - value indicates reduced potential for regret
-                if abs(reg_dic['non_reduced']) < 1e-10: reg_dic['non_reduced'] +=1e-10
+                if abs(reg_dic['non_reduced']) < 1e-10: 
+                    reg_dic['non_reduced'] +=1e-10
                 reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1
                 print(reg_dic['non_reduced'])
                 print(reg_dic['reduced'])
@@ -461,7 +462,8 @@ class windfallRegret:
                 # Calculate the potential for windfall for the space reduction
                 ### + value indicates added potential for windfall
                 ### - value indicates reduced potential for windfall
-                if abs(wind_dic['non_reduced']) < 1e-10: wind_dic['non_reduced']+=1e-10
+                if abs(wind_dic['non_reduced']) < 1e-10: 
+                    wind_dic['non_reduced']+=1e-10
                 wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1
                 print(wind_dic['non_reduced'])
                 print(wind_dic['reduced'])
