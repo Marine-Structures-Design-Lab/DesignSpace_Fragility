@@ -62,7 +62,7 @@ class checkFragility:
         """
         
         # Establish exponential fragility threshold
-        threshold = max(calcExponential(iters/iters_max, p), 0.2) + shift
+        threshold = max(calcExponential(iters/iters_max, p), 0.0) + shift
         
         # Initialize an empty dictionary for tracking max risk values
         max_risk = {}

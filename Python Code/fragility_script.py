@@ -73,6 +73,9 @@ class fragilityCommands:
         # Execute fragility assessment
         net_wr = fragile.basicCheck(iters, iters_max, exp_parameters, 
                                     fragility_shift)
+        
+        # Indicate that the fragility loop should not be broken
+        break_loop = False
 
         # Check if ANY rule combos do not lead to fragile space
         if any(dic["fragile"] == False for dic in net_wr.values()):
@@ -111,9 +114,6 @@ class fragilityCommands:
             
             # Indicate that the fragility loop should be broken
             break_loop = True
-        
-        # Indicate that the fragility loop should not be broken
-        break_loop = False
         
         # Return the documented fragility results (AM I SURE I DO NOT NEED TO RETURN net_wr, final_combo????)
         return banned_rules, windreg, running_windfall, running_regret, risk, \
