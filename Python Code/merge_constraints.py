@@ -347,18 +347,18 @@ def getPerceptions(discip, gpr_params):
     scaler_y = StandardScaler()
     y_train_scaled = scaler_y.fit_transform(y_train.reshape(-1, 1)).ravel()
 
-    # Plot histograms of y_train before and after scaling
-    plt.figure(figsize=(12, 5))
+    # # Plot histograms of y_train before and after scaling
+    # plt.figure(figsize=(12, 5))
     
-    plt.subplot(1, 2, 1)
-    plt.hist(y_train, bins=30, alpha=0.7, color='blue')
-    plt.title('Histogram of y_train')
+    # plt.subplot(1, 2, 1)
+    # plt.hist(y_train, bins=30, alpha=0.7, color='blue')
+    # plt.title('Histogram of y_train')
     
-    plt.subplot(1, 2, 2)
-    plt.hist(y_train_scaled, bins=30, alpha=0.7, color='green')
-    plt.title('Histogram of y_train_scaled')
+    # plt.subplot(1, 2, 2)
+    # plt.hist(y_train_scaled, bins=30, alpha=0.7, color='green')
+    # plt.title('Histogram of y_train_scaled')
     
-    plt.show()
+    # plt.show()
 
     
     # Train GPR

@@ -51,6 +51,12 @@ class fragilityCommands:
     
     def EFM(self):
         
+        # Create a passfail-tracking dictionary for the discipline if it does not exist
+        
+            # Initialize the 0th time iteration with 0 for pass-fail amount
+        
+        # Check if passfail dictionary exists for current time iteration
+        
         
         # Return the risk
         return ris
