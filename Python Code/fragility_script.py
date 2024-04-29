@@ -49,13 +49,23 @@ class fragilityCommands:
         return wr, run_wind, run_reg, ris
     
     
-    def EFM(self):
+    def EFM(self, ris, iters):
         
-        # Create a passfail-tracking dictionary for the discipline if it does not exist
+        # Initialize an entropy tracking object
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
             # Initialize the 0th time iteration with 0 for pass-fail amount
         
         # Check if passfail dictionary exists for current time iteration
+        
         
         
         # Return the risk
