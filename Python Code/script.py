@@ -431,10 +431,11 @@ while iters < iters_max + temp_amount:
                 banned_rules, windreg, running_windfall, running_regret, risk,\
                     irules_new, irules_fragility, break_loop = \
                     fragnalysis.assessRisk(ris, iters, iters_max, 
-                                           exp_parameters, fragility_shift, 
-                                           banned_rules, windreg, wr, 
-                                           running_windfall, run_wind, 
-                                           running_regret, run_reg, risk)
+                                           exp_parameters, irules_new,
+                                           fragility_shift, banned_rules, 
+                                           windreg, wr, running_windfall, 
+                                           run_wind, running_regret, run_reg, 
+                                           risk)
                 
                 # Break fragility loop if fragility assessment passed
                 if break_loop: break

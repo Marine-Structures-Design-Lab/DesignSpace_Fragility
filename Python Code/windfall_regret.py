@@ -446,8 +446,6 @@ class windfallRegret:
                 if abs(reg_dic['non_reduced']) < 1e-10: 
                     reg_dic['non_reduced'] +=1e-10
                 reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1
-                print(reg_dic['non_reduced'])
-                print(reg_dic['reduced'])
                 
                 # Print the potential for regret results of space reduction
                 print(f"Discipline {ind_dic+1} has {round(reg_value, 2)} added"
@@ -465,8 +463,6 @@ class windfallRegret:
                 if abs(wind_dic['non_reduced']) < 1e-10: 
                     wind_dic['non_reduced']+=1e-10
                 wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1
-                print(wind_dic['non_reduced'])
-                print(wind_dic['reduced'])
                 
                 # Print the potential for windfal results of space reduction
                 print(f"Discipline {ind_dic+1} has {round(wind_value, 2)} "

@@ -57,7 +57,7 @@ class fragilityCommands:
     
     
     
-    def assessRisk(self, ris, iters, iters_max, exp_parameters, 
+    def assessRisk(self, ris, iters, iters_max, exp_parameters, irules_new, 
                    fragility_shift, banned_rules, windreg, wr, 
                    running_windfall, run_wind, running_regret, run_reg, risk):
         
