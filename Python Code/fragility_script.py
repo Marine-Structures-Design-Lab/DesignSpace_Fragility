@@ -11,6 +11,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from windfall_regret import windfallRegret
+from entropy_tracker import entropyTracker
 from fragility_check import checkFragility
 import copy
 
@@ -49,9 +50,23 @@ class fragilityCommands:
         return wr, run_wind, run_reg, ris
     
     
-    def EFM(self, ris, iters):
+    def EFM(self):
         
         # Initialize an entropy tracking object
+        entropytrack = entropyTracker()
+        
+        # Update the history of recorded pass-fail data in non-reduced space
+        
+        
+        # Evaluate the TVE and DTVE for update data
+        
+        
+        # Calculate windfall and regret for remaining design spaces
+        
+        
+        # Quantify risk or potential of space reduction
+        ### Positive value means pot. regret or windfall ADDED
+        ### Negative value means pot. regret or windfall REDUCED
         
         
         
@@ -61,15 +76,8 @@ class fragilityCommands:
         
         
         
-        
-            # Initialize the 0th time iteration with 0 for pass-fail amount
-        
-        # Check if passfail dictionary exists for current time iteration
-        
-        
-        
-        # Return the risk
-        return ris
+        # Return the entropy-based fragility results
+        return wr, run_wind, run_reg, ris
     
     
     

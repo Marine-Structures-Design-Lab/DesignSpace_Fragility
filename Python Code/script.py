@@ -414,7 +414,7 @@ while iters < iters_max + temp_amount:
                 # Increase fragility counter by one
                 fragility_counter += 1
                 
-                # Gather passfail data of rule combo(s) in smaller diction
+                # Gather passfail data of rule combo(s) in smaller dictionary
                 pf_combos = {key: pf[key] for key in rule_combos}
                 pf_std_combos = {key: pf_std[key] for key in rule_combos}
                 
@@ -547,6 +547,14 @@ while iters < iters_max + temp_amount:
     
     # Increase the time count
     iters += temp_amount
+    
+    # DO AN ARBIRTARY PASS-FAIL CHECK RIGHT HERE!!!!!!!!!
+    # Add to the passfail list as a dictionary just the same...
+    # The key will be None...and I still need to track the time as the iteration
+    
+    
+    
+    
     
     # Reset the just explore value to False
     just_explore = False
