@@ -227,7 +227,7 @@ Discips_fragility = copy.deepcopy(Discips)
 banned_rules = {}
 
 # Begin the design exploration and reduction process with allotted timeline
-while iters < iters_max + temp_amount:
+while iters < iters_max:
     
     # Check if time is greater than 0 and new input rules are being proposed
     if iters > 0 and irules_new: 

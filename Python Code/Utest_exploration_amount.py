@@ -48,7 +48,7 @@ class test_exploration_amount(unittest.TestCase):
         ind = exploreSpace(995,1000,[2,3,4])
         self.assertEqual(ind.fixedExplore(),5)
         ind = exploreSpace(1000,1000,[2,3,4])
-        self.assertEqual(ind.fixedExplore(),0)
+        self.assertEqual(ind.fixedExplore(),1)
     
     # Other methods
         

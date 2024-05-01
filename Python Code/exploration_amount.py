@@ -72,4 +72,4 @@ class exploreSpace:
         elif self.it < 0.9*self.itm:
             return max(int(0.04*time_rem),min(time_rem,2*max(self.rt)))
         else:
-            return min(time_rem,2*max(self.rt))
+            return max(1, min(time_rem,2*max(self.rt)))
