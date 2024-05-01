@@ -18,7 +18,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
 from scipy.optimize import fsolve
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import itertools
@@ -360,7 +360,6 @@ def getPerceptions(discip, gpr_params):
     
     # plt.show()
 
-    
     # Train GPR
     gpr = initializeFit(discip, x_train_scaled, y_train, **gpr_params)
     

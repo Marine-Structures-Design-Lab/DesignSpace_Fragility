@@ -29,6 +29,10 @@ class entropyTracker:
     
     def prepEntropy(self):
         
+        # Create a passfail-tracking dictionary for the discipline if it does not exist (will only need to happen ONCE)
+        
+            # Initialize the 0th time iteration key with 0 for pass-fail amounts?
+        
         # Create a key for the iteration if it does not exist in dictionary
         
             # Add latest pass-fail predictions to the dictionary key

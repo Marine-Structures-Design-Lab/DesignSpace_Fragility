@@ -28,7 +28,7 @@ from uniform_grid import uniformGrid
 from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
-from merge_constraints import mergeConstraints
+from merge_constraints import mergeConstraints, getPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from exploration_amount import exploreSpace
@@ -548,13 +548,12 @@ while iters < iters_max + temp_amount:
     # Increase the time count
     iters += temp_amount
     
-    # DO AN ARBIRTARY PASS-FAIL CHECK RIGHT HERE!!!!!!!!!
-    # Add to the passfail list as a dictionary just the same...
-    # The key will be None...and I still need to track the time as the iteration
-    
-    
-    
-    
+    # Form pass-fail predictions for remaining design space with new points
+    pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
+    for i, discip in enumerate(Discips):
+        pf[None][i]['non_reduced'], _ = getPerceptions(discip, gpr_params)
+    passfail.append(copy.deepcopy(pf))
+    passfail[-1]['time'] = iters
     
     # Reset the just explore value to False
     just_explore = False
