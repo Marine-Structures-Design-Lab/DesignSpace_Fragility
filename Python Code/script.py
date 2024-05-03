@@ -516,7 +516,7 @@ while iters <= iters_max:
         # Calculate left-hand side of output rule inequality for each new point
         Discips[i]['out_ineqs'] = calcRules(Discips[i],\
                                             'out_ineqs','tested_outs','outs')
-
+        
         # Create a key for passing and failing of outputs if it does not exist
         Discips[i] = createKey('pass?',Discips[i])
         
