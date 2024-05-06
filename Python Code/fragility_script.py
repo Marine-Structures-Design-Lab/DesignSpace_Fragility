@@ -23,12 +23,13 @@ CLASS
 class fragilityCommands:
     
     def __init__(self, Discips_fragility, irules_fragility, pf_combos,
-                 pf_fragility, pf_std_fragility):
+                 pf_fragility, pf_std_fragility, passfail):
         self.Df = Discips_fragility
         self.irf = irules_fragility
         self.pf_combos = pf_combos
         self.pf_frag = pf_fragility
         self.pf_std_frag = pf_std_fragility
+        self.pf = passfail
         return
     
     
@@ -50,10 +51,10 @@ class fragilityCommands:
         return wr, run_wind, run_reg, ris
     
     
-    def EFM(self, passfail):
+    def EFM(self):
         
         # Initialize an entropy tracking object
-        entropytrack = entropyTracker(passfail, self.Df)
+        entropytrack = entropyTracker(self.pf, self.Df)
         
         # Organize the history of recorded pass-fail data in non-reduced space
         passfail_frag = entropytrack.prepEntropy()
@@ -62,12 +63,12 @@ class fragilityCommands:
         TVE, DTVE = entropytrack.evalEntropy(passfail_frag)
         
         # Calculate windfall and regret for remaining design spaces
-        wr, run_wind, run_reg = entropytrack.calcWindRegret()
+        wr, run_wind, run_reg = entropytrack.calcWindRegret(TVE, DTVE)
         
         # Quantify risk or potential of space reduction -----------------------JUST USE WINDFALL_REGRETS????...but do not turn into a function because I may want new methods for doing the same thing at some point...
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
-        ris = entropytrack.quantRisk()
+        ris = entropytrack.quantRisk(run_wind, run_reg, wr)
         
         # Return the entropy-based fragility results
         return wr, run_wind, run_reg, ris

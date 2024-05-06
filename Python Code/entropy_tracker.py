@@ -78,7 +78,7 @@ def reassignPF(pf_old, pf_new):
     sorted_keys = sorted(pf_old.keys())
     
     # Loop through the list of sorted keys
-    for time in sorted_keys():
+    for time in sorted_keys:
         
         # Loop through each discipline
         for i, discip in enumerate(pf_old[time]):
@@ -121,36 +121,44 @@ class entropyTracker:
         return passfail_frag2
     
     
-    def evalEntropy(self):
+    def evalEntropy(self, passfail_frag):
         
+        TVE = 0
         
+        DTVE = 0
         
         
         
         
         
         # Return TVE and DTVE values for each design point in non-reduced space remaining
-        return
+        return TVE, DTVE
     
     
     
-    def calcWindRegret(self):
+    def calcWindRegret(self, TVE, DTVE):
         
         
+        wr = 0
         
-        return
-    
-    
-    
-    
-    
-    
-    
-    def quantRisk(self):
+        run_wind = 0
+        
+        run_reg = 0
         
         
+        return wr, run_wind, run_reg
+    
+    
+    
+    
+    
+    
+    
+    def quantRisk(self, run_wind, run_reg, wr):
         
-        return
+        ris = 0
+        
+        return ris
     
     
     

@@ -122,7 +122,7 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
+fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 1.0  # Should be a positive float
 
 # Indicate when and to what design space(s) a design change should occur
@@ -421,7 +421,7 @@ while iters <= iters_max:
                 # Initialize fragility assessment object
                 fragnalysis = fragilityCommands(Discips_fragility, 
                     irules_fragility, pf_combos, pf_fragility,
-                    pf_std_fragility)
+                    pf_std_fragility, passfail)
                 
                 # Perform desired fragility assessment
                 wr, run_wind, run_reg, ris = \
