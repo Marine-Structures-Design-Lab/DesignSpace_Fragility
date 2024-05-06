@@ -11,6 +11,8 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import numpy as np
+from dit import ScalarDistribution
+from dit.other import generalized_cumulative_residual_entropy as gcre
 from point_sorter import sortPoints
 from merge_constraints import sharedIndices
 
@@ -123,13 +125,42 @@ class entropyTracker:
     
     def evalEntropy(self, passfail_frag):
         
-        TVE = 0
+        # Initialize empty TVE and DTVE lists
+        TVE = [[] for _ in passfail_frag]
+        DTVE = [[] for _ in passfail_frag]
         
-        DTVE = 0
-        
-        
-        
-        
+        # Loop through each discipline
+        for i, discip in enumerate(passfail_frag):
+            
+            # Loop through each history of data points' passfail predictions
+            for index in discip:
+                
+                # Determine equal probability for each passfail prediction
+                prob = 1 / len(index)
+                
+                # Create a scalar distribution for the data
+                dist = ScalarDistribution({value: prob for value in index})
+                
+                # Calculate the TVE value
+                tve = gcre(dist)
+                
+                # Append the TVE value to the inner TVE list
+                TVE[i].append(tve)
+                
+                # Calculate the difference between consecutive predictions
+                diffs = np.diff(index)
+                
+                # Determine new equal probability for each passfail prediction
+                prob = 1 / len(diffs)
+                
+                # Create a scalar distribution for the difference data
+                dist = ScalarDistribution({value: prob for value in diffs})
+                
+                # Calculate the DTVE value
+                dtve = gcre(dist)
+                
+                # Append the DTVE value to the inner DTVE list
+                DTVE[i].append(dtve)
         
         # Return TVE and DTVE values for each design point in non-reduced space remaining
         return TVE, DTVE

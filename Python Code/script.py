@@ -86,7 +86,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 200    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -424,7 +424,7 @@ while iters <= iters_max:
                     pf_std_fragility, passfail)
                 
                 # Perform desired fragility assessment
-                wr, run_wind, run_reg, ris = \
+                wr, run_wind, run_reg, ris, passfail_frag, TVE, DTVE = \
                     getattr(fragnalysis, fragility_type)()
                 
                 # Assess risk from fragility assessment
