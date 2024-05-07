@@ -13,7 +13,7 @@ LIBRARIES
 import numpy as np
 from dit import ScalarDistribution
 from dit.other import generalized_cumulative_residual_entropy as gcre
-from windfall_regret import initializeWR, getIndices
+from windfall_regret import getIndices
 
 
 """
@@ -92,6 +92,150 @@ def reassignPF(pf_old, pf_new):
         
     # Return the passfail list ready for TVE and DTVE evaluation
     return pf_new
+
+
+def initializeWR(irf, passfail):
+    """
+    Description
+    -----------
+    Initializes empty dictionaries for windfall and regret data-tracking that
+    will be filled up later.
+
+    Parameters
+    ----------
+    irf : List
+        Sympy And or Or relationals or inequalities describing each new rule 
+        being proposed of the current time stamp
+    passfail : Dictionary
+        Pass-fail predictions for the non-reduced, reduced, and leftover design
+        spaces of rule combinations from newest round of fragility assessment
+
+    Returns
+    -------
+    windreg : Dictionary
+        Initialized for probability of windfall or regret data for each
+        remaining discretized design point of various design spaces of a set of
+        rules
+    run_wind : Dictionary
+        Initialized for total regret data for each remaining discretized design
+        point of various design spaces of a set of rules
+    run_reg : Dictionary
+        Initialized for total windfall data for each remaining discretized
+        design point of various design spaces of a set of rules
+    """
+    
+    # Initialize empty dictionaries
+    windreg = {}
+    run_wind = {}
+    run_reg = {}
+    
+    # Loop through each new rule combo being proposed
+    for rule, lis in passfail.items():
+        
+        # Add empty list to dictionaries
+        windreg[rule+tuple(irf)] = []
+        run_wind[rule+tuple(irf)] = []
+        run_reg[rule+tuple(irf)] = []
+        
+        # Loop through each discipline's passfail data
+        for ind_dic, dic in enumerate(lis):
+            
+            # Create empty dictionaries for discipline
+            windreg[rule+tuple(irf)].append({})
+            run_wind[rule+tuple(irf)].append({})
+            run_reg[rule+tuple(irf)].append({})
+            
+            # Loop through each design space of discipline
+            for ds, arr in dic.items():
+                
+                # Create empty dictionaries for discipline
+                windreg[rule+tuple(irf)][ind_dic][ds] = {'TVE': np.array([], dtype=float), 'DTVE': np.array([], dtype=float)}
+                run_wind[rule+tuple(irf)][ind_dic][ds] = {'TVE': 0.0, 'DTVE': 0.0}
+                run_reg[rule+tuple(irf)][ind_dic][ds] = {'TVE': 0.0, 'DTVE': 0.0}
+    
+    # Return initialized dictionaries for windfall and regret tracking
+    return windreg, run_wind, run_reg
+
+
+def assignWR(tve, dtve, ind_pf, indices_in_both, pf):
+    
+    # Initialize empty dictionaries
+    wr = {'non_reduced': {},
+          'reduced': {},
+          'leftover': {}}
+    run_wind = {'non_reduced': {},
+                'reduced': {}}
+    run_reg = {'non_reduced': {},
+               'reduced': {}}
+    
+    # Check if point is in both non-reduced and reduced matrices
+    if ind_pf in indices_in_both:
+        
+        # Check if point predicted infeasible (windfall chance)
+        if pf < 0:
+            
+            # Assign TVE and DTVE with proper sign
+            wr['non_reduced']['TVE'] = tve
+            wr['non_reduced']['DTVE'] = dtve
+            wr['reduced']['TVE'] = tve
+            wr['reduced']['DTVE'] = dtve
+            
+            # Assign to proper running windfall count
+            run_wind['non_reduced']['TVE'] = tve
+            run_wind['non_reduced']['DTVE'] = dtve
+            run_wind['reduced']['TVE'] = tve
+            run_wind['reduced']['DTVE'] = dtve
+                        
+        # Do below if point predicted feasible (regret chance)
+        else:
+                        
+            # Assign TVE and DTVE with proper sign
+            wr['non_reduced']['TVE'] = -tve
+            wr['non_reduced']['DTVE'] = -dtve
+            wr['reduced']['TVE'] = -tve
+            wr['reduced']['DTVE'] = -dtve
+            
+            # Assign to proper running regret count
+            run_reg['non_reduced']['TVE'] = tve
+            run_reg['non_reduced']['DTVE'] = dtve
+            run_reg['reduced']['TVE'] = tve
+            run_reg['reduced']['DTVE'] = dtve
+            
+    # Do below if point is not in both non-reduced and reduced matrices
+    else:
+        
+        # Check if point is predicted infeasible
+        if pf < 0:
+            
+            # Assign complementary probability with proper sign
+            wr['non_reduced']['TVE'] = tve
+            wr['non_reduced']['DTVE'] = dtve
+            wr['leftover']['TVE'] = -tve
+            wr['leftover']['DTVE'] = -dtve
+            
+            # Assign to proper running windfall and regret counts
+            run_wind['non_reduced']['TVE'] = tve
+            run_wind['non_reduced']['DTVE'] = dtve
+            run_reg['reduced']['TVE'] = tve
+            run_reg['reduced']['DTVE'] = dtve
+        
+        # Do below if point is predicted feasible
+        else:
+                        
+            # Assign complementary probability with proper sign
+            wr['non_reduced']['TVE'] = -tve
+            wr['non_reduced']['DTVE'] = -dtve
+            wr['leftover']['TVE'] = tve
+            wr['leftover']['DTVE'] = dtve
+            
+            # Assign to proper running windfall and regret counts
+            run_reg['non_reduced']['TVE'] = tve
+            run_reg['non_reduced']['DTVE'] = dtve
+            run_wind['reduced']['TVE'] = tve
+            run_wind['reduced']['DTVE'] = dtve
+    
+    # Return windfall and regret potentials
+    return wr, run_wind, run_reg
 
 
 
@@ -181,11 +325,37 @@ class entropyTracker:
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
                     getIndices(self.Df, self.irf, ind_dic, rule)
+                
+                # Loop through time history data of non-reduced design points
+                for ind_pf, (tve, dtve) in enumerate(zip(TVE[ind_dic], DTVE[ind_dic])):
+                    
+                    # Gather windfall and regret potentials
+                    wr, r_wind, r_reg = assignWR(tve, dtve, ind_pf, 
+                        indices_in_both, dic['non_reduced'][ind_pf])
+                    
+                    # Loop through each entropy dictionary in wr
+                    for ds, entropies in wr.items():
+                        
+                        # Loop through TVE and DTVE entropies
+                        for entropy, val in entropies.items():
+                        
+                            # Append values to list of values of proper windreg key
+                            windreg[rule+tuple(self.irf)][ind_dic][ds][entropy] = \
+                                np.append(windreg[rule+tuple(self.irf)][ind_dic][ds][entropy], val)
+                    
+                    # Loop through each entropy dictionary in r_wind
+                    
+                    
+                    
+                    # Loop through each entropy dictionary in r_reg
+                    
+                
+                
         
-        wr = windreg
+        
         
         # Return windfall and regret data
-        return wr, run_wind, run_reg
+        return windreg, run_wind, run_reg
     
     
     
@@ -198,6 +368,15 @@ class entropyTracker:
         ris = 0
         
         return ris
+    
+    
+    
+    def plotWindRegret():
+        
+        
+        
+        
+        return
     
     
     
