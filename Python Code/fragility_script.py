@@ -54,7 +54,7 @@ class fragilityCommands:
     def EFM(self):
         
         # Initialize an entropy tracking object
-        entropytrack = entropyTracker(self.pf, self.Df)
+        entropytrack = entropyTracker(self.pf, self.Df, self.irf)
         
         # Organize the history of recorded pass-fail data in non-reduced space
         passfail_frag = entropytrack.prepEntropy()
@@ -63,7 +63,8 @@ class fragilityCommands:
         TVE, DTVE = entropytrack.evalEntropy(passfail_frag)
         
         # Calculate windfall and regret for remaining design spaces
-        wr, run_wind, run_reg = entropytrack.calcWindRegret(TVE, DTVE)
+        wr, run_wind, run_reg = entropytrack.calcWindRegret(self.pf_combos, 
+                                                            TVE, DTVE)
         
         # Quantify risk or potential of space reduction -----------------------JUST USE WINDFALL_REGRETS????...but do not turn into a function because I may want new methods for doing the same thing at some point...
         ### Positive value means pot. regret or windfall ADDED

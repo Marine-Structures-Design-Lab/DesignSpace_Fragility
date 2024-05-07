@@ -13,8 +13,7 @@ LIBRARIES
 import numpy as np
 from dit import ScalarDistribution
 from dit.other import generalized_cumulative_residual_entropy as gcre
-from point_sorter import sortPoints
-from merge_constraints import sharedIndices
+from windfall_regret import initializeWR, getIndices
 
 
 """
@@ -101,9 +100,10 @@ CLASS
 """
 class entropyTracker:
     
-    def __init__(self, passfail, Discips_fragility):
+    def __init__(self, passfail, Discips_fragility, irules_fragility):
         self.pf = passfail
         self.Df = Discips_fragility
+        self.irf = irules_fragility
         return
     
     
@@ -167,16 +167,24 @@ class entropyTracker:
     
     
     
-    def calcWindRegret(self, TVE, DTVE):
+    def calcWindRegret(self, passfail, TVE, DTVE):
         
+        # Initialize empty dictionaries
+        windreg, run_wind, run_reg = initializeWR(self.irf, passfail)
         
-        wr = 0
+        # Loop through each new rule combo being proposed
+        for rule, lis in passfail.items():
+            
+            # Loop through each discipline's passfail data
+            for ind_dic, dic in enumerate(lis):
+                
+                # Create different index lists for input rule
+                all_indices, indices_in_both, indices_not_in_B = \
+                    getIndices(self.Df, self.irf, ind_dic, rule)
         
-        run_wind = 0
+        wr = windreg
         
-        run_reg = 0
-        
-        
+        # Return windfall and regret data
         return wr, run_wind, run_reg
     
     
