@@ -13,6 +13,7 @@ LIBRARIES
 import numpy as np
 from dit import ScalarDistribution
 from dit.other import generalized_cumulative_residual_entropy as gcre
+from dit.other import cumulative_residual_entropy as cre
 from windfall_regret import getIndices
 
 
@@ -337,33 +338,58 @@ class entropyTracker:
                     for ds, entropies in wr.items():
                         
                         # Loop through TVE and DTVE entropies
-                        for entropy, val in entropies.items():
+                        for entr, val in entropies.items():
                         
-                            # Append values to list of values of proper windreg key
-                            windreg[rule+tuple(self.irf)][ind_dic][ds][entropy] = \
-                                np.append(windreg[rule+tuple(self.irf)][ind_dic][ds][entropy], val)
+                            # Append values to list of values of windreg key
+                            windreg[rule+tuple(self.irf)][ind_dic][ds][entr] =\
+                                np.append(windreg[rule+tuple(self.irf)]\
+                                          [ind_dic][ds][entr], val)
                     
                     # Loop through each entropy dictionary in r_wind
-                    
-                    
-                    
+                    for ds, entropies in r_wind.items():
+                        
+                        # Loop through TVE and DTVE entropies
+                        for entr, val in entropies.items():
+                            
+                            # Add probability to proper running windfall sum
+                            run_wind[rule+tuple(self.irf)][ind_dic][ds][entr] \
+                                += r_wind[ds][entr]
+                            
                     # Loop through each entropy dictionary in r_reg
+                    for ds, entropies in r_reg.items():
+                        
+                        # Loop through TVE and DTVE entropies
+                        for entr, val in entropies.items():
+                            
+                            # Add probability to proper running regret sum
+                            run_reg[rule+tuple(self.irf)][ind_dic][ds][entr] \
+                                += r_reg[ds][entr]
                     
-                
-                
-        
-        
+                # Loop through each design space of discipline
+                for ds in dic.keys():
+                    
+                    # Loop through each entropy type of the design space
+                    for entr in run_wind[rule+tuple(self.irf)][ind_dic][ds].keys():
+                        
+                        # Divide probabilistic sums by remaining points
+                        if self.Df[ind_dic]['space_remaining'].shape[0] > 0:
+                            run_wind[rule+tuple(self.irf)][ind_dic][ds][entr] \
+                                = run_wind[rule+tuple(self.irf)][ind_dic][ds][entr] / \
+                                    self.Df[ind_dic]['space_remaining'].shape[0]
+                            run_reg[rule+tuple(self.irf)][ind_dic][ds][entr] \
+                                = run_reg[rule+tuple(self.irf)][ind_dic][ds][entr] / \
+                                    self.Df[ind_dic]['space_remaining'].shape[0]
+                        else:
+                            run_wind[rule+tuple(self.irf)][ind_dic][ds][entr] = 0.0
+                            run_reg[rule+tuple(self.irf)][ind_dic][ds][entr] = 0.0
         
         # Return windfall and regret data
         return windreg, run_wind, run_reg
     
     
-    
-    
-    
-    
-    
     def quantRisk(self, run_wind, run_reg, wr):
+        
+        # ONLY NEED TVE...COULD CONSIDER A QUANTRISK1 AND QUANTRISK2 W/TVE OR DTVE...OR PLOT BOTH HERE AND THEN HAVE PLOTS TO EXPERIMENT WITH WHICH IS BETTER
         
         ris = 0
         
@@ -372,13 +398,12 @@ class entropyTracker:
     
     
     def plotWindRegret():
+        # subplots of both the tve and dtve values right next to each other
         
         
         
         
         return
-    
-    
     
     
     
