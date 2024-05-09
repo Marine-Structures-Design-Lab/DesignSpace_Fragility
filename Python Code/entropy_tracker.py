@@ -65,7 +65,7 @@ def timeHistory(Discips_fragility):
     for i, discip in enumerate(Discips_fragility):
         
         # Loop over each row in the space remaining array
-        for j in range(0, discip['space_remaining'].shape[0]):
+        for _ in range(0, discip['space_remaining'].shape[0]):
             
             # Append an empty numpy array to the inner list
             passfail_frag[i].append(np.array([]))
@@ -74,6 +74,10 @@ def timeHistory(Discips_fragility):
     return passfail_frag
 
 
+
+
+# THIS FUNCTION NEEDS TO HAVE SOME SORT OF SHAREDINDICES OR SOMETHING...SO
+# THAT ONLY THE PROPER PF_OLD NUMPY ARRAY KEYS ARE BEING ASSIGNED TO PF_NEW
 def reassignPF(pf_old, pf_new):
     
     # Sort the old passfail keys by their time values
@@ -312,7 +316,7 @@ class entropyTracker:
     
     
     
-    def calcWindRegret(self, passfail, TVE, DTVE):
+    def calcWindRegret(self, passfail, TVE, DTVE, pf_fragility):
         
         # Initialize empty dictionaries
         windreg, run_wind, run_reg = initializeWR(self.irf, passfail)
@@ -332,7 +336,7 @@ class entropyTracker:
                     
                     # Gather windfall and regret potentials
                     wr, r_wind, r_reg = assignWR(tve, dtve, ind_pf, 
-                        indices_in_both, dic['non_reduced'][ind_pf])
+                        indices_in_both, pf_fragility[ind_dic][ind_pf])
                     
                     # Loop through each entropy dictionary in wr
                     for ds, entropies in wr.items():
