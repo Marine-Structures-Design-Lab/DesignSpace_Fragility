@@ -387,13 +387,80 @@ class entropyTracker:
         return windreg, run_wind, run_reg
     
     
-    def quantRisk(self, run_wind, run_reg, wr):
+    def quantRisk(self, run_wind, run_reg, windreg):
         
-        # ONLY NEED TVE...COULD CONSIDER A QUANTRISK1 AND QUANTRISK2 W/TVE OR DTVE...OR PLOT BOTH HERE AND THEN HAVE PLOTS TO EXPERIMENT WITH WHICH IS BETTER
+        # Initialize empty dictionary
+        risk = {}
         
-        ris = 0
-        
-        return ris
+        # Loop through each new rule (set) being proposed
+        for rule, lis in run_wind.items():
+            
+            # Add empty list to dictionary
+            risk[rule] = []
+            
+            # Print rule (set) being considered
+            print(f"For the rule set {str(rule)}...")
+            
+            # Loop through each discipline's regret and windfall data
+            for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], 
+                                                              run_wind[rule])):
+                
+                # Calculate non-reduced and reduced percentages
+                nrp = round((windreg[rule][ind_dic]['non_reduced']['TVE'].shape[0] / \
+                    self.Df[ind_dic]['tp_actual'])*100, 2)
+                rp = round((windreg[rule][ind_dic]['reduced']['TVE'].shape[0] / \
+                    self.Df[ind_dic]['tp_actual'])*100, 2)
+                
+                ########## Space Remaining ##########
+                # Print percent of space that would remain in discipline
+                print(f"Discipline {ind_dic+1} would go from {nrp}% to {rp}% "
+                      f"of its original design space remaining!")
+                
+                
+                ########## Regret and Windfall ##########
+                
+                # Create an empty dictionary for regret and windfall tracking
+                risk[rule].append({
+                    "regret" : None, 
+                    "windfall" : None
+                    })
+                
+                
+                ########## Regret ##########
+                
+                # Calculate the potential for regret for the space reduction
+                ### + value indicates added potential for regret
+                ### - value indicates reduced potential for regret
+                if abs(reg_dic['non_reduced']['TVE']) < 1e-10: 
+                    reg_dic['non_reduced']['TVE'] +=1e-10
+                reg_value = reg_dic['reduced']['TVE'] / reg_dic['non_reduced']['TVE'] - 1
+                
+                # Print the potential for regret results of space reduction
+                print(f"Discipline {ind_dic+1} has {round(reg_value, 2)} added"
+                      f" potential for regret.")
+                
+                # Replace regret value in risk dictionary
+                risk[rule][ind_dic]['regret'] = reg_value
+                
+                
+                ########## Windfall ##########
+                
+                # Calculate the potential for windfall for the space reduction
+                ### + value indicates added potential for windfall
+                ### - value indicates reduced potential for windfall
+                if abs(wind_dic['non_reduced']['TVE']) < 1e-10: 
+                    wind_dic['non_reduced']['TVE']+=1e-10
+                wind_value = wind_dic['reduced']['TVE'] / wind_dic['non_reduced']['TVE'] - 1
+                
+                # Print the potential for windfal results of space reduction
+                print(f"Discipline {ind_dic+1} has {round(wind_value, 2)} "
+                      f"added potential for windfall.")
+                
+                # Replace windfall value in risk dictionary
+                risk[rule][ind_dic]['windfall'] = wind_value
+                
+        # Return the dictionary for risk tracking
+        return risk
     
     
     
