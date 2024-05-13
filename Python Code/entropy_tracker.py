@@ -89,10 +89,7 @@ def reassignPF(pf_old, pf_new):
         # Loop through each discipline
         for i, discip in enumerate(pf_old[time]):
             
-            # GET THE INDEX OF THE INTEGER IN EACH TIME STAMP
-            # APPEND VALUE FROM THAT INDEX 
-            
-            # Loop through discipline's passfail data at the time stamp - Fix this to loop through list of old indices that are still availalbe
+            # Loop through discipline's passfail data at the current time stamp!!!!!!!!!!!!!!
             for index, value in enumerate(discip):
                 
                 # Append the data to the proper index in new passfail list
