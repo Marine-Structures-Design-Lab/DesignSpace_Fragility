@@ -171,6 +171,7 @@ def elimDicts(discipline):
                       'pass?',
                       'Pass_Amount',
                       'space_remaining',
+                      'space_remaining_ind',
                       'tested_ins',
                       'tested_outs']
     
@@ -178,7 +179,7 @@ def elimDicts(discipline):
     for key in keys_to_create:
         
         # Create an empty list for particular key
-        if key == 'pass?':
+        if key in ['pass?', 'space_remaining_ind']:
             discipline['eliminated'] = createKey(key, discipline['eliminated'])
             
         # Create 2D numpy array for the particular keys
@@ -239,7 +240,8 @@ def testPoints(discipline, var, rule):
     sr_elim = checkPoints(discipline, rule, var, 'space_remaining')
     
     # Move indices with failing space remaining values to eliminated dictionary
-    discipline = updatePoints(discipline, sr_elim, ['space_remaining'])
+    discipline = updatePoints(discipline, sr_elim, ['space_remaining', 
+                                                    'space_remaining_ind'])
     
     # Return the discipline with the (potentially updated) eliminated keys
     return discipline

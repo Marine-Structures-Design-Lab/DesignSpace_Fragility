@@ -56,6 +56,12 @@ def uniformGrid(total_points, ndims):
     
     # Reshape and stack to create a single array of points
     points = np.vstack([np.ravel(g) for g in grid]).T
+    
+    # Calculate the number of points actually created
+    num_points = points.shape[0]
 
-    # Return the array of points and actual number of points created
-    return points, points.shape[0]
+    # Generate the 1D list of integers
+    index_list = np.arange(num_points).tolist()
+
+    # Return the array of points, actual number of points, and the index list
+    return points, num_points, index_list

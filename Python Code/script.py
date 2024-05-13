@@ -195,8 +195,9 @@ for i in range(0,len(Discips)):
     Discips[i]['force_reduction'] = [False, 0]
     
     # Initialize an array for estimating the space remaining for the discipline
-    Discips[i]['space_remaining'], Discips[i]['tp_actual'] = \
-        uniformGrid(total_points, len(Discips[i]['ins']))
+    Discips[i]['space_remaining'], Discips[i]['tp_actual'], \
+        Discips[i]['space_remaining_ind'] = uniformGrid(total_points, 
+                                                        len(Discips[i]['ins']))
         
     # Collect space remaining information for the discipline
     Space_Remaining[i].append({
@@ -552,6 +553,7 @@ while iters <= iters_max:
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     for i, discip in enumerate(Discips):
         pf[None][i]['non_reduced'], _ = getPerceptions(discip, gpr_params)
+        pf[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
     

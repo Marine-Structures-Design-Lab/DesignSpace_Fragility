@@ -20,7 +20,7 @@ from windfall_regret import getIndices
 """
 FUNCTION
 """
-def initializePF(passfail):
+def initializePF(passfail, Discips_fragility):
     
     # Initialize dictionary of passfail predictions
     passfail_frag = {}
@@ -37,7 +37,7 @@ def initializePF(passfail):
         # Loop through each discipline's data
         for discip in data[None]:
             
-            # Append discipline's data to the list
+            # Append discipline's data to the list - only append indices that still exist?
             passfail_frag[data['time']].append(discip['non_reduced'])
     
     # Identify the smallest key in the dictionary
@@ -89,7 +89,10 @@ def reassignPF(pf_old, pf_new):
         # Loop through each discipline
         for i, discip in enumerate(pf_old[time]):
             
-            # Loop through discipline's passfail data at the time stamp
+            # GET THE INDEX OF THE INTEGER IN EACH TIME STAMP
+            # APPEND VALUE FROM THAT INDEX 
+            
+            # Loop through discipline's passfail data at the time stamp - Fix this to loop through list of old indices that are still availalbe
             for index, value in enumerate(discip):
                 
                 # Append the data to the proper index in new passfail list
@@ -259,7 +262,7 @@ class entropyTracker:
     def prepEntropy(self):
         
         # Initialize an empty dictionary for consolidated passfail data
-        passfail_frag1 = initializePF(self.pf)
+        passfail_frag1 = initializePF(self.pf, self.Df)
         
         # Initalize a list for time history of passfail values
         passfail_frag2 = timeHistory(self.Df)
