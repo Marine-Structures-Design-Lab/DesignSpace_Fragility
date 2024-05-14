@@ -119,6 +119,16 @@ def reassignPF(pf_old, pf_new):
     return pf_new
 
 
+def min_max_normalize(data):
+    if not data:  # handle empty data scenarios
+        return []
+    min_val = min(data)
+    max_val = max(data)
+    if max_val == min_val:  # avoid division by zero if all values are the same
+        return [0] * len(data)  # or return any constant array
+    return [(x - min_val) / (max_val - min_val) for x in data]
+
+
 def initializeWR(irf, passfail):
     """
     Description
@@ -330,8 +340,13 @@ class entropyTracker:
                 
                 # Append the DTVE value to the inner DTVE list
                 DTVE[i].append(dtve)
+            
+            # Normalize TVE and DTVE for the current discipline
+            TVE[i] = min_max_normalize(TVE[i])
+            DTVE[i] = min_max_normalize(DTVE[i])
+            
         
-        # Return TVE and DTVE values for each design point in non-reduced space remaining
+        # Return normalized TVE and DTVE values for each design point in non-reduced space remaining
         return TVE, DTVE
     
     
