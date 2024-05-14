@@ -22,6 +22,27 @@ FUNCTION
 """
 def initializePF(passfail, Discips_fragility):
     
+    # Initialize a small maximum time integer
+    max_time = 0
+    
+    # Initialize an index in the pass-fail list
+    index_dict = 0
+    
+    # Loop through each instance of gathered pass-fail data
+    for i, data in enumerate(passfail):
+        
+        # Continue to next set of data if dictionary key is not None
+        if None not in data: continue
+    
+        # Check if new time is larger than current benchmark
+        if data['time'] > max_time:
+            
+            # Set new index to current one in the loop
+            index_dict = i
+            
+            # Reset max_time to new maximum value
+            max_time = data['time']
+
     # Initialize dictionary of passfail predictions
     passfail_frag = {}
     
@@ -35,10 +56,13 @@ def initializePF(passfail, Discips_fragility):
         passfail_frag[data['time']] = []
         
         # Loop through each discipline's data
-        for discip in data[None]:
+        for i, discip in enumerate(data[None]):
             
-            # Append discipline's data to the list - only append indices that still exist?
-            passfail_frag[data['time']].append(discip['non_reduced'])
+            # Find indices of remaining potential design solutions
+            indices = [discip['indices'].index(x) for x in passfail[index_dict][None][i]['indices']]
+            
+            # Append discipline's data to the list for remaining potential design solutions
+            passfail_frag[data['time']].append(discip['non_reduced'][indices])
     
     # Identify the smallest key in the dictionary
     min_key = min(passfail_frag.keys())
@@ -74,10 +98,6 @@ def timeHistory(Discips_fragility):
     return passfail_frag
 
 
-
-
-# THIS FUNCTION NEEDS TO HAVE SOME SORT OF SHAREDINDICES OR SOMETHING...SO
-# THAT ONLY THE PROPER PF_OLD NUMPY ARRAY KEYS ARE BEING ASSIGNED TO PF_NEW
 def reassignPF(pf_old, pf_new):
     
     # Sort the old passfail keys by their time values
@@ -86,10 +106,10 @@ def reassignPF(pf_old, pf_new):
     # Loop through the list of sorted keys
     for time in sorted_keys:
         
-        # Loop through each discipline
+        # Loop through each discipline at the current time stamp
         for i, discip in enumerate(pf_old[time]):
             
-            # Loop through discipline's passfail data at the current time stamp!!!!!!!!!!!!!!
+            # Loop through discipline's passfail data
             for index, value in enumerate(discip):
                 
                 # Append the data to the proper index in new passfail list
