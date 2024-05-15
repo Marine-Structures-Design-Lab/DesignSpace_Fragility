@@ -314,11 +314,8 @@ class entropyTracker:
             # Loop through each history of data points' passfail predictions
             for index in discip:
                 
-                # Determine equal probability for each passfail prediction
-                prob = 1 / len(index)
-                
                 # Create a scalar distribution for the data
-                dist = ScalarDistribution({value: prob for value in index})
+                dist = ScalarDistribution(index, [1.0/len(index)]*len(index))
                 
                 # Calculate the TVE value
                 tve = gcre(dist)
@@ -329,11 +326,8 @@ class entropyTracker:
                 # Calculate the difference between consecutive predictions
                 diffs = np.diff(index)
                 
-                # Determine new equal probability for each passfail prediction
-                prob = 1 / len(diffs)
-                
                 # Create a scalar distribution for the difference data
-                dist = ScalarDistribution({value: prob for value in diffs})
+                dist = ScalarDistribution(diffs, [1.0/len(diffs)]*len(diffs))
                 
                 # Calculate the DTVE value
                 dtve = gcre(dist)
