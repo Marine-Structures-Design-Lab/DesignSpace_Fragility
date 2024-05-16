@@ -73,7 +73,7 @@ class fragilityCommands:
         ris = entropytrack.quantRisk(run_wind, run_reg, wr)
         
         # Return the entropy-based fragility results
-        return wr, run_wind, run_reg, ris, passfail_frag, TVE, DTVE
+        return wr, run_wind, run_reg, ris
     
     
     def assessRisk(self, ris, iters, iters_max, exp_parameters, irules_new, 
