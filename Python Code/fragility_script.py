@@ -23,13 +23,14 @@ CLASS
 class fragilityCommands:
     
     def __init__(self, Discips_fragility, irules_fragility, pf_combos,
-                 pf_fragility, pf_std_fragility, passfail):
+                 pf_fragility, pf_std_fragility, passfail, passfail_std):
         self.Df = Discips_fragility
         self.irf = irules_fragility
         self.pf_combos = pf_combos
         self.pf_frag = pf_fragility
         self.pf_std_frag = pf_std_fragility
         self.pf = passfail
+        self.pf_std = passfail_std
         return
     
     
@@ -54,13 +55,13 @@ class fragilityCommands:
     def EFM(self):
         
         # Initialize an entropy tracking object
-        entropytrack = entropyTracker(self.pf, self.Df, self.irf)
+        entropytrack = entropyTracker(self.pf, self.pf_std, self.Df, self.irf)
         
         # Organize the history of recorded pass-fail data in non-reduced space
-        passfail_frag = entropytrack.prepEntropy()
+        passfail_frag, passfail_std_frag = entropytrack.prepEntropy()
         
         # Evaluate the TVE and DTVE throughout remaining design spaces
-        TVE, DTVE = entropytrack.evalEntropy(passfail_frag)
+        TVE, DTVE = entropytrack.evalEntropy(passfail_frag, passfail_std_frag)
         
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = entropytrack.calcWindRegret(self.pf_combos, 

@@ -86,7 +86,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -422,7 +422,7 @@ while iters <= iters_max:
                 # Initialize fragility assessment object
                 fragnalysis = fragilityCommands(Discips_fragility, 
                     irules_fragility, pf_combos, pf_fragility,
-                    pf_std_fragility, passfail)
+                    pf_std_fragility, passfail, passfail_std)
                 
                 # Perform desired fragility assessment
                 wr, run_wind, run_reg, ris = \
@@ -549,13 +549,17 @@ while iters <= iters_max:
     # Increase the time count
     iters += temp_amount
     
-    # Form pass-fail predictions for remaining design space with new points - DO THIS GRADUALLY FOR EACH NEW POINT!!!
+    # Form pass-fail predictions for remaining design space with new points
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
+    pf_std = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     for i, discip in enumerate(Discips):
-        pf[None][i]['non_reduced'], _ = getPerceptions(discip, gpr_params)
+        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = getPerceptions(discip, gpr_params)
         pf[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
+        pf_std[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
+    passfail_std.append(copy.deepcopy(pf_std))
+    passfail_std[-1]['time'] = iters
     
     # Reset the just explore value to False
     just_explore = False

@@ -20,7 +20,7 @@ from windfall_regret import getIndices
 """
 FUNCTION
 """
-def initializePF(passfail, Discips_fragility):
+def initializePF(passfail, Discips_fragility, mean_or_std):
     
     # Initialize a small maximum time integer
     max_time = 0
@@ -70,8 +70,16 @@ def initializePF(passfail, Discips_fragility):
     # Get the list of numpy arrays from the smallest key
     arrays = passfail_frag[min_key]
     
-    # Create numpy arrays of zeros with matching sizes to smallest key
-    new_arrays = [np.zeros_like(array) for array in arrays]
+    # Check if dealing with mean assignment or standard deviation assignment
+    if mean_or_std == 'mean':
+        
+        # Create numpy arrays of zeros with matching sizes to smallest key
+        new_arrays = [np.zeros_like(array) for array in arrays]
+    
+    else:
+        
+        # Create numpy arrays of proper standard deviation for uniform distribution between -1 to 1
+        new_arrays = [np.full_like(array, 1.0/np.sqrt(3.0)) for array in arrays]
     
     # Add list of arrays to dictionary under key 0
     passfail_frag[0] = new_arrays
@@ -279,8 +287,9 @@ CLASS
 """
 class entropyTracker:
     
-    def __init__(self, passfail, Discips_fragility, irules_fragility):
+    def __init__(self, passfail, passfail_std, Discips_fragility, irules_fragility):
         self.pf = passfail
+        self.pf_std = passfail_std
         self.Df = Discips_fragility
         self.irf = irules_fragility
         return
@@ -289,33 +298,41 @@ class entropyTracker:
     def prepEntropy(self):
         
         # Initialize an empty dictionary for consolidated passfail data
-        passfail_frag1 = initializePF(self.pf, self.Df)
+        passfail_frag1 = initializePF(self.pf, self.Df, 'mean')
+        passfail_std_frag1 = initializePF(self.pf_std, self.Df, 'std')
         
         # Initalize a list for time history of passfail values
         passfail_frag2 = timeHistory(self.Df)
+        passfail_std_frag2 = timeHistory(self.Df)
         
         # Populate list with time history of passfail values
         passfail_frag2 = reassignPF(passfail_frag1, passfail_frag2)
+        passfail_std_frag2 = reassignPF(passfail_std_frag1, passfail_std_frag2)
         
         # Return each discipline's time history of passfail predictions for 
         # remaining design solutions in non-reduced design space
-        return passfail_frag2
+        return passfail_frag2, passfail_std_frag2
     
     
-    def evalEntropy(self, passfail_frag):
+    def evalEntropy(self, passfail_frag, passfail_std_frag):
         
         # Initialize empty TVE and DTVE lists
         TVE = [[] for _ in passfail_frag]
         DTVE = [[] for _ in passfail_frag]
         
         # Loop through each discipline
-        for i, discip in enumerate(passfail_frag):
+        for i, (discip_pf, discip_pf_std) in enumerate(zip(passfail_frag, passfail_std_frag)):
             
             # Loop through each history of data points' passfail predictions
-            for index in discip:
+            for j, (index_pf, index_pf_std) in enumerate(zip(discip_pf, discip_pf_std)):
+                
+                # Create probability array from standard deviations
+                total_sum = np.sum(1.0 / index_pf_std)
+                index_pf_std = (1.0 / index_pf_std) / total_sum
                 
                 # Create a scalar distribution for the data
-                dist = ScalarDistribution(index, [1.0/len(index)]*len(index))
+                dist = ScalarDistribution(index_pf, index_pf_std)
+                if j == 0: print(dist)
                 
                 # Calculate the TVE value
                 tve = gcre(dist)
@@ -323,8 +340,8 @@ class entropyTracker:
                 # Append the TVE value to the inner TVE list
                 TVE[i].append(tve)
                 
-                # Calculate the difference between consecutive predictions
-                diffs = np.diff(index)
+                # Calculate the difference between consecutive predictions ------NEED TO DO SOMETHING SIMILAR FOR DTVE USING STANDARD DEVIATIONS!
+                diffs = np.diff(index_pf)
                 
                 # Create a scalar distribution for the difference data
                 dist = ScalarDistribution(diffs, [1.0/len(diffs)]*len(diffs))

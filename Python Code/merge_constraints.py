@@ -375,8 +375,36 @@ def getPerceptions(discip, gpr_params):
         pf_mean = np.empty(0)
         pf_std = np.empty(0)
     
-    # Return the predicted data
-    return pf_mean, pf_std
+    # Separate negative and positive predictions
+    neg_predictions = pf_mean[pf_mean < 0.0]
+    pos_predictions = pf_mean[pf_mean >= 0.0]
+    
+    # Normalize negative predictions to be between -1 and 0
+    min_neg = np.min(neg_predictions)
+    max_neg = np.max(neg_predictions)
+    normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / (max_neg - min_neg))
+    
+    # Normalize positive predictions to be between 0 and 1
+    min_pos = np.min(pos_predictions)
+    max_pos = np.max(pos_predictions)
+    normalized_pos_predictions = (pos_predictions - min_pos) / (max_pos - min_pos)
+    
+    # Combine normalized predictions
+    normalized_predictions = np.zeros_like(pf_mean)
+    normalized_predictions[pf_mean < 0.0] = normalized_neg_predictions
+    normalized_predictions[pf_mean >= 0.0] = normalized_pos_predictions
+    
+    # Calculate scale factors for standard deviations
+    scale_factor_neg = 1 / (max_neg - min_neg)
+    scale_factor_pos = 1 / (max_pos - min_pos)
+    
+    # Adjust standard deviations proportionally
+    adjusted_std_devs = np.zeros_like(pf_std)
+    adjusted_std_devs[pf_mean < 0.0] = pf_std[pf_mean < 0.0] * scale_factor_neg
+    adjusted_std_devs[pf_mean >= 0.0] = pf_std[pf_mean >= 0.0] * scale_factor_pos
+    
+    # Return the normalized predicted data
+    return normalized_predictions, adjusted_std_devs
 
 
 def getPredictions(discip, rule, pf_mean, pf_std):
