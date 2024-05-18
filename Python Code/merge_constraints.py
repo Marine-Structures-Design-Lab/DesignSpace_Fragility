@@ -379,7 +379,7 @@ def getPerceptions(discip, gpr_params):
     neg_predictions = pf_mean[pf_mean < 0.0]
     pos_predictions = pf_mean[pf_mean >= 0.0]
     
-    # Normalize negative predictions to be between -1 and 0
+    # Normalize negative predictions to be between -1 and 0 - FIX BUGS HERE FOR WHEN NEG OR POS_PREDICTIONS IS A ZERO SIZE ARRAY!!!!
     min_neg = np.min(neg_predictions)
     max_neg = np.max(neg_predictions)
     normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / (max_neg - min_neg))

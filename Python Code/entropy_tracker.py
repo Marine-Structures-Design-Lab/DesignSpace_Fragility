@@ -332,7 +332,6 @@ class entropyTracker:
                 
                 # Create a scalar distribution for the data
                 dist = ScalarDistribution(index_pf, index_pf_std)
-                if j == 0: print(dist)
                 
                 # Calculate the TVE value
                 tve = gcre(dist)
