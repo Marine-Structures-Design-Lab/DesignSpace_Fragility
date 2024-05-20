@@ -15,6 +15,7 @@ LIBRARIES
 """
 from exponential_reduction import calcExponential
 import random
+import numpy as np
 
 
 """
@@ -22,15 +23,21 @@ CLASS
 """
 class checkFragility:
     
-    def __init__(self, risk):
+    def __init__(self, risk, Discips_fragility):
         """
         Parameters
         ----------
         risk : Dictionary
             Added potentials for regret and windfall accompanying a set of
             input rule(s) for the current timestamp
+        
+        
+        
+        
+        
         """
         self.risk = risk
+        self.Df = Discips_fragility
         return
     
     
@@ -88,6 +95,45 @@ class checkFragility:
             else: max_risk[rule]["fragile"] = False
         
         # Return results from the basic fragility assessment
+        return max_risk
+    
+    
+    def basicCheck2(self, iters, iters_max, p, scale_weight):
+        
+        # Initialize an empty dictionary for tracking max risk values
+        max_risk = {}
+        
+        # Loop through each new rule combination
+        for rule, lis in self.risk.items():
+            
+            # Initialize a max dictionary with a false fragile value
+            max_risk[rule] = {"fragile": False}
+            
+            # Loop through each discipline's regret and windfall values
+            for ind_dic, dic in enumerate(lis):
+                
+                # Establish maximum fragility threshold
+                threshold = scale_weight * \
+                    ((self.Df[ind_dic]['space_remaining'].shape[0]/self.Df[ind_dic]['tp_actual']) / \
+                     (1-calcExponential(iters/iters_max, p))) * \
+                     (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
+                
+                # Subtract windfall from regret
+                net_risk = dic['regret'] - dic['windfall']
+                
+                # Gather information for discipline
+                max_risk[rule][ind_dic] = {
+                    'value': net_risk,
+                    'threshold': threshold
+                }
+                
+                # Check if added risk exceeds maximum threshold
+                if net_risk > threshold:
+                    
+                    # Set fragile tracker to true for the rule
+                    max_risk[rule]['fragile'] = True
+        
+        # Return results from the fragility assessment
         return max_risk
     
     

@@ -82,11 +82,14 @@ class fragilityCommands:
                    running_windfall, run_wind, running_regret, run_reg, risk):
         
         # Initialize a fragility check object
-        fragile = checkFragility(ris)
+        fragile = checkFragility(ris, self.Df)
         
         # Execute fragility assessment
-        net_wr = fragile.basicCheck(iters, iters_max, exp_parameters, 
+        net_wr = fragile.basicCheck2(iters, iters_max, exp_parameters, 
                                     fragility_shift)
+        
+        # Print results of fragility assessment
+        print(f"Fragility assessment: {net_wr}")
         
         # Indicate that the fragility loop should not be broken
         break_loop = False
