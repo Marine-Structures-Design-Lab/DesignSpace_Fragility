@@ -1,0 +1,2099 @@
+Individually proposed input rules: []
+Universally proposed input rules: []
+
+Current Exploration Time: 40, Total Exploration Time: 40
+Individually proposed input rules: []
+Universally proposed input rules: []
+
+Current Exploration Time: 28, Total Exploration Time: 68
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.669379085302353]
+Opinions: {x3 <= 0.669379085302353: array([0.72529157, 0.95103973,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.441107422113419) | (x2 > 0.179403625428677), x3 <= 0.669379085302353]
+Opinions: {(x3 <= 0.441107422113419) | (x2 > 0.179403625428677): array([0.89807823,        nan,        nan]), x3 <= 0.669379085302353: array([0.72529157, 0.95103973,        nan])}
+Universally proposed input rules: [(x3 <= 0.441107422113419) | (x2 > 0.179403625428677)]
+For the rule set ((x3 <= 0.441107422113419) | (x2 > 0.179403625428677),)...
+Discipline 1 would go from 100.0% to 90.08% of its original design space remaining!
+Discipline 1 has 0.12 added potential for regret.
+Discipline 1 has -0.16 added potential for windfall.
+Discipline 2 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.441107422113419) | (x2 > 0.179403625428677),): {'fragile': False, 0: {'value': 0.2792116098199481, 'threshold': 0.6525230100243652}, 1: {'value': 0.0, 'threshold': 0.6525230100243652}, 2: {'value': 0.0, 'threshold': 0.6525230100243652}}}
+Final input rules after fragility check: [(x3 <= 0.441107422113419) | (x2 > 0.179403625428677)]
+Individually proposed input rules: [x3 <= 0.669379085302353]
+Opinions: {x3 <= 0.669379085302353: array([0.70686915, 0.95103973,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.669379085302353]
+Opinions: {x3 <= 0.669379085302353: array([0.70686915, 0.95103973,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.669379085302353, x5 > 0.205344900488853]
+Opinions: {x3 <= 0.669379085302353: array([0.70686915, 0.95103973,        nan]), x5 > 0.205344900488853: array([       nan, 0.84912801, 0.96922733])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.669379085302353, x5 > 0.205344900488853]
+Opinions: {x3 <= 0.669379085302353: array([0.70686915, 0.95103973,        nan]), x5 > 0.205344900488853: array([       nan, 0.84912801, 0.96922733])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.626126497983932, x5 > 0.205344900488853]
+Opinions: {x3 <= 0.626126497983932: array([0.67485442, 0.95076126,        nan]), x5 > 0.205344900488853: array([       nan, 0.84912801, 0.96922733])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.626126497983932, x5 > 0.205344900488853]
+Opinions: {x3 <= 0.626126497983932: array([0.67485442, 0.95076126,        nan]), x5 > 0.205344900488853: array([       nan, 0.84912801, 0.96922733])}
+Universally proposed input rules: [x5 > 0.205344900488853]
+For the rule set (x5 > 0.205344900488853, (x3 <= 0.441107422113419) | (x2 > 0.179403625428677))...
+Discipline 1 would go from 100.0% to 90.08% of its original design space remaining!
+Discipline 1 has 0.12 added potential for regret.
+Discipline 1 has -0.16 added potential for windfall.
+Discipline 2 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 2 has 5.05 added potential for regret.
+Discipline 2 has -0.24 added potential for windfall.
+Discipline 3 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 3 has 0.83 added potential for regret.
+Discipline 3 has -0.47 added potential for windfall.
+Fragility assessment: {(x5 > 0.205344900488853, (x3 <= 0.441107422113419) | (x2 > 0.179403625428677)): {'fragile': True, 0: {'value': 0.2792116098199481, 'threshold': 0.6525230100243652}, 1: {'value': 5.293226483972996, 'threshold': 0.6525230100243652}, 2: {'value': 1.302200778872596, 'threshold': 0.6525230100243652}}}
+Final input rules after fragility check: []
+Individually proposed input rules: [x3 <= 0.626126497983932, (x6 <= 0.467682674527168) | (x5 > 0.279752805829048)]
+Opinions: {x3 <= 0.626126497983932: array([0.67485442, 0.95076126,        nan]), (x6 <= 0.467682674527168) | (x5 > 0.279752805829048): array([       nan,        nan, 0.96765846])}
+Universally proposed input rules: [(x6 <= 0.467682674527168) | (x5 > 0.279752805829048)]
+For the rule set ((x6 <= 0.467682674527168) | (x5 > 0.279752805829048), (x3 <= 0.441107422113419) | (x2 > 0.179403625428677))...
+Discipline 1 would go from 100.0% to 90.08% of its original design space remaining!
+Discipline 1 has 0.12 added potential for regret.
+Discipline 1 has -0.16 added potential for windfall.
+Discipline 2 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 100.0% to 85.12% of its original design space remaining!
+Discipline 3 has 0.5 added potential for regret.
+Discipline 3 has -0.28 added potential for windfall.
+Fragility assessment: {((x6 <= 0.467682674527168) | (x5 > 0.279752805829048), (x3 <= 0.441107422113419) | (x2 > 0.179403625428677)): {'fragile': True, 0: {'value': 0.2792116098199481, 'threshold': 0.6525230100243652}, 1: {'value': 0.0, 'threshold': 0.6525230100243652}, 2: {'value': 0.7803511049668124, 'threshold': 0.6525230100243652}}}
+Final input rules after fragility check: []
+Individually proposed input rules: [x3 <= 0.626126497983932]
+Opinions: {x3 <= 0.626126497983932: array([0.67485442, 0.95076126,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.626126497983932]
+Opinions: {x3 <= 0.626126497983932: array([0.67485442, 0.95076126,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.626126497983932]
+Opinions: {x3 <= 0.626126497983932: array([0.67485442, 0.95076126,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.293753325939178) | (x5 <= 0.41938516497612), x5 > 0.289430648088455]
+Opinions: {(x3 <= 0.293753325939178) | (x5 <= 0.41938516497612): array([       nan, 0.90758234,        nan]), x5 > 0.289430648088455: array([       nan, 0.80169727, 0.96547562])}
+Universally proposed input rules: [(x3 <= 0.293753325939178) | (x5 <= 0.41938516497612)]
+For the rule set ((x3 <= 0.293753325939178) | (x5 <= 0.41938516497612), (x3 <= 0.441107422113419) | (x2 > 0.179403625428677))...
+Discipline 1 would go from 100.0% to 90.08% of its original design space remaining!
+Discipline 1 has 0.12 added potential for regret.
+Discipline 1 has -0.16 added potential for windfall.
+Discipline 2 would go from 100.0% to 59.71% of its original design space remaining!
+Discipline 2 has 9.3 added potential for regret.
+Discipline 2 has -0.45 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.293753325939178) | (x5 <= 0.41938516497612), (x3 <= 0.441107422113419) | (x2 > 0.179403625428677)): {'fragile': True, 0: {'value': 0.2792116098199481, 'threshold': 0.6525230100243652}, 1: {'value': 9.745253753111378, 'threshold': 0.6525230100243652}, 2: {'value': 0.0, 'threshold': 0.6525230100243652}}}
+Final input rules after fragility check: []
+Individually proposed input rules: [x5 > 0.289430648088455]
+Opinions: {x5 > 0.289430648088455: array([       nan, 0.80169727, 0.96547562])}
+Universally proposed input rules: []
+Individually proposed input rules: [x5 > 0.289430648088455]
+Opinions: {x5 > 0.289430648088455: array([       nan, 0.80169727, 0.96547562])}
+Universally proposed input rules: [x5 > 0.289430648088455]
+For the rule set (x5 > 0.289430648088455, (x3 <= 0.441107422113419) | (x2 > 0.179403625428677))...
+Discipline 1 would go from 100.0% to 90.08% of its original design space remaining!
+Discipline 1 has 0.12 added potential for regret.
+Discipline 1 has -0.16 added potential for windfall.
+Discipline 2 would go from 100.0% to 68.18% of its original design space remaining!
+Discipline 2 has 6.37 added potential for regret.
+Discipline 2 has -0.31 added potential for windfall.
+Discipline 3 would go from 100.0% to 68.18% of its original design space remaining!
+Discipline 3 has 1.05 added potential for regret.
+Discipline 3 has -0.59 added potential for windfall.
+Fragility assessment: {(x5 > 0.289430648088455, (x3 <= 0.441107422113419) | (x2 > 0.179403625428677)): {'fragile': True, 0: {'value': 0.2792116098199481, 'threshold': 0.6525230100243652}, 1: {'value': 6.680725201797352, 'threshold': 0.6525230100243652}, 2: {'value': 1.6307801321633248, 'threshold': 0.6525230100243652}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 23, Total Exploration Time: 91
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 > 0.769225299358368): array([       nan, 0.99958708,        nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),)...
+Discipline 1 would go from 90.08% to 90.08% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 75.41% of its original design space remaining!
+Discipline 2 has 6.08 added potential for regret.
+Discipline 2 has -0.43 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.7764911077613255}, 1: {'value': 6.50218589139019, 'threshold': 0.8619763673313797}, 2: {'value': 0.0, 'threshold': 0.8619763673313797}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x4 <= 0.914850980043411]
+Opinions: {x4 <= 0.914850980043411: array([       nan, 0.99862262,        nan])}
+Universally proposed input rules: [x4 <= 0.914850980043411]
+For the rule set (x4 <= 0.914850980043411,)...
+Discipline 1 would go from 90.08% to 90.08% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 90.91% of its original design space remaining!
+Discipline 2 has 1.52 added potential for regret.
+Discipline 2 has -0.11 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {(x4 <= 0.914850980043411,): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.7764911077613255}, 1: {'value': 1.6297251375941846, 'threshold': 0.8619763673313797}, 2: {'value': 0.0, 'threshold': 0.8619763673313797}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x5 > 0.205344900488853]
+Opinions: {x5 > 0.205344900488853: array([       nan, 0.96062102, 0.97384323])}
+Universally proposed input rules: [x5 > 0.205344900488853]
+For the rule set (x5 > 0.205344900488853,)...
+Discipline 1 would go from 90.08% to 90.08% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 2 has 3.41 added potential for regret.
+Discipline 2 has -0.24 added potential for windfall.
+Discipline 3 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 3 has 0.96 added potential for regret.
+Discipline 3 has -0.39 added potential for windfall.
+Fragility assessment: {(x5 > 0.205344900488853,): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.7764911077613255}, 1: {'value': 3.645526341971608, 'threshold': 0.8619763673313797}, 2: {'value': 1.346897254321946, 'threshold': 0.8619763673313797}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.390574812889099) | (x1 > 0.149092845618725), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693), x5 > 0.279752805829048]
+Opinions: {(x3 <= 0.390574812889099) | (x1 > 0.149092845618725): array([0.82905457,        nan,        nan]), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.99870347,        nan]), x5 > 0.279752805829048: array([       nan, 0.94276192, 0.97275511])}
+Universally proposed input rules: [(x3 <= 0.390574812889099) | (x1 > 0.149092845618725), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693), x5 > 0.279752805829048]
+For the rule set ((x3 <= 0.390574812889099) | (x1 > 0.149092845618725), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693), x5 > 0.279752805829048)...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 54.55% of its original design space remaining!
+Discipline 2 has 7.7 added potential for regret.
+Discipline 2 has -0.54 added potential for windfall.
+Discipline 3 would go from 100.0% to 72.73% of its original design space remaining!
+Discipline 3 has 1.11 added potential for regret.
+Discipline 3 has -0.45 added potential for windfall.
+Fragility assessment: {((x3 <= 0.390574812889099) | (x1 > 0.149092845618725), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693), x5 > 0.279752805829048): {'fragile': True, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 8.24160906362428, 'threshold': 0.8619763673313797}, 2: {'value': 1.5612766722024571, 'threshold': 0.8619763673313797}}}
+For the rule set ((x3 <= 0.390574812889099) | (x1 > 0.149092845618725), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693))...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 71.9% of its original design space remaining!
+Discipline 2 has 6.54 added potential for regret.
+Discipline 2 has -0.46 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+For the rule set ((x3 <= 0.390574812889099) | (x1 > 0.149092845618725), x5 > 0.279752805829048)...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 72.73% of its original design space remaining!
+Discipline 2 has 3.87 added potential for regret.
+Discipline 2 has -0.27 added potential for windfall.
+Discipline 3 would go from 100.0% to 72.73% of its original design space remaining!
+Discipline 3 has 1.11 added potential for regret.
+Discipline 3 has -0.45 added potential for windfall.
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693), x5 > 0.279752805829048)...
+Discipline 1 would go from 90.08% to 90.08% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 54.55% of its original design space remaining!
+Discipline 2 has 7.7 added potential for regret.
+Discipline 2 has -0.54 added potential for windfall.
+Discipline 3 would go from 100.0% to 72.73% of its original design space remaining!
+Discipline 3 has 1.11 added potential for regret.
+Discipline 3 has -0.45 added potential for windfall.
+Fragility assessment: {((x3 <= 0.390574812889099) | (x1 > 0.149092845618725), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693)): {'fragile': True, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 7.000811339690846, 'threshold': 0.8619763673313797}, 2: {'value': 0.0, 'threshold': 0.8619763673313797}}, ((x3 <= 0.390574812889099) | (x1 > 0.149092845618725), x5 > 0.279752805829048): {'fragile': True, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 4.14301502402034, 'threshold': 0.8619763673313797}, 2: {'value': 1.5612766722024571, 'threshold': 0.8619763673313797}}, ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693), x5 > 0.279752805829048): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.7764911077613255}, 1: {'value': 8.24160906362428, 'threshold': 0.8619763673313797}, 2: {'value': 1.5612766722024571, 'threshold': 0.8619763673313797}}}
+For the rule set ((x3 <= 0.390574812889099) | (x1 > 0.149092845618725),)...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),)...
+Discipline 1 would go from 90.08% to 90.08% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 71.9% of its original design space remaining!
+Discipline 2 has 6.54 added potential for regret.
+Discipline 2 has -0.46 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+For the rule set (x5 > 0.279752805829048,)...
+Discipline 1 would go from 90.08% to 90.08% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 72.73% of its original design space remaining!
+Discipline 2 has 3.87 added potential for regret.
+Discipline 2 has -0.27 added potential for windfall.
+Discipline 3 would go from 100.0% to 72.73% of its original design space remaining!
+Discipline 3 has 1.11 added potential for regret.
+Discipline 3 has -0.45 added potential for windfall.
+Fragility assessment: {((x3 <= 0.390574812889099) | (x1 > 0.149092845618725),): {'fragile': False, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 0.0, 'threshold': 0.8619763673313797}, 2: {'value': 0.0, 'threshold': 0.8619763673313797}}, ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.7764911077613255}, 1: {'value': 7.000811339690846, 'threshold': 0.8619763673313797}, 2: {'value': 0.0, 'threshold': 0.8619763673313797}}, (x5 > 0.279752805829048,): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.7764911077613255}, 1: {'value': 4.14301502402034, 'threshold': 0.8619763673313797}, 2: {'value': 1.5612766722024571, 'threshold': 0.8619763673313797}}}
+Final input rules after fragility check: [(x3 <= 0.390574812889099) | (x1 > 0.149092845618725)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x4 <= 0.315336018800735) | (x5 <= 0.509366765618324), (x1 > 0.759017080068588) | (x5 > 0.321607306599617)]
+Opinions: {(x4 <= 0.315336018800735) | (x5 <= 0.509366765618324): array([       nan, 0.93949443,        nan]), (x1 > 0.759017080068588) | (x5 > 0.321607306599617): array([       nan,        nan, 0.99827368])}
+Universally proposed input rules: [(x4 <= 0.315336018800735) | (x5 <= 0.509366765618324), (x1 > 0.759017080068588) | (x5 > 0.321607306599617)]
+For the rule set ((x4 <= 0.315336018800735) | (x5 <= 0.509366765618324), (x1 > 0.759017080068588) | (x5 > 0.321607306599617), (x3 <= 0.390574812889099) | (x1 > 0.149092845618725))...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 65.91% of its original design space remaining!
+Discipline 2 has 5.28 added potential for regret.
+Discipline 2 has -0.37 added potential for windfall.
+Discipline 3 would go from 100.0% to 76.86% of its original design space remaining!
+Discipline 3 has 0.82 added potential for regret.
+Discipline 3 has -0.33 added potential for windfall.
+Fragility assessment: {((x4 <= 0.315336018800735) | (x5 <= 0.509366765618324), (x1 > 0.759017080068588) | (x5 > 0.321607306599617), (x3 <= 0.390574812889099) | (x1 > 0.149092845618725)): {'fragile': True, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 5.65160270255779, 'threshold': 0.8619763673313797}, 2: {'value': 1.1438518462313005, 'threshold': 0.8619763673313797}}}
+For the rule set ((x4 <= 0.315336018800735) | (x5 <= 0.509366765618324), (x3 <= 0.390574812889099) | (x1 > 0.149092845618725))...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 65.91% of its original design space remaining!
+Discipline 2 has 5.28 added potential for regret.
+Discipline 2 has -0.37 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+For the rule set ((x1 > 0.759017080068588) | (x5 > 0.321607306599617), (x3 <= 0.390574812889099) | (x1 > 0.149092845618725))...
+Discipline 1 would go from 90.08% to 81.14% of its original design space remaining!
+Discipline 1 has 0.18 added potential for regret.
+Discipline 1 has -0.17 added potential for windfall.
+Discipline 2 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 100.0% to 76.86% of its original design space remaining!
+Discipline 3 has 0.82 added potential for regret.
+Discipline 3 has -0.33 added potential for windfall.
+Fragility assessment: {((x4 <= 0.315336018800735) | (x5 <= 0.509366765618324), (x3 <= 0.390574812889099) | (x1 > 0.149092845618725)): {'fragile': True, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 5.65160270255779, 'threshold': 0.8619763673313797}, 2: {'value': 0.0, 'threshold': 0.8619763673313797}}, ((x1 > 0.759017080068588) | (x5 > 0.321607306599617), (x3 <= 0.390574812889099) | (x1 > 0.149092845618725)): {'fragile': True, 0: {'value': 0.3526536755566211, 'threshold': 0.7764911077613255}, 1: {'value': 0.0, 'threshold': 0.8619763673313797}, 2: {'value': 1.1438518462313005, 'threshold': 0.8619763673313797}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 16, Total Exploration Time: 107
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 > 0.769225299358368): array([       nan, 0.99860066,        nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),)...
+Discipline 1 would go from 81.14% to 81.14% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 75.41% of its original design space remaining!
+Discipline 2 has 4.22 added potential for regret.
+Discipline 2 has -0.42 added potential for windfall.
+Discipline 3 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.8892842338792352}, 1: {'value': 4.640309223692914, 'threshold': 1.0959604771233908}, 2: {'value': 0.0, 'threshold': 1.0959604771233908}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x5 > 0.205344900488853]
+Opinions: {x5 > 0.205344900488853: array([       nan, 0.94915126, 0.97124602])}
+Universally proposed input rules: [x5 > 0.205344900488853]
+For the rule set (x5 > 0.205344900488853,)...
+Discipline 1 would go from 81.14% to 81.14% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 2 has 2.41 added potential for regret.
+Discipline 2 has -0.24 added potential for windfall.
+Discipline 3 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 3 has 0.88 added potential for regret.
+Discipline 3 has -0.37 added potential for windfall.
+Fragility assessment: {(x5 > 0.205344900488853,): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.8892842338792352}, 1: {'value': 2.6551430756103818, 'threshold': 1.0959604771233908}, 2: {'value': 1.251632559251994, 'threshold': 1.0959604771233908}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.672979980707169, (x1 > 0.759017080068588) | (x5 > 0.321607306599617)]
+Opinions: {x3 <= 0.672979980707169: array([0.65669226, 0.99827215,        nan]), (x1 > 0.759017080068588) | (x5 > 0.321607306599617): array([       nan,        nan, 0.99566085])}
+Universally proposed input rules: [(x1 > 0.759017080068588) | (x5 > 0.321607306599617)]
+For the rule set ((x1 > 0.759017080068588) | (x5 > 0.321607306599617),)...
+Discipline 1 would go from 81.14% to 81.14% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 100.0% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 100.0% to 76.86% of its original design space remaining!
+Discipline 3 has 0.74 added potential for regret.
+Discipline 3 has -0.31 added potential for windfall.
+Fragility assessment: {((x1 > 0.759017080068588) | (x5 > 0.321607306599617),): {'fragile': False, 0: {'value': 0.0, 'threshold': 0.8892842338792352}, 1: {'value': 0.0, 'threshold': 1.0959604771233908}, 2: {'value': 1.047088237836387, 'threshold': 1.0959604771233908}}}
+Final input rules after fragility check: [(x1 > 0.759017080068588) | (x5 > 0.321607306599617)]
+Individually proposed input rules: [x3 <= 0.672979980707169]
+Opinions: {x3 <= 0.672979980707169: array([0.65669226, 0.99827215,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.672979980707169]
+Opinions: {x3 <= 0.672979980707169: array([0.65669226, 0.99827215,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.672979980707169]
+Opinions: {x3 <= 0.672979980707169: array([0.65669226, 0.99827215,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.672979980707169]
+Opinions: {x3 <= 0.672979980707169: array([0.65669226, 0.99827215,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 > 0.0455912388861179]
+Opinions: {x3 > 0.0455912388861179: array([0.7865765 , 0.82783483,        nan])}
+Universally proposed input rules: [x3 > 0.0455912388861179]
+For the rule set (x3 > 0.0455912388861179, (x1 > 0.759017080068588) | (x5 > 0.321607306599617))...
+Discipline 1 would go from 81.14% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has -0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 95.45% of its original design space remaining!
+Discipline 2 has 0.36 added potential for regret.
+Discipline 2 has -0.04 added potential for windfall.
+Discipline 3 would go from 100.0% to 76.86% of its original design space remaining!
+Discipline 3 has 0.74 added potential for regret.
+Discipline 3 has -0.31 added potential for windfall.
+Fragility assessment: {(x3 > 0.0455912388861179, (x1 > 0.759017080068588) | (x5 > 0.321607306599617)): {'fragile': False, 0: {'value': 0.001012384988547832, 'threshold': 0.8892842338792352}, 1: {'value': 0.39494063334542406, 'threshold': 1.0959604771233908}, 2: {'value': 1.047088237836387, 'threshold': 1.0959604771233908}}}
+Final input rules after fragility check: [x3 > 0.0455912388861179]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.642941236495972) | (x5 > 0.509366765618324)]
+Opinions: {(x3 <= 0.642941236495972) | (x5 > 0.509366765618324): array([       nan, 0.99653073,        nan])}
+Universally proposed input rules: [(x3 <= 0.642941236495972) | (x5 > 0.509366765618324)]
+For the rule set ((x3 <= 0.642941236495972) | (x5 > 0.509366765618324), (x1 > 0.759017080068588) | (x5 > 0.321607306599617), x3 > 0.0455912388861179)...
+Discipline 1 would go from 81.14% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has -0.0 added potential for windfall.
+Discipline 2 would go from 100.0% to 77.27% of its original design space remaining!
+Discipline 2 has 3.49 added potential for regret.
+Discipline 2 has -0.35 added potential for windfall.
+Discipline 3 would go from 100.0% to 76.86% of its original design space remaining!
+Discipline 3 has 0.74 added potential for regret.
+Discipline 3 has -0.31 added potential for windfall.
+Fragility assessment: {((x3 <= 0.642941236495972) | (x5 > 0.509366765618324), (x1 > 0.759017080068588) | (x5 > 0.321607306599617), x3 > 0.0455912388861179): {'fragile': True, 0: {'value': 0.001012384988547832, 'threshold': 0.8892842338792352}, 1: {'value': 3.8344451691153374, 'threshold': 1.0959604771233908}, 2: {'value': 1.047088237836387, 'threshold': 1.0959604771233908}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 11, Total Exploration Time: 118
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 > 0.769225299358368): array([       nan, 0.98259168,        nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),)...
+Discipline 1 would go from 76.6% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 95.45% to 70.87% of its original design space remaining!
+Discipline 2 has 4.49 added potential for regret.
+Discipline 2 has -0.43 added potential for windfall.
+Discipline 3 would go from 76.86% to 76.86% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0211061312579492}, 1: {'value': 4.917031378868698, 'threshold': 1.2725015593557867}, 2: {'value': 0.0, 'threshold': 1.0246116451955685}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x5 <= 0.279126808047295) | (x5 > 0.439284935593605)]
+Opinions: {(x5 <= 0.279126808047295) | (x5 > 0.439284935593605): array([       nan, 0.81872361, 0.82089834])}
+Universally proposed input rules: [(x5 <= 0.279126808047295) | (x5 > 0.439284935593605)]
+For the rule set ((x5 <= 0.279126808047295) | (x5 > 0.439284935593605),)...
+Discipline 1 would go from 76.6% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 95.45% to 78.1% of its original design space remaining!
+Discipline 2 has 1.1 added potential for regret.
+Discipline 2 has -0.1 added potential for windfall.
+Discipline 3 would go from 76.86% to 61.98% of its original design space remaining!
+Discipline 3 has 0.23 added potential for regret.
+Discipline 3 has -0.19 added potential for windfall.
+Fragility assessment: {((x5 <= 0.279126808047295) | (x5 > 0.439284935593605),): {'fragile': False, 0: {'value': 0.0, 'threshold': 1.0211061312579492}, 1: {'value': 1.2040259746475617, 'threshold': 1.2725015593557867}, 2: {'value': 0.4295036209133831, 'threshold': 1.0246116451955685}}}
+Final input rules after fragility check: [(x5 <= 0.279126808047295) | (x5 > 0.439284935593605)]
+Individually proposed input rules: [(x4 <= 0.835354298353195) | (x5 <= 0.348935797810555), x5 <= 0.761789888143539]
+Opinions: {(x4 <= 0.835354298353195) | (x5 <= 0.348935797810555): array([       nan, 0.99999985,        nan]), x5 <= 0.761789888143539: array([       nan, 0.97529044, 0.54993976])}
+Universally proposed input rules: [(x4 <= 0.835354298353195) | (x5 <= 0.348935797810555), x5 <= 0.761789888143539]
+For the rule set ((x4 <= 0.835354298353195) | (x5 <= 0.348935797810555), x5 <= 0.761789888143539, (x5 <= 0.279126808047295) | (x5 > 0.439284935593605))...
+Discipline 1 would go from 76.6% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 95.45% to 47.33% of its original design space remaining!
+Discipline 2 has 5.09 added potential for regret.
+Discipline 2 has -0.48 added potential for windfall.
+Discipline 3 would go from 76.86% to 34.71% of its original design space remaining!
+Discipline 3 has 0.12 added potential for regret.
+Discipline 3 has -0.1 added potential for windfall.
+Fragility assessment: {((x4 <= 0.835354298353195) | (x5 <= 0.348935797810555), x5 <= 0.761789888143539, (x5 <= 0.279126808047295) | (x5 > 0.439284935593605)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0211061312579492}, 1: {'value': 5.568207153153236, 'threshold': 1.2725015593557867}, 2: {'value': 0.22659233860651518, 'threshold': 1.0246116451955685}}}
+For the rule set ((x4 <= 0.835354298353195) | (x5 <= 0.348935797810555), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605))...
+Discipline 1 would go from 76.6% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 95.45% to 68.63% of its original design space remaining!
+Discipline 2 has 2.35 added potential for regret.
+Discipline 2 has -0.22 added potential for windfall.
+Discipline 3 would go from 76.86% to 61.98% of its original design space remaining!
+Discipline 3 has 0.23 added potential for regret.
+Discipline 3 has -0.19 added potential for windfall.
+For the rule set (x5 <= 0.761789888143539, (x5 <= 0.279126808047295) | (x5 > 0.439284935593605))...
+Discipline 1 would go from 76.6% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 95.45% to 52.07% of its original design space remaining!
+Discipline 2 has 4.53 added potential for regret.
+Discipline 2 has -0.43 added potential for windfall.
+Discipline 3 would go from 76.86% to 34.71% of its original design space remaining!
+Discipline 3 has 0.12 added potential for regret.
+Discipline 3 has -0.1 added potential for windfall.
+Fragility assessment: {((x4 <= 0.835354298353195) | (x5 <= 0.348935797810555), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0211061312579492}, 1: {'value': 2.5774806199952818, 'threshold': 1.2725015593557867}, 2: {'value': 0.4295036209133831, 'threshold': 1.0246116451955685}}, (x5 <= 0.761789888143539, (x5 <= 0.279126808047295) | (x5 > 0.439284935593605)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0211061312579492}, 1: {'value': 4.959315695089515, 'threshold': 1.2725015593557867}, 2: {'value': 0.22659233860651518, 'threshold': 1.0246116451955685}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.31237955391407) | (x1 > 0.507293105125427), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+Opinions: {(x3 <= 0.31237955391407) | (x1 > 0.507293105125427): array([0.6968258,       nan,       nan]), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.97654007,        nan])}
+Universally proposed input rules: [(x3 <= 0.31237955391407) | (x1 > 0.507293105125427), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+For the rule set ((x3 <= 0.31237955391407) | (x1 > 0.507293105125427), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605))...
+Discipline 1 would go from 76.6% to 56.4% of its original design space remaining!
+Discipline 1 has 0.09 added potential for regret.
+Discipline 1 has -0.11 added potential for windfall.
+Discipline 2 would go from 95.45% to 56.61% of its original design space remaining!
+Discipline 2 has 4.92 added potential for regret.
+Discipline 2 has -0.47 added potential for windfall.
+Discipline 3 would go from 76.86% to 61.98% of its original design space remaining!
+Discipline 3 has 0.23 added potential for regret.
+Discipline 3 has -0.19 added potential for windfall.
+Fragility assessment: {((x3 <= 0.31237955391407) | (x1 > 0.507293105125427), (x3 <= 0.631453067064285) | (x5 > 0.776115715503693), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605)): {'fragile': True, 0: {'value': 0.1995809952783565, 'threshold': 1.0211061312579492}, 1: {'value': 5.384589008613025, 'threshold': 1.2725015593557867}, 2: {'value': 0.4295036209133831, 'threshold': 1.0246116451955685}}}
+For the rule set ((x3 <= 0.31237955391407) | (x1 > 0.507293105125427), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605))...
+Discipline 1 would go from 76.6% to 56.4% of its original design space remaining!
+Discipline 1 has 0.09 added potential for regret.
+Discipline 1 has -0.11 added potential for windfall.
+Discipline 2 would go from 95.45% to 78.1% of its original design space remaining!
+Discipline 2 has 1.1 added potential for regret.
+Discipline 2 has -0.1 added potential for windfall.
+Discipline 3 would go from 76.86% to 61.98% of its original design space remaining!
+Discipline 3 has 0.23 added potential for regret.
+Discipline 3 has -0.19 added potential for windfall.
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605))...
+Discipline 1 would go from 76.6% to 76.6% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 95.45% to 56.61% of its original design space remaining!
+Discipline 2 has 4.92 added potential for regret.
+Discipline 2 has -0.47 added potential for windfall.
+Discipline 3 would go from 76.86% to 61.98% of its original design space remaining!
+Discipline 3 has 0.23 added potential for regret.
+Discipline 3 has -0.19 added potential for windfall.
+Fragility assessment: {((x3 <= 0.31237955391407) | (x1 > 0.507293105125427), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605)): {'fragile': False, 0: {'value': 0.1995809952783565, 'threshold': 1.0211061312579492}, 1: {'value': 1.2040259746475617, 'threshold': 1.2725015593557867}, 2: {'value': 0.4295036209133831, 'threshold': 1.0246116451955685}}, ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693), (x5 <= 0.279126808047295) | (x5 > 0.439284935593605)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0211061312579492}, 1: {'value': 5.384589008613025, 'threshold': 1.2725015593557867}, 2: {'value': 0.4295036209133831, 'threshold': 1.0246116451955685}}}
+Final input rules after fragility check: [(x3 <= 0.31237955391407) | (x1 > 0.507293105125427)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 9, Total Exploration Time: 127
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 > 0.769225299358368): array([       nan, 0.82608873,        nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 > 0.769225299358368)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 59.3% of its original design space remaining!
+Discipline 2 has 11.72 added potential for regret.
+Discipline 2 has -0.39 added potential for windfall.
+Discipline 3 would go from 61.98% to 61.98% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 > 0.769225299358368),): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.9045187987677051}, 1: {'value': 12.10951364456157, 'threshold': 1.2524106444475918}, 2: {'value': 0.0, 'threshold': 0.9939767019425333}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+Opinions: {(x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.81812299,        nan])}
+Universally proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 56.61% of its original design space remaining!
+Discipline 2 has 12.66 added potential for regret.
+Discipline 2 has -0.42 added potential for windfall.
+Discipline 3 would go from 61.98% to 61.98% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),): {'fragile': True, 0: {'value': 0.0, 'threshold': 0.9045187987677051}, 1: {'value': 13.073524336731031, 'threshold': 1.2524106444475918}, 2: {'value': 0.0, 'threshold': 0.9939767019425333}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 8, Total Exploration Time: 135
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244): array([       nan, 0.90174639,        nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 60.74% of its original design space remaining!
+Discipline 2 has 8.62 added potential for regret.
+Discipline 2 has -0.35 added potential for windfall.
+Discipline 3 would go from 61.98% to 61.98% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0913550335144686}, 1: {'value': 8.976160873355902, 'threshold': 1.511106969481572}, 2: {'value': 0.0, 'threshold': 1.1992912456202953}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.509366765618324)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 <= 0.509366765618324): array([      nan, 0.9037322,       nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.509366765618324)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 <= 0.509366765618324),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 62.19% of its original design space remaining!
+Discipline 2 has 8.0 added potential for regret.
+Discipline 2 has -0.33 added potential for windfall.
+Discipline 3 would go from 61.98% to 61.98% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 <= 0.509366765618324),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0913550335144686}, 1: {'value': 8.328225654631394, 'threshold': 1.511106969481572}, 2: {'value': 0.0, 'threshold': 1.1992912456202953}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+Opinions: {(x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.84830187,        nan])}
+Universally proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 56.61% of its original design space remaining!
+Discipline 2 has 10.3 added potential for regret.
+Discipline 2 has -0.42 added potential for windfall.
+Discipline 3 would go from 61.98% to 61.98% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.0913550335144686}, 1: {'value': 10.723372519913037, 'threshold': 1.511106969481572}, 2: {'value': 0.0, 'threshold': 1.1992912456202953}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 8, Total Exploration Time: 143
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244): array([       nan, 0.90844476,        nan]), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897): array([       nan,        nan, 0.75733358])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897))...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 60.74% of its original design space remaining!
+Discipline 2 has 7.23 added potential for regret.
+Discipline 2 has -0.36 added potential for windfall.
+Discipline 3 would go from 61.98% to 35.95% of its original design space remaining!
+Discipline 3 has 0.66 added potential for regret.
+Discipline 3 has -0.47 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.3544712650898125}, 1: {'value': 7.583205696903379, 'threshold': 1.8754217516628173}, 2: {'value': 1.1317398356188626, 'threshold': 1.4884299616371568}}}
+For the rule set ((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 60.74% of its original design space remaining!
+Discipline 2 has 7.23 added potential for regret.
+Discipline 2 has -0.36 added potential for windfall.
+Discipline 3 would go from 61.98% to 61.98% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+For the rule set ((x5 <= 0.758809685707092) | (x1 > 0.954939544200897),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 78.1% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 61.98% to 35.95% of its original design space remaining!
+Discipline 3 has 0.66 added potential for regret.
+Discipline 3 has -0.47 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.3544712650898125}, 1: {'value': 7.583205696903379, 'threshold': 1.8754217516628173}, 2: {'value': 0.0, 'threshold': 1.4884299616371568}}, ((x5 <= 0.758809685707092) | (x1 > 0.954939544200897),): {'fragile': False, 0: {'value': 0.0, 'threshold': 1.3544712650898125}, 1: {'value': 0.0, 'threshold': 1.8754217516628173}, 2: {'value': 1.1317398356188626, 'threshold': 1.4884299616371568}}}
+Final input rules after fragility check: [(x5 <= 0.758809685707092) | (x1 > 0.954939544200897)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324)]
+Opinions: {(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324): array([       nan, 0.92483863,        nan])}
+Universally proposed input rules: [(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324)]
+For the rule set ((x4 <= 0.659268379211426) | (x5 <= 0.509366765618324), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897))...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 60.74% of its original design space remaining!
+Discipline 2 has 4.81 added potential for regret.
+Discipline 2 has -0.24 added potential for windfall.
+Discipline 3 would go from 61.98% to 35.95% of its original design space remaining!
+Discipline 3 has 0.66 added potential for regret.
+Discipline 3 has -0.47 added potential for windfall.
+Fragility assessment: {((x4 <= 0.659268379211426) | (x5 <= 0.509366765618324), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.3544712650898125}, 1: {'value': 5.0453056903851445, 'threshold': 1.8754217516628173}, 2: {'value': 1.1317398356188626, 'threshold': 1.4884299616371568}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+Opinions: {(x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.85577425,        nan])}
+Universally proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897))...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 56.61% of its original design space remaining!
+Discipline 2 has 8.62 added potential for regret.
+Discipline 2 has -0.42 added potential for windfall.
+Discipline 3 would go from 61.98% to 35.95% of its original design space remaining!
+Discipline 3 has 0.66 added potential for regret.
+Discipline 3 has -0.47 added potential for windfall.
+Fragility assessment: {((x3 <= 0.631453067064285) | (x5 > 0.776115715503693), (x5 <= 0.758809685707092) | (x1 > 0.954939544200897)): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.3544712650898125}, 1: {'value': 9.045595192578174, 'threshold': 1.8754217516628173}, 2: {'value': 1.1317398356188626, 'threshold': 1.4884299616371568}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 8, Total Exploration Time: 151
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244)]
+Opinions: {(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244): array([       nan, 0.94461015,        nan])}
+Universally proposed input rules: [(x3 <= 0.672979980707169) | (x5 <= 0.362282015383244)]
+For the rule set ((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 60.74% of its original design space remaining!
+Discipline 2 has 6.29 added potential for regret.
+Discipline 2 has -0.35 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.672979980707169) | (x5 <= 0.362282015383244),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.743833575001558}, 1: {'value': 6.646954383476791, 'threshold': 2.4145387961560036}, 2: {'value': 0.0, 'threshold': 1.1114543664845096}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324)]
+Opinions: {(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324): array([       nan, 0.95179356,        nan])}
+Universally proposed input rules: [(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324)]
+For the rule set ((x4 <= 0.659268379211426) | (x5 <= 0.509366765618324),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 60.74% of its original design space remaining!
+Discipline 2 has 4.15 added potential for regret.
+Discipline 2 has -0.23 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x4 <= 0.659268379211426) | (x5 <= 0.509366765618324),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.743833575001558}, 1: {'value': 4.38302529597825, 'threshold': 2.4145387961560036}, 2: {'value': 0.0, 'threshold': 1.1114543664845096}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+Opinions: {(x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.88135232,        nan])}
+Universally proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),)...
+Discipline 1 would go from 56.4% to 56.4% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 56.61% of its original design space remaining!
+Discipline 2 has 7.55 added potential for regret.
+Discipline 2 has -0.43 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.743833575001558}, 1: {'value': 7.9761042649257785, 'threshold': 2.4145387961560036}, 2: {'value': 0.0, 'threshold': 1.1114543664845096}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x1 <= 0.857755184173584) | (x2 > 0.789272606372833)]
+Opinions: {(x1 <= 0.857755184173584) | (x2 > 0.789272606372833): array([0.72570788,        nan,        nan])}
+Universally proposed input rules: [(x1 <= 0.857755184173584) | (x2 > 0.789272606372833)]
+For the rule set ((x1 <= 0.857755184173584) | (x2 > 0.789272606372833),)...
+Discipline 1 would go from 56.4% to 47.7% of its original design space remaining!
+Discipline 1 has 0.07 added potential for regret.
+Discipline 1 has -0.06 added potential for windfall.
+Discipline 2 would go from 78.1% to 78.1% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x1 <= 0.857755184173584) | (x2 > 0.789272606372833),): {'fragile': False, 0: {'value': 0.1299257822863885, 'threshold': 1.743833575001558}, 1: {'value': 0.0, 'threshold': 2.4145387961560036}, 2: {'value': 0.0, 'threshold': 1.1114543664845096}}}
+Final input rules after fragility check: [(x1 <= 0.857755184173584) | (x2 > 0.789272606372833)]
+Individually proposed input rules: [(x2 <= 0.629169464111328) | (x2 > 0.736762464046478)]
+Opinions: {(x2 <= 0.629169464111328) | (x2 > 0.736762464046478): array([0.7669562,       nan,       nan])}
+Universally proposed input rules: [(x2 <= 0.629169464111328) | (x2 > 0.736762464046478)]
+For the rule set ((x2 <= 0.629169464111328) | (x2 > 0.736762464046478), (x1 <= 0.857755184173584) | (x2 > 0.789272606372833))...
+Discipline 1 would go from 56.4% to 43.3% of its original design space remaining!
+Discipline 1 has 0.12 added potential for regret.
+Discipline 1 has -0.1 added potential for windfall.
+Discipline 2 would go from 78.1% to 78.1% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x2 <= 0.629169464111328) | (x2 > 0.736762464046478), (x1 <= 0.857755184173584) | (x2 > 0.789272606372833)): {'fragile': False, 0: {'value': 0.22137531991456338, 'threshold': 1.743833575001558}, 1: {'value': 0.0, 'threshold': 2.4145387961560036}, 2: {'value': 0.0, 'threshold': 1.1114543664845096}}}
+Final input rules after fragility check: [(x2 <= 0.629169464111328) | (x2 > 0.736762464046478)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 8, Total Exploration Time: 159
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.81282240152359) | (x5 <= 0.0886342264711857)]
+Opinions: {(x3 <= 0.81282240152359) | (x5 <= 0.0886342264711857): array([      nan, 0.9641284,       nan])}
+Universally proposed input rules: [(x3 <= 0.81282240152359) | (x5 <= 0.0886342264711857)]
+For the rule set ((x3 <= 0.81282240152359) | (x5 <= 0.0886342264711857),)...
+Discipline 1 would go from 43.3% to 43.3% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 64.88% of its original design space remaining!
+Discipline 2 has 3.82 added potential for regret.
+Discipline 2 has -0.33 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.81282240152359) | (x5 <= 0.0886342264711857),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.8111910455944682}, 1: {'value': 4.145100025431862, 'threshold': 3.2665072077995223}, 2: {'value': 0.0, 'threshold': 1.5036303020029549}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.701361656188965) | (x5 <= 0.0886342264711857)]
+Opinions: {(x3 <= 0.701361656188965) | (x5 <= 0.0886342264711857): array([       nan, 0.95500868,        nan])}
+Universally proposed input rules: [(x3 <= 0.701361656188965) | (x5 <= 0.0886342264711857)]
+For the rule set ((x3 <= 0.701361656188965) | (x5 <= 0.0886342264711857),)...
+Discipline 1 would go from 43.3% to 43.3% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 54.96% of its original design space remaining!
+Discipline 2 has 5.79 added potential for regret.
+Discipline 2 has -0.49 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.701361656188965) | (x5 <= 0.0886342264711857),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.8111910455944682}, 1: {'value': 6.284221273937748, 'threshold': 3.2665072077995223}, 2: {'value': 0.0, 'threshold': 1.5036303020029549}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+Opinions: {(x3 <= 0.631453067064285) | (x5 > 0.776115715503693): array([       nan, 0.94341377,        nan])}
+Universally proposed input rules: [(x3 <= 0.631453067064285) | (x5 > 0.776115715503693)]
+For the rule set ((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),)...
+Discipline 1 would go from 43.3% to 43.3% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 56.61% of its original design space remaining!
+Discipline 2 has 5.12 added potential for regret.
+Discipline 2 has -0.44 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.631453067064285) | (x5 > 0.776115715503693),): {'fragile': True, 0: {'value': 0.0, 'threshold': 1.8111910455944682}, 1: {'value': 5.560565050349041, 'threshold': 3.2665072077995223}, 2: {'value': 0.0, 'threshold': 1.5036303020029549}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 8, Total Exploration Time: 167
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857)]
+Opinions: {(x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857): array([       nan, 0.97054433,        nan])}
+Universally proposed input rules: [(x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857)]
+For the rule set ((x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857),)...
+Discipline 1 would go from 43.3% to 43.3% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 64.88% of its original design space remaining!
+Discipline 2 has 2.83 added potential for regret.
+Discipline 2 has -0.33 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857),): {'fragile': False, 0: {'value': 0.0, 'threshold': 2.6291742591626504}, 1: {'value': 3.1541612982644884, 'threshold': 4.741750843460551}, 2: {'value': 0.0, 'threshold': 2.1827107057199364}}}
+Final input rules after fragility check: [(x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324)]
+Opinions: {(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324): array([       nan, 0.93741553,        nan])}
+Universally proposed input rules: [(x4 <= 0.659268379211426) | (x5 <= 0.509366765618324)]
+For the rule set ((x4 <= 0.659268379211426) | (x5 <= 0.509366765618324), (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857))...
+Discipline 1 would go from 43.3% to 43.3% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 50.83% of its original design space remaining!
+Discipline 2 has 4.28 added potential for regret.
+Discipline 2 has -0.49 added potential for windfall.
+Discipline 3 would go from 35.95% to 35.95% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x4 <= 0.659268379211426) | (x5 <= 0.509366765618324), (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857)): {'fragile': True, 0: {'value': 0.0, 'threshold': 2.6291742591626504}, 1: {'value': 4.778283274016859, 'threshold': 4.741750843460551}, 2: {'value': 0.0, 'threshold': 2.1827107057199364}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x3 > 0.84133443236351)]
+Opinions: {(x3 <= 0.631453067064285) | (x3 > 0.84133443236351): array([0.74190278, 0.92965556,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x3 > 0.84133443236351)]
+Opinions: {(x3 <= 0.631453067064285) | (x3 > 0.84133443236351): array([0.74190278, 0.92965556,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x3 > 0.84133443236351)]
+Opinions: {(x3 <= 0.631453067064285) | (x3 > 0.84133443236351): array([0.74190278, 0.92965556,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [(x3 <= 0.631453067064285) | (x3 > 0.84133443236351)]
+Opinions: {(x3 <= 0.631453067064285) | (x3 > 0.84133443236351): array([0.74190278, 0.92965556,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x1 > 0.120499610900879, x3 <= 0.631453067064285]
+Opinions: {x1 > 0.120499610900879: array([0.77638209,        nan, 0.74923356]), x3 <= 0.631453067064285: array([0.6554332, 0.9282846,       nan])}
+Universally proposed input rules: [x1 > 0.120499610900879]
+For the rule set (x1 > 0.120499610900879, (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857))...
+Discipline 1 would go from 43.3% to 39.92% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has -0.0 added potential for windfall.
+Discipline 2 would go from 78.1% to 64.88% of its original design space remaining!
+Discipline 2 has 2.83 added potential for regret.
+Discipline 2 has -0.33 added potential for windfall.
+Discipline 3 would go from 35.95% to 32.23% of its original design space remaining!
+Discipline 3 has -0.04 added potential for regret.
+Discipline 3 has 0.04 added potential for windfall.
+Fragility assessment: {(x1 > 0.120499610900879, (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857)): {'fragile': False, 0: {'value': 0.0008425452534486233, 'threshold': 2.6291742591626504}, 1: {'value': 3.1541612982644884, 'threshold': 4.741750843460551}, 2: {'value': -0.08667373621277574, 'threshold': 2.1827107057199364}}}
+Final input rules after fragility check: [x1 > 0.120499610900879]
+Individually proposed input rules: [x1 <= 0.925105452537537, x3 <= 0.631453067064285]
+Opinions: {x1 <= 0.925105452537537: array([0.79372397,        nan, 0.73900218]), x3 <= 0.631453067064285: array([0.64144049, 0.9282846 ,        nan])}
+Universally proposed input rules: [x1 <= 0.925105452537537]
+For the rule set (x1 <= 0.925105452537537, (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857), x1 > 0.120499610900879)...
+Discipline 1 would go from 43.3% to 37.95% of its original design space remaining!
+Discipline 1 has -0.03 added potential for regret.
+Discipline 1 has 0.04 added potential for windfall.
+Discipline 2 would go from 78.1% to 64.88% of its original design space remaining!
+Discipline 2 has 2.83 added potential for regret.
+Discipline 2 has -0.33 added potential for windfall.
+Discipline 3 would go from 35.95% to 26.03% of its original design space remaining!
+Discipline 3 has 0.13 added potential for regret.
+Discipline 3 has -0.12 added potential for windfall.
+Fragility assessment: {(x1 <= 0.925105452537537, (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857), x1 > 0.120499610900879): {'fragile': False, 0: {'value': -0.07198387507116977, 'threshold': 2.6291742591626504}, 1: {'value': 3.1541612982644884, 'threshold': 4.741750843460551}, 2: {'value': 0.2432636799661141, 'threshold': 2.1827107057199364}}}
+Final input rules after fragility check: [x1 <= 0.925105452537537]
+Individually proposed input rules: [(x1 <= 0.561817437410355) | (x3 > 0.20377779006958), x3 <= 0.631453067064285]
+Opinions: {(x1 <= 0.561817437410355) | (x3 > 0.20377779006958): array([0.73302174,        nan,        nan]), x3 <= 0.631453067064285: array([0.64433889, 0.9282846 ,        nan])}
+Universally proposed input rules: [(x1 <= 0.561817437410355) | (x3 > 0.20377779006958)]
+For the rule set ((x1 <= 0.561817437410355) | (x3 > 0.20377779006958), (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857), x1 > 0.120499610900879, x1 <= 0.925105452537537)...
+Discipline 1 would go from 43.3% to 32.5% of its original design space remaining!
+Discipline 1 has -0.07 added potential for regret.
+Discipline 1 has 0.09 added potential for windfall.
+Discipline 2 would go from 78.1% to 64.88% of its original design space remaining!
+Discipline 2 has 2.83 added potential for regret.
+Discipline 2 has -0.33 added potential for windfall.
+Discipline 3 would go from 35.95% to 26.03% of its original design space remaining!
+Discipline 3 has 0.13 added potential for regret.
+Discipline 3 has -0.12 added potential for windfall.
+Fragility assessment: {((x1 <= 0.561817437410355) | (x3 > 0.20377779006958), (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857), x1 > 0.120499610900879, x1 <= 0.925105452537537): {'fragile': False, 0: {'value': -0.1541698667310889, 'threshold': 2.6291742591626504}, 1: {'value': 3.1541612982644884, 'threshold': 4.741750843460551}, 2: {'value': 0.2432636799661141, 'threshold': 2.1827107057199364}}}
+Final input rules after fragility check: [(x1 <= 0.561817437410355) | (x3 > 0.20377779006958)]
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.631453067064285]
+Opinions: {x3 <= 0.631453067064285: array([0.61379985, 0.9282846 ,        nan])}
+Universally proposed input rules: [x3 <= 0.631453067064285]
+For the rule set (x3 <= 0.631453067064285, (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857), x1 > 0.120499610900879, x1 <= 0.925105452537537, (x1 <= 0.561817437410355) | (x3 > 0.20377779006958))...
+Discipline 1 would go from 43.3% to 22.51% of its original design space remaining!
+Discipline 1 has -0.12 added potential for regret.
+Discipline 1 has 0.15 added potential for windfall.
+Discipline 2 would go from 78.1% to 48.35% of its original design space remaining!
+Discipline 2 has 5.23 added potential for regret.
+Discipline 2 has -0.6 added potential for windfall.
+Discipline 3 would go from 35.95% to 26.03% of its original design space remaining!
+Discipline 3 has 0.13 added potential for regret.
+Discipline 3 has -0.12 added potential for windfall.
+Fragility assessment: {(x3 <= 0.631453067064285, (x3 <= 0.838527321815491) | (x5 <= 0.0886342264711857), x1 > 0.120499610900879, x1 <= 0.925105452537537, (x1 <= 0.561817437410355) | (x3 > 0.20377779006958)): {'fragile': True, 0: {'value': -0.2664680632822859, 'threshold': 2.6291742591626504}, 1: {'value': 5.83037201186716, 'threshold': 4.741750843460551}, 2: {'value': 0.2432636799661141, 'threshold': 2.1827107057199364}}}
+Final input rules after fragility check: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 2!
+
+Current Exploration Time: 8, Total Exploration Time: 175
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x4 <= 0.835354298353195) | (x5 <= 0.345840021967888)]
+Opinions: {(x4 <= 0.835354298353195) | (x5 <= 0.345840021967888): array([       nan, 0.93734474,        nan])}
+Universally proposed input rules: [(x4 <= 0.835354298353195) | (x5 <= 0.345840021967888)]
+For the rule set ((x4 <= 0.835354298353195) | (x5 <= 0.345840021967888),)...
+Discipline 1 would go from 32.5% to 32.5% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 64.88% to 57.21% of its original design space remaining!
+Discipline 2 has 1.1 added potential for regret.
+Discipline 2 has -0.18 added potential for windfall.
+Discipline 3 would go from 26.03% to 26.03% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x4 <= 0.835354298353195) | (x5 <= 0.345840021967888),): {'fragile': False, 0: {'value': 0.0, 'threshold': 3.1918433573514897}, 1: {'value': 1.2747517246255278, 'threshold': 6.370775473153451}, 2: {'value': 0.0, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [(x4 <= 0.835354298353195) | (x5 <= 0.345840021967888)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.675246864557266]
+Opinions: {x3 <= 0.675246864557266: array([0.63794808, 0.90991971,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.675246864557266]
+Opinions: {x3 <= 0.675246864557266: array([0.63794808, 0.90991971,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.88694096,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.88694096,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.88694096,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.88694096,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [(x4 <= 0.229078806936741) | (x5 <= 0.740933030843735)]
+Opinions: {(x4 <= 0.229078806936741) | (x5 <= 0.740933030843735): array([       nan, 0.94359973,        nan])}
+Universally proposed input rules: [(x4 <= 0.229078806936741) | (x5 <= 0.740933030843735)]
+For the rule set ((x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888))...
+Discipline 1 would go from 32.5% to 32.5% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 64.88% to 44.76% of its original design space remaining!
+Discipline 2 has 2.51 added potential for regret.
+Discipline 2 has -0.41 added potential for windfall.
+Discipline 3 would go from 26.03% to 26.03% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888)): {'fragile': False, 0: {'value': 0.0, 'threshold': 3.1918433573514897}, 1: {'value': 2.918767769797884, 'threshold': 6.370775473153451}, 2: {'value': 0.0, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [(x4 <= 0.229078806936741) | (x5 <= 0.740933030843735)]
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: []
+Individually proposed input rules: [x3 <= 0.642941236495972]
+Opinions: {x3 <= 0.642941236495972: array([0.61112299, 0.86864835,        nan])}
+Universally proposed input rules: [x3 <= 0.642941236495972]
+For the rule set (x3 <= 0.642941236495972, (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735))...
+Discipline 1 would go from 32.5% to 22.51% of its original design space remaining!
+Discipline 1 has -0.08 added potential for regret.
+Discipline 1 has 0.08 added potential for windfall.
+Discipline 2 would go from 64.88% to 32.96% of its original design space remaining!
+Discipline 2 has 4.31 added potential for regret.
+Discipline 2 has -0.7 added potential for windfall.
+Discipline 3 would go from 26.03% to 26.03% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {(x3 <= 0.642941236495972, (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735)): {'fragile': False, 0: {'value': -0.1562236704692761, 'threshold': 3.1918433573514897}, 1: {'value': 5.01784899816868, 'threshold': 6.370775473153451}, 2: {'value': 0.0, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [x3 <= 0.642941236495972]
+Individually proposed input rules: [(x4 <= 0.419838100671768) | (x5 <= 0.157247439026833)]
+Opinions: {(x4 <= 0.419838100671768) | (x5 <= 0.157247439026833): array([       nan, 0.71401652,        nan])}
+Universally proposed input rules: [(x4 <= 0.419838100671768) | (x5 <= 0.157247439026833)]
+For the rule set ((x4 <= 0.419838100671768) | (x5 <= 0.157247439026833), (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972)...
+Discipline 1 would go from 32.5% to 22.51% of its original design space remaining!
+Discipline 1 has -0.08 added potential for regret.
+Discipline 1 has 0.08 added potential for windfall.
+Discipline 2 would go from 64.88% to 23.2% of its original design space remaining!
+Discipline 2 has 4.66 added potential for regret.
+Discipline 2 has -0.76 added potential for windfall.
+Discipline 3 would go from 26.03% to 26.03% of its original design space remaining!
+Discipline 3 has 0.0 added potential for regret.
+Discipline 3 has 0.0 added potential for windfall.
+Fragility assessment: {((x4 <= 0.419838100671768) | (x5 <= 0.157247439026833), (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972): {'fragile': False, 0: {'value': -0.1562236704692761, 'threshold': 3.1918433573514897}, 1: {'value': 5.423006793441334, 'threshold': 6.370775473153451}, 2: {'value': 0.0, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [(x4 <= 0.419838100671768) | (x5 <= 0.157247439026833)]
+Individually proposed input rules: [x5 <= 0.700369507074356]
+Opinions: {x5 <= 0.700369507074356: array([       nan, 0.67474734, 0.70047012])}
+Universally proposed input rules: [x5 <= 0.700369507074356]
+For the rule set (x5 <= 0.700369507074356, (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972, (x4 <= 0.419838100671768) | (x5 <= 0.157247439026833))...
+Discipline 1 would go from 32.5% to 22.51% of its original design space remaining!
+Discipline 1 has -0.08 added potential for regret.
+Discipline 1 has 0.08 added potential for windfall.
+Discipline 2 would go from 64.88% to 18.44% of its original design space remaining!
+Discipline 2 has 4.55 added potential for regret.
+Discipline 2 has -0.74 added potential for windfall.
+Discipline 3 would go from 26.03% to 22.52% of its original design space remaining!
+Discipline 3 has -0.09 added potential for regret.
+Discipline 3 has 0.08 added potential for windfall.
+Fragility assessment: {(x5 <= 0.700369507074356, (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972, (x4 <= 0.419838100671768) | (x5 <= 0.157247439026833)): {'fragile': False, 0: {'value': -0.1562236704692761, 'threshold': 3.1918433573514897}, 1: {'value': 5.298054597473156, 'threshold': 6.370775473153451}, 2: {'value': -0.17326612834501787, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [x5 <= 0.700369507074356]
+Individually proposed input rules: [x5 > 0.112468898296356]
+Opinions: {x5 > 0.112468898296356: array([       nan, 0.72046235, 0.90150011])}
+Universally proposed input rules: [x5 > 0.112468898296356]
+For the rule set (x5 > 0.112468898296356, (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972, (x4 <= 0.419838100671768) | (x5 <= 0.157247439026833), x5 <= 0.700369507074356)...
+Discipline 1 would go from 32.5% to 22.51% of its original design space remaining!
+Discipline 1 has -0.08 added potential for regret.
+Discipline 1 has 0.08 added potential for windfall.
+Discipline 2 would go from 64.88% to 10.38% of its original design space remaining!
+Discipline 2 has 5.12 added potential for regret.
+Discipline 2 has -0.84 added potential for windfall.
+Discipline 3 would go from 26.03% to 20.04% of its original design space remaining!
+Discipline 3 has 0.04 added potential for regret.
+Discipline 3 has -0.03 added potential for windfall.
+Fragility assessment: {(x5 > 0.112468898296356, (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972, (x4 <= 0.419838100671768) | (x5 <= 0.157247439026833), x5 <= 0.700369507074356): {'fragile': False, 0: {'value': -0.1562236704692761, 'threshold': 3.1918433573514897}, 1: {'value': 5.952932487052625, 'threshold': 6.370775473153451}, 2: {'value': 0.06747836394172912, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [x5 > 0.112468898296356]
+Individually proposed input rules: [(x3 <= 0.23274215310812) | (x3 > 0.404157787561417)]
+Opinions: {(x3 <= 0.23274215310812) | (x3 > 0.404157787561417): array([0.56261701, 0.6155071 ,        nan])}
+Universally proposed input rules: [(x3 <= 0.23274215310812) | (x3 > 0.404157787561417)]
+For the rule set ((x3 <= 0.23274215310812) | (x3 > 0.404157787561417), (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972, (x4 <= 0.419838100671768) | (x5 <= 0.157247439026833), x5 <= 0.700369507074356, x5 > 0.112468898296356)...
+Discipline 1 would go from 32.5% to 13.31% of its original design space remaining!
+Discipline 1 has -0.02 added potential for regret.
+Discipline 1 has 0.02 added potential for windfall.
+Discipline 2 would go from 64.88% to 7.18% of its original design space remaining!
+Discipline 2 has 5.12 added potential for regret.
+Discipline 2 has -0.84 added potential for windfall.
+Discipline 3 would go from 26.03% to 20.04% of its original design space remaining!
+Discipline 3 has 0.04 added potential for regret.
+Discipline 3 has -0.03 added potential for windfall.
+Fragility assessment: {((x3 <= 0.23274215310812) | (x3 > 0.404157787561417), (x4 <= 0.835354298353195) | (x5 <= 0.345840021967888), (x4 <= 0.229078806936741) | (x5 <= 0.740933030843735), x3 <= 0.642941236495972, (x4 <= 0.419838100671768) | (x5 <= 0.157247439026833), x5 <= 0.700369507074356, x5 > 0.112468898296356): {'fragile': False, 0: {'value': -0.04537460350830602, 'threshold': 3.1918433573514897}, 1: {'value': 5.960870198008508, 'threshold': 6.370775473153451}, 2: {'value': 0.06747836394172912, 'threshold': 2.556425826806799}}}
+Final input rules after fragility check: [(x3 <= 0.23274215310812) | (x3 > 0.404157787561417)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+
+Current Exploration Time: 8, Total Exploration Time: 183
+Individually proposed input rules: []
+Universally proposed input rules: []
+
+Current Exploration Time: 8, Total Exploration Time: 191
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x1 > 0.286069646477699]
+Opinions: {x1 > 0.286069646477699: array([0.6680325 ,        nan, 0.76798398])}
+Universally proposed input rules: [x1 > 0.286069646477699]
+For the rule set (x1 > 0.286069646477699,)...
+Discipline 1 would go from 13.31% to 10.3% of its original design space remaining!
+Discipline 1 has -0.06 added potential for regret.
+Discipline 1 has 0.08 added potential for windfall.
+Discipline 2 would go from 7.18% to 7.18% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 20.04% to 15.91% of its original design space remaining!
+Discipline 3 has 0.2 added potential for regret.
+Discipline 3 has -0.14 added potential for windfall.
+Fragility assessment: {(x1 > 0.286069646477699,): {'fragile': False, 0: {'value': -0.13873691584137493, 'threshold': 7.479567899089722}, 1: {'value': 0.0, 'threshold': 4.038016543968693}, 2: {'value': 0.3474265765999368, 'threshold': 11.264218699123123}}}
+Final input rules after fragility check: [x1 > 0.286069646477699]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x6 <= 0.307032212615013) | (x5 > 0.541866987943649)]
+Opinions: {(x6 <= 0.307032212615013) | (x5 > 0.541866987943649): array([       nan,        nan, 0.80490305])}
+Universally proposed input rules: [(x6 <= 0.307032212615013) | (x5 > 0.541866987943649)]
+For the rule set ((x6 <= 0.307032212615013) | (x5 > 0.541866987943649), x1 > 0.286069646477699)...
+Discipline 1 would go from 13.31% to 10.3% of its original design space remaining!
+Discipline 1 has -0.06 added potential for regret.
+Discipline 1 has 0.08 added potential for windfall.
+Discipline 2 would go from 7.18% to 7.18% of its original design space remaining!
+Discipline 2 has 0.0 added potential for regret.
+Discipline 2 has 0.0 added potential for windfall.
+Discipline 3 would go from 20.04% to 10.56% of its original design space remaining!
+Discipline 3 has 0.73 added potential for regret.
+Discipline 3 has -0.51 added potential for windfall.
+Fragility assessment: {((x6 <= 0.307032212615013) | (x5 > 0.541866987943649), x1 > 0.286069646477699): {'fragile': False, 0: {'value': -0.13873691584137493, 'threshold': 7.479567899089722}, 1: {'value': 0.0, 'threshold': 4.038016543968693}, 2: {'value': 1.232541724413831, 'threshold': 11.264218699123123}}}
+Final input rules after fragility check: [(x6 <= 0.307032212615013) | (x5 > 0.541866987943649)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+
+Current Exploration Time: 8, Total Exploration Time: 199
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [x5 > 0.498963460326195]
+Opinions: {x5 > 0.498963460326195: array([       nan, 0.66541226, 0.75738653])}
+Universally proposed input rules: [x5 > 0.498963460326195]
+For the rule set (x5 > 0.498963460326195,)...
+Discipline 1 would go from 10.3% to 10.3% of its original design space remaining!
+Discipline 1 has 0.0 added potential for regret.
+Discipline 1 has 0.0 added potential for windfall.
+Discipline 2 would go from 7.18% to 3.04% of its original design space remaining!
+Discipline 2 has 0.87 added potential for regret.
+Discipline 2 has -0.66 added potential for windfall.
+Discipline 3 would go from 10.56% to 8.91% of its original design space remaining!
+Discipline 3 has 0.07 added potential for regret.
+Discipline 3 has -0.11 added potential for windfall.
+Fragility assessment: {(x5 > 0.498963460326195,): {'fragile': False, 0: {'value': 0.0, 'threshold': 131.76053215370825}, 1: {'value': 1.5292687044347446, 'threshold': 91.88405387200257}, 2: {'value': 0.17879218366097238, 'threshold': 135.00349876095538}}}
+Final input rules after fragility check: [x5 > 0.498963460326195]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: [(x2 > 0.672069549560547) | (x3 > 0.48705692589283)]
+Opinions: {(x2 > 0.672069549560547) | (x3 > 0.48705692589283): array([0.60793632,        nan,        nan])}
+Universally proposed input rules: [(x2 > 0.672069549560547) | (x3 > 0.48705692589283)]
+For the rule set ((x2 > 0.672069549560547) | (x3 > 0.48705692589283), x5 > 0.498963460326195)...
+Discipline 1 would go from 10.3% to 5.87% of its original design space remaining!
+Discipline 1 has 0.26 added potential for regret.
+Discipline 1 has -0.32 added potential for windfall.
+Discipline 2 would go from 7.18% to 3.04% of its original design space remaining!
+Discipline 2 has 0.87 added potential for regret.
+Discipline 2 has -0.66 added potential for windfall.
+Discipline 3 would go from 10.56% to 8.91% of its original design space remaining!
+Discipline 3 has 0.07 added potential for regret.
+Discipline 3 has -0.11 added potential for windfall.
+Fragility assessment: {((x2 > 0.672069549560547) | (x3 > 0.48705692589283), x5 > 0.498963460326195): {'fragile': False, 0: {'value': 0.5876804933963208, 'threshold': 131.76053215370825}, 1: {'value': 1.5292687044347446, 'threshold': 91.88405387200257}, 2: {'value': 0.17879218366097238, 'threshold': 135.00349876095538}}}
+Final input rules after fragility check: [(x2 > 0.672069549560547) | (x3 > 0.48705692589283)]
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 3!
+
+Current Exploration Time: 1, Total Exploration Time: 200
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Individually proposed input rules: []
+Universally proposed input rules: []
+Exploring because space reduction cannot be forced for Discipline 1!
+
+Current Exploration Time: 1, Total Exploration Time: 201
+Simulation completed. Space remaining data saved to space_remaining_TC4_20240520175446_8565700_87.hdf5
