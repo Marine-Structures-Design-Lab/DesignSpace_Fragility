@@ -364,8 +364,10 @@ def getPerceptions(discip, gpr_params):
     gpr = initializeFit(discip, x_train_scaled, y_train, **gpr_params)
     
     # Standardize the x-data for which pass-fail amounts will be predicted
-    x_space_scaled = scaler_x.transform(discip['space_remaining'])
-    
+    x_space_scaled = scaler_x.transform(discip['space_remaining']) \
+        if discip['space_remaining'].size > 0 \
+        else np.empty((0, len(discip['ins'])))
+
     # Predict pass-fail data at every point in non-reduced design space
     if len(x_space_scaled) > 0:
         pf_mean, pf_std = gpr.predict(x_space_scaled, return_std=True)
