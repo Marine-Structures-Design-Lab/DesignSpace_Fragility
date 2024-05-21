@@ -710,7 +710,7 @@ class mergeConstraints:
                 # Determine threshold for throwing out the rule
                 ### Opinion of the discipline proposing the rule minus the max
                 ### fail criterion value for all of the disciplines involved
-                threshold = opinions[rule][irules_discip[i]]-max(fail_crit)
+                threshold = opinions[rule][irules_discip[i]] - max(fail_crit)
                 
                 # If discipline is proposing rule, continue to next discipline
                 if j == irules_discip[i]: continue
