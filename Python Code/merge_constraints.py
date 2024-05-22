@@ -152,7 +152,7 @@ def initializeFit(discip, x_train, y_train, **kwargs):
     gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=alpha)
     
     # Initialize Gaussian process regressor (GPR)
-    gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=0.00001)
+    gpr_model = GaussianProcessRegressor(kernel=kernel, alpha=alpha)
     
     # Fit GPR with training data
     gpr_model.fit(x_train, y_train)
