@@ -420,7 +420,7 @@ class entropyTracker:
                     # Loop through each entropy type of the design space
                     for entr in run_wind[rule+tuple(self.irf)][ind_dic][ds].keys():
                         
-                        # Divide probabilistic sums by remaining points
+                        # Divide entropic sums by remaining points
                         if self.Df[ind_dic]['space_remaining'].shape[0] > 0:
                             run_wind[rule+tuple(self.irf)][ind_dic][ds][entr] \
                                 = run_wind[rule+tuple(self.irf)][ind_dic][ds][entr] / \
