@@ -365,7 +365,7 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
     average_ufeas = {}
     
     # Loop through each discipline
-    for discip_name, sr_dic in space_rem['Run_1'].items():
+    for discip_name, sr_dic in space_rem['Run_2'].items():
         
         # Initialize empty dictionaries for the discipline
         average_rem[discip_name] = {}
