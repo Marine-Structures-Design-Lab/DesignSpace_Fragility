@@ -86,7 +86,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 50    # Must be a positive integer!
+iters_max = 1000    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -144,13 +144,14 @@ part_params = {
 
 # Set parameters for decision tree classifier used to propose space reductions
 dtc_kwargs = {
-    'max_depth': 1,
+    'max_depth': 2,
     # Add other parameters as needed
 }
 
 # Parameters for Gaussian kernel when forming perceptions of design space
 gpr_params = {
-    'length_scale_bounds': (1e-2, 1e3)
+    'length_scale_bounds': (1e-2, 1e3),
+    'alpha': 0.00001
     # Add other parameters as needed
 }
 
