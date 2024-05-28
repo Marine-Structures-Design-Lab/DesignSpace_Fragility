@@ -150,8 +150,7 @@ dtc_kwargs = {
 
 # Parameters for Gaussian kernel when forming perceptions of design space
 gpr_params = {
-    'length_scale_bounds': (1e-2, 1e3),
-    'alpha': 0.00001
+    'length_scale_bounds': (1e-2, 1e3)
     # Add other parameters as needed
 }
 
