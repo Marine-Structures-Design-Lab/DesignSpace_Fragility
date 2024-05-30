@@ -144,7 +144,7 @@ part_params = {
 
 # Set parameters for decision tree classifier used to propose space reductions
 dtc_kwargs = {
-    'max_depth': 1,
+    'max_depth': 2,
     # Add other parameters as needed
 }
 

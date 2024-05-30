@@ -133,8 +133,9 @@ def initializeFit(discip, x_train, y_train, **kwargs):
         Additional keyword arguments for GPR model configuration. Common 
         parameters include 'length_scale_bounds' for the RBF kernel
         (default: (1e-2, 1e3)) and 'alpha' for GaussianProcessRegressor
-        (default: 0.00001). These parameters are used to control various
-        aspects of the GPR model, such as kernel properties and regularization
+        (default: 0.4 / np.sqrt(len(x_train))) ** 2). These parameters are used 
+        to control various aspects of the GPR model, such as kernel properties 
+        and regularization
     
     Returns
     -------
