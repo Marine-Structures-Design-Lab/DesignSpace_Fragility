@@ -462,7 +462,7 @@ while iters <= iters_max:
             
             # Check if a space reduction should be forced
             Discips = red_change.forceReduction(space_rem, iters, iters_max, 
-                                                exp_parameters)
+                                                exp_parameters, part_params)
             
             # Perform following commands if a space reduction should be forced
             if any(dictionary.get("force_reduction", False)[0] == True \
@@ -532,7 +532,7 @@ while iters <= iters_max:
         # Determine the extent to which points pass and fail
         Discips[i] = outchk.rmsFail()
         
-        # Reset discipline's reduction counter to 0 and criteria to defaults - Reset criteria if ever below threshold!!!
+        # Reset discipline's reduction counter to 0 and criteria to defaults
         Discips[i]['force_reduction'][0] = False
         Discips[i]['force_reduction'][1] = 0
         Discips[i]['part_params'] = copy.deepcopy(part_params)

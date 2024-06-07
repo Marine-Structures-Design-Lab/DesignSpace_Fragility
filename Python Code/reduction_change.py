@@ -15,6 +15,7 @@ LIBRARIES
 """
 from exponential_reduction import calcExponential
 import numpy as np
+import copy
 
 """
 CLASS
@@ -64,7 +65,7 @@ class changeReduction:
         return space_rem
     
     
-    def forceReduction(self, space_rem, iters, iters_max, p):
+    def forceReduction(self, space_rem, iters, iters_max, p, part_params):
         """
         Description
         -----------
@@ -98,11 +99,13 @@ class changeReduction:
             min_elim = max(calcExponential(iters/iters_max, p), 0.0)
             
             # Set the force reduction value to true or false depending on if
-            # the minimum amount of space necessary has been eliminated
+            # the minimum amount of space necessary has been eliminated and
+            # reset criteria to defaults if no reduction being forced
             if (1 - space_rem[i]) < min_elim:
                 self.d[i]['force_reduction'][0] = True
             else:
                 self.d[i]['force_reduction'][0] = False
+                self.d[i]['part_params'] = copy.deepcopy(part_params)
             
         # Return updated list of dictionaries with new force reduction values
         return self.d
