@@ -532,7 +532,7 @@ while iters <= iters_max:
         # Determine the extent to which points pass and fail
         Discips[i] = outchk.rmsFail()
         
-        # Reset discipline's reduction counter to 0 and criteria to defaults
+        # Reset discipline's reduction counter to 0 and criteria to defaults - Reset criteria if ever below threshold!!!
         Discips[i]['force_reduction'][0] = False
         Discips[i]['force_reduction'][1] = 0
         Discips[i]['part_params'] = copy.deepcopy(part_params)
