@@ -25,7 +25,7 @@ class test_uniform_grid(unittest.TestCase):
         """
         
         # Unit test for a 2-D design space
-        point_array, point_amt = uniformGrid(9, 2)
+        point_array, point_amt, index_list = uniformGrid(9, 2)
         array = np.array([[0.0, 0.0],
                           [0.0, 0.5],
                           [0.0, 1.0],
@@ -35,11 +35,13 @@ class test_uniform_grid(unittest.TestCase):
                           [1.0, 0.0],
                           [1.0, 0.5],
                           [1.0, 1.0]])
+        exp_list = [0, 1, 2, 3, 4, 5, 6, 7, 8]
         np.testing.assert_array_equal(array, point_array)
         self.assertEqual(point_amt, 9)
+        self.assertListEqual(index_list, exp_list)
         
         # Unit test for a 3-D design space
-        point_array, point_amt = uniformGrid(30, 3)
+        point_array, point_amt, index_list = uniformGrid(30, 3)
         array = np.array([[0.0, 0.0, 0.0],
                           [0.0, 0.0, 0.5],
                           [0.0, 0.0, 1.0],
@@ -67,8 +69,11 @@ class test_uniform_grid(unittest.TestCase):
                           [1.0, 1.0, 0.0],
                           [1.0, 1.0, 0.5],
                           [1.0, 1.0, 1.0]])
+        exp_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                    17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
         np.testing.assert_array_equal(array, point_array)
         self.assertEqual(point_amt, 27)
+        self.assertListEqual(index_list, exp_list)
     
    
 """

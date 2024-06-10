@@ -40,9 +40,11 @@ def uniformGrid(total_points, ndims):
     points : Numpy array
         An array of coordinates where each row represents a different point and
         each column represents the point's coordinate in a particular dimension
-    np.shape(points)[0] : Integer
+    num_points : Integer
         The actual total number of evenly spaced points that are created and
         stored in the points array
+    index_list : List
+        List of all the indices of evenly spaced points created
     """
     
     # Calculate the number of points in each dimension

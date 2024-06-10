@@ -123,7 +123,7 @@ auto_accept = False     # True = yes, False = no
 # shift in the exponential curve for determining maximum threshold
 fragility = False       # True = yes, False = no
 fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
-fragility_shift = 0.4  # Should be a positive float...scale weight or shift!!!!!!!!!!
+fragility_shift = 0.4  # Should be a positive float
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
