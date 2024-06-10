@@ -91,7 +91,7 @@ class test_reduction_change(unittest.TestCase):
                                                        [1.0, 1.0, 1.0]])
         
         # Create initial exponential paramter values
-        part_params = {
+        self.part_params = {
             "cdf_crit": [0.1, 0.1],
             "fail_crit": [0.0, 0.05],
             "dist_crit": [0.2, 0.1],
@@ -101,7 +101,7 @@ class test_reduction_change(unittest.TestCase):
         # Create parameter and reduction keys for each discipline
         for i in range(0, len(self.Discips)):
             self.Discips[i]['force_reduction'] = [False, 0]
-            self.Discips[i]['part_params'] = copy.deepcopy(part_params)
+            self.Discips[i]['part_params'] = copy.deepcopy(self.part_params)
             self.Discips[i]['tp_actual'] = self.Discips[0]['space_remaining'].shape[0]
         
         # Initialize a changeReduction object
@@ -139,14 +139,19 @@ class test_reduction_change(unittest.TestCase):
              0.95]) # p4: Percent of space reduced at max reduction time
             
         # Execute the forceReduction method for each discipline
-        self.Discips = self.cr.forceReduction(space_rem, iters, iters_max, p)
+        self.Discips = self.cr.forceReduction(space_rem, iters, iters_max, p, 
+                                              self.part_params)
         
         # Ensure force reduction is True for Discipline 1
         self.assertTrue(self.Discips[0]['force_reduction'][0])
         
         # Ensure force reduction is False for Discipline 1 & 2
         self.assertFalse(self.Discips[1]['force_reduction'][0])
-        self.assertFalse(self.Discips[1]['force_reduction'][0])
+        self.assertFalse(self.Discips[2]['force_reduction'][0])
+        
+        # Ensure parameters for Disciplines 1 & 2 are set to defaults
+        self.assertDictEqual(self.Discips[1]['part_params'], self.part_params)
+        self.assertDictEqual(self.Discips[2]['part_params'], self.part_params)
         
         
     def test_adjust_criteria(self):

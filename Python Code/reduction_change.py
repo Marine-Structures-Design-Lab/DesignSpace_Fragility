@@ -84,6 +84,9 @@ class changeReduction:
         p : Numpy vector
             Contains four user-defined parameters used in the exponential
             function defintion
+        part_params : Dictionary
+            Default criteria a discipline's space reduction needs to meet in
+            order to be proposed
         
         Returns
         -------
