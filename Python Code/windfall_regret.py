@@ -162,7 +162,7 @@ def complementProb(pf, pf_std_fragility):
     return prob_feas
 
 
-def min_max_normalize(data):
+def minmaxNormalize(data):
     if len(data) == 0:  # handle empty data scenarios
         return np.array([])
 
@@ -346,14 +346,15 @@ class windfallRegret:
                         (pf, pf_std_fragility[ind_dic][ind_pf])
                 
                 # Normalize the complementary probabilities
-                prob_feas = min_max_normalize(prob_feas)
+                prob_feas = minmaxNormalize(prob_feas)
                     
                 # Loop through each complementary probability value
                 for ind_pf, p_feas in enumerate(prob_feas):
                     
                     # Prepare complementary probability for proper assignments
                     wr, r_wind, r_reg = assignWR(p_feas, ind_pf,
-                                                 indices_in_both, pf_fragility[ind_dic][ind_pf])
+                                                 indices_in_both, 
+                                                 pf_fragility[ind_dic][ind_pf])
                     
                     # Loop through each key-value pair in wr dictionary
                     for ds, comp_prob in wr.items():
@@ -465,7 +466,8 @@ class windfallRegret:
                 # Calculate the potential for regret for the space reduction
                 ### + value indicates added potential for regret
                 ### - value indicates reduced potential for regret
-                reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1 if reg_dic['non_reduced'] != 0 else 0.0
+                reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1 \
+                    if reg_dic['non_reduced'] != 0 else 0.0
                 
                 # Print the potential for regret results of space reduction
                 print(f"Discipline {ind_dic+1} has {round(reg_value, 2)} added"
@@ -480,7 +482,8 @@ class windfallRegret:
                 # Calculate the potential for windfall for the space reduction
                 ### + value indicates added potential for windfall
                 ### - value indicates reduced potential for windfall
-                wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1 if wind_dic['non_reduced'] != 0 else 0.0
+                wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1\
+                    if wind_dic['non_reduced'] != 0 else 0.0
                 
                 # Print the potential for windfal results of space reduction
                 print(f"Discipline {ind_dic+1} has {round(wind_value, 2)} "
