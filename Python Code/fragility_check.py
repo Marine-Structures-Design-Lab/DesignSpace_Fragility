@@ -30,11 +30,9 @@ class checkFragility:
         risk : Dictionary
             Added potentials for regret and windfall accompanying a set of
             input rule(s) for the current timestamp
-        
-        
-        
-        
-        
+        Discips_fragility : Dictionary
+            All the information pertaining to each discipline at the start of a
+            new space reduction cycle
         """
         self.risk = risk
         self.Df = Discips_fragility
@@ -57,7 +55,7 @@ class checkFragility:
             Amount of time iterations allotted to carry out design problem.
         p : Numpy array
             Exponential function parameters dictating space reduction pace.
-        shift : Integer
+        shift : Float
             Amount to shift exponential function for adaptation to setting
             maximum risk threshold
 
@@ -99,6 +97,30 @@ class checkFragility:
     
     
     def basicCheck2(self, iters, iters_max, p, scale_weight):
+        """
+        Description
+        -----------
+        Asymptotic method for setting maximum risk threshold that adjusts
+        according to time remaining and amount of each discipline's design
+        space that has already been reduced.
+
+        Parameters
+        ----------
+        iters : Integer
+            Current time iteration of design problem.
+        iters_max : Integer
+            Amount of time iterations allotted to carry out design problem.
+        p : Numpy array
+            Exponential function parameters dictating space reduction pace.
+        scale_weight : Float
+            Amount to scale asymptotic function's maximum risk threshold.
+
+        Returns
+        -------
+        max_risk : Dictionary
+            Endured risk for space reduction and boolean indicating whether the
+            maximum risk threshold has been exceeded
+        """
         
         # Initialize an empty dictionary for tracking max risk values
         max_risk = {}
@@ -114,9 +136,10 @@ class checkFragility:
                 
                 # Establish maximum fragility threshold
                 threshold = scale_weight * \
-                    ((self.Df[ind_dic]['space_remaining'].shape[0]/self.Df[ind_dic]['tp_actual']) / \
-                     (1-calcExponential(iters/iters_max, p))) * \
-                     (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
+                    ((self.Df[ind_dic]['space_remaining'].shape[0]/ \
+                      self.Df[ind_dic]['tp_actual']) / \
+                    (1-calcExponential(iters/iters_max, p))) * \
+                    (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
                 
                 # Subtract windfall from regret
                 net_risk = dic['regret'] - dic['windfall']
