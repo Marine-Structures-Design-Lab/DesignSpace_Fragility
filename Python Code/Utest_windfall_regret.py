@@ -11,7 +11,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from windfall_regret import windfallRegret, initializeWR, complementProb, \
-    assignWR
+    minmaxNormalize, assignWR
 import unittest
 import sympy as sp
 import numpy as np
@@ -308,6 +308,48 @@ class test_windfall_regret(unittest.TestCase):
         for ind, (p, ps) in enumerate(zip(pf, pf_std)):
             prob_feas = complementProb(p, ps)
             self.assertAlmostEqual(prob_feas, exp_prob_feas[ind])
+    
+    
+    def test_minmax_normalize(self):
+        """
+        Unit tests for the minmaxNormalize function
+        """
+        
+        # Initialize an empty data array
+        data = np.array([])
+        
+        # Determine expected returned data array
+        exp_data = np.array([])
+        
+        # Run the function
+        act_data = minmaxNormalize(data)
+        
+        # Check that actual data array matches expected
+        np.testing.assert_array_almost_equal(act_data, exp_data)
+        
+        # Initialize an array with same min and max values
+        data = np.array([3.0, 3.0])
+        
+        # Determine expected returned data array
+        exp_data = np.zeros_like(data)
+        
+        # Run the function
+        act_data = minmaxNormalize(data)
+        
+        # Check that actual data array matches expected
+        np.testing.assert_array_almost_equal(act_data, exp_data)
+        
+        # Initialize an array with various data
+        data = np.array([0.1, 0.5, 2.0])
+        
+        # Determine expected returned data array
+        exp_data = np.array([0.0, 0.2105263158, 1.0])
+        
+        # Run the function
+        act_data = minmaxNormalize(data)
+        
+        # Check that actual data array matches expected
+        np.testing.assert_array_almost_equal(act_data, exp_data)
     
     
     def test_assign_wr(self):

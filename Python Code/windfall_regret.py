@@ -163,15 +163,39 @@ def complementProb(pf, pf_std_fragility):
 
 
 def minmaxNormalize(data):
-    if len(data) == 0:  # handle empty data scenarios
-        return np.array([])
+    """
+    Description
+    -----------
+    Normalizes data between 0 and 1.
 
+    Parameters
+    ----------
+    data : Numpy array
+        Data to be normalized
+
+    Returns
+    -------
+    "normalized data" : Numpy array
+        Array of floats that is normalized between 0 and 1
+    """
+    
+    # Check if no data available
+    if len(data) == 0:
+        
+        # Return an empty array
+        return np.array([])
+    
+    # Determine minimum and maximum values in data
     min_val = np.min(data)
     max_val = np.max(data)
-
-    if max_val == min_val:  # avoid division by zero if all values are the same
+    
+    # Check if max and min values are the same to avoid division by zero
+    if max_val == min_val:
+        
+        # Return array of zeros
         return np.zeros_like(data)
-
+    
+    # Return normalized data
     return (data - min_val) / (max_val - min_val)
 
 
