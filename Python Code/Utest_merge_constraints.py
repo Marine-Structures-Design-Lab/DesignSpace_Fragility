@@ -11,7 +11,8 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from merge_constraints import mergeConstraints, sharedIndices, trainData, \
-    analyzeInfeasibility, analyzeFeasibility, bezierPoint, getPredictions
+    analyzeInfeasibility, analyzeFeasibility, bezierPoint, getPerceptions, \
+    getPredictions
 import unittest
 import numpy as np
 import sympy as sp
@@ -46,7 +47,8 @@ class test_merge_constraints(unittest.TestCase):
                                          [0.9, 0.9, 0.2],
                                          [0.2, 0.3, 0.8],
                                          [0.8, 0.1, 0.9],
-                                         [0.5, 0.2, 0.9]])
+                                         [0.5, 0.2, 0.9]]),
+            "space_remaining_ind": [0, 1, 2, 3, 4, 5]
             }
         
         # Create another discipline with eliminated data
@@ -66,6 +68,7 @@ class test_merge_constraints(unittest.TestCase):
                                          [0.3, 0.3, 0.4],
                                          [0.1, 0.7, 0.2],
                                          [0.5, 0.6, 0.1]]),
+            "space_remaining_ind": [0, 1, 2, 3, 4],
             "eliminated": {
                 "tested_ins": np.array([[0.1, 0.1, 0.1],
                                         [0.2, 0.3, 0.4],
@@ -75,7 +78,8 @@ class test_merge_constraints(unittest.TestCase):
                 "Pass_Amount": np.array([0.7, 0.0, 0.4]),
                 "pass?": [True, True, True],
                 "space_remaining": np.array([[0.1, 0.4, 0.4],
-                                             [0.7, 0.7, 0.2]])
+                                             [0.7, 0.7, 0.2]]),
+                "space_remaining_ind": [5, 6]
                 }
             }
     
@@ -234,6 +238,29 @@ class test_merge_constraints(unittest.TestCase):
         self.assertIsNone(y)
     
     
+    def test_get_perceptions(self):
+        """
+        Unit tests for the getPerceptions function
+        """
+        
+        # Initialize gpr parameters
+        gpr_params = {
+            'length_scale_bounds': (1e-2, 1e3),
+            'alpha': 0.00001
+        }
+        
+        # Execute the function on the first discipline
+        n_preds, n_stddevs = getPerceptions(self.Discip1, gpr_params)
+        
+        # Gather max and min of the predictions
+        max_pred = np.max(n_preds)
+        min_pred = np.min(n_preds)
+        
+        # Ensure passfail predictions are being properly normalized
+        self.assertAlmostEqual(max_pred, 1.0)
+        self.assertAlmostEqual(min_pred, -1.0)
+    
+    
     def test_get_predictions(self):
         """
         Unit tests for getPredictions function
@@ -385,14 +412,16 @@ class test_merge_constraints(unittest.TestCase):
         self.assertEqual(len(passfail_std), 31)
         
         # Loop through passfail data
-        for (key_pf, val_pf), (key_pfstd, val_pfstd) in zip(passfail.items(), passfail_std.items()):
+        for (key_pf, val_pf), (key_pfstd, val_pfstd) \
+            in zip(passfail.items(), passfail_std.items()):
             
             # Ensure values have data for two disciplines
             self.assertEqual(len(val_pf), 2)
             self.assertEqual(len(val_pfstd), 2)
             
             # Loop through each discipline
-            for (ind_pf, discip_pf), (ind_pfstd, discip_pfstd) in zip(enumerate(val_pf), enumerate(val_pfstd)):
+            for (ind_pf, discip_pf), (ind_pfstd, discip_pfstd) \
+                in zip(enumerate(val_pf), enumerate(val_pfstd)):
                 
                 # Check that non-reduced array is proper length
                 if ind_pf == 0:
