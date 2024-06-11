@@ -13,7 +13,6 @@ LIBRARIES
 import numpy as np
 from dit import ScalarDistribution
 from dit.other import generalized_cumulative_residual_entropy as gcre
-from dit.other import cumulative_residual_entropy as cre
 from windfall_regret import getIndices
 
 
@@ -127,7 +126,7 @@ def reassignPF(pf_old, pf_new):
     return pf_new
 
 
-def min_max_normalize(data):
+def minmaxNormalize(data):
     if not data:  # handle empty data scenarios
         return []
     min_val = min(data)
@@ -281,7 +280,6 @@ def assignWR(tve, dtve, ind_pf, indices_in_both, pf):
     return wr, run_wind, run_reg
 
 
-
 """
 CLASS
 """
@@ -352,8 +350,8 @@ class entropyTracker:
                 DTVE[i].append(dtve)
             
             # Normalize TVE and DTVE for the current discipline
-            TVE[i] = min_max_normalize(TVE[i])
-            DTVE[i] = min_max_normalize(DTVE[i])
+            TVE[i] = minmaxNormalize(TVE[i])
+            DTVE[i] = minmaxNormalize(DTVE[i])
             
         
         # Return normalized TVE and DTVE values for each design point in non-reduced space remaining

@@ -16,7 +16,6 @@ from fragility_check import checkFragility
 import copy
 
 
-
 """
 CLASS
 """
@@ -68,7 +67,7 @@ class fragilityCommands:
                                                             TVE, DTVE, 
                                                             self.pf_frag)
         
-        # Quantify risk or potential of space reduction -----------------------JUST USE WINDFALL_REGRETS????...but do not turn into a function because I may want new methods for doing the same thing at some point...
+        # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
         ris = entropytrack.quantRisk(run_wind, run_reg, wr)
@@ -132,6 +131,6 @@ class fragilityCommands:
             # Indicate that the fragility loop should be broken
             break_loop = True
         
-        # Return the documented fragility results (AM I SURE I DO NOT NEED TO RETURN net_wr, final_combo????)
+        # Return the documented fragility results
         return banned_rules, windreg, running_windfall, running_regret, risk, \
             irules_new, self.irf, break_loop
