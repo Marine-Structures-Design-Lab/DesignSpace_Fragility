@@ -1,6 +1,10 @@
 """
 SUMMARY:
-
+Uses history of formed perceptions of feasibility within each discipline's 
+design space to determine potentials for regret and windfall before quantifying
+the risk of a space reduction decision by calculating the added potentials
+relative to leaving the design spaces untouched.  Also visualizes these 
+potentials for regret and windfall (for SBD1 problem, specifically).
 
 CREATOR:
 Joseph B. Van Houten
@@ -20,6 +24,32 @@ from windfall_regret import getIndices
 FUNCTION
 """
 def initializePF(passfail, Discips_fragility, mean_or_std):
+    """
+    Description
+    -----------
+    Gathers the pass-fail data pertinent to each discipline's remaining
+    potential design solutions for eventual sorting of the history of a point's
+    predictions.
+
+    Parameters
+    ----------
+    passfail : List of dictionaries
+        History of each discipline's pass-fail predictions up to a certain
+        point in time
+    Discips_fragility : List of dictionaries
+        Contains all of the information pertaining to each discipline at the
+        beginning of a space reduction cycle
+    mean_or_std : String
+        Either "mean" or "std" to detail whether pass-fail predictions or their
+        standard deviations are to be consolidated
+
+    Returns
+    -------
+    passfail_frag : Dictionary
+        Consolidated pass-fail data for each discipline at the start of a space
+        reduction cycle being prepared for reorganization based on the history
+        of a particular point's history of pass-fail predictions
+    """
     
     # Initialize a small maximum time integer
     max_time = 0
@@ -58,9 +88,10 @@ def initializePF(passfail, Discips_fragility, mean_or_std):
         for i, discip in enumerate(data[None]):
             
             # Find indices of remaining potential design solutions
-            indices = [discip['indices'].index(x) for x in passfail[index_dict][None][i]['indices']]
+            indices = [discip['indices'].index(x) \
+                       for x in passfail[index_dict][None][i]['indices']]
             
-            # Append discipline's data to the list for remaining potential design solutions
+            # Append discipline's data to the list for remaining solutions
             passfail_frag[data['time']].append(discip['non_reduced'][indices])
     
     # Identify the smallest key in the dictionary
@@ -77,8 +108,9 @@ def initializePF(passfail, Discips_fragility, mean_or_std):
     
     else:
         
-        # Create numpy arrays of proper standard deviation for uniform distribution between -1 to 1
-        new_arrays = [np.full_like(array, 1.0/np.sqrt(3.0)) for array in arrays]
+        # Create numpy arrays of std dev of uniform distribution between -1 & 1
+        new_arrays = [np.full_like(array, 1.0/np.sqrt(3.0)) \
+                      for array in arrays]
     
     # Add list of arrays to dictionary under key 0
     passfail_frag[0] = new_arrays
@@ -88,6 +120,24 @@ def initializePF(passfail, Discips_fragility, mean_or_std):
 
 
 def timeHistory(Discips_fragility):
+    """
+    Description
+    -----------
+    Initializes empty numpy arrays for the space remaining points in each
+    discipline to be able to track their history of pass-fail predictions.
+
+    Parameters
+    ----------
+    Discips_fragility : List of dictionaries
+        Contains all of the information pertaining to each discipline at the
+        beginning of a space reduction cycle
+
+    Returns
+    -------
+    passfail_frag : List of lists of numpy arrays
+        Empty numpy arrays for each space remaining point in a discipline for
+        tracking its history of pass-fail predictions
+    """
     
     # Initialize a list of passfail tracking lists for the disciplines
     passfail_frag = [[] for _ in Discips_fragility]
@@ -106,6 +156,28 @@ def timeHistory(Discips_fragility):
 
 
 def reassignPF(pf_old, pf_new):
+    """
+    Description
+    -----------
+    Fill the numpy arrays with history of pass-fail predictions for each space
+    remaining point in a discipline.
+
+    Parameters
+    ----------
+    pf_old : Dictionary
+        Consolidated pass-fail data for each discipline at the start of a space
+        reduction cycle being prepared for reorganization based on the history
+        of a particular point's history of pass-fail predictions
+    pf_new : List of lists of numpy arrays
+        Empty numpy arrays for each space remaining point in a discipline for
+        tracking its history of pass-fail predictions
+
+    Returns
+    -------
+    pf_new : List of Lists of numpy arrays
+        Filled numpy arrays for each space remaining point in a discipline for
+        tracking its history of pass-fail predictions
+    """
     
     # Sort the old passfail keys by their time values
     sorted_keys = sorted(pf_old.keys())
@@ -127,12 +199,39 @@ def reassignPF(pf_old, pf_new):
 
 
 def minmaxNormalize(data):
-    if not data:  # handle empty data scenarios
+    """
+    Description
+    -----------
+    Normalizes data between 0 and 1.
+
+    Parameters
+    ----------
+    data : List
+        Data to be normalized
+
+    Returns
+    -------
+    "normalized data" : List
+        List of floats that is normalized between 0 and 1
+    """
+    
+    # Check if no data available
+    if not data:
+        
+        # Return an empty list
         return []
+    
+    # Determine minimum and maximum values in data
     min_val = min(data)
     max_val = max(data)
-    if max_val == min_val:  # avoid division by zero if all values are the same
-        return [0] * len(data)  # or return any constant array
+    
+    # Check if min and max values are the same to avoid division by zero
+    if max_val == min_val:
+        
+        # Return a list of zeros
+        return [0] * len(data)
+    
+    # Return normalized data
     return [(x - min_val) / (max_val - min_val) for x in data]
 
 
@@ -191,15 +290,52 @@ def initializeWR(irf, passfail):
             for ds, arr in dic.items():
                 
                 # Create empty dictionaries for discipline
-                windreg[rule+tuple(irf)][ind_dic][ds] = {'TVE': np.array([], dtype=float), 'DTVE': np.array([], dtype=float)}
-                run_wind[rule+tuple(irf)][ind_dic][ds] = {'TVE': 0.0, 'DTVE': 0.0}
-                run_reg[rule+tuple(irf)][ind_dic][ds] = {'TVE': 0.0, 'DTVE': 0.0}
+                windreg[rule+tuple(irf)][ind_dic][ds] = \
+                    {'TVE': np.array([], dtype=float), 
+                     'DTVE': np.array([], dtype=float)}
+                run_wind[rule+tuple(irf)][ind_dic][ds] = \
+                    {'TVE': 0.0, 'DTVE': 0.0}
+                run_reg[rule+tuple(irf)][ind_dic][ds] = \
+                    {'TVE': 0.0, 'DTVE': 0.0}
     
     # Return initialized dictionaries for windfall and regret tracking
     return windreg, run_wind, run_reg
 
 
 def assignWR(tve, dtve, ind_pf, indices_in_both, pf):
+    """
+    Description
+    -----------
+    Prepares calculated TVE and DTVE values for assignment to windfall and
+    regret dictionaries based on presently formed perceptions of feasibility
+    and design spaces in which a point falls.
+
+    Parameters
+    ----------
+    tve : Float
+        Calculated target value entropy
+    dtve : Float
+        Calculated differential target value entropy
+    ind_pf : Integer
+        Index of non-reduced design point
+    indices_in_both : List
+        List of integers detailing the design points found in both the reduced
+        and non-reduced desgin spaces
+    pf : Float
+        Current point's present pass-fail prediction
+
+    Returns
+    -------
+    wr : Dictionary
+        Potentials for regret or windfall of the non-reduced design space and
+        the reduced or leftover design space with proper signage
+    run_wind : Dictionary
+        Newest contributions to running windfall totals of the non-reduced and
+        reduced design spaces
+    run_reg : Dictionary
+        Newest contributions to running regret totals of the non-reduced and
+        reduced design spaces
+    """
     
     # Initialize empty dictionaries
     wr = {'non_reduced': {},
@@ -285,7 +421,8 @@ CLASS
 """
 class entropyTracker:
     
-    def __init__(self, passfail, passfail_std, Discips_fragility, irules_fragility):
+    def __init__(self, passfail, passfail_std, Discips_fragility, 
+                 irules_fragility):
         self.pf = passfail
         self.pf_std = passfail_std
         self.Df = Discips_fragility
