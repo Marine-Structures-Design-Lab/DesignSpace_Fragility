@@ -121,7 +121,7 @@ auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = False       # True = yes, False = no
+fragility = True       # True = yes, False = no
 fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 

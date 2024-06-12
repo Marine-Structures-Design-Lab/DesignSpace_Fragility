@@ -1,6 +1,9 @@
 """
 SUMMARY:
-[Working through scripts for PFM and EFM]
+Contains methods for performing either a probabilistic fragility model (PFM) or
+entropic fragility model (EFM) assessment depending on the method chosen by the
+user in the main script file.  Goes on to quantify and assess the risk relative
+to an adaptive threshold that can be slightly manipulated as well.
 
 CREATOR:
 Joseph B. Van Houten
@@ -23,6 +26,31 @@ class fragilityCommands:
     
     def __init__(self, Discips_fragility, irules_fragility, pf_combos,
                  pf_fragility, pf_std_fragility, passfail, passfail_std):
+        """
+        Parameters
+        ----------
+        Discips_fragility : Dictionary
+            All information pertaining to each discipline at the beginning of
+            the newest space reduction cycle
+        irules_fragility : List
+            Sympy and/or relationals detailing all of the new space reduction
+            rules of the current space reduction cycle
+        pf_combos : Dictionary
+            Each discipline's pass-fail predictions for each design space of
+            each new rule combination being considered
+        pf_fragility : List
+            Each discipline's pass-fail predictions for the non-reduced design
+            space at the beginning of the space reduction cycle
+        pf_std_fragility : List
+            Each discipline's pass-fail standard deviations for the non-reduced
+            design space at the beginning of the space reduction cycle
+        passfail : List of dictionaries
+            History of each discipline's pass-fail predictions up to a certain
+            point in time
+        passfail_std : List of dictionaries
+            History of each discipline's pass-fail standard deviatiokns up to a
+            certain point in time
+        """
         self.Df = Discips_fragility
         self.irf = irules_fragility
         self.pf_combos = pf_combos
@@ -34,7 +62,29 @@ class fragilityCommands:
     
     
     def PFM(self):
-            
+        """
+        Description
+        -----------
+        Performs the necessary commands to evaluate each design space's
+        fragility with the probabilistic fragility model approach.
+
+        Returns
+        -------
+        wr : Dictionary
+            Windfall and regret data for each discretized point remaining in
+            the non-reduced, reduced, and leftover design spaces of each 
+            discipline for all of the rules proposed in the current time stamp
+        run_wind : Dictionary
+            Fraction of windfall potential in remaining design spaces for all
+            of the rules proposed in the current time stamp
+        run_reg : Dictionary
+            Fraction of regret potential in remaining design spaces for all of
+            the rules proposed in the current time stamp
+        ris : Dictionary
+            Added potentials for regret and windfall accompanying a set of
+            input rule(s) for the current timestamp
+        """
+        
         # Initialize a windfall and regret object
         windregret = windfallRegret(self.Df, self.irf)
         
@@ -52,6 +102,28 @@ class fragilityCommands:
     
     
     def EFM(self):
+        """
+        Description
+        -----------
+        Performs the necessary commands to evaluate each design space's
+        fragility with the entropic fragility model approach.
+
+        Returns
+        -------
+        wr : Dictionary
+            Windfall and regret data for each discretized point remaining in
+            the non-reduced, reduced, and leftover design spaces of each 
+            discipline for all of the rules proposed in the current time stamp
+        run_wind : Dictionary
+            Fraction of windfall potential in remaining design spaces for all
+            of the rules proposed in the current time stamp
+        run_reg : Dictionary
+            Fraction of regret potential in remaining design spaces for all of
+            the rules proposed in the current time stamp
+        ris : Dictionary
+            Added potentials for regret and windfall accompanying a set of
+            input rule(s) for the current timestamp
+        """
         
         # Initialize an entropy tracking object
         entropytrack = entropyTracker(self.pf, self.pf_std, self.Df, self.irf)
@@ -79,6 +151,84 @@ class fragilityCommands:
     def assessRisk(self, ris, iters, iters_max, exp_parameters, irules_new, 
                    fragility_shift, banned_rules, windreg, wr, 
                    running_windfall, run_wind, running_regret, run_reg, risk):
+        """
+        Description
+        -----------
+        Assesses whether or not any design spaces are too fragile for the
+        current set of input rule(s) being proposed in combination with any
+        rules accepted already and then organizes rules and accompanying data
+        that went into making the decision.
+
+        Parameters
+        ----------
+        ris : Dictionary
+            Added potentials for regret and windfall accompanying a set of
+            input rule(s) for the current timestamp
+        iters : Integer
+            Amount of time that has been spent exploring design spaces already
+        iters_max : Integer
+            Total time allotted to explore design spaces
+        exp_parameters : Numpy array
+            Various exponential function parameters dictating minimum space
+            reduction pace for each discipline
+        irules_new : List
+            Sympy relationals dictating the newest set of space reduction rules
+            being considered
+        fragility_shift : Float
+            Amount to either translate the exponential function (basicCheck) or
+            set as a weighted coefficient (basicCheck2) for manipulating the
+            fragility threshold via the design manager
+        banned_rules : Set
+            Sympy relationals detailing the input rule(s) no longer being
+            considered for the current round of space reductions
+        windreg : List of dictionaries
+            Contains the complete history of gathered windfall and regret data
+            for each discipline's design space
+        wr : Dictionary
+            Contains gathered windfall and regret data for each discipline's
+            design space at the current time stamp
+        running_windfall : List of dictionaries
+            Contains the complete history of gathered windfall totals for each
+            discipline's design space
+        run_wind : Dictionary
+            Contains gathered windfall totals for each discipline's design
+            space at the current time stamp
+        running_regret : List of dictionaries
+            Contains the complete history of gathered regret totals for each
+            discipline's design space
+        run_reg : Dictionary
+            Contains gathered regret totals for each discipline's design space
+            at the current time stamp
+        risk : List of dictionaries
+            Contains the complete history of gathered risk data for each
+            discipline
+
+        Returns
+        -------
+        banned_rules : Set
+            Updated sympy relationals detailing the input rule(s) no longer
+            being considered for the current round of space reductions
+        windreg : List of dictionaries
+            Updated history of gathered windfall and regret data for each
+            discipline's design space
+        running_windfall : List of dictionaries
+            Updated history of gathered windfall totals for each discipline's
+            design space
+        running_regret : List of dictionaries
+            Updated history of gathered regret totals for each discipline's
+            design space
+        risk : List of dictionaries
+            Updated history of gathered risk data for each discipline
+        irules_new : List
+            Updated list of sympy relationals dictating the newest set of space
+            reduction rule(s) being considered
+        irules_fragility : List
+            Updated list of sympy and/or relationals detailing all of the new
+            space reduction rules of the current space reduction cycle
+        break_loop : Boolean
+            Flag for whether or not the current cycle of fragility assessments
+            should be broken
+        """
         
         # Initialize a fragility check object
         fragile = checkFragility(ris, self.Df)
