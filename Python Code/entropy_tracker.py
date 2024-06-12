@@ -22,7 +22,7 @@ from windfall_regret import getIndices
 
 
 """
-FUNCTION
+FUNCTIONS
 """
 def initializePF(passfail, Discips_fragility, mean_or_std):
     """
@@ -236,148 +236,71 @@ def minmaxNormalize(data):
     return [(x - min_val) / (max_val - min_val) for x in data]
 
 
-"""
-CLASS
-"""
-class entropyTracker:
-    
-    def __init__(self, passfail, passfail_std, Discips_fragility, 
-                 irules_fragility):
-        self.pf = passfail
-        self.pf_std = passfail_std
-        self.Df = Discips_fragility
-        self.irf = irules_fragility
-        return
-    
-    
-    def prepEntropy(self):
-        """
-        Description
-        -----------
-        Goes through steps to organize history of each discipline's space 
-        remaining points pass-fail predictions for TVE and DTVE calculations.
+def prepEntropy(pf, Df, pf_std):
+    """
+    Description
+    -----------
+    Goes through steps to organize history of each discipline's space 
+    remaining points pass-fail predictions for TVE and DTVE calculations.
 
-        Returns
-        -------
-        passfail_frag2 : List of lists of numpy arrays
-            Filled numpy arrays for each space remaining point in a discipline
-            for tracking its history of pass-fail predictions
-        passfail_std_frag2 : List of lists of numpy arrays
-            Same thing as above except for their history of standard deviation
-            values associated with the predictions
-        """
-        
-        # Initialize an empty dictionary for consolidated passfail data
-        passfail_frag1 = initializePF(self.pf, self.Df, 'mean')
-        passfail_std_frag1 = initializePF(self.pf_std, self.Df, 'std')
-        
-        # Initalize a list for time history of passfail values
-        passfail_frag2 = timeHistory(self.Df)
-        passfail_std_frag2 = timeHistory(self.Df)
-        
-        # Populate list with time history of passfail values
-        passfail_frag2 = reassignPF(passfail_frag1, passfail_frag2)
-        passfail_std_frag2 = reassignPF(passfail_std_frag1, passfail_std_frag2)
-        
-        # Return each discipline's time history of passfail predictions for 
-        # remaining design solutions in non-reduced design space
-        return passfail_frag2, passfail_std_frag2
+    Returns
+    -------
+    passfail_frag2 : List of lists of numpy arrays
+        Filled numpy arrays for each space remaining point in a discipline
+        for tracking its history of pass-fail predictions
+    passfail_std_frag2 : List of lists of numpy arrays
+        Same thing as above except for their history of standard deviation
+        values associated with the predictions
+    """
     
+    # Initialize an empty dictionary for consolidated passfail data
+    passfail_frag1 = initializePF(pf, Df, 'mean')
+    passfail_std_frag1 = initializePF(pf_std, Df, 'std')
     
-    def evalEntropy(self, passfail_frag, passfail_std_frag):
-        
-        # Initialize empty TVE list
-        TVE = [[] for _ in passfail_frag]
-        
-        # Loop through each discipline
-        for i, (discip_pf, discip_pf_std) in enumerate(zip(passfail_frag, 
-                                                           passfail_std_frag)):
-            
-            # Loop through each history of data points' passfail predictions
-            for j, (index_pf, index_pf_std) in enumerate(zip(discip_pf, 
-                                                             discip_pf_std)):
-                
-                # Create probability array from standard deviations
-                total_sum = np.sum(1.0 / index_pf_std)
-                index_pf_std = (1.0 / index_pf_std) / total_sum
-                
-                # Create a scalar distribution for the data
-                dist = ScalarDistribution(index_pf, index_pf_std)
-                
-                # Calculate the TVE value
-                tve = gcre(dist)
-                
-                # Append the TVE value to the inner TVE list
-                TVE[i].append(tve)
-            
-            # Normalize TVE for the current discipline
-            TVE[i] = minmaxNormalize(TVE[i])
-            
-        # Return normalized TVE values for each design point in non-reduced space remaining
-        return TVE
+    # Initalize a list for time history of passfail values
+    passfail_frag2 = timeHistory(Df)
+    passfail_std_frag2 = timeHistory(Df)
     
+    # Populate list with time history of passfail values
+    passfail_frag2 = reassignPF(passfail_frag1, passfail_frag2)
+    passfail_std_frag2 = reassignPF(passfail_std_frag1, passfail_std_frag2)
     
-    def calcWindRegret(self, passfail, TVE, pf_fragility):
+    # Return each discipline's time history of passfail predictions for 
+    # remaining design solutions in non-reduced design space
+    return passfail_frag2, passfail_std_frag2
+
+
+def evalEntropy(passfail_frag, passfail_std_frag):
+    
+    # Initialize empty TVE list
+    TVE = [[] for _ in passfail_frag]
+    
+    # Loop through each discipline
+    for i, (discip_pf, discip_pf_std) in enumerate(zip(passfail_frag, 
+                                                       passfail_std_frag)):
         
-        # Initialize empty dictionaries
-        windreg, run_wind, run_reg = initializeWR(self.irf, passfail)
-        
-        # Loop through each new rule combo being proposed
-        for rule, lis in passfail.items():
+        # Loop through each history of data points' passfail predictions
+        for j, (index_pf, index_pf_std) in enumerate(zip(discip_pf, 
+                                                         discip_pf_std)):
             
-            # Loop through each discipline's passfail data
-            for ind_dic, dic in enumerate(lis):
-                
-                # Create different index lists for input rule
-                all_indices, indices_in_both, indices_not_in_B = \
-                    getIndices(self.Df, self.irf, ind_dic, rule)
-                
-                # Loop through time history data of non-reduced design points
-                for ind_pf, tve in enumerate(TVE[ind_dic]):
-                    
-                    # Gather windfall and regret potentials
-                    wr, r_wind, r_reg = assignWR(tve, ind_pf, indices_in_both, 
-                                                 pf_fragility[ind_dic][ind_pf])
-                    
-                    # Loop through each entropy dictionary in wr
-                    for ds, entr in wr.items():
-                        
-                        # Append values to list of values of windreg key
-                        windreg[rule+tuple(self.irf)][ind_dic][ds] =\
-                            np.append(windreg[rule+tuple(self.irf)]\
-                                      [ind_dic][ds], entr)
-                    
-                    # Loop through each entropy dictionary in r_wind
-                    for ds, entr in r_wind.items():
-                        
-                        # Add probability to proper running windfall sum
-                        run_wind[rule+tuple(self.irf)][ind_dic][ds] \
-                            += r_wind[ds]
-                        
-                    # Loop through each entropy dictionary in r_reg
-                    for ds, entr in r_reg.items():
-                        
-                        # Add probability to proper running regret sum
-                        run_reg[rule+tuple(self.irf)][ind_dic][ds] \
-                            += r_reg[ds]
-                    
-                # Loop through each design space of discipline
-                for ds in dic.keys():
-                    
-                    # Divide entropic sums by remaining points
-                    if self.Df[ind_dic]['space_remaining'].shape[0] > 0:
-                        run_wind[rule+tuple(self.irf)][ind_dic][ds] \
-                            = run_wind[rule+tuple(self.irf)][ind_dic][ds] / \
-                                self.Df[ind_dic]['space_remaining'].shape[0]
-                        run_reg[rule+tuple(self.irf)][ind_dic][ds] \
-                            = run_reg[rule+tuple(self.irf)][ind_dic][ds] / \
-                                self.Df[ind_dic]['space_remaining'].shape[0]
-                    else:
-                        run_wind[rule+tuple(self.irf)][ind_dic][ds] = 0.0
-                        run_reg[rule+tuple(self.irf)][ind_dic][ds] = 0.0
+            # Create probability array from standard deviations
+            total_sum = np.sum(1.0 / index_pf_std)
+            index_pf_std = (1.0 / index_pf_std) / total_sum
+            
+            # Create a scalar distribution for the data
+            dist = ScalarDistribution(index_pf, index_pf_std)
+            
+            # Calculate the TVE value
+            tve = gcre(dist)
+            
+            # Append the TVE value to the inner TVE list
+            TVE[i].append(tve)
         
-        # Return windfall and regret data
-        return windreg, run_wind, run_reg
+        # Normalize TVE for the current discipline
+        TVE[i] = minmaxNormalize(TVE[i])
+        
+    # Return normalized TVE values for each design point in non-reduced space remaining
+    return TVE
     
     
     

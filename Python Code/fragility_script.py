@@ -13,8 +13,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from windfall_regret import windfallRegret, quantRisk, plotWindRegret
-from entropy_tracker import entropyTracker
+from windfall_regret import evalCompProb, calcWindRegret, quantRisk, plotWindRegret
+from entropy_tracker import prepEntropy, evalEntropy
 from fragility_check import checkFragility
 import copy
 
@@ -85,15 +85,12 @@ class fragilityCommands:
             input rule(s) for the current timestamp
         """
         
-        # Initialize a windfall and regret object
-        windregret = windfallRegret(self.Df, self.irf)
-        
         # Calculate complementary probabilities of feasibility
-        prob_feas = windregret.evalCompProb(self.pf_frag, self.pf_std_frag)
+        prob_feas = evalCompProb(self.pf_frag, self.pf_std_frag)
         
         # Calculate windfall and regret for remaining design spaces
-        wr, run_wind, run_reg = windregret.calcWindRegret\
-            (prob_feas, self.pf_combos, self.pf_frag, self.pf_std_frag)
+        wr, run_wind, run_reg = calcWindRegret\
+            (self.irf, self.Df, self.pf_combos, prob_feas, self.pf_frag)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
@@ -128,18 +125,15 @@ class fragilityCommands:
             input rule(s) for the current timestamp
         """
         
-        # Initialize an entropy tracking object
-        entropytrack = entropyTracker(self.pf, self.pf_std, self.Df, self.irf)
-        
         # Organize the history of recorded pass-fail data in non-reduced space
-        passfail_frag, passfail_std_frag = entropytrack.prepEntropy()
+        passfail_frag, passfail_std_frag = prepEntropy(self.pf, self.Df, self.pf_std)
         
         # Evaluate the TVE throughout remaining design spaces
-        TVE = entropytrack.evalEntropy(passfail_frag, passfail_std_frag)
+        TVE = evalEntropy(passfail_frag, passfail_std_frag)
         
         # Calculate windfall and regret for remaining design spaces
-        wr, run_wind, run_reg = entropytrack.calcWindRegret(self.pf_combos, 
-                                                            TVE, self.pf_frag)
+        wr, run_wind, run_reg = calcWindRegret\
+            (self.irf, self.Df, self.pf_combos, TVE, self.pf_frag)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
