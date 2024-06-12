@@ -24,7 +24,7 @@ from merge_constraints import sharedIndices
 
 
 """
-FUNCTION
+FUNCTIONS
 """
 def initializeWR(irf, passfail):
     """
@@ -290,6 +290,285 @@ def assignWR(prob_feas, ind_pf, indices_in_both, pf):
     return wr, run_wind, run_reg
 
 
+def quantRisk(Df, run_wind, run_reg, windreg):
+    """
+    Description
+    -----------
+    Determines the amount of space that would remaing in each discipline
+    if they were to move forward with the new rule combo(s) being
+    considered for the current time stamp and calculates the entire design
+    spaces' added potentials for regret and windfall.
+
+    Parameters
+    ----------
+    Df : Dictionary
+        Contains all of the information relevant to each discipline prior to
+        the newest space reduction cycle
+    run_wind : Dictionary
+        Fraction of windfall potential in remaining design spaces for all
+        of the rules proposed in the current time stamp
+    run_reg : Dictionary
+        Fraction of regret potential in remaining design spaces for all of
+        the rules proposed in the current time stamp
+    windreg : Dictionary
+        Windfall and regret data for each discretized point remaining in
+        the non-reduced, reduced, and leftover design spaces of each 
+        discipline for all of the rules proposed in the current time stamp
+
+    Returns
+    -------
+    risk : Dictionary
+        Added potentials for regret and windfall accompanying a set of
+        input rule(s) for the current timestamp
+    """
+    
+    # Initialize empty dictionary
+    risk = {}
+    
+    # Loop through each new rule (set) being proposed
+    for rule, lis in run_wind.items():
+        
+        # Add empty list to dictionary
+        risk[rule] = []
+        
+        # Print rule (set) being considered
+        print(f"For the rule set {str(rule)}...")
+        
+        # Loop through each discipline's regret and windfall data
+        for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], 
+                                                          run_wind[rule])):
+            
+            # Calculate non-reduced and reduced percentages
+            nrp = round((windreg[rule][ind_dic]['non_reduced'].shape[0] / \
+                Df[ind_dic]['tp_actual'])*100, 2)
+            rp = round((windreg[rule][ind_dic]['reduced'].shape[0] / \
+                Df[ind_dic]['tp_actual'])*100, 2)
+            
+            ########## Space Remaining ##########
+            # Print percent of space that would remain in discipline
+            print(f"Discipline {ind_dic+1} would go from {nrp}% to {rp}% "
+                  f"of its original design space remaining!")
+            
+            
+            ########## Regret and Windfall ##########
+            
+            # Create an empty dictionary for regret and windfall tracking
+            risk[rule].append({
+                "regret" : None, 
+                "windfall" : None
+                })
+            
+            
+            ########## Regret ##########
+            
+            # Calculate the potential for regret for the space reduction
+            ### + value indicates added potential for regret
+            ### - value indicates reduced potential for regret
+            reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1 \
+                if reg_dic['non_reduced'] != 0 else 0.0
+            
+            # Print the potential for regret results of space reduction
+            print(f"Discipline {ind_dic+1} has {round(reg_value, 2)} added"
+                  f" potential for regret.")
+            
+            # Replace regret value in risk dictionary
+            risk[rule][ind_dic]['regret'] = reg_value
+            
+            
+            ########## Windfall ##########
+            
+            # Calculate the potential for windfall for the space reduction
+            ### + value indicates added potential for windfall
+            ### - value indicates reduced potential for windfall
+            wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1\
+                if wind_dic['non_reduced'] != 0 else 0.0
+            
+            # Print the potential for windfal results of space reduction
+            print(f"Discipline {ind_dic+1} has {round(wind_value, 2)} "
+                  f"added potential for windfall.")
+            
+            # Replace windfall value in risk dictionary
+            risk[rule][ind_dic]['windfall'] = wind_value
+            
+    # Return the dictionary for risk tracking
+    return risk
+
+
+def plotWindRegret(Df, irf, windreg):
+    """
+    Description
+    -----------
+    Visualizes the windfall and regret potentials of remaining design
+    points for each design space of each discipline specifically for the
+    SBD1 problem.
+
+    Parameters
+    ----------
+    Df : Dictionary
+        Contains all of the information relevant to each discipline prior to
+        the newest space reduction cycle
+    irf : List
+        Sympy And or Or relationals or inequalities describing each new
+        rule being proposed of the current time stamp
+    windreg : Dictionary
+        Windfall and regret data for each discretized point remaining
+        in the non-reduced, reduced, and leftover design spaces of each 
+        discipline for all of the rules proposed in the current time stamp
+    """
+    
+    # Loop through each new rule (set) being proposed
+    for rule, lis in windreg.items():
+        
+        # Loop through each discipline's windfall-regret values
+        for ind_dic, dic in enumerate(windreg[rule]):
+            
+            # Create different index lists for input rule
+            all_indices, indices_in_both, indices_not_in_B = \
+                getIndices(Df, irf, ind_dic, rule)
+            
+            # Add each list to a different dictionary key
+            diction = {"non_reduced": all_indices, 
+                       "reduced": indices_in_both, 
+                       "leftover": indices_not_in_B}
+            
+            # Loop through each design space of discipline
+            for ds, arr in dic.items():
+                
+                # Continue if array is empty
+                if arr.shape[0] == 0: continue
+                
+                # Initialize an empty list for storing numpy arrays
+                l = []
+                
+                # Create surface plots
+                j = np.linspace(0, 1, 4000)
+                k = np.linspace(0, 1, 4000)
+                j, k = np.meshgrid(j, k)
+                if ind_dic == 0:
+                    l.append(0.8*j**2 + 2*k**2 - 0.0)
+                    l.append(0.8*j**2 + 2*k**2 - 0.4)
+                    l.append(0.8*j**2 + 2*k**2 - 1.2)
+                    l.append(0.8*j**2 + 2*k**2 - 1.6)
+                elif ind_dic == 1:
+                    l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
+                    l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
+                    l.append(-k**3+np.sqrt(0.2))
+                    l.append(-k**3+np.sqrt(0.5))
+                else:
+                    l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
+                    l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
+                    l.append((np.cos(3*j)+0.8)**3)
+                    l.append((np.cos(3*j)+1.6)**3)
+                
+                # Replace out-of-bounds z_values with np.nan
+                l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
+                
+                # Initialize plot
+                fig = plt.figure()
+                ax = fig.add_subplot(111, projection='3d')
+                
+                # Initialize colors for plots
+                colors = ['teal', 'teal', 'magenta', 'magenta']
+                
+                # Plot every surface
+                for m in range(0, len(l)):
+                    if ind_dic < 2:
+                        ax.plot_surface(j, k, l[m], color=colors[m], 
+                                        alpha=0.1, rstride=100, 
+                                        cstride=100)
+                    else:
+                        ax.plot_surface(l[m], j, k, color=colors[m], 
+                                        alpha=0.1, rstride=100, 
+                                        cstride=100)
+                
+                # Define the levels and discretize the windfall-regret data
+                levels = np.linspace(-1.0, 1.0, 21)
+                wr_discrete = (np.digitize(arr, bins=levels) - 11) / 10.0
+                
+                # Plot discretized space remaining points for design space
+                scatter = ax.scatter(
+                    Df[ind_dic]['space_remaining'][diction[ds], 0],
+                    Df[ind_dic]['space_remaining'][diction[ds], 1],
+                    Df[ind_dic]['space_remaining'][diction[ds], 2],
+                    c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, 
+                    vmin=-1, vmax=1  # Set vmin and vmax to -1 and 1
+                )
+                
+                # Adjust the colorbar to reflect the levels
+                cbar = plt.colorbar(scatter, ax=ax, ticks=levels,
+                                    boundaries=levels)
+                cbar.set_label('Windfall-Regret Scale')
+                
+                # Edit the color bar
+                tick_labels = [f"{round(level, 1)}" for level in levels]
+                tick_labels[0] = f"{tick_labels[0]} (Regret)"
+                tick_labels[-1] = f"{tick_labels[-1]} (Windfall)"
+                cbar.ax.set_yticklabels(tick_labels)
+                
+                # Plot passing and failing remaining tested input indices
+                # pass_ind = np.where(self.Df[ind_dic]['pass?'])[0].tolist()
+                # fail_ind = np.where(
+                #     np.array(self.Df[ind_dic]['pass?']) == False)[0].tolist()
+                # ax.scatter(self.Df[ind_dic]['tested_ins'][pass_ind,0],
+                #             self.Df[ind_dic]['tested_ins'][pass_ind,1],
+                #             self.Df[ind_dic]['tested_ins'][pass_ind,2], 
+                #             c='lightgreen', alpha=1)
+                # ax.scatter(self.Df[ind_dic]['tested_ins'][fail_ind,0],
+                #             self.Df[ind_dic]['tested_ins'][fail_ind,1],
+                #             self.Df[ind_dic]['tested_ins'][fail_ind,2], 
+                #             c='red', alpha=1)
+                
+                # Plot passing and failing eliminated tested input indices
+                # if 'eliminated' in self.Df[ind_dic]:
+                #     pass_ind = np.where(self.Df[
+                #         ind_dic]['eliminated']['pass?'])[0].tolist()
+                #     fail_ind = np.where(np.array(self.Df[ind_dic]
+                #         ['eliminated']['pass?']) == False)[0].tolist()
+                #     ax.scatter(self.Df[ind_dic]['eliminated']
+                #         ['tested_ins'][pass_ind,0],
+                #         self.Df[ind_dic]['eliminated']
+                #         ['tested_ins'][pass_ind,1],
+                #         self.Df[ind_dic]['eliminated']
+                #         ['tested_ins'][pass_ind,2], c='lightgreen',
+                #         alpha=1)
+                #     ax.scatter(self.Df[ind_dic]['eliminated']
+                #         ['tested_ins'][fail_ind,0],
+                #         self.Df[ind_dic]['eliminated']
+                #         ['tested_ins'][fail_ind,1],
+                #         self.Df[ind_dic]['eliminated']
+                #         ['tested_ins'][fail_ind,2], c='red', alpha=1)
+                
+                # Set axis limits
+                ax.set_xlim([0, 1])
+                ax.set_ylim([0, 1])
+                ax.set_zlim([0, 1])
+                
+                # Set labels and title
+                ax.set_xlabel(Df[ind_dic]['ins'][0])
+                ax.set_ylabel(Df[ind_dic]['ins'][1])
+                ax.set_zlabel(Df[ind_dic]['ins'][2])
+                # ax.set_title(f"Discipline {ind_dic+1} {ds} input space")
+                # plt.figtext(0.5, 0.01, f"New input rule set: {str(rule)}", 
+                #             ha="center", fontsize=10, va="bottom")
+                
+                # Create proxy artists for the legend
+                # legend_elements = [Line2D([0], [0], marker='o', color='w', 
+                #                           label='Feasible', markersize=10, 
+                #                           markerfacecolor='lightgreen'),
+                #                    Line2D([0], [0], marker='o', color='w', 
+                #                           label='Infeasible',markersize=10, 
+                #                           markerfacecolor='red')]
+                
+                # Add the legend to your axis
+                # ax.legend(handles=legend_elements, loc='upper left')
+                
+                # Show plot
+                plt.show()
+        
+    # Nothing to return
+    return
+
+
 """
 CLASS
 """
@@ -311,7 +590,33 @@ class windfallRegret:
         return
     
     
-    def calcWindRegret(self, passfail, pf_fragility, pf_std_fragility):
+    def evalCompProb(self, pf_fragility, pf_std_fragility):
+        
+        # Initialize empty complementary probability list
+        prob_feas = [None for _ in pf_fragility]
+        
+        # Loop through each discipline
+        for i, (discip_pf, discip_pf_std) in enumerate(zip(pf_fragility, 
+                                                           pf_std_fragility)):
+            
+            # Initialize a numpy array for complementary probabilities
+            prob_feas[i] = np.zeros_like(pf_fragility[i])
+            
+            # Loop through each passfail value of the NON-REDUCED array
+            for ind_pf, pf in enumerate(pf_fragility[i]):
+                
+                # Convert passfail prediction to complementary probability
+                prob_feas[i][ind_pf] = complementProb\
+                    (pf, pf_std_fragility[i][ind_pf])
+            
+            # Normalize the complementary probabilities
+            prob_feas[i] = minmaxNormalize(prob_feas[i])
+            
+        # Return normalized complementary probabilities of feasibility
+        return prob_feas
+    
+    
+    def calcWindRegret(self, prob_feas, passfail, pf_fragility, pf_std_fragility):
         """
         Description
         -----------
@@ -321,6 +626,8 @@ class windfallRegret:
 
         Parameters
         ----------
+        prob_feas : List of numpy arrays
+            DESCRIPTION.
         passfail : Dictionary
             Pass-fail predictions for the non-reduced, reduced, and leftover
             design spaces of rule combinations from newest round of fragility
@@ -358,22 +665,9 @@ class windfallRegret:
                 # Create different index lists for input rule
                 all_indices, indices_in_both, indices_not_in_B = \
                     getIndices(self.Df, self.irf, ind_dic, rule)
-                    
-                # Initialize a numpy array for complementary probabilities
-                prob_feas = np.zeros_like(pf_fragility[ind_dic])
                 
-                # Loop through each passfail value of the NON-REDUCED array
-                for ind_pf, pf in enumerate(pf_fragility[ind_dic]):
-                    
-                    # Convert passfail prediction to complementary probability
-                    prob_feas[ind_pf] = complementProb\
-                        (pf, pf_std_fragility[ind_dic][ind_pf])
-                
-                # Normalize the complementary probabilities
-                prob_feas = minmaxNormalize(prob_feas)
-                    
                 # Loop through each complementary probability value
-                for ind_pf, p_feas in enumerate(prob_feas):
+                for ind_pf, p_feas in enumerate(prob_feas[ind_dic]):
                     
                     # Prepare complementary probability for proper assignments
                     wr, r_wind, r_reg = assignWR(p_feas, ind_pf,
@@ -417,273 +711,4 @@ class windfallRegret:
                         
         # Returning windfall and regret information for new rule(s)
         return windreg, run_wind, run_reg
-    
-    
-    def quantRisk(self, run_wind, run_reg, windreg):
-        """
-        Description
-        -----------
-        Determines the amount of space that would remaing in each discipline
-        if they were to move forward with the new rule combo(s) being
-        considered for the current time stamp and calculates the entire design
-        spaces' added potentials for regret and windfall.
-
-        Parameters
-        ----------
-        run_wind : Dictionary
-            Fraction of windfall potential in remaining design spaces for all
-            of the rules proposed in the current time stamp
-        run_reg : Dictionary
-            Fraction of regret potential in remaining design spaces for all of
-            the rules proposed in the current time stamp
-        windreg : Dictionary
-            Windfall and regret data for each discretized point remaining in
-            the non-reduced, reduced, and leftover design spaces of each 
-            discipline for all of the rules proposed in the current time stamp
-
-        Returns
-        -------
-        risk : Dictionary
-            Added potentials for regret and windfall accompanying a set of
-            input rule(s) for the current timestamp
-        """
-        
-        # Initialize empty dictionary
-        risk = {}
-        
-        # Loop through each new rule (set) being proposed
-        for rule, lis in run_wind.items():
-            
-            # Add empty list to dictionary
-            risk[rule] = []
-            
-            # Print rule (set) being considered
-            print(f"For the rule set {str(rule)}...")
-            
-            # Loop through each discipline's regret and windfall data
-            for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], 
-                                                              run_wind[rule])):
-                
-                # Calculate non-reduced and reduced percentages
-                nrp = round((windreg[rule][ind_dic]['non_reduced'].shape[0] / \
-                    self.Df[ind_dic]['tp_actual'])*100, 2)
-                rp = round((windreg[rule][ind_dic]['reduced'].shape[0] / \
-                    self.Df[ind_dic]['tp_actual'])*100, 2)
-                
-                ########## Space Remaining ##########
-                # Print percent of space that would remain in discipline
-                print(f"Discipline {ind_dic+1} would go from {nrp}% to {rp}% "
-                      f"of its original design space remaining!")
-                
-                
-                ########## Regret and Windfall ##########
-                
-                # Create an empty dictionary for regret and windfall tracking
-                risk[rule].append({
-                    "regret" : None, 
-                    "windfall" : None
-                    })
-                
-                
-                ########## Regret ##########
-                
-                # Calculate the potential for regret for the space reduction
-                ### + value indicates added potential for regret
-                ### - value indicates reduced potential for regret
-                reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1 \
-                    if reg_dic['non_reduced'] != 0 else 0.0
-                
-                # Print the potential for regret results of space reduction
-                print(f"Discipline {ind_dic+1} has {round(reg_value, 2)} added"
-                      f" potential for regret.")
-                
-                # Replace regret value in risk dictionary
-                risk[rule][ind_dic]['regret'] = reg_value
-                
-                
-                ########## Windfall ##########
-                
-                # Calculate the potential for windfall for the space reduction
-                ### + value indicates added potential for windfall
-                ### - value indicates reduced potential for windfall
-                wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1\
-                    if wind_dic['non_reduced'] != 0 else 0.0
-                
-                # Print the potential for windfal results of space reduction
-                print(f"Discipline {ind_dic+1} has {round(wind_value, 2)} "
-                      f"added potential for windfall.")
-                
-                # Replace windfall value in risk dictionary
-                risk[rule][ind_dic]['windfall'] = wind_value
-                
-        # Return the dictionary for risk tracking
-        return risk
-    
-    
-    def plotWindRegret(self, windreg):
-        """
-        Description
-        -----------
-        Visualizes the windfall and regret potentials of remaining design
-        points for each design space of each discipline specifically for the
-        SBD1 problem.
-
-        Parameters
-        ----------
-        windreg : Windfall and regret data for each discretized point remaining
-        in the non-reduced, reduced, and leftover design spaces of each 
-        discipline for all of the rules proposed in the current time stamp
-        """
-        
-        # Loop through each new rule (set) being proposed
-        for rule, lis in windreg.items():
-            
-            # Loop through each discipline's windfall-regret values
-            for ind_dic, dic in enumerate(windreg[rule]):
-                
-                # Create different index lists for input rule
-                all_indices, indices_in_both, indices_not_in_B = \
-                    getIndices(self.Df, self.irf, ind_dic, rule)
-                
-                # Add each list to a different dictionary key
-                diction = {"non_reduced": all_indices, 
-                           "reduced": indices_in_both, 
-                           "leftover": indices_not_in_B}
-                
-                # Loop through each design space of discipline
-                for ds, arr in dic.items():
-                    
-                    # Continue if array is empty
-                    if arr.shape[0] == 0: continue
-                    
-                    # Initialize an empty list for storing numpy arrays
-                    l = []
-                    
-                    # Create surface plots
-                    j = np.linspace(0, 1, 4000)
-                    k = np.linspace(0, 1, 4000)
-                    j, k = np.meshgrid(j, k)
-                    if ind_dic == 0:
-                        l.append(0.8*j**2 + 2*k**2 - 0.0)
-                        l.append(0.8*j**2 + 2*k**2 - 0.4)
-                        l.append(0.8*j**2 + 2*k**2 - 1.2)
-                        l.append(0.8*j**2 + 2*k**2 - 1.6)
-                    elif ind_dic == 1:
-                        l.append((12.5*j**3-6.25*j**2+0.5)/1.25)
-                        l.append((12.5*j**3-6.25*j**2+0.7)/1.25)
-                        l.append(-k**3+np.sqrt(0.2))
-                        l.append(-k**3+np.sqrt(0.5))
-                    else:
-                        l.append((2*j+0.2*np.sin(25*k)-0.0)**5)
-                        l.append((2*j+0.2*np.sin(25*k)-0.5)**5)
-                        l.append((np.cos(3*j)+0.8)**3)
-                        l.append((np.cos(3*j)+1.6)**3)
-                    
-                    # Replace out-of-bounds z_values with np.nan
-                    l = [np.where((z >= 0) & (z <= 1), z, np.nan) for z in l]
-                    
-                    # Initialize plot
-                    fig = plt.figure()
-                    ax = fig.add_subplot(111, projection='3d')
-                    
-                    # Initialize colors for plots
-                    colors = ['teal', 'teal', 'magenta', 'magenta']
-                    
-                    # Plot every surface
-                    for m in range(0, len(l)):
-                        if ind_dic < 2:
-                            ax.plot_surface(j, k, l[m], color=colors[m], 
-                                            alpha=0.1, rstride=100, 
-                                            cstride=100)
-                        else:
-                            ax.plot_surface(l[m], j, k, color=colors[m], 
-                                            alpha=0.1, rstride=100, 
-                                            cstride=100)
-                    
-                    # Define the levels and discretize the windfall-regret data
-                    levels = np.linspace(-0.5, 0.5, 11)
-                    wr_discrete = (np.digitize(arr, bins=levels) - 6) / 10.0
-                    
-                    # Plot discretized space remaining points for design space
-                    scatter = ax.scatter \
-                        (self.Df[ind_dic]['space_remaining'][diction[ds], 0],
-                         self.Df[ind_dic]['space_remaining'][diction[ds], 1],
-                         self.Df[ind_dic]['space_remaining'][diction[ds], 2],
-                         c=wr_discrete, s=10, cmap='RdBu', alpha=1.0, 
-                         vmin=-0.5, vmax=0.5)
-                    
-                    # Adjust the colorbar to reflect the levels
-                    cbar = plt.colorbar(scatter, ax=ax, ticks=levels,
-                                        boundaries=levels)
-                    cbar.set_label('Windfall-Regret Scale')
-                    
-                    # Edit the color bar
-                    tick_labels = [f"{round(level, 1)}" for level in levels]
-                    tick_labels[0] = f"{tick_labels[0]} (Regret)"
-                    tick_labels[-1] = f"{tick_labels[-1]} (Windfall)"
-                    cbar.ax.set_yticklabels(tick_labels)
-                    
-                    # Plot passing and failing remaining tested input indices
-                    # pass_ind = np.where(self.Df[ind_dic]['pass?'])[0].tolist()
-                    # fail_ind = np.where\
-                    #     (np.array(self.Df[ind_dic]['pass?']) == False)[0]\
-                    #         .tolist()
-                    # ax.scatter(self.Df[ind_dic]['tested_ins'][pass_ind,0], \
-                    #             self.Df[ind_dic]['tested_ins'][pass_ind,1], \
-                    #             self.Df[ind_dic]['tested_ins'][pass_ind,2], 
-                    #             c='lightgreen', alpha=1)
-                    # ax.scatter(self.Df[ind_dic]['tested_ins'][fail_ind,0], \
-                    #             self.Df[ind_dic]['tested_ins'][fail_ind,1], \
-                    #             self.Df[ind_dic]['tested_ins'][fail_ind,2], 
-                    #             c='red', alpha=1)
-                    
-                    # Plot passing and failing eliminated tested input indices
-                    # if 'eliminated' in self.Df[ind_dic]:
-                    #     pass_ind = np.where(self.Df\
-                    #         [ind_dic]['eliminated']['pass?'])[0].tolist()
-                    #     fail_ind = np.where(np.array(self.Df[ind_dic]\
-                    #         ['eliminated']['pass?']) == False)[0].tolist()
-                    #     ax.scatter(self.Df[ind_dic]['eliminated']\
-                    #         ['tested_ins'][pass_ind,0],
-                    #         self.Df[ind_dic]['eliminated']\
-                    #         ['tested_ins'][pass_ind,1],
-                    #         self.Df[ind_dic]['eliminated']\
-                    #         ['tested_ins'][pass_ind,2], c='lightgreen',
-                    #         alpha=1)
-                    #     ax.scatter(self.Df[ind_dic]['eliminated']\
-                    #         ['tested_ins'][fail_ind,0],
-                    #         self.Df[ind_dic]['eliminated']\
-                    #         ['tested_ins'][fail_ind,1],
-                    #         self.Df[ind_dic]['eliminated']\
-                    #         ['tested_ins'][fail_ind,2], c='red', alpha=1)
-                    
-                    # Set axis limits
-                    ax.set_xlim([0, 1])
-                    ax.set_ylim([0, 1])
-                    ax.set_zlim([0, 1])
-                    
-                    # Set labels and title
-                    ax.set_xlabel(self.Df[ind_dic]['ins'][0])
-                    ax.set_ylabel(self.Df[ind_dic]['ins'][1])
-                    ax.set_zlabel(self.Df[ind_dic]['ins'][2])
-                    # ax.set_title(f"Discipline {ind_dic+1} {ds} input space")
-                    # plt.figtext(0.5, 0.01, f"New input rule set: {str(rule)}", 
-                    #             ha="center", fontsize=10, va="bottom")
-                    
-                    # Create proxy artists for the legend
-                    # legend_elements = [Line2D([0], [0], marker='o', color='w', 
-                    #                           label='Feasible', markersize=10, 
-                    #                           markerfacecolor='lightgreen'),
-                    #                    Line2D([0], [0], marker='o', color='w', 
-                    #                           label='Infeasible',markersize=10, 
-                    #                           markerfacecolor='red')]
-                    
-                    # Add the legend to your axis
-                    # ax.legend(handles=legend_elements, loc='upper left')
-                    
-                    # Show plot
-                    plt.show()
-            
-        # Nothing to return
-        return
     

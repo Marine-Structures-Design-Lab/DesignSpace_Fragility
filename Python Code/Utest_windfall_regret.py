@@ -11,7 +11,7 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from windfall_regret import windfallRegret, initializeWR, complementProb, \
-    minmaxNormalize, assignWR
+    minmaxNormalize, assignWR, quantRisk
 import unittest
 import sympy as sp
 import numpy as np
@@ -43,7 +43,7 @@ class test_windfall_regret(unittest.TestCase):
         self.rule5 = sp.Or(x[0] > 0.3, x[5] < 0.4)
         
         # Initialize Discipline information at the beginning of the time stamp
-        Discips_fragility = [
+        self.Discips_fragility = [
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                           [0.0, 0.0, 0.1],
                                           [0.0, 0.0, 0.2],
@@ -107,7 +107,7 @@ class test_windfall_regret(unittest.TestCase):
         ]
         
         # Create an object call
-        self.windregret = windfallRegret(Discips_fragility, irules_fragility)
+        self.windregret = windfallRegret(self.Discips_fragility, irules_fragility)
         
         
     def test_initialize_wr(self):
@@ -498,7 +498,7 @@ class test_windfall_regret(unittest.TestCase):
     
     def test_quant_risk(self):
         """
-        Unit tests for the quantRisk method
+        Unit tests for the quantRisk function
         """
         
         # Initialize windfall and regret dictionaries
@@ -566,7 +566,7 @@ class test_windfall_regret(unittest.TestCase):
               'windfall': -0.62512693}]}
         
         # Run the method
-        risk = self.windregret.quantRisk(run_wind, run_reg, windreg)
+        risk = quantRisk(self.Discips_fragility, run_wind, run_reg, windreg)
         
         # Ensure actual risk values match up with expected values
         for rule, list_dics in exp_risk.items():

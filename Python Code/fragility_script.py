@@ -13,7 +13,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from windfall_regret import windfallRegret
+from windfall_regret import windfallRegret, quantRisk, plotWindRegret
 from entropy_tracker import entropyTracker
 from fragility_check import checkFragility
 import copy
@@ -88,14 +88,17 @@ class fragilityCommands:
         # Initialize a windfall and regret object
         windregret = windfallRegret(self.Df, self.irf)
         
+        # Calculate complementary probabilities of feasibility
+        prob_feas = windregret.evalCompProb(self.pf_frag, self.pf_std_frag)
+        
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = windregret.calcWindRegret\
-            (self.pf_combos, self.pf_frag, self.pf_std_frag)
+            (prob_feas, self.pf_combos, self.pf_frag, self.pf_std_frag)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
-        ris = windregret.quantRisk(run_wind, run_reg, wr)
+        ris = quantRisk(self.Df, run_wind, run_reg, wr)
         
         # Return the probability-based fragility results
         return wr, run_wind, run_reg, ris
@@ -131,18 +134,17 @@ class fragilityCommands:
         # Organize the history of recorded pass-fail data in non-reduced space
         passfail_frag, passfail_std_frag = entropytrack.prepEntropy()
         
-        # Evaluate the TVE and DTVE throughout remaining design spaces
-        TVE, DTVE = entropytrack.evalEntropy(passfail_frag, passfail_std_frag)
+        # Evaluate the TVE throughout remaining design spaces
+        TVE = entropytrack.evalEntropy(passfail_frag, passfail_std_frag)
         
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = entropytrack.calcWindRegret(self.pf_combos, 
-                                                            TVE, DTVE, 
-                                                            self.pf_frag)
+                                                            TVE, self.pf_frag)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
-        ris = entropytrack.quantRisk(run_wind, run_reg, wr)
+        ris = quantRisk(self.Df, run_wind, run_reg, wr)
         
         # Return the entropy-based fragility results
         return wr, run_wind, run_reg, ris
@@ -263,8 +265,7 @@ class fragilityCommands:
             
             # Plot the potential for windfall and regret throughout each 
             # discipline's design space for the final combo
-            # windregret = windfallRegret(self.Df, self.irf)
-            # windregret.plotWindRegret({final_combo: wr[final_combo]})
+            # plotWindRegret(self.Df, self.irf, {final_combo: wr[final_combo]})
                 
             # Append time to the dictionaries
             windreg[-1]['time'] = iters
