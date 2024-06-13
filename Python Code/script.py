@@ -553,9 +553,10 @@ while iters <= iters_max:
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     pf_std = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     for i, discip in enumerate(Discips):
-        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = getPerceptions(discip, gpr_params)
+        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
+            getPerceptions(discip, gpr_params)
         pf[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
-        pf_std[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
+        pf_std[None][i]['indices']=copy.deepcopy(discip['space_remaining_ind'])
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
     passfail_std.append(copy.deepcopy(pf_std))

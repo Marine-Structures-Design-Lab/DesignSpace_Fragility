@@ -22,7 +22,7 @@ from windfall_regret import minmaxNormalize
 """
 SECONDARY FUNCTIONS
 """
-def initializePF(passfail, Discips_fragility, mean_or_std):
+def initializePF(passfail, mean_or_std):
     """
     Description
     -----------
@@ -35,9 +35,6 @@ def initializePF(passfail, Discips_fragility, mean_or_std):
     passfail : List of dictionaries
         History of each discipline's pass-fail predictions up to a certain
         point in time
-    Discips_fragility : List of dictionaries
-        Contains all of the information pertaining to each discipline at the
-        beginning of a space reduction cycle
     mean_or_std : String
         Either "mean" or "std" to detail whether pass-fail predictions or their
         standard deviations are to be consolidated
@@ -231,8 +228,8 @@ def prepEntropy(pf, Df, pf_std):
     """
     
     # Initialize an empty dictionary for consolidated passfail data
-    passfail_frag1 = initializePF(pf, Df, 'mean')
-    passfail_std_frag1 = initializePF(pf_std, Df, 'std')
+    passfail_frag1 = initializePF(pf, 'mean')
+    passfail_std_frag1 = initializePF(pf_std, 'std')
     
     # Initalize a list for time history of passfail values
     passfail_frag2 = timeHistory(Df)
