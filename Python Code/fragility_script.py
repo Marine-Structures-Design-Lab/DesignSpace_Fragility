@@ -1,7 +1,7 @@
 """
 SUMMARY:
 Contains methods for performing either a probabilistic fragility model (PFM) or
-entropic fragility model (EFM) assessment depending on the method chosen by the
+entropic fragility model (EFM) assessment depending on the model chosen by the
 user in the main script file.  Goes on to quantify and assess the risk relative
 to an adaptive threshold that can be slightly manipulated as well.
 

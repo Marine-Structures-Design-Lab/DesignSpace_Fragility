@@ -24,7 +24,7 @@ from merge_constraints import sharedIndices
 
 
 """
-FUNCTIONS
+SECONDARY FUNCTIONS
 """
 def initializeWR(irf, passfail):
     """
@@ -95,7 +95,7 @@ def getIndices(Df, irf, ind_dic, rule):
     -----------
     Collects a list of indices for rows of space remaining data that would be
     found in the non-reduced, reduced, and leftover design spaces for a
-    particular combination of input rule(s)
+    particular combination of input rule(s).
 
     Parameters
     ----------
@@ -199,18 +199,18 @@ def minmaxNormalize(data):
     return (data - min_val) / (max_val - min_val)
 
 
-def assignWR(prob_feas, ind_pf, indices_in_both, pf):
+def assignWR(prob_tve, ind_pf, indices_in_both, pf):
     """
     Description
     -----------
-    Prepares complementary probability of feasiblity for assignment to windfall
-    and regret dictionaries based on initially formed perceptions of feasiblity
-    and design spaces in which a point falls.
+    Prepares complementary probability of feasiblity or TVE for assignment to
+    windfall and regret dictionaries based on initially formed perceptions of 
+    feasiblity and design spaces in which a point falls.
 
     Parameters
     ----------
     prob_feas : Float
-        Complementary probability of feasibility
+        Complementary probability of feasibility or TVE
     ind_pf : Integer
         Index of the discretized design point in the non-reduced data array
     indices_in_both : List
@@ -242,24 +242,24 @@ def assignWR(prob_feas, ind_pf, indices_in_both, pf):
         # Check if point predicted infeasible (windfall chance)
         if pf < 0:
             
-            # Assign complementary probability with proper sign
-            wr['non_reduced'] = prob_feas
-            wr['reduced'] = prob_feas
+            # Assign complementary probability or TVE with proper sign
+            wr['non_reduced'] = prob_tve
+            wr['reduced'] = prob_tve
             
             # Assign to proper running windfall count
-            run_wind['non_reduced'] = prob_feas
-            run_wind['reduced'] = prob_feas
+            run_wind['non_reduced'] = prob_tve
+            run_wind['reduced'] = prob_tve
                         
         # Do below if point predicted feasible (regret chance)
         else:
                         
-            # Assign complementary probability with proper sign
-            wr['non_reduced'] = -prob_feas
-            wr['reduced'] = -prob_feas
+            # Assign complementary probability or TVE with proper sign
+            wr['non_reduced'] = -prob_tve
+            wr['reduced'] = -prob_tve
             
             # Assign to proper running regret count
-            run_reg['non_reduced'] = prob_feas
-            run_reg['reduced'] = prob_feas
+            run_reg['non_reduced'] = prob_tve
+            run_reg['reduced'] = prob_tve
             
     # Do below if point is not in both non-reduced and reduced matrices
     else:
@@ -267,30 +267,56 @@ def assignWR(prob_feas, ind_pf, indices_in_both, pf):
         # Check if point is predicted infeasible
         if pf < 0:
             
-            # Assign complementary probability with proper sign
-            wr['non_reduced'] = prob_feas
-            wr['leftover'] = -prob_feas
+            # Assign complementary probability or TVE with proper sign
+            wr['non_reduced'] = prob_tve
+            wr['leftover'] = -prob_tve
             
             # Assign to proper running windfall and regret counts
-            run_wind['non_reduced'] = prob_feas
-            run_reg['reduced'] = prob_feas
+            run_wind['non_reduced'] = prob_tve
+            run_reg['reduced'] = prob_tve
         
         # Do below if point is predicted feasible
         else:
                         
-            # Assign complementary probability with proper sign
-            wr['non_reduced'] = -prob_feas
-            wr['leftover'] = prob_feas
+            # Assign complementary probability or TVE with proper sign
+            wr['non_reduced'] = -prob_tve
+            wr['leftover'] = prob_tve
             
             # Assign to proper running windfall and regret counts
-            run_reg['non_reduced'] = prob_feas
-            run_wind['reduced'] = prob_feas
+            run_reg['non_reduced'] = prob_tve
+            run_wind['reduced'] = prob_tve
     
-    # Return complementary probability dictionaries
+    # Return complementary probability or TVE dictionaries
     return wr, run_wind, run_reg
 
 
+"""
+MAIN FUNCTIONS
+"""
+
 def evalCompProb(pf_fragility, pf_std_fragility):
+    """
+    Description
+    -----------
+    Calculates and normalizes the complementary probabilities of feasibility
+    for remaining design solutions in each discipline's non-reduced design
+    space.
+
+    Parameters
+    ----------
+    pf_fragility : List
+        Each discipline's pass-fail predictions for the non-reduced design
+        space at the beginning of the space reduction cycle
+    pf_std_fragility : List
+        Each discipline's pass-fail standard deviations for the non-reduced
+        design space at the beginning of the space reduction cycle
+
+    Returns
+    -------
+    prob_feas : List of numpy arrays
+        Normalized complementary probabilities of feasibility for each
+        discipline's non-reduced design space
+    """
     
     # Initialize empty complementary probability list
     prob_feas = [None for _ in pf_fragility]
@@ -326,18 +352,23 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
 
     Parameters
     ----------
-    prob_feas : List of numpy arrays
-        DESCRIPTION.
+    irf : List
+        Sympy and/or relationals detailing all of the new space reduction
+        rules of the current space reduction cycle
+    Df : Dictionary
+        All information pertaining to each discipline at the beginning of
+        the newest space reduction cycle
     passfail : Dictionary
         Pass-fail predictions for the non-reduced, reduced, and leftover
         design spaces of rule combinations from newest round of fragility
         assessment
+    prob_tve : List of numpy arrays
+        Either each discipline's complementary probabilities of feasibility or
+        TVE values for the non-reduced design space
     pf_fragility : List of numpy arrays
         Pass-fail predictions for the non-reduced design spaces of each
         discipline before any new rule(s) are proposed in the current time
         stamp
-    pf_std_fragility : List of numpy arrays
-        Standard deviations of pass-fail predictions described above
     
     Returns
     -------
@@ -366,11 +397,11 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
             all_indices, indices_in_both, indices_not_in_B = \
                 getIndices(Df, irf, ind_dic, rule)
             
-            # Loop through each complementary probability value
-            for ind_pf, p_feas in enumerate(prob_tve[ind_dic]):
+            # Loop through each complementary probability or TVE value
+            for ind_pf, p_tve in enumerate(prob_tve[ind_dic]):
                 
-                # Prepare complementary probability for proper assignments
-                wr, r_wind, r_reg = assignWR(p_feas, ind_pf,
+                # Prepare complementary probability or TVE for assignments
+                wr, r_wind, r_reg = assignWR(p_tve, ind_pf,
                                              indices_in_both, 
                                              pf_fragility[ind_dic][ind_pf])
                 
@@ -385,19 +416,19 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
                 # Loop through each key-value pair in r_wind dictionary
                 for ds, comp_prob in r_wind.items():
                     
-                    # Add probability to proper running windfall sum
+                    # Add probability or TVE to proper running windfall sum
                     run_wind[rule+tuple(irf)][ind_dic][ds]+=r_wind[ds]
                 
                 # Loop through each key-value pair in r_reg dictionary
                 for ds, comp_prob in r_reg.items():
                     
-                    # Add probability to proper running regret sum
+                    # Add probability or TVE to proper running regret sum
                     run_reg[rule+tuple(irf)][ind_dic][ds] += r_reg[ds]
                         
             # Loop through each design space of discipline
             for ds, arr in dic.items():
             
-                # Divide probabilistic sums by number of remaining points
+                # Divide probability or TVE sums by number of remaining points
                 if Df[ind_dic]['space_remaining'].shape[0] > 0:
                     run_wind[rule+tuple(irf)][ind_dic][ds] = \
                         run_wind[rule+tuple(irf)][ind_dic][ds] / \

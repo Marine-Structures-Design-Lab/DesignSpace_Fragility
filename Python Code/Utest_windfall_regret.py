@@ -1,6 +1,6 @@
 """
 SUMMARY:
-Unit tests for the windfallRegret class from windfall_regret.py
+Unit tests for the functions from windfall_regret.py
 
 CREATOR:
 Joseph B. Van Houten
@@ -10,8 +10,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from windfall_regret import windfallRegret, initializeWR, complementProb, \
-    minmaxNormalize, assignWR, quantRisk
+from windfall_regret import initializeWR, complementProb, minmaxNormalize, \
+    assignWR, evalCompProb, calcWindRegret, quantRisk
 import unittest
 import sympy as sp
 import numpy as np
@@ -24,7 +24,7 @@ class test_windfall_regret(unittest.TestCase):
 
     def setUp(self):
         """
-        Initialize variables for functions and methods
+        Initialize variables for functions
         """
         
         # Initialize sympy input variables
@@ -36,7 +36,6 @@ class test_windfall_regret(unittest.TestCase):
         rule2 = sp.And(x[3] > 0.05, x[3] < 0.55)
         rule3 = sp.Or(x[4] > 0.7, x[5] < 0.8)
         self.irf = [rule1, rule2, rule3]
-        irules_fragility = [rule1, rule2, rule3]
         
         # Create new set of input rules being proposed
         self.rule4 = x[2] < 0.7
@@ -105,9 +104,6 @@ class test_windfall_regret(unittest.TestCase):
              'ins': [x[0], x[4], x[5]],
              'outs': [y[3], y[4]]}
         ]
-        
-        # Create an object call
-        self.windregret = windfallRegret(self.Discips_fragility, irules_fragility)
         
         
     def test_initialize_wr(self):
@@ -388,9 +384,48 @@ class test_windfall_regret(unittest.TestCase):
             self.assertDictEqual(run_reg, exp_run_reg[ind])
     
     
+    def test_eval_comp_prob(self):
+        """
+        Unit tests for the evalCompProb function
+        """
+        
+        # Create passfail data
+        pf_fragility = [
+            np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
+            np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]),
+            np.array([-0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, 
+                      -1.0])
+        ]
+        
+        # Create passfail standard deviation data
+        pf_std_fragility = [np.ones(10), np.ones(10), np.ones(10)]
+        
+        # Determine expected complementary probabilities of feasibility
+        exp_prob_feas = [np.array([1.0, 0.8692216889, 0.7410308257, 
+                                   0.6166254663, 0.4970941278, 0.3833876659, 
+                                   0.2762976001, 0.1764416626, 0.0842568714, 
+                                   0.0]),
+                         np.array([1.0, 0.8692216889, 0.7410308257, 
+                                   0.6166254663, 0.4970941278, 0.3833876659, 
+                                   0.2762976001, 0.1764416626, 0.0842568714, 
+                                   0.0]),
+                         np.array([1.0, 0.8692216889, 0.7410308257, 
+                                   0.6166254663, 0.4970941278, 0.3833876659, 
+                                   0.2762976001, 0.1764416626, 0.0842568714, 
+                                   0.0]),
+        ]
+        
+        # Run the function
+        act_prob_feas = evalCompProb(pf_fragility, pf_std_fragility)
+        
+        # Check that expected results match actual results
+        for res_exp, res_act in zip(exp_prob_feas, act_prob_feas):
+            np.testing.assert_array_almost_equal(res_exp, res_act)
+        
+    
     def test_calc_wind_regret(self):
         """
-        Unit tests for the calcWindRegret method
+        Unit tests for the calcWindRegret function
         """
         
         # Create passfail dictionary with new input rules
@@ -413,8 +448,20 @@ class test_windfall_regret(unittest.TestCase):
                       -1.0])
         ]
         
-        # Create passfail standard deviation data at beginning of time stamp
-        pf_std_fragility = [np.ones(10), np.ones(10), np.ones(10)]
+        # Create probability of feasibility / TVE data
+        prob_tve = [np.array([1.0, 0.8692216889, 0.7410308257, 
+                                   0.6166254663, 0.4970941278, 0.3833876659, 
+                                   0.2762976001, 0.1764416626, 0.0842568714, 
+                                   0.0]),
+                         np.array([1.0, 0.8692216889, 0.7410308257, 
+                                   0.6166254663, 0.4970941278, 0.3833876659, 
+                                   0.2762976001, 0.1764416626, 0.0842568714, 
+                                   0.0]),
+                         np.array([1.0, 0.8692216889, 0.7410308257, 
+                                   0.6166254663, 0.4970941278, 0.3833876659, 
+                                   0.2762976001, 0.1764416626, 0.0842568714, 
+                                   0.0]),
+        ]
         
         # Determine expected windfall and regret dictionaries
         exp_windreg = {(self.rule4, self.rule5) + tuple(self.irf): \
@@ -471,10 +518,10 @@ class test_windfall_regret(unittest.TestCase):
               'reduced': 0.2903311951,
               'leftover': 0.0000000000}]}
         
-        # Run the method
+        # Run the function
         windreg, run_wind, run_reg = \
-            self.windregret.calcWindRegret(passfail, pf_fragility, 
-                                           pf_std_fragility)
+            calcWindRegret(self.irf, self.Discips_fragility, passfail, 
+                           prob_tve, pf_fragility)
         
         # Ensure actual windreg arrays match up with expected arrays
         for rule, list_dics in exp_windreg.items():

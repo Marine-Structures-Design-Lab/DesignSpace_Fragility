@@ -3,8 +3,7 @@ SUMMARY:
 Uses history of formed perceptions of feasibility within each discipline's 
 design space to determine potentials for regret and windfall before quantifying
 the risk of a space reduction decision by calculating the added potentials
-relative to leaving the design spaces untouched.  Also visualizes these 
-potentials for regret and windfall (for SBD1 problem, specifically).
+relative to leaving the design spaces untouched.
 
 CREATOR:
 Joseph B. Van Houten
@@ -15,14 +14,13 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import numpy as np
-from windfall_regret import initializeWR, assignWR
 from dit import ScalarDistribution
 from dit.other import generalized_cumulative_residual_entropy as gcre
-from windfall_regret import getIndices
+from windfall_regret import minmaxNormalize
 
 
 """
-FUNCTIONS
+SECONDARY FUNCTIONS
 """
 def initializePF(passfail, Discips_fragility, mean_or_std):
     """
@@ -199,42 +197,9 @@ def reassignPF(pf_old, pf_new):
     return pf_new
 
 
-def minmaxNormalize(data):
-    """
-    Description
-    -----------
-    Normalizes data between 0 and 1.
-
-    Parameters
-    ----------
-    data : List
-        Data to be normalized
-
-    Returns
-    -------
-    "normalized data" : List
-        List of floats that is normalized between 0 and 1
-    """
-    
-    # Check if no data available
-    if not data:
-        
-        # Return an empty list
-        return []
-    
-    # Determine minimum and maximum values in data
-    min_val = min(data)
-    max_val = max(data)
-    
-    # Check if min and max values are the same to avoid division by zero
-    if max_val == min_val:
-        
-        # Return a list of zeros
-        return [0] * len(data)
-    
-    # Return normalized data
-    return [(x - min_val) / (max_val - min_val) for x in data]
-
+"""
+MAIN FUNCTIONS
+"""
 
 def prepEntropy(pf, Df, pf_std):
     """
@@ -273,11 +238,14 @@ def prepEntropy(pf, Df, pf_std):
 def evalEntropy(passfail_frag, passfail_std_frag):
     
     # Initialize empty TVE list
-    TVE = [[] for _ in passfail_frag]
+    TVE = [None for _ in passfail_frag]
     
     # Loop through each discipline
     for i, (discip_pf, discip_pf_std) in enumerate(zip(passfail_frag, 
                                                        passfail_std_frag)):
+        
+        # Initialize a numpy array for TVE values
+        TVE[i] = np.zeros(len(passfail_frag[i]))
         
         # Loop through each history of data points' passfail predictions
         for j, (index_pf, index_pf_std) in enumerate(zip(discip_pf, 
@@ -293,16 +261,12 @@ def evalEntropy(passfail_frag, passfail_std_frag):
             # Calculate the TVE value
             tve = gcre(dist)
             
-            # Append the TVE value to the inner TVE list
-            TVE[i].append(tve)
+            # Assign the TVE value to the TVE array
+            TVE[i][j] = tve
         
         # Normalize TVE for the current discipline
         TVE[i] = minmaxNormalize(TVE[i])
         
     # Return normalized TVE values for each design point in non-reduced space remaining
     return TVE
-    
-    
-    
-
     
