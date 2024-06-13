@@ -10,8 +10,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from entropy_tracker import entropyTracker, initializePF, timeHistory, \
-    reassignPF, minmaxNormalize, initializeWR, assignWR
+from entropy_tracker import initializePF, timeHistory, reassignPF, evalEntropy
 import unittest
 
 
@@ -35,6 +34,18 @@ class test_entropy_tracker(unittest.TestCase):
     def test_time_history(self):
         """
         Unit tests for the timeHistory function
+        """
+    
+    
+    def test_reassign_pf(self):
+        """
+        Unit tests for the reassignPF function
+        """
+    
+    
+    def test_eval_entropy(self):
+        """
+        Unit tests for the evalEntropy function
         """
         
         

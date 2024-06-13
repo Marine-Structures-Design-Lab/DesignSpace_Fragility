@@ -126,7 +126,8 @@ class fragilityCommands:
         """
         
         # Organize the history of recorded pass-fail data in non-reduced space
-        passfail_frag, passfail_std_frag = prepEntropy(self.pf, self.Df, self.pf_std)
+        passfail_frag, passfail_std_frag = prepEntropy(self.pf, self.Df, 
+                                                       self.pf_std)
         
         # Evaluate the TVE throughout remaining design spaces
         TVE = evalEntropy(passfail_frag, passfail_std_frag)

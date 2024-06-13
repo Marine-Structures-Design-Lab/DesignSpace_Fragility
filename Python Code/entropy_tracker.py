@@ -207,6 +207,18 @@ def prepEntropy(pf, Df, pf_std):
     -----------
     Goes through steps to organize history of each discipline's space 
     remaining points pass-fail predictions for TVE and DTVE calculations.
+    
+    Parameters
+    ----------
+    pf : List of dictionaries
+        History of each discipline's pass-fail predictions up to a certain
+        point in time
+    Df : Dictionary
+        All information pertaining to each discipline at the beginning of
+        the newest space reduction cycle
+    pf_std : List of dictionaries
+        History of each discipline's pass-fail standard deviatiokns up to a
+        certain point in time
 
     Returns
     -------
@@ -236,6 +248,27 @@ def prepEntropy(pf, Df, pf_std):
 
 
 def evalEntropy(passfail_frag, passfail_std_frag):
+    """
+    Description
+    -----------
+    Calculates normalized TVE values from history of passfail predictions for
+    potential design solutions remaining in each discipline's non-reduced
+    design space.
+
+    Parameters
+    ----------
+    passfail_frag : List of lists of numpy arrays
+        Filled numpy arrays for each space remaining point in a discipline
+        for tracking its history of pass-fail predictions
+    passfail_std_frag : List of lists of numpy arrays
+        Same thing as above except for their history of standard deviation
+        values associated with the predictions
+
+    Returns
+    -------
+    TVE : List of numpy arrays
+        Normalized TVE values for non-reduced design space in each discipline
+    """
     
     # Initialize empty TVE list
     TVE = [None for _ in passfail_frag]
@@ -267,6 +300,6 @@ def evalEntropy(passfail_frag, passfail_std_frag):
         # Normalize TVE for the current discipline
         TVE[i] = minmaxNormalize(TVE[i])
         
-    # Return normalized TVE values for each design point in non-reduced space remaining
+    # Return normalized TVE values for each design point in non-reduced space
     return TVE
     
