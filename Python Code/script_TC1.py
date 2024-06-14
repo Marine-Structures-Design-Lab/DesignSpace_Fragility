@@ -86,7 +86,7 @@ problem_name = 'SBD1'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 1000    # Must be a positive integer!
+iters_max = 50    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -123,7 +123,7 @@ auto_accept = True     # True = yes, False = no
 # shift in the exponential curve for determining maximum threshold
 fragility = False       # True = yes, False = no
 fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
-fragility_shift = 0.0  # Should be a positive float...scale weight or shift!!!!!!!!!!
+fragility_shift = 0.4  # Should be a positive float
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
@@ -144,13 +144,14 @@ part_params = {
 
 # Set parameters for decision tree classifier used to propose space reductions
 dtc_kwargs = {
-    'max_depth': 2,
+    'max_depth': 1,
     # Add other parameters as needed
 }
 
 # Parameters for Gaussian kernel when forming perceptions of design space
 gpr_params = {
-    'length_scale_bounds': (1e-2, 1e3)
+    'length_scale_bounds': (1e-2, 1e3),
+    'alpha': 0.00001
     # Add other parameters as needed
 }
 
@@ -461,7 +462,7 @@ while iters <= iters_max:
             
             # Check if a space reduction should be forced
             Discips = red_change.forceReduction(space_rem, iters, iters_max, 
-                                                exp_parameters)
+                                                exp_parameters, part_params)
             
             # Perform following commands if a space reduction should be forced
             if any(dictionary.get("force_reduction", False)[0] == True \
@@ -552,9 +553,10 @@ while iters <= iters_max:
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     pf_std = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     for i, discip in enumerate(Discips):
-        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = getPerceptions(discip, gpr_params)
+        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
+            getPerceptions(discip, gpr_params)
         pf[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
-        pf_std[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
+        pf_std[None][i]['indices']=copy.deepcopy(discip['space_remaining_ind'])
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
     passfail_std.append(copy.deepcopy(pf_std))
