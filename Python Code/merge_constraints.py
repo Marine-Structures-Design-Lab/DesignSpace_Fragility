@@ -628,6 +628,8 @@ class mergeConstraints:
             
             # Get perceptions of feasibility in the non-reduced design space
             pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
+            if np.any(np.isnan(pf_mean)):
+                print(pf_mean)
             
             # Loop through each new rule combination - rule is a tuple here!
             for j, rule in enumerate(rule_combos):

@@ -12,6 +12,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
+from scipy.stats import qmc
 import numpy as np
 import pickle
 
@@ -244,6 +245,9 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     # Initialize an empty dictionary for universal feasible space data
     ufeas_rem = {}
     
+    # Initialize an empty dictionary for diversity data
+    diver_rem = {}
+    
     # Loop through each run of the test case
     for run_name, discips in test_case.items():
         
@@ -251,6 +255,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
         space_rem[run_name] = {}
         feas_rem[run_name] = {}
         ufeas_rem[run_name] = {}
+        diver_rem = {}
         
         # Loop through each discipline of the run
         for ind_discip, list_discip in enumerate(discips):
@@ -262,6 +267,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
             space_rem[run_name][discip_name] = {}
             feas_rem[run_name][discip_name] = {}
             ufeas_rem[run_name][discip_name] = {}
+            diver_rem[run_name][discip_name] = {}
             
             # Loop through each value in the list of times
             for time in list_of_times:
@@ -270,6 +276,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 space_rem[run_name][discip_name][time] = []
                 feas_rem[run_name][discip_name][time] = []
                 ufeas_rem[run_name][discip_name][time] = []
+                diver_rem[run_name][discip_name][time] = []
             
             # Loop through each data point in the list
             for ind_data, dic_data in enumerate(list_discip):
@@ -293,6 +300,10 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 # Append second count to the universal feasible dictionary
                 ufeas_rem[run_name][discip_name][dic_data['iter']].append\
                     (true_count_all)
+                
+                # Add diversity of the numpy array to the proper iteration list
+                diver_rem[run_name][discip_name][dic_data['iter']].append\
+                    (qmc.discrepancy(dic_data['space_remaining']))
             
             # Loop back through the list of times
             for ind_time, time in enumerate(list_of_times):
@@ -320,12 +331,20 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                     ufeas_rem[run_name][discip_name][time].append(min(\
                         ufeas_rem[run_name][discip_name][list_of_times\
                         [ind_time-1]]))
+                
+                # Check if diversity list is empty
+                if not diver_rem[run_name][discip_name][time]:
+                    
+                    # Add minimum diversity from one earlier time
+                    diver_rem[run_name][discip_name][time].append(min(\
+                        diver_rem[run_name][discip_name][list_of_times\
+                        [ind_time-1]]))
     
     # Return the dictionaries of filled in time information
-    return space_rem, feas_rem, ufeas_rem
+    return space_rem, feas_rem, ufeas_rem, diver_rem
 
 
-def findAverages(space_rem, feas_rem, ufeas_rem):
+def findAverages(space_rem, feas_rem, ufeas_rem, diver_rem):
     """
     Description
     -----------
@@ -364,6 +383,9 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
     # Initialize an empty dictionary for average universal feasbile count
     average_ufeas = {}
     
+    # Initialize an empty dictionary for average diversity
+    average_diver = {}
+    
     # Loop through each discipline
     for discip_name, sr_dic in space_rem['Run_2'].items():
         
@@ -371,6 +393,7 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
         average_rem[discip_name] = {}
         average_feas[discip_name] = {}
         average_ufeas[discip_name] = {}
+        average_diver[discip_name] = {}
 
         # Loop through each time that space remaining data is accounted for
         for time, sr_set in sr_dic.items():
@@ -379,6 +402,7 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
             average_rem[discip_name][time] = 0.0
             average_feas[discip_name][time] = 0.0
             average_ufeas[discip_name][time] = 0.0
+            average_diver[discip_name][time] = 0.0
     
     # Loop through each run of the test case
     for run_name, discips in space_rem.items():
@@ -395,14 +419,20 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
             # Loop through each time that feasible space data is accounted for
             for time, fr_lis in feas_rem[run_name][discip_name].items():
                 
-                # Add midpoint of the space remaining to the proper summation
+                # Add midpoint of the feasible space to the proper summation
                 average_feas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
             
             # Loop thru each time universal feasible space data accounted for
             for time, fr_lis in ufeas_rem[run_name][discip_name].items():
                 
-                # Add midpoint of the space remaining to the proper summation
+                # Add midpoint of the universal feasible to proper summation
                 average_ufeas[discip_name][time] += (min(fr_lis)+max(fr_lis))/2
+            
+            # Loop through each time that diversity data is accounted for
+            for time, div_lis in diver_rem[run_name][discip_name].items():
+                
+                # Add midpoint of the diversity to the proper summation
+                average_diver[discip_name][time]+=(min(div_lis)+max(div_lis))/2
         
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
@@ -417,12 +447,14 @@ def findAverages(space_rem, feas_rem, ufeas_rem):
                 average_feas[discip_name][time] / len(space_rem)
             average_ufeas[discip_name][time] = \
                 average_ufeas[discip_name][time] / len(space_rem)
+            average_diver[discip_name][time] = \
+                average_diver[discip_name][time] / len(space_rem)
             
     # Return the data for the average space remaining at each time
-    return average_rem, average_feas, average_ufeas
+    return average_rem, average_feas, average_ufeas, average_diver
 
 
-def findPercentages(average_rem, average_feas, average_ufeas):
+def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
     """
     Description
     -----------
@@ -468,6 +500,9 @@ def findPercentages(average_rem, average_feas, average_ufeas):
     # Initialize second empty dictionary for percent universal feasible space
     percent_ufeas2 = {}
     
+    # Initialize an empty dictionary for diversity percentages
+    percent_diver = {}
+    
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
         
@@ -477,6 +512,7 @@ def findPercentages(average_rem, average_feas, average_ufeas):
         percent_feas2[discip_name] = {}
         percent_ufeas1[discip_name] = {}
         percent_ufeas2[discip_name] = {}
+        percent_diver[discip_name] = {}
         
         # Loop through each time that average remaining is accounted for
         for time, ar in ar_dic.items():
@@ -499,10 +535,14 @@ def findPercentages(average_rem, average_feas, average_ufeas):
             # Compute percent of average universal feasible space in original
             percent_ufeas2[discip_name][time] = \
                 average_ufeas[discip_name][time] / ar_dic[0] * 100
+            
+            # Compute the percentage of the average diversity
+            percent_diver[discip_name][time] = \
+                average_diver[discip_name][time] * 100
     
     # Return the percentage of the average space remaining
     return percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
-        percent_ufeas2
+        percent_ufeas2, percent_diver
 
 
 """
@@ -557,6 +597,12 @@ if __name__ == "__main__":
         'Discipline_2': {},
         'Discipline_3': {}
         }
+    # Initialize a dictionary for data pertinent to each discipline
+    diversity_data = {
+        'Discipline_1': {},
+        'Discipline_2': {},
+        'Discipline_3': {}
+        }
     
     # Loop through each test case / name
     for test_case_name in test_case_names:
@@ -568,17 +614,17 @@ if __name__ == "__main__":
         set_of_times = createTimeData(test_case_name)
         
         # Determine space remaining at each of those times for each test run
-        space_rem, feas_rem, ufeas_rem = fillSpaceRemaining(test_case, 
-            set_of_times, Discips)
+        space_rem, feas_rem, ufeas_rem, diver_rem = \
+            fillSpaceRemaining(test_case, set_of_times, Discips)
         
         # Determine average space remaining at each time over all of the runs
-        average_rem, average_feas, average_ufeas = findAverages(space_rem, 
-            feas_rem, ufeas_rem)
+        average_rem, average_feas, average_ufeas, average_diver = \
+            findAverages(space_rem, feas_rem, ufeas_rem, diver_rem)
         
         # Convert averages into percentages
         percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
-            percent_ufeas2 = findPercentages(average_rem, average_feas, 
-            average_ufeas)
+            percent_ufeas2, percent_diver = findPercentages(average_rem, 
+            average_feas, average_ufeas, average_diver)
         
         # Loop through disciplines
         for discip_name in all_disciplines_data.keys():
@@ -594,6 +640,8 @@ if __name__ == "__main__":
                 percent_ufeas1[discip_name]
             ufeas2_disciplines_data[discip_name][test_case_name] = \
                 percent_ufeas2[discip_name]
+            diversity_data[discip_name][test_case_name] = \
+                percent_diver[discip_name]
     
     # Save the new data
     with open('all_disciplines.pkl', 'wb') as f:
@@ -606,3 +654,5 @@ if __name__ == "__main__":
         pickle.dump(ufeas1_disciplines_data, f)
     with open('ufeas2_disciplines.pkl', 'wb') as f:
         pickle.dump(ufeas2_disciplines_data, f)
+    with open('diversity_disciplines.pkl', 'wb') as f:
+        pickle.dump(diversity_data, f)
