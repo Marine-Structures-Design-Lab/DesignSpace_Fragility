@@ -386,8 +386,11 @@ def getPerceptions(discip, gpr_params):
     if len(neg_predictions) > 1:
         min_neg = np.min(neg_predictions)
         max_neg = np.max(neg_predictions)
-        normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / \
-                                           (max_neg - min_neg))
+        if max_neg != min_neg:
+            normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / \
+                                               (max_neg - min_neg))
+        else:
+            normalized_neg_predictions = np.zeros_like(neg_predictions)
     elif len(neg_predictions) == 1:
         normalized_neg_predictions = np.array([-1])
     else:
@@ -397,8 +400,11 @@ def getPerceptions(discip, gpr_params):
     if len(pos_predictions) > 1:
         min_pos = np.min(pos_predictions)
         max_pos = np.max(pos_predictions)
-        normalized_pos_predictions = (pos_predictions - min_pos) / \
-            (max_pos - min_pos)
+        if max_pos != min_pos:
+            normalized_pos_predictions = (pos_predictions - min_pos) / \
+                (max_pos - min_pos)
+        else:
+            normalized_pos_predictions = np.zeros_like(pos_predictions)
     elif len(pos_predictions) == 1:
         normalized_pos_predictions = np.array([1])
     else:
