@@ -527,21 +527,15 @@ def getOpinion(rule, discip, passfail, passfail_std, bez_point):
     # Metric 1: Am I get ridding of clearly infeasible space?
     infeas_space = analyzeInfeasibility(passfail['leftover'], 
                                         passfail_std['leftover'])
-    print("Infeasible Space:")
-    print(infeas_space)
     
     # Metric 2: Am I maintaining feasible space for this space reduction?
     feas_space = analyzeFeasibility(passfail['reduced'], 
                                     passfail_std['reduced'],
                                     passfail['non_reduced'], 
                                     passfail_std['non_reduced'])
-    print("Feasible Space:")
-    print(feas_space)
     
     # Use quadratic Bezier curve to determine weight of second metric
     weight2 = bezierPoint(infeas_space, **bez_point)
-    print("weight 2:")
-    print(weight2)
     
     # Use weight of second metric to determine weight of first metric
     weight1 = 1 - weight2
@@ -723,7 +717,6 @@ class mergeConstraints:
                 # Determine threshold for throwing out the rule
                 ### Opinion of the discipline proposing the rule minus the max
                 ### fail criterion value for all of the disciplines involved
-                if len(fail_crit) == 0: print(passfail)
                 threshold = opinions[rule][irules_discip[i]] - max(fail_crit)
                 
                 # If discipline is proposing rule, continue to next discipline
