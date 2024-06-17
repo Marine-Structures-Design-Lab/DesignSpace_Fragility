@@ -306,7 +306,8 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                 
                 # Add diversity of the numpy array to the proper iteration list
                 diver_rem[run_name][discip_name][dic_data['iter']].append\
-                    (qmc.discrepancy(dic_data['space_remaining']))
+                    (qmc.discrepancy(dic_data['space_remaining']) \
+                     if len(dic_data['space_remaining']) > 0 else 1.0)
             
             # Loop back through the list of times
             for ind_time, time in enumerate(list_of_times):
