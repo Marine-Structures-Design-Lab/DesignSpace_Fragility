@@ -231,6 +231,9 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
     ufeas_rem : Dictionary
         Tracks the universal feasible space remaining for each run of a test
         case over the elapsed iterations
+    diver_rem : Dictionary
+        Tracks the diversity of space remaining for each run of a test case
+        over the elapsed iterations
     """
     
     # Create a list of the times and sort them in ascending order
@@ -363,6 +366,9 @@ def findAverages(space_rem, feas_rem, ufeas_rem, diver_rem):
     ufeas_rem : Dictionary
         Tracks the universal feasible space remaining for each run of a test
         case over the elapsed iterations
+    diver_rem : Dictionary
+        Tracks the diversity of space remaining for each run of a test case
+        over the elapsed iterations
 
     Returns
     -------
@@ -372,6 +378,8 @@ def findAverages(space_rem, feas_rem, ufeas_rem, diver_rem):
         Average feasible space remaining over elapsed project time
     average_ufeas : Dictionary
         Average universal feasible space remaining over elapsed project time
+    average_diver : Dictionary
+        Average diversity of space remaining over elapsed project time
     """
     
     # Initialize an empty dictionary for average space remaining data
@@ -470,6 +478,8 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
         Average feasible space remaining over elapsed project time
     average_ufeas : Dictionary
         Average universal feasible space remaining over elapsed project time
+    average_diver : Dictionary
+        Average diversity of space remaining over elapsed project time
 
     Returns
     -------
@@ -483,6 +493,8 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
         Average universal percentage of feasible space to total space remaining
     percent_ufeas2 : Dictionary
         Average universal percentage of feasible space remaining
+    percent_diver : Dictionary
+        Average diversity percentage of space remaining
     """
     
     # Initialize an empty dictionary for percent of space remaining data
