@@ -255,7 +255,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
         space_rem[run_name] = {}
         feas_rem[run_name] = {}
         ufeas_rem[run_name] = {}
-        diver_rem = {}
+        diver_rem[run_name] = {}
         
         # Loop through each discipline of the run
         for ind_discip, list_discip in enumerate(discips):

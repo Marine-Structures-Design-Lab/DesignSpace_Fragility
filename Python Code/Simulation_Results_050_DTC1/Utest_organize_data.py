@@ -15,6 +15,7 @@ from organize_data import universalContribution, sharedIndices, countBooleans,\
 import unittest
 import sympy as sp
 import numpy as np
+from scipy.stats import qmc
 
 
 """
@@ -301,6 +302,34 @@ class test_organize_data(unittest.TestCase):
                 }
             }
         }
+        expected_diver_rem = {
+            'Run_1': {
+                'Discipline_1': {
+                    0: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                  [0.4, 0.5, 0.6],
+                                                  [0.7, 0.8, 0.9]]))],
+                    100: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                    [0.4, 0.5, 0.6]]))],
+                    150: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                    [0.4, 0.5, 0.6]]))],
+                    200: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3]]))]
+                }
+            },
+            'Run_2': {
+                'Discipline_1': {
+                    0: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                  [0.4, 0.5, 0.6],
+                                                  [0.7, 0.8, 0.9]]))],
+                    100: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                    [0.4, 0.5, 0.6]])),
+                          qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                    [0.4, 0.5, 0.6]]))],
+                    150: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3],
+                                                    [0.4, 0.5, 0.6]]))],
+                    200: [qmc.discrepancy(np.array([[0.1, 0.2, 0.3]]))]
+                }
+            }
+        }
         
         # Run the function
         space_rem, feas_rem, ufeas_rem, diver_rem = \
@@ -310,6 +339,7 @@ class test_organize_data(unittest.TestCase):
         self.assertDictEqual(space_rem, expected_space_rem)
         self.assertDictEqual(feas_rem, expected_feas_rem)
         self.assertDictEqual(ufeas_rem, expected_ufeas_rem)
+        self.assertDictEqual(diver_rem, expected_diver_rem)
     
     
     def test_find_averages(self):
@@ -377,6 +407,26 @@ class test_organize_data(unittest.TestCase):
             }
         }
         
+        # Create diversity data
+        diver_rem = {
+            'Run_1': {
+                'Discipline_1': {
+                    0: [0.0],
+                    100: [0.2],
+                    150: [0.2],
+                    200: [0.7]
+                }
+            },
+            'Run_2': {
+                'Discipline_1': {
+                    0: [0.0],
+                    100: [0.2, 0.4],
+                    150: [0.4],
+                    200: [0.9]
+                }
+            }
+        }
+        
         # Determine expected total space and feasible space averages
         expected_average_rem = {
             'Discipline_1': {
@@ -402,15 +452,24 @@ class test_organize_data(unittest.TestCase):
                 200: 0.0
             }
         }
+        expected_average_diver = {
+            'Discipline_1': {
+                0: 0.0,
+                100: 0.25,
+                150: 0.30000000000000004,
+                200: 0.8
+            }
+        }
         
         # Run the function
-        average_rem, average_feas, average_ufeas = findAverages(space_rem, 
-                                                       feas_rem, ufeas_rem)
+        average_rem, average_feas, average_ufeas, average_diver = \
+            findAverages(space_rem, feas_rem, ufeas_rem, diver_rem)
         
         # Check that the function produces the expected output
         self.assertDictEqual(average_rem, expected_average_rem)
         self.assertDictEqual(average_feas, expected_average_feas)
         self.assertDictEqual(average_ufeas, expected_average_ufeas)
+        self.assertDictEqual(average_diver, expected_average_diver)
     
     
     def test_find_percentages(self):
@@ -445,6 +504,16 @@ class test_organize_data(unittest.TestCase):
                 100: 1.65,
                 150: 1.25,
                 200: 0.0
+            }
+        }
+        
+        # Create average diversity data
+        average_diver = {
+            'Discipline_1': {
+                0: 0.0,
+                100: 0.25,
+                150: 0.3,
+                200: 0.8
             }
         }
         
@@ -489,11 +558,19 @@ class test_organize_data(unittest.TestCase):
                 200: 0.0
             }
         }
+        expected_percent_diver = {
+            'Discipline_1': {
+                0: 0.0,
+                100: 25.0,
+                150: 30.0,
+                200: 80.0
+            }
+        }
         
         # Run the function
         percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
-            percent_ufeas2 = findPercentages(average_rem, average_feas, 
-                                             average_ufeas)
+            percent_ufeas2, percent_diver = findPercentages(average_rem, 
+                average_feas, average_ufeas, average_diver)
         
         # Check that the function produces the expected output
         self.assertDictEqual(percent_rem, expected_percent_rem)
@@ -501,6 +578,7 @@ class test_organize_data(unittest.TestCase):
         self.assertDictEqual(percent_feas2, expected_percent_feas2)
         self.assertDictEqual(percent_ufeas1, expected_percent_ufeas1)
         self.assertDictEqual(percent_ufeas2, expected_percent_ufeas2)
+        self.assertDictEqual(percent_diver, expected_percent_diver)
 
 
 """
