@@ -383,30 +383,30 @@ def getPerceptions(discip, gpr_params):
     pos_predictions = pf_mean[pf_mean >= 0.0]
     
     # Normalize negative predictions to be between -1 and 0
-    if len(neg_predictions) > 1:
+    if len(neg_predictions) >= 1:
         min_neg = np.min(neg_predictions)
         max_neg = np.max(neg_predictions)
         if max_neg != min_neg:
             normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / \
                                                (max_neg - min_neg))
+            scale_factor_neg = 1 / (max_neg - min_neg)
         else:
-            normalized_neg_predictions = np.zeros_like(neg_predictions)
-    elif len(neg_predictions) == 1:
-        normalized_neg_predictions = np.array([-1])
+            normalized_neg_predictions = neg_predictions
+            scale_factor_neg = 1.0
     else:
         normalized_neg_predictions = np.empty(0)
     
     # Normalize positive predictions to be between 0 and 1
-    if len(pos_predictions) > 1:
+    if len(pos_predictions) >= 1:
         min_pos = np.min(pos_predictions)
         max_pos = np.max(pos_predictions)
         if max_pos != min_pos:
             normalized_pos_predictions = (pos_predictions - min_pos) / \
                 (max_pos - min_pos)
+            scale_factor_pos = 1 / (max_pos - min_pos)
         else:
-            normalized_pos_predictions = np.zeros_like(pos_predictions)
-    elif len(pos_predictions) == 1:
-        normalized_pos_predictions = np.array([1])
+            normalized_pos_predictions = pos_predictions
+            scale_factor_pos = 1.0
     else:
         normalized_pos_predictions = np.empty(0)
     
@@ -416,12 +416,6 @@ def getPerceptions(discip, gpr_params):
         normalized_predictions[pf_mean < 0.0] = normalized_neg_predictions
     if len(pos_predictions) > 0:
         normalized_predictions[pf_mean >= 0.0] = normalized_pos_predictions
-    
-    # Calculate scale factors for standard deviations
-    scale_factor_neg = 1 / (max_neg - min_neg) \
-        if len(neg_predictions) > 1 else 1
-    scale_factor_pos = 1 / (max_pos - min_pos) \
-        if len(pos_predictions) > 1 else 1
     
     # Adjust standard deviations proportionally
     adjusted_std_devs = np.zeros_like(pf_std)
@@ -533,15 +527,21 @@ def getOpinion(rule, discip, passfail, passfail_std, bez_point):
     # Metric 1: Am I get ridding of clearly infeasible space?
     infeas_space = analyzeInfeasibility(passfail['leftover'], 
                                         passfail_std['leftover'])
+    print("Infeasible Space:")
+    print(infeas_space)
     
     # Metric 2: Am I maintaining feasible space for this space reduction?
     feas_space = analyzeFeasibility(passfail['reduced'], 
                                     passfail_std['reduced'],
                                     passfail['non_reduced'], 
                                     passfail_std['non_reduced'])
+    print("Feasible Space:")
+    print(feas_space)
     
     # Use quadratic Bezier curve to determine weight of second metric
     weight2 = bezierPoint(infeas_space, **bez_point)
+    print("weight 2:")
+    print(weight2)
     
     # Use weight of second metric to determine weight of first metric
     weight1 = 1 - weight2
@@ -628,8 +628,6 @@ class mergeConstraints:
             
             # Get perceptions of feasibility in the non-reduced design space
             pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
-            if np.any(np.isnan(pf_mean)):
-                print(pf_mean)
             
             # Loop through each new rule combination - rule is a tuple here!
             for j, rule in enumerate(rule_combos):
@@ -725,6 +723,7 @@ class mergeConstraints:
                 # Determine threshold for throwing out the rule
                 ### Opinion of the discipline proposing the rule minus the max
                 ### fail criterion value for all of the disciplines involved
+                if len(fail_crit) == 0: print(passfail)
                 threshold = opinions[rule][irules_discip[i]] - max(fail_crit)
                 
                 # If discipline is proposing rule, continue to next discipline
