@@ -308,7 +308,7 @@ with open('ufeas1_disciplines.pkl', 'rb') as f:
     ufeas1_disciplines_data = pickle.load(f)
 with open('ufeas2_disciplines.pkl', 'rb') as f:
     ufeas2_disciplines_data = pickle.load(f)
-with open('diversity_disciplines.pkl', 'wb') as f:
+with open('diversity_disciplines.pkl', 'rb') as f:
     diversity_data = pickle.load(f)
 # with open('Test_Case_3.pkl', 'rb') as f:
 #     Test_Case_3 = pickle.load(f)
