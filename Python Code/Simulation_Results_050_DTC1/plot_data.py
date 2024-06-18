@@ -116,10 +116,13 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     
     # Initialize colors, line styles, and markers
     colors = ['darkorange', 'firebrick', 'violet', 'darkgreen']
-    line_styles = ['-', '--', ':', '-.', 'None', 'None']
-    markers = ['', '', '', '', '*', '+']
-    data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
-                   'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
+    # line_styles = ['-', '--', ':', '-.', 'None', 'None']
+    line_styles = ['-', '--', ':', '-.']
+    # markers = ['', '', '', '', '*', '+']
+    markers = ['', '', '', '']
+    # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
+    #                'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
+    data_groups = ['Total Space', 'Feasible-to-Remaining', 'Feasible', 'Diversity']
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
@@ -150,30 +153,30 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
                              colors, 0, markers[0])
         
-        # Plot data for feasible space remaining
+        # Plot data for feasible-to-remaining space
         color_idx = 0
         color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], 
-                             colors, 0, markers[1])
+                              colors, 0, markers[1])
         
-        # Plot data for feasible-to-remaining space
+        # Plot data for feasible space remaining
         color_idx = 0
         color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
                              colors, 0, markers[2])
         
-        # Plot data for universal feasible space remaining
-        color_idx = 0
-        color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], 
-                             colors, 0, markers[3])
+        # # Plot data for universal feasible space remaining
+        # color_idx = 0
+        # color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], 
+        #                      colors, 0, markers[3])
         
-        # Plot data for universal feasible-to-remaining space
-        color_idx = 0
-        color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
-                             colors, 0, markers[4])
+        # # Plot data for universal feasible-to-remaining space
+        # color_idx = 0
+        # color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
+        #                      colors, 0, markers[4])
         
         # Plot data for diversity of remaining design space
         color_idx = 0
-        color_idx = plotData(diver_test_cases_data, 'Diver', line_styles[5],
-                             colors, 0, markers[5])
+        color_idx = plotData(diver_test_cases_data, 'Diver', line_styles[3],
+                             colors, 0, markers[3])
         
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left')
