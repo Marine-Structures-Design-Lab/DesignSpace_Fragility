@@ -400,7 +400,7 @@ plotDisciplines(all_disciplines_data, feas1_disciplines_data,
                 ufeas2_disciplines_data)
 
 # Create diversity plots for each discipline
-plotDiversity(diversity_data, 'Diversity', '-', 
+plotDiversity(diversity_data, 'Discrepancy', '-', 
               ['darkorange', 'firebrick', 'violet', 'darkgreen'])
 
 # Create Heat Map Plot of Test Case 3 for each discipline
