@@ -52,7 +52,7 @@ import h5py
 PREPARE DATA
 """
 # Establish Test Case
-test_id = "TC1"
+test_id = "TC2"
 
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
@@ -117,7 +117,7 @@ exp_parameters = np.array(\
      0.95]) # p4: Percent of space reduced at max reduction time (0 <= p4 <= 1)
 
 # Decide if ANY reduction proposed by discipline should be accepted by default
-auto_accept = True     # True = yes, False = no
+auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold

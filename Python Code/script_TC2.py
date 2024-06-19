@@ -52,7 +52,7 @@ import h5py
 PREPARE DATA
 """
 # Establish Test Case
-test_id = "TC2"
+test_id = "TC3"
 
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
@@ -121,7 +121,7 @@ auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = False       # True = yes, False = no
+fragility = True       # True = yes, False = no
 fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
