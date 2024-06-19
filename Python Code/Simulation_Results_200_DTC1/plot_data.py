@@ -117,12 +117,12 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     # Initialize colors, line styles, and markers
     colors = ['darkorange', 'firebrick', 'violet', 'darkgreen']
     # line_styles = ['-', '--', ':', '-.', 'None', 'None']
-    line_styles = ['-', '--', ':', '-.']
+    line_styles = ['-', '--', ':']
     # markers = ['', '', '', '', '*', '+']
-    markers = ['', '', '', '']
+    markers = ['', '', '']
     # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
     #                'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
-    data_groups = ['Total Space', 'Feasible-to-Remaining', 'Feasible', 'Diversity']
+    data_groups = ['Total Space', 'Feasible', 'Feasible-to-Remaining']
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
@@ -173,11 +173,6 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         # color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
         #                      colors, 0, markers[4])
         
-        # Plot data for diversity of remaining design space
-        color_idx = 0
-        color_idx = plotData(diver_test_cases_data, 'Diver', line_styles[3],
-                             colors, 0, markers[3])
-        
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left')
         
@@ -216,60 +211,65 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
         Marker style. Default is None, which means no marker
     """
     
-    # Initialize figure
-    plt.figure(figsize=(10, 5))
+    # Loop through each discipline's data
+    for discipline, all_test_cases_data in discipline_data.items():
     
-    color_idx = 0
-    
-    # Loop through each test case's data
-    for test_case, data_points in discipline_data.items():
+        # Initialize figure
+        plt.figure(figsize=(10, 5))
         
-        # Sort data points by its time iteration keys
-        sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
+        # Initiatlize color index
+        color_idx = 0
         
-        # Find maximum of sorted data
-        max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
+        # Loop through each test case's data
+        for test_case, data_points in all_test_cases_data.items():
+            
+            # Sort data points by its time iteration keys
+            sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
+            
+            # Find maximum of sorted data
+            max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
+            
+            # Gather x and y data point percentages
+            x_values = [iteration / max_iteration * 100 \
+                        for iteration, _ in sorted_data_points]
+            y_values = [value for _, value in sorted_data_points]
+            
+            # Define custom linewidth for particular line styles
+            if linestyle == ':':
+                linewidth = 2.0
+            else:
+                linewidth = 1.5
+            
+            # Plot the data
+            plt.plot(x_values, y_values, label=f'{data_type} {test_case}',
+                     color=colors[color_idx % len(colors)], linestyle=linestyle, 
+                     linewidth=linewidth, marker=marker)
+            
+            # Increase the color index by 1
+            color_idx += 1
         
-        # Gather x and y data point percentages
-        x_values = [iteration / max_iteration * 100 \
-                    for iteration, _ in sorted_data_points]
-        y_values = [value for _, value in sorted_data_points]
+        # Create custom legend labels
+        custom_legend = [Line2D([0], [0], color=colors[i % len(colors)], 
+                                linestyle=linestyle, linewidth=2, marker=marker, 
+                                label=f'Test Case {i+1}') \
+                         for i in range(len(all_test_cases_data))]
         
-        # Define custom linewidth for particular line styles
-        if linestyle == ':':
-            linewidth = 2.0
-        else:
-            linewidth = 1.5
+        # Plot legend
+        plt.legend(handles=custom_legend, loc='upper left')
         
-        # Plot the data
-        plt.plot(x_values, y_values, label=f'{data_type} {test_case}',
-                 color=colors[color_idx % len(colors)], linestyle=linestyle, 
-                 linewidth=linewidth, marker=marker)
+        # Set x- and y-axis labels
+        plt.xlabel('Elapsed Project Time (%)')
+        plt.ylabel('Discrepancy of Remaining Designs')
         
-        # Increase the color index by 1
-        color_idx += 1
-    
-    # Create custom legend labels
-    custom_legend = [Line2D([0], [0], color=colors[i % len(colors)], 
-                            linestyle=linestyle, linewidth=2, marker=marker, 
-                            label=f'{data_type} {i+1}') \
-                     for i in range(len(discipline_data))]
-    
-    # Plot legend
-    plt.legend(handles=custom_legend, loc='upper left')
-    
-    # Set x- and y-axis labels
-    plt.xlabel('Elapsed Project Time (%)')
-    plt.ylabel('Diversity of Remaining Designs')
-    
-    # Set x- and y-axis limits
-    plt.xlim([0, 100])
-    
-    # Plot gridlines
-    plt.grid(True)
-    
-    # Show graph
-    plt.show()
+        # Set x- and y-axis limits
+        plt.xlim([0, 100])
+        plt.ylim([0, 0.3])
+        
+        # Plot gridlines
+        plt.grid(True)
+        
+        # Show graph
+        plt.show()
 
 
 def plotHeatmaps(test_case_data, discipline_index, ins):
