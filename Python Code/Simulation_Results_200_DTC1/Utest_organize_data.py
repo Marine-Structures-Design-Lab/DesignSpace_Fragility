@@ -507,16 +507,6 @@ class test_organize_data(unittest.TestCase):
             }
         }
         
-        # Create average diversity data
-        average_diver = {
-            'Discipline_1': {
-                0: 0.0,
-                100: 0.25,
-                150: 0.3,
-                200: 0.8
-            }
-        }
-        
         # Determine total and feasible space percentages
         expected_percent_rem = {
             'Discipline_1': {
@@ -558,19 +548,11 @@ class test_organize_data(unittest.TestCase):
                 200: 0.0
             }
         }
-        expected_percent_diver = {
-            'Discipline_1': {
-                0: 0.0,
-                100: 25.0,
-                150: 30.0,
-                200: 80.0
-            }
-        }
         
         # Run the function
         percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
-            percent_ufeas2, percent_diver = findPercentages(average_rem, 
-                average_feas, average_ufeas, average_diver)
+            percent_ufeas2 = findPercentages(average_rem, average_feas, 
+                                             average_ufeas)
         
         # Check that the function produces the expected output
         self.assertDictEqual(percent_rem, expected_percent_rem)
@@ -578,7 +560,6 @@ class test_organize_data(unittest.TestCase):
         self.assertDictEqual(percent_feas2, expected_percent_feas2)
         self.assertDictEqual(percent_ufeas1, expected_percent_ufeas1)
         self.assertDictEqual(percent_ufeas2, expected_percent_ufeas2)
-        self.assertDictEqual(percent_diver, expected_percent_diver)
 
 
 """

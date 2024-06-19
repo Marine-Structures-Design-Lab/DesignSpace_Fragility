@@ -464,7 +464,7 @@ def findAverages(space_rem, feas_rem, ufeas_rem, diver_rem):
     return average_rem, average_feas, average_ufeas, average_diver
 
 
-def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
+def findPercentages(average_rem, average_feas, average_ufeas):
     """
     Description
     -----------
@@ -480,8 +480,6 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
         Average feasible space remaining over elapsed project time
     average_ufeas : Dictionary
         Average universal feasible space remaining over elapsed project time
-    average_diver : Dictionary
-        Average diversity of space remaining over elapsed project time
 
     Returns
     -------
@@ -495,8 +493,6 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
         Average universal percentage of feasible space to total space remaining
     percent_ufeas2 : Dictionary
         Average universal percentage of feasible space remaining
-    percent_diver : Dictionary
-        Average diversity percentage of space remaining
     """
     
     # Initialize an empty dictionary for percent of space remaining data
@@ -514,9 +510,6 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
     # Initialize second empty dictionary for percent universal feasible space
     percent_ufeas2 = {}
     
-    # Initialize an empty dictionary for diversity percentages
-    percent_diver = {}
-    
     # Loop through each discipline
     for discip_name, ar_dic in average_rem.items():
         
@@ -526,7 +519,6 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
         percent_feas2[discip_name] = {}
         percent_ufeas1[discip_name] = {}
         percent_ufeas2[discip_name] = {}
-        percent_diver[discip_name] = {}
         
         # Loop through each time that average remaining is accounted for
         for time, ar in ar_dic.items():
@@ -549,14 +541,10 @@ def findPercentages(average_rem, average_feas, average_ufeas, average_diver):
             # Compute percent of average universal feasible space in original
             percent_ufeas2[discip_name][time] = \
                 average_ufeas[discip_name][time] / ar_dic[0] * 100
-            
-            # Compute the percentage of the average diversity
-            percent_diver[discip_name][time] = \
-                average_diver[discip_name][time] * 100
     
     # Return the percentage of the average space remaining
     return percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
-        percent_ufeas2, percent_diver
+        percent_ufeas2
 
 
 """
@@ -637,8 +625,8 @@ if __name__ == "__main__":
         
         # Convert averages into percentages
         percent_rem, percent_feas1, percent_feas2, percent_ufeas1, \
-            percent_ufeas2, percent_diver = findPercentages(average_rem, 
-            average_feas, average_ufeas, average_diver)
+            percent_ufeas2 = findPercentages(average_rem, average_feas, 
+                                             average_ufeas)
         
         # Loop through disciplines
         for discip_name in all_disciplines_data.keys():
@@ -655,7 +643,7 @@ if __name__ == "__main__":
             ufeas2_disciplines_data[discip_name][test_case_name] = \
                 percent_ufeas2[discip_name]
             diversity_data[discip_name][test_case_name] = \
-                percent_diver[discip_name]
+                average_diver[discip_name]
     
     # Save the new data
     with open('all_disciplines.pkl', 'wb') as f:

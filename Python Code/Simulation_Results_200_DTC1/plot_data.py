@@ -87,7 +87,7 @@ FUNCTIONS
 """
 def plotDisciplines(all_disciplines_data, feas1_disciplines_data, 
                     feas2_disciplines_data, ufeas1_disciplines_data, 
-                    ufeas2_disciplines_data, diversity_data):
+                    ufeas2_disciplines_data):
     """
     Description
     -----------
@@ -116,10 +116,13 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     
     # Initialize colors, line styles, and markers
     colors = ['darkorange', 'firebrick', 'violet', 'darkgreen']
-    line_styles = ['-', '--', ':', '-.', 'None', 'None']
-    markers = ['', '', '', '', '*', '+']
-    data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
-                   'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
+    # line_styles = ['-', '--', ':', '-.', 'None', 'None']
+    line_styles = ['-', '--', ':', '-.']
+    # markers = ['', '', '', '', '*', '+']
+    markers = ['', '', '', '']
+    # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
+    #                'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
+    data_groups = ['Total Space', 'Feasible-to-Remaining', 'Feasible', 'Diversity']
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
@@ -150,37 +153,37 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
                              colors, 0, markers[0])
         
-        # Plot data for feasible space remaining
+        # Plot data for feasible-to-remaining space
         color_idx = 0
         color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], 
-                             colors, 0, markers[1])
+                              colors, 0, markers[1])
         
-        # Plot data for feasible-to-remaining space
+        # Plot data for feasible space remaining
         color_idx = 0
         color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
                              colors, 0, markers[2])
         
-        # Plot data for universal feasible space remaining
-        color_idx = 0
-        color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], 
-                             colors, 0, markers[3])
+        # # Plot data for universal feasible space remaining
+        # color_idx = 0
+        # color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], 
+        #                      colors, 0, markers[3])
         
-        # Plot data for universal feasible-to-remaining space
-        color_idx = 0
-        color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
-                             colors, 0, markers[4])
+        # # Plot data for universal feasible-to-remaining space
+        # color_idx = 0
+        # color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
+        #                      colors, 0, markers[4])
         
         # Plot data for diversity of remaining design space
         color_idx = 0
-        color_idx = plotData(diver_test_cases_data, 'Diver', line_styles[5],
-                             colors, 0, markers[5])
+        color_idx = plotData(diver_test_cases_data, 'Diver', line_styles[3],
+                             colors, 0, markers[3])
         
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left')
         
         # Set x- and y-axis labels
         plt.xlabel('Elapsed Project Time (%)')
-        plt.ylabel('Size or Diversity of Remaining Design Space (%)')
+        plt.ylabel('Size of Remaining Design Space (%)')
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
@@ -191,6 +194,82 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         
         # Show graph
         plt.show()
+
+
+def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
+    """
+    Description
+    -----------
+    Plots data points for a single dataset within a given discipline.
+    
+    Parameters
+    ----------
+    discipline_data : Dictionary
+        Contains data for a single discipline over elapsed time
+    data_type : String
+        Type of data being plotted (e.g., 'Diversity')
+    linestyle : String
+        Style of line for plotting. Use 'None' for no line
+    colors : List
+        List of colors for plotting lines
+    marker : String, optional
+        Marker style. Default is None, which means no marker
+    """
+    
+    # Initialize figure
+    plt.figure(figsize=(10, 5))
+    
+    color_idx = 0
+    
+    # Loop through each test case's data
+    for test_case, data_points in discipline_data.items():
+        
+        # Sort data points by its time iteration keys
+        sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
+        
+        # Find maximum of sorted data
+        max_iteration = max(sorted_data_points, key=lambda x: x[0])[0]
+        
+        # Gather x and y data point percentages
+        x_values = [iteration / max_iteration * 100 \
+                    for iteration, _ in sorted_data_points]
+        y_values = [value for _, value in sorted_data_points]
+        
+        # Define custom linewidth for particular line styles
+        if linestyle == ':':
+            linewidth = 2.0
+        else:
+            linewidth = 1.5
+        
+        # Plot the data
+        plt.plot(x_values, y_values, label=f'{data_type} {test_case}',
+                 color=colors[color_idx % len(colors)], linestyle=linestyle, 
+                 linewidth=linewidth, marker=marker)
+        
+        # Increase the color index by 1
+        color_idx += 1
+    
+    # Create custom legend labels
+    custom_legend = [Line2D([0], [0], color=colors[i % len(colors)], 
+                            linestyle=linestyle, linewidth=2, marker=marker, 
+                            label=f'{data_type} {i+1}') \
+                     for i in range(len(discipline_data))]
+    
+    # Plot legend
+    plt.legend(handles=custom_legend, loc='upper left')
+    
+    # Set x- and y-axis labels
+    plt.xlabel('Elapsed Project Time (%)')
+    plt.ylabel('Diversity of Remaining Designs')
+    
+    # Set x- and y-axis limits
+    plt.xlim([0, 100])
+    
+    # Plot gridlines
+    plt.grid(True)
+    
+    # Show graph
+    plt.show()
 
 
 def plotHeatmaps(test_case_data, discipline_index, ins):
@@ -318,7 +397,11 @@ with open('diversity_disciplines.pkl', 'rb') as f:
 # Create line plots for Disciplines 1, 2, and 3
 plotDisciplines(all_disciplines_data, feas1_disciplines_data,
                 feas2_disciplines_data, ufeas1_disciplines_data,
-                ufeas2_disciplines_data, diversity_data)
+                ufeas2_disciplines_data)
+
+# Create diversity plots for each discipline
+plotDiversity(diversity_data, 'Discrepancy', '-', 
+              ['darkorange', 'firebrick', 'violet', 'darkgreen'])
 
 # Create Heat Map Plot of Test Case 3 for each discipline
 # plotHeatmaps(Test_Case_3, 0, Discips[0]['ins'])
