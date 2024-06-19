@@ -174,15 +174,19 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         #                      colors, 0, markers[4])
         
         # Plot legend
-        plt.legend(handles=color_handles+line_style_handles, loc='upper left')
+        plt.legend(handles=color_handles+line_style_handles, loc='upper left',
+                   fontsize=12)
         
         # Set x- and y-axis labels
-        plt.xlabel('Elapsed Project Time (%)')
-        plt.ylabel('Size of Remaining Design Space (%)')
+        plt.xlabel('Elapsed Project Time (%)', fontsize=14)
+        plt.ylabel('Size of Remaining Design Space (%)', fontsize=14)
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
         plt.ylim([0, 100])
+        
+        # Increase font size of the tick labels
+        plt.tick_params(axis='both', which='major', labelsize=12)
         
         # Plot gridlines
         plt.grid(True)
@@ -255,15 +259,18 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
                          for i in range(len(all_test_cases_data))]
         
         # Plot legend
-        plt.legend(handles=custom_legend, loc='upper left')
+        plt.legend(handles=custom_legend, loc='upper left', fontsize=12)
         
-        # Set x- and y-axis labels
-        plt.xlabel('Elapsed Project Time (%)')
-        plt.ylabel('Discrepancy of Remaining Designs')
+        # Set x- and y-axis labels with increased font size
+        plt.xlabel('Elapsed Project Time (%)', fontsize=14)
+        plt.ylabel('Discrepancy of Remaining Designs', fontsize=14)
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
         plt.ylim([0, 0.3])
+        
+        # Increase font size of the tick labels
+        plt.tick_params(axis='both', which='major', labelsize=12)
         
         # Plot gridlines
         plt.grid(True)
