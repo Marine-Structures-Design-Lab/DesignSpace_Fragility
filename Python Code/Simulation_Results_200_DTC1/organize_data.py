@@ -562,12 +562,9 @@ if __name__ == "__main__":
         Test_Case_2 = pickle.load(f)
     with open('Test_Case_3.pkl', 'rb') as f:
         Test_Case_3 = pickle.load(f)
-    with open('Test_Case_4.pkl', 'rb') as f:
-        Test_Case_4 = pickle.load(f)
     
     # Identify the test cases whose data will be assessed
-    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3', 
-                       'Test_Case_4']
+    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3']
     
     # Initialize a dictionaries for data pertinent to each discipline
     all_disciplines_data = {
