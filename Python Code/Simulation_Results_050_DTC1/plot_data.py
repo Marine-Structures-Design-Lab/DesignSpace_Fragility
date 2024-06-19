@@ -128,7 +128,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     for discipline, all_test_cases_data in all_disciplines_data.items():
         
         # Initialize figure
-        plt.figure(figsize=(10, 4))
+        plt.figure(figsize=(10, 3.5))
         
         # Create custom legend labels
         color_handles = [Line2D([0], [0], marker='o', color='w', 
@@ -219,7 +219,7 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
     for discipline, all_test_cases_data in discipline_data.items():
     
         # Initialize figure
-        plt.figure(figsize=(10, 4))
+        plt.figure(figsize=(10, 3.5))
         
         # Initiatlize color index
         color_idx = 0
