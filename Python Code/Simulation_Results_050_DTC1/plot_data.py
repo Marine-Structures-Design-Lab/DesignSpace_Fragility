@@ -179,7 +179,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         
         # Set x- and y-axis labels
         plt.xlabel('Elapsed Project Time (%)', fontsize=14)
-        plt.ylabel('Size of Remaining Design Space (%)', fontsize=14)
+        plt.ylabel('Design Space Size (%)', fontsize=14)
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
@@ -190,6 +190,9 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         
         # Plot gridlines
         plt.grid(True)
+        
+        # Adjust layout to fit all elements within the figure
+        plt.tight_layout()
         
         # Show graph
         plt.show()
@@ -263,7 +266,7 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
         
         # Set x- and y-axis labels with increased font size
         plt.xlabel('Elapsed Project Time (%)', fontsize=14)
-        plt.ylabel('Discrepancy of Remaining Designs', fontsize=14)
+        plt.ylabel('Design Space Discrepancy', fontsize=14)
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
@@ -274,6 +277,9 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
         
         # Plot gridlines
         plt.grid(True)
+        
+        # Adjust layout to fit all elements within the figure
+        plt.tight_layout()
         
         # Show graph
         plt.show()
