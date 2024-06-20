@@ -270,7 +270,7 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
-        plt.ylim([0, 0.3])
+        plt.ylim([0, 0.35])
         
         # Increase font size of the tick labels
         plt.tick_params(axis='both', which='major', labelsize=12)
