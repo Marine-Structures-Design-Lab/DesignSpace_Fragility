@@ -115,7 +115,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     """
     
     # Initialize colors, line styles, and markers
-    colors = ['firebrick', 'violet', 'darkgreen']
+    colors = ['firebrick', 'darkorange', 'darkgreen']
     # line_styles = ['-', '--', ':', '-.', 'None', 'None']
     line_styles = ['-', '--', ':']
     # markers = ['', '', '', '', '*', '+']
@@ -414,7 +414,7 @@ plotDisciplines(all_disciplines_data, feas1_disciplines_data,
 
 # Create diversity plots for each discipline
 plotDiversity(diversity_data, 'Discrepancy', '-', 
-              ['firebrick', 'violet', 'darkgreen'])
+              ['firebrick', 'darkorange', 'darkgreen'])
 
 # Create Heat Map Plot of Test Case 3 for each discipline
 # plotHeatmaps(Test_Case_3, 0, Discips[0]['ins'])
