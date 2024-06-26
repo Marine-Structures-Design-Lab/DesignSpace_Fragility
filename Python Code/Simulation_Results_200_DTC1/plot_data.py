@@ -20,7 +20,7 @@ from matplotlib.lines import Line2D
 """
 SECONDARY FUNCTION
 """
-def plotData(data, label_prefix, linestyle, colors, color_idx, marker=None):
+def plotData(data, label_prefix, linestyle, colors, color_idx, marker):
     """
     Description
     -----------
@@ -41,8 +41,8 @@ def plotData(data, label_prefix, linestyle, colors, color_idx, marker=None):
     color_idx : Integer
         Current position in the `colors` list from which to start coloring the
         plotted lines
-    marker : String, optional
-        Marker style. Default is None, which means no marker
+    marker : List
+        Marker styles
 
     Returns
     -------
@@ -51,7 +51,7 @@ def plotData(data, label_prefix, linestyle, colors, color_idx, marker=None):
     """
     
     # Loop through each test case's data
-    for test_case, data_points in data.items():
+    for i, (test_case, data_points) in enumerate(data.items()):
         
         # Sort data points by its time iteration keys
         sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
@@ -73,7 +73,7 @@ def plotData(data, label_prefix, linestyle, colors, color_idx, marker=None):
         # Plot the data
         plt.plot(x_values, y_values, label=f'{label_prefix} {test_case}',
                  color=colors[color_idx % len(colors)], linestyle=linestyle,
-                 linewidth=linewidth, marker=marker)
+                 linewidth=linewidth, marker=marker[i], markersize=12)
         
         # Increase the color index by 1
         color_idx += 1
@@ -114,15 +114,17 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         over elapsed time
     """
     
-    # Initialize colors, line styles, and markers
+    # Initialize colors, line styles, markers, and legend names
     colors = ['firebrick', 'darkorange', 'darkgreen']
     # line_styles = ['-', '--', ':', '-.', 'None', 'None']
     line_styles = ['-', '--', ':']
     # markers = ['', '', '', '', '*', '+']
-    markers = ['', '', '']
+    markers = ['o', 'd', '*']
     # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
     #                'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
     data_groups = ['Total Space', 'Feasible', 'Feasible-to-Remaining']
+    custom_names = ["No fragility (TC1)", "PFM (TC2)", "EFM (TC3)"] 
+    
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
@@ -131,13 +133,13 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         plt.figure(figsize=(10, 4))
         
         # Create custom legend labels
-        color_handles = [Line2D([0], [0], marker='o', color='w', 
-                         label=f'Test Case {i+1}', markerfacecolor=color, 
-                         markersize=10) for i, color in enumerate(colors)]
+        color_handles = [Line2D([0], [0], color=color, linewidth=0, 
+                                marker=markers[i], markersize=12, 
+                                label=custom_names[i]) \
+                         for i, color in enumerate(colors)]
         line_style_handles = [Line2D([0], [0], color='black', linewidth=2,
-                              linestyle=ls, marker=mk, label=data_groups[i]) \
-                              for i, (ls, mk) in enumerate(zip(line_styles, 
-                                                               markers))]
+                              linestyle=ls, label=data_groups[i]) \
+                              for i, ls in enumerate(line_styles)]
         
         # Retrieve disciplines' feasible space data
         feas1_test_cases_data = feas1_disciplines_data.get(discipline, {})
@@ -151,27 +153,27 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         # Plot data for space remaining
         color_idx = 0
         color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
-                             colors, 0, markers[0])
+                             colors, 0, markers)
         
         # Plot data for feasible-to-remaining space
         color_idx = 0
         color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], 
-                              colors, 0, markers[1])
+                              colors, 0, markers)
         
         # Plot data for feasible space remaining
         color_idx = 0
         color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
-                             colors, 0, markers[2])
+                             colors, 0, markers)
         
         # # Plot data for universal feasible space remaining
         # color_idx = 0
         # color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], 
-        #                      colors, 0, markers[3])
+        #                      colors, 0, markers)
         
         # # Plot data for universal feasible-to-remaining space
         # color_idx = 0
         # color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
-        #                      colors, 0, markers[4])
+        #                      colors, 0, markers)
         
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left',
@@ -198,7 +200,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         plt.show()
 
 
-def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
+def plotDiversity(discipline_data, data_type, linestyle, colors, marker):
     """
     Description
     -----------
@@ -214,9 +216,12 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
         Style of line for plotting. Use 'None' for no line
     colors : List
         List of colors for plotting lines
-    marker : String, optional
-        Marker style. Default is None, which means no marker
+    marker : List
+        List of marker styles for plotting lines
     """
+    
+    # Initialize custom legend names
+    custom_names = ["No fragility (TC1)", "PFM (TC2)", "EFM (TC3)"] 
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in discipline_data.items():
@@ -228,7 +233,7 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
         color_idx = 0
         
         # Loop through each test case's data
-        for test_case, data_points in all_test_cases_data.items():
+        for j,(test_case,data_points) in enumerate(all_test_cases_data.items()):
             
             # Sort data points by its time iteration keys
             sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
@@ -249,16 +254,18 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker=None):
             
             # Plot the data
             plt.plot(x_values, y_values, label=f'{data_type} {test_case}',
-                     color=colors[color_idx % len(colors)], linestyle=linestyle, 
-                     linewidth=linewidth, marker=marker)
+                     color=colors[color_idx % len(colors)], 
+                     linestyle=linestyle, linewidth=linewidth, 
+                     marker=marker[j], markersize=12)
             
             # Increase the color index by 1
             color_idx += 1
         
         # Create custom legend labels
         custom_legend = [Line2D([0], [0], color=colors[i % len(colors)], 
-                                linestyle=linestyle, linewidth=2, marker=marker, 
-                                label=f'Test Case {i+1}') \
+                                linestyle=linestyle, linewidth=0, 
+                                marker=marker[i], markersize=12, 
+                                label=custom_names[i]) \
                          for i in range(len(all_test_cases_data))]
         
         # Plot legend
@@ -414,7 +421,8 @@ plotDisciplines(all_disciplines_data, feas1_disciplines_data,
 
 # Create diversity plots for each discipline
 plotDiversity(diversity_data, 'Discrepancy', '-', 
-              ['firebrick', 'darkorange', 'darkgreen'])
+              ['firebrick', 'darkorange', 'darkgreen'],
+              marker = ['o', 'd', '*'])
 
 # Create Heat Map Plot of Test Case 3 for each discipline
 # plotHeatmaps(Test_Case_3, 0, Discips[0]['ins'])
