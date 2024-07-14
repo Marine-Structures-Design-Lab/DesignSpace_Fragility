@@ -313,10 +313,10 @@ def plotHeatmaps(test_case_data, discipline_index, ins):
     # Initialize an empty list for all of the points
     all_points = []
 
-    # Extracting points from the 1000th iter of each run
+    # Extract points from the 200th iteration of each run
     for run, disciplines in test_case_data.items():
         for data_point in disciplines[discipline_index]:
-            if data_point['iter'] == 1000:
+            if data_point['iter'] == 200:
                 space_remaining = data_point['space_remaining']
                 all_points.extend(space_remaining)
 
@@ -329,7 +329,7 @@ def plotHeatmaps(test_case_data, discipline_index, ins):
     
     # Normalize density for transparency mapping
     density_normalized = (density-density.min())/(density.max()-density.min())
-    alphas = 0.005 + 0.045 * density_normalized
+    alphas = 0.02 + 0.1 * density_normalized
     
     # Create figure
     fig = plt.figure(figsize=(10, 8))
@@ -409,8 +409,8 @@ with open('ufeas2_disciplines.pkl', 'rb') as f:
     ufeas2_disciplines_data = pickle.load(f)
 with open('diversity_disciplines.pkl', 'rb') as f:
     diversity_data = pickle.load(f)
-# with open('Test_Case_3.pkl', 'rb') as f:
-#     Test_Case_3 = pickle.load(f)
+# with open('Test_Case_1.pkl', 'rb') as f:
+#     Test_Case_1 = pickle.load(f)
 # with open('Discips.pkl', 'rb') as f:
 #     Discips = pickle.load(f)
 
@@ -424,7 +424,7 @@ plotDiversity(diversity_data, 'Discrepancy', '-',
               ['firebrick', 'darkorange', 'darkgreen'],
               marker = ['o', 'd', '*'])
 
-# Create Heat Map Plot of Test Case 3 for each discipline
-# plotHeatmaps(Test_Case_3, 0, Discips[0]['ins'])
-# plotHeatmaps(Test_Case_3, 1, Discips[1]['ins'])
-# plotHeatmaps(Test_Case_3, 2, Discips[2]['ins'])
+# Create Heat Map Plot of Test Case 1 for each discipline
+# plotHeatmaps(Test_Case_1, 0, Discips[0]['ins'])
+# plotHeatmaps(Test_Case_1, 1, Discips[1]['ins'])
+# plotHeatmaps(Test_Case_1, 2, Discips[2]['ins'])
