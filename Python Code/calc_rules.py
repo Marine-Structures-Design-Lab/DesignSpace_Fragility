@@ -18,7 +18,7 @@ from output_start import outputStart
 """
 FUNCTION
 """
-def calcRules(Discip,dict_key1,dict_key2,dict_key3):
+def calcRules(Discip, dict_key1, dict_key2, dict_key3, dict_key4, dict_key5):
     """
     Description
     -----------
@@ -40,6 +40,11 @@ def calcRules(Discip,dict_key1,dict_key2,dict_key3):
     dict_key3 : String
         Discipline's dictionary key where the variables pertaining to the rules
         are located
+    dict_key4 : String
+        Discipline's dictionary key from where input values for calculating
+        the rule values are to be gathered
+    dict_key5 : String
+        
 
     Returns
     -------
@@ -68,11 +73,14 @@ def calcRules(Discip,dict_key1,dict_key2,dict_key3):
             # Loop through each free symbol
             for symb in symbs:
                 
-                # Get index in the discipline of the free symbol
-                ind = Discip.get(dict_key3, []).index(symb)
-                
-                # Substitute point value into free symbol of lhs of inequality
-                lhs = lhs.subs(symb, value_array[i, ind])
+                # Get index in the discipline of the free symbol and substitute
+                # point value into free symbol of lhs of inequality
+                if str(symb) in str(Discip[dict_key3]):
+                    ind = Discip.get(dict_key3).index(symb)
+                    lhs = lhs.subs(symb, value_array[i, ind])
+                else:
+                    ind = Discip.get(dict_key5).index(symb)
+                    lhs = lhs.subs(symb, Discip[dict_key4][i, ind])
                 
             # Append design point value to numpy array of inequality
             Discip[dict_key1][ineq] = \

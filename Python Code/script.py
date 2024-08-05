@@ -52,7 +52,7 @@ import h5py
 PREPARE DATA
 """
 # Establish Test Case
-test_id = "TC4"
+test_id = "TC1"
 
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
@@ -79,8 +79,8 @@ sys.stdout = open(log_file_path, 'w')
 USER INPUTS
 """
 # List the name of the problem on which the design team is working
-### OPTIONS: SBD1,...
-problem_name = 'SBD1'
+### OPTIONS: SBD1, SenYang,...
+problem_name = 'SenYang'
 
 # Establish the allowed timeline for exploring the design problem
 ### This value determines the number of time iterations that will be executed,
@@ -121,7 +121,7 @@ auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = True       # True = yes, False = no
+fragility = False       # True = yes, False = no
 fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
@@ -489,7 +489,7 @@ while iters <= iters_max:
     for i in range(0,len(Discips)):
         
         # Determine current input value rules for the discipline to meet
-        input_rules = getConstraints(Discips[i]['ins'],Input_Rules)
+        input_rules = getConstraints(Discips[i]['ins'], Input_Rules)
         
         # Create a key for tested inputs of discipline if it does not exist
         Discips[i] = createKey('tested_ins',Discips[i])
@@ -509,17 +509,19 @@ while iters <= iters_max:
         Discips[i] = createDict('out_ineqs', Discips[i])
         
         # Determine current output value rules for the discipline to meet
-        output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
+        output_rules = getConstraints(Discips[i]['outs'] + Discips[i]['ins'], 
+                                      Output_Rules)
         
         # Gather any new inequalities of relevance to the discipline
         Discips[i] = getInequalities(Discips[i], output_rules, 'out_ineqs')
         
         # Calculate left-hand side of output rule inequality for each new point
-        Discips[i]['out_ineqs'] = calcRules(Discips[i],\
-                                            'out_ineqs','tested_outs','outs')
+        Discips[i]['out_ineqs'] = calcRules(Discips[i], 'out_ineqs', 
+                                            'tested_outs', 'outs', 
+                                            'tested_ins', 'ins')
         
         # Create a key for passing and failing of outputs if it does not exist
-        Discips[i] = createKey('pass?',Discips[i])
+        Discips[i] = createKey('pass?', Discips[i])
         
         # Check whether the output points pass or fail
         outchk = checkOutput(Discips[i], output_rules)
