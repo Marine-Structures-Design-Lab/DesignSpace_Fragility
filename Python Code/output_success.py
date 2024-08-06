@@ -100,11 +100,14 @@ def outputDiff(rule, i, d):
         # Loop through each free symbol
         for symb in symbs:
             
-            # Get index in the discipline's outputs of the free symbol
-            ind = d['outs'].index(symb)
-            
-            # Substitute output value into free symbol of rule copy
-            rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
+            # Get index in the discipline of the free symbol and substitute
+            # point value into free symbol of inequality
+            if str(symb) in str(d['outs']):
+                ind = d.get('outs').index(symb)
+                rule_copy = rule_copy.subs(symb, d['tested_outs'][i, ind])
+            else:
+                ind = d.get('ins').index(symb)
+                rule_copy = rule_copy.subs(symb, d['tested_ins'][i, ind])
         
         # Return 0.0 if inequality is true but point is failing...as difference
         ### should not contribute to fail amount
@@ -179,6 +182,7 @@ class checkOutput:
         # Initial definitions to make code more readable
         start = outputStart(self.d, 'pass?')
         tested_outs = self.d['tested_outs']
+        tested_ins = self.d['tested_ins']
         
         # Loop through each NEW design point in the output space
         for i in range(start, tested_outs.shape[0]):
@@ -193,8 +197,15 @@ class checkOutput:
                 for k in self.d['outs']:
                     
                     # Substitute output value for the variable in rule
-                    rules_copy[j] = rules_copy[j].subs(k,\
-                        tested_outs[i,self.d['outs'].index(k)])
+                    rules_copy[j] = rules_copy[j].subs(k,
+                        tested_outs[i, self.d['outs'].index(k)])
+                
+                # Loop through each input variable of the discipline
+                for k in self.d['ins']:
+                    
+                    # Substitute input value for the variable in rule
+                    rules_copy[j] = rules_copy[j].subs(k,
+                        tested_ins[i, self.d['ins'].index(k)])
                     
             # Append boolean value to the proper dictionary key
             self.d['pass?'].append(all(rules_copy))
