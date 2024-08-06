@@ -110,11 +110,11 @@ class setProblem:
             
             # Define each design variable's upper and lower bounds
             bounds = {
-                0: (195.0, 362.0), # Example bounds for x[0] --> Length
-                1: (10.2, 21.7),   # Example bounds for x[1] --> Draft
-                2: (13.0, 30.0),   # Example bounds for x[2] --> Depth
+                0: (195.2, 362.0), # Example bounds for x[0] --> Length
+                1: (10.3, 21.7),   # Example bounds for x[1] --> Draft
+                2: (13.1, 30.0),   # Example bounds for x[2] --> Depth
                 3: (0.63, 0.75),   # Example bounds for x[3] --> Block coeff.
-                4: (5.0, 61.0),    # Example bounds for x[4] --> Breadth
+                4: (5.0, 60.0),    # Example bounds for x[4] --> Breadth
                 5: (14.0, 18.0)    # Example bounds for x[5] --> Speed
             }
             
@@ -135,14 +135,14 @@ class setProblem:
         
         # Create dictionary for Hydrodynamics division
         hydro = {
-            "ins": [x[0], x[1], x[2], x[4], x[5]],
+            "ins": [x[0], x[1], x[2], x[3], x[4], x[5]],
             "outs": [y[0]],
             "fcns": [X(x[5],5) / (9.8065*X(x[0],0))**0.5 - y[0]],
         }
         
         # Create dictionary for Stability division
         stability = {
-            "ins": [x[0], x[1], x[2], x[3], x[4]],
+            "ins": [x[0], x[1], x[2], x[3], x[4], x[5]],
             "outs": [y[1]],
             "fcns": [0.53*X(x[1],1) + \
                      ((0.085*X(x[3],3)-0.002)*X(x[4],4)**2)/\
@@ -177,7 +177,10 @@ class setProblem:
         in_rules = [sp.And(x[i] >= 0.0, x[i] <= 1.0) for i in range(len(x))] +\
                    [X(x[0],0)/X(x[4],4) >= 6.0, X(x[0],0)/X(x[1],1) <= 19.0, 
                     X(x[0],0)/X(x[2],2) <= 15.0, 
-                    X(x[1],1) - 0.7*X(x[2],2) <= 0.7]
+                    X(x[1],1) - 0.7*X(x[2],2) <= 0.7,
+                    (-10847.2*X(x[3],3)**2+12817*X(x[3],3)-6960.32)*(X(x[5],5)\
+                      /(9.8065*X(x[0],0))**0.5)+(4977.06*X(x[3],3)**2-8105.61*\
+                      X(x[3],3)+4456.51) > 0.0]
         
         # Create a list for the initial output rules
         ### SAME STRUCTURE AS THE INPUT RULES

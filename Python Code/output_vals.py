@@ -68,6 +68,7 @@ class getOutput:
                 # Loop through each equation of the discipline
                 for k in range(0,len(self.d['fcns'])):
                     
+                    print(self.d['tested_ins'][i,self.d['ins'].index(j)])
                     # Substitute input value in for variable in equation
                     expr[k] = expr[k].subs(j,\
                                 self.d['tested_ins'][i,self.d['ins'].index(j)])
