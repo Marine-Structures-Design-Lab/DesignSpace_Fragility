@@ -16,11 +16,12 @@ joeyvan@umich.edu
 LIBRARIES
 """
 import numpy as np
+import sympy as sp
 
 """
 FUNCTIONS
 """
-def uniformGrid(total_points, ndims):
+def uniformGrid(total_points, ndims, input_rules):
     """
     Description
     -----------
@@ -34,6 +35,8 @@ def uniformGrid(total_points, ndims):
         for tracking the space remaining in the discipline's design space
     ndims : Integer
         The number of dimensions of which the design space consists
+    input_rules : List
+        List of sympy relationals defining the current set of all input rules
 
     Returns
     -------
@@ -59,11 +62,23 @@ def uniformGrid(total_points, ndims):
     # Reshape and stack to create a single array of points
     points = np.vstack([np.ravel(g) for g in grid]).T
     
+    # Combine all constraints into a single expression
+    constraints = sp.And(*input_rules)
+    
+    # Define sympy variables
+    x = sp.symbols(f'x1:{ndims+1}')
+    
+    # Create a lambda function for evaluating the constraints
+    constraints_func = sp.lambdify(x, constraints, modules='numpy')
+    
+    # Filter points to satisfy constraints
+    valid_points = [point for point in points if constraints_func(*point)]
+    
     # Calculate the number of points actually created
-    num_points = points.shape[0]
+    num_points = len(valid_points)
 
     # Generate the 1D list of integers
     index_list = np.arange(num_points).tolist()
 
     # Return the array of points, actual number of points, and the index list
-    return points, num_points, index_list
+    return np.array(valid_points), num_points, index_list

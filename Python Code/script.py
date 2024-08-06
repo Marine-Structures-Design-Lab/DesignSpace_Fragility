@@ -102,7 +102,7 @@ search_factor = 100
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
 ### following any space reductions
-total_points = 10000
+total_points = 400000
 
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
@@ -121,7 +121,7 @@ auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = True       # True = yes, False = no
+fragility = False       # True = yes, False = no
 fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
@@ -197,7 +197,8 @@ for i in range(0,len(Discips)):
     # Initialize an array for estimating the space remaining for the discipline
     Discips[i]['space_remaining'], Discips[i]['tp_actual'], \
         Discips[i]['space_remaining_ind'] = uniformGrid(total_points, 
-                                                        len(Discips[i]['ins']))
+                                                        len(Discips[i]['ins']),
+                                                        Input_Rules)
         
     # Collect space remaining information for the discipline
     Space_Remaining[i].append({
