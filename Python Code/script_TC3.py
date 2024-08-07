@@ -52,7 +52,7 @@ import h5py
 PREPARE DATA
 """
 # Establish Test Case
-test_id = "TC4"
+test_id = "TC3"
 
 # Prepare for capturing console outputs and saving simulation data
 parser=argparse.ArgumentParser(description="Simulation run unique identifier.")
@@ -79,14 +79,14 @@ sys.stdout = open(log_file_path, 'w')
 USER INPUTS
 """
 # List the name of the problem on which the design team is working
-### OPTIONS: SBD1,...
-problem_name = 'SBD1'
+### OPTIONS: SBD1, SenYang,...
+problem_name = 'SenYang'
 
 # Establish the allowed timeline for exploring the design problem
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 50    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -102,7 +102,7 @@ search_factor = 100
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
 ### following any space reductions
-total_points = 10000
+total_points = 400000
 
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
@@ -197,7 +197,8 @@ for i in range(0,len(Discips)):
     # Initialize an array for estimating the space remaining for the discipline
     Discips[i]['space_remaining'], Discips[i]['tp_actual'], \
         Discips[i]['space_remaining_ind'] = uniformGrid(total_points, 
-                                                        len(Discips[i]['ins']))
+                                                        len(Discips[i]['ins']),
+                                                        Input_Rules)
         
     # Collect space remaining information for the discipline
     Space_Remaining[i].append({
@@ -489,7 +490,7 @@ while iters <= iters_max:
     for i in range(0,len(Discips)):
         
         # Determine current input value rules for the discipline to meet
-        input_rules = getConstraints(Discips[i]['ins'],Input_Rules)
+        input_rules = getConstraints(Discips[i]['ins'], Input_Rules)
         
         # Create a key for tested inputs of discipline if it does not exist
         Discips[i] = createKey('tested_ins',Discips[i])
@@ -509,17 +510,19 @@ while iters <= iters_max:
         Discips[i] = createDict('out_ineqs', Discips[i])
         
         # Determine current output value rules for the discipline to meet
-        output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
+        output_rules = getConstraints(Discips[i]['outs'] + Discips[i]['ins'], 
+                                      Output_Rules)
         
         # Gather any new inequalities of relevance to the discipline
         Discips[i] = getInequalities(Discips[i], output_rules, 'out_ineqs')
         
         # Calculate left-hand side of output rule inequality for each new point
-        Discips[i]['out_ineqs'] = calcRules(Discips[i],\
-                                            'out_ineqs','tested_outs','outs')
+        Discips[i]['out_ineqs'] = calcRules(Discips[i], 'out_ineqs', 
+                                            'tested_outs', 'outs', 
+                                            'tested_ins', 'ins')
         
         # Create a key for passing and failing of outputs if it does not exist
-        Discips[i] = createKey('pass?',Discips[i])
+        Discips[i] = createKey('pass?', Discips[i])
         
         # Check whether the output points pass or fail
         outchk = checkOutput(Discips[i], output_rules)
