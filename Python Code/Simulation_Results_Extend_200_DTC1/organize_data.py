@@ -15,6 +15,7 @@ LIBRARIES
 from scipy.stats import qmc
 import numpy as np
 import pickle
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 """
@@ -205,8 +206,7 @@ def fillSpaceRemaining(test_case, set_of_times, Discips):
                                         dic_data['space_remaining'])
                 
                 # Count and record True values for indices in both
-                true_count, true_count_all = countBooleans(matches, Discips,
-                                                           ind_discip)
+                true_count = countBooleans(matches, Discips, ind_discip)
                 
                 # Append first count to the feasible dictionary
                 feas_rem[run_name][discip_name][dic_data['iter']].append\
@@ -405,6 +405,50 @@ def findPercentages(average_rem, average_feas):
     return percent_rem, percent_feas1, percent_feas2
 
 
+
+"""
+PARALLEL EXECUTION FUNCTION
+"""
+def process_test_case(test_case_name):
+    """
+    Description
+    -----------
+    Processes a single test case by determining times, space remaining,
+    average spaces, percentages, and diversity for each discipline.
+    
+    Parameters
+    ----------
+    test_case_name : String
+        Name of the particular test case that was run
+    """
+    # Retrieve variable whose name matches the string
+    test_case = globals()[test_case_name]
+    
+    # Determine all of the times when data was recorded
+    set_of_times = createTimeData(test_case_name)
+    
+    # Determine space remaining at each of those times for each test run
+    space_rem, feas_rem, diver_rem = \
+        fillSpaceRemaining(test_case, set_of_times, Discips)
+    
+    # Determine average space remaining at each time over all of the runs
+    average_rem, average_feas, average_diver = \
+        findAverages(space_rem, feas_rem, diver_rem)
+    
+    # Convert averages into percentages
+    percent_rem, percent_feas1, percent_feas2 = \
+        findPercentages(average_rem, average_feas)
+    
+    # Return the calculated data
+    return {
+        'test_case_name': test_case_name,
+        'percent_rem': percent_rem,
+        'percent_feas1': percent_feas1,
+        'percent_feas2': percent_feas2,
+        'average_diver': average_diver
+    }
+
+
 """
 SCRIPT
 """
@@ -453,39 +497,36 @@ if __name__ == "__main__":
         'Discipline_3': {}
         }
     
-    # Loop through each test case / name
-    for test_case_name in test_case_names:
+    # Use ThreadPoolExecutor to parallelize the test case processing
+    with ThreadPoolExecutor(max_workers=3) as executor:
         
-        # Retrieve variable whose name matches the string
-        test_case = globals()[test_case_name]
-        
-        # Determine all of the times when data was recorded
-        set_of_times = createTimeData(test_case_name)
-        
-        # Determine space remaining at each of those times for each test run
-        space_rem, feas_rem, diver_rem = \
-            fillSpaceRemaining(test_case, set_of_times, Discips)
-        
-        # Determine average space remaining at each time over all of the runs
-        average_rem, average_feas, average_diver = \
-            findAverages(space_rem, feas_rem, diver_rem)
-        
-        # Convert averages into percentages
-        percent_rem, percent_feas1, percent_feas2 = \
-            findPercentages(average_rem, average_feas)
-        
-        # Loop through disciplines
-        for discip_name in all_disciplines_data.keys():
+        # Submit each test case to be processed concurrently
+        future_to_test_case = {
+            executor.submit(process_test_case, test_case_name): test_case_name
+            for test_case_name in test_case_names
+        }
+
+        # Iterate over completed futures as they finish
+        for future in as_completed(future_to_test_case):
+            result = future.result()
             
-            # Add results to new key within dictionaries
-            all_disciplines_data[discip_name][test_case_name] = \
-                percent_rem[discip_name]
-            feas1_disciplines_data[discip_name][test_case_name] = \
-                percent_feas1[discip_name]
-            feas2_disciplines_data[discip_name][test_case_name] = \
-                percent_feas2[discip_name]
-            diversity_data[discip_name][test_case_name] = \
-                average_diver[discip_name]
+            # Extract the data from the completed future
+            test_case_name = result['test_case_name']
+            percent_rem = result['percent_rem']
+            percent_feas1 = result['percent_feas1']
+            percent_feas2 = result['percent_feas2']
+            average_diver = result['average_diver']
+            
+            # Loop through disciplines and add results to dictionaries
+            for discip_name in all_disciplines_data.keys():
+                all_disciplines_data[discip_name][test_case_name] = \
+                    percent_rem[discip_name]
+                feas1_disciplines_data[discip_name][test_case_name] = \
+                    percent_feas1[discip_name]
+                feas2_disciplines_data[discip_name][test_case_name] = \
+                    percent_feas2[discip_name]
+                diversity_data[discip_name][test_case_name] = \
+                    average_diver[discip_name]
     
     # Save the new data
     with open('all_disciplines.pkl', 'wb') as f:

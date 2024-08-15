@@ -84,8 +84,7 @@ def plotData(data, label_prefix, linestyle, colors, color_idx, marker):
 FUNCTIONS
 """
 def plotDisciplines(all_disciplines_data, feas1_disciplines_data, 
-                    feas2_disciplines_data, ufeas1_disciplines_data, 
-                    ufeas2_disciplines_data):
+                    feas2_disciplines_data):
     """
     Description
     -----------
@@ -104,12 +103,6 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     feas2_disciplines_data : Dictionary
         Contains feasible space remaining data for each discipline over elapsed
         time
-    ufeas1_disciplines_data : Dictionary
-        Contains universal feasible-to-remaining space data for each discipline
-        over elapsed time
-    ufeas2_disciplines_data : Dictionary
-        Contains universal feasible space remaining data for each discipline
-        over elapsed time
     """
     
     # Initialize colors, line styles, markers, and legend names
@@ -118,11 +111,10 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     line_styles = ['-', '--', ':']
     # markers = ['', '', '', '', '*', '+']
     markers = ['o', 'd', '*']
-    # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining',
-    #                'Universal Feasible', 'Universal-to-Remaining', 'Diversity']
+    # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
     data_groups = ['Total Space', 'Feasible', 'Feasible-to-Remaining']
-    custom_names = ["No fragility (TC1)", "PFM (TC2)", "EFM (TC3)"] 
-    
+    custom_names = ["No fragility (TC1)", "Initial PFM (TC2)", 
+                    "Initial EFM (TC3)"] # , "Extended PFM (TC4)", "Extended EFM (TC5)"
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
@@ -142,11 +134,6 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         # Retrieve disciplines' feasible space data
         feas1_test_cases_data = feas1_disciplines_data.get(discipline, {})
         feas2_test_cases_data = feas2_disciplines_data.get(discipline, {})
-        ufeas1_test_cases_data = ufeas1_disciplines_data.get(discipline, {})
-        ufeas2_test_cases_data = ufeas2_disciplines_data.get(discipline, {})
-        
-        # Retrieve disciplines' diversity data
-        diver_test_cases_data = diversity_data.get(discipline, {})
         
         # Plot data for space remaining
         color_idx = 0
@@ -162,16 +149,6 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         color_idx = 0
         color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
                              colors, 0, markers)
-        
-        # # Plot data for universal feasible space remaining
-        # color_idx = 0
-        # color_idx = plotData(ufeas2_test_cases_data, 'uFeas2', line_styles[3], 
-        #                      colors, 0, markers)
-        
-        # # Plot data for universal feasible-to-remaining space
-        # color_idx = 0
-        # color_idx = plotData(ufeas1_test_cases_data, 'uFeas1', line_styles[4], 
-        #                      colors, 0, markers)
         
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left',
@@ -300,10 +277,6 @@ with open('feas1_disciplines.pkl', 'rb') as f:
     feas1_disciplines_data = pickle.load(f)
 with open('feas2_disciplines.pkl', 'rb') as f:
     feas2_disciplines_data = pickle.load(f)
-with open('ufeas1_disciplines.pkl', 'rb') as f:
-    ufeas1_disciplines_data = pickle.load(f)
-with open('ufeas2_disciplines.pkl', 'rb') as f:
-    ufeas2_disciplines_data = pickle.load(f)
 with open('diversity_disciplines.pkl', 'rb') as f:
     diversity_data = pickle.load(f)
 # with open('Test_Case_1.pkl', 'rb') as f:
@@ -313,8 +286,7 @@ with open('diversity_disciplines.pkl', 'rb') as f:
 
 # Create line plots for Disciplines 1, 2, and 3
 plotDisciplines(all_disciplines_data, feas1_disciplines_data,
-                feas2_disciplines_data, ufeas1_disciplines_data,
-                ufeas2_disciplines_data)
+                feas2_disciplines_data)
 
 # Create diversity plots for each discipline
 plotDiversity(diversity_data, 'Discrepancy', '-', 
