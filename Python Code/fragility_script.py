@@ -92,7 +92,7 @@ class fragilityCommands:
         wr, run_wind, run_reg = calcWindRegret\
             (self.irf, self.Df, self.pf_combos, prob_feas, self.pf_frag)
         
-        # Quantify risk or potential of space reduction
+        # Quantify risk or potential of space reduction -- VARIABLE COMBOS!!
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
         ris = quantRisk(self.Df, run_wind, run_reg, wr)
@@ -136,7 +136,7 @@ class fragilityCommands:
         wr, run_wind, run_reg = calcWindRegret\
             (self.irf, self.Df, self.pf_combos, TVE, self.pf_frag)
         
-        # Quantify risk or potential of space reduction
+        # Quantify risk or potential of space reduction -- VARIABLE COMBOS!!
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
         ris = quantRisk(self.Df, run_wind, run_reg, wr)

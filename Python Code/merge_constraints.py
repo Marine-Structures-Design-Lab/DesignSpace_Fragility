@@ -623,6 +623,10 @@ class mergeConstraints:
             # Get perceptions of feasibility in the non-reduced design space
             pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
             
+            # MOVE ABOVE STATEMENT IN ITS OWN FOR LOOP AND BELOW IN ITS OWN FOR
+            # LOOP SO THAT IN THE MIDDLE, I LEAVE MYSELF THE OPTION TO DO AN MOGP
+            # BEFORE ACTUALLY MAKING THE PREDICTIONS
+            
             # Loop through each new rule combination - rule is a tuple here!
             for j, rule in enumerate(rule_combos):
                 
