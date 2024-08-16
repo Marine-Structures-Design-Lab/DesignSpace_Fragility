@@ -31,6 +31,7 @@ class test_get_constraints(unittest.TestCase):
         # Set up the problem
         prob = setProblem()
         self.Discips, self.Input_Rules, self.Output_Rules = prob.SBD1()
+        self.Discips2, self.Input_Rules2, self.Output_Rules2 = prob.SenYang()
         self.y = sp.symbols('y1:6')
         
         # Loop through each discipline
@@ -38,15 +39,20 @@ class test_get_constraints(unittest.TestCase):
             
             # Create a key for tested outputs of discipline
             self.Discips[i] = createKey('tested_outs',self.Discips[i])
+            self.Discips2[i] = createKey('tested_outs',self.Discips2[i])
             
             # Create a key for output rule inequalities relevant to discipline
             self.Discips[i] = createDict('out_ineqs',self.Discips[i])
+            self.Discips2[i] = createDict('out_ineqs',self.Discips2[i])
             
         # Create output values for discipline 3
         self.Discips[2]['tested_outs'] = np.array([[1.0, 1.0],
                                                    [3.0, 5.0]])
+        self.Discips[2]['tested_outs'] = np.array([[],
+                                                   []])
         
         return
+    
     
     def test_calc_rules(self):
         """
@@ -76,7 +82,8 @@ class test_get_constraints(unittest.TestCase):
         
         # Calculate left-hand side of output rule inequality for each point
         self.Discips[2]['out_ineqs'] =\
-            calcRules(self.Discips[2],'out_ineqs','tested_outs','outs')
+            calcRules(self.Discips[2],'out_ineqs','tested_outs','outs',
+                      'tested_ins','ins')
         
         # Loop through each key of the 'out_ineqs' key
         count = 0

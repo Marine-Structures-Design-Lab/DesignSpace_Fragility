@@ -59,7 +59,7 @@ class test_point_sorter(unittest.TestCase):
         
         # Create an array of space remaining points (3x3x3)
         self.Discips[0]['space_remaining'], self.tp_actual, self.index_list = \
-            uniformGrid(27, len(self.Discips[0]['ins']))
+            uniformGrid(27, self.Discips[0]['ins'], self.Input_Rules)
         
         # Create a list of space remaining indices
         self.Discips[0]['space_remaining_ind'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -159,7 +159,7 @@ class test_point_sorter(unittest.TestCase):
         list_p = [True, False, False]
         space_rem_ind = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                          16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
-        array_sr = uniformGrid(27, len(self.Discips[0]['ins']))[0]
+        array_sr = uniformGrid(27, self.Discips[0]['ins'], self.Input_Rules)[0]
         
         # Ensure proper values remain
         np.testing.assert_array_equal(self.Discips[0]['tested_ins'], array_ins)
@@ -299,7 +299,7 @@ class test_point_sorter(unittest.TestCase):
         self.Discips[1]['pass?'] = [True, False, True]
         self.Discips[1]['space_remaining'], tp_actual, \
             self.Discips[1]['space_remaining_ind'] = \
-            uniformGrid(27, len(self.Discips[1]['ins']))
+            uniformGrid(27, self.Discips[1]['ins'], self.Input_Rules)
         
         # Initialize a list of input rules
         ir1 = sp.Ge(sp.Symbol('x1'), 0.1)

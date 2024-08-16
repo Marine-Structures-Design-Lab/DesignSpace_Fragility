@@ -105,8 +105,49 @@ class setProblem:
     
     
     def SenYang(self):
+        """
+        Description
+        -----------
+        Creates the list of dictionaries and set of rules for Sen and Yang Bulk
+        Carrier problem.  Important to make sure that all dictionary values are
+        contained within a list regardless of if it is only a single value.
+
+        Parameters
+        -------
+        None.
+        
+        Returns
+        -------
+        [hydro, stability, weights] : List of dictionaries
+            Contains sympy inputs, outputs, and expressions for each individual
+            discipline of the particular design problem
+        input_rules : List of sympy relationals
+            The initial set of input constraints/rules that each discipline
+            must abide by when determining designs to test in the input space
+        output_rules : List of sympy relationals
+            The initial set of output constraints/rules that each discipline
+            must abide by when determining if tested designs produce passing
+            outputs in the objective space
+        """
         
         def X(x_norm, index):
+            """
+            Description
+            -----------
+            Creates an expression that denormalizes an input variable.
+
+            Parameters
+            ----------
+            x_norm : Sympy variable
+                The normalized input variable.
+            index : Integer
+                Index of the particular input variable.
+
+            Returns
+            -------
+            x_denorm : Sympy expression
+                The denormalized input variable expression.
+            """
             
             # Define each design variable's upper and lower bounds
             bounds = {

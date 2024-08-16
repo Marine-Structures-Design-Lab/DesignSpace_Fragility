@@ -197,7 +197,7 @@ for i in range(0,len(Discips)):
     # Initialize an array for estimating the space remaining for the discipline
     Discips[i]['space_remaining'], Discips[i]['tp_actual'], \
         Discips[i]['space_remaining_ind'] = uniformGrid(total_points, 
-                                                        len(Discips[i]['ins']),
+                                                        Discips[i]['ins'],
                                                         Input_Rules)
         
     # Collect space remaining information for the discipline
