@@ -100,7 +100,8 @@ for i in range(0, len(Discips)):
     Discips[i] = outpts.getValues()
     
     # Determine current output value rules for the discipline to meet
-    output_rules = getConstraints(Discips[i]['outs'], Output_Rules)
+    output_rules = getConstraints(Discips[i]['outs'] + Discips[i]['ins'], 
+                                  Output_Rules)
     
     # Create a key for passing and failing of outputs if it does not exist
     Discips[i] = createKey('pass?', Discips[i])
