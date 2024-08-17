@@ -37,6 +37,10 @@ class test_get_constraints(unittest.TestCase):
         # Loop through each discipline
         for i in range(0,len(self.Discips)):
             
+            # Create a key for tested inputs of discipline
+            self.Discips[i] = createKey('tested_ins',self.Discips[i])
+            self.Discips2[i] = createKey('tested_ins',self.Discips2[i])
+            
             # Create a key for tested outputs of discipline
             self.Discips[i] = createKey('tested_outs',self.Discips[i])
             self.Discips2[i] = createKey('tested_outs',self.Discips2[i])
@@ -44,12 +48,15 @@ class test_get_constraints(unittest.TestCase):
             # Create a key for output rule inequalities relevant to discipline
             self.Discips[i] = createDict('out_ineqs',self.Discips[i])
             self.Discips2[i] = createDict('out_ineqs',self.Discips2[i])
-            
-        # Create output values for discipline 3
+        
+        # Create output values for disciplin
         self.Discips[2]['tested_outs'] = np.array([[1.0, 1.0],
                                                    [3.0, 5.0]])
-        self.Discips[2]['tested_outs'] = np.array([[],
-                                                   []])
+        self.Discips2[1]['tested_outs'] = np.array([[0.4]])
+        
+        # Create input values for discipline 2
+        self.Discips2[1]['tested_ins'] = \
+            np.array([[0.4, 0.1, 0.3, 0.8, 0.0, 0.4]])
         
         return
     
@@ -65,6 +72,7 @@ class test_get_constraints(unittest.TestCase):
                    np.array([1.0, 5.0]),
                    np.array([1.0, 5.0]),
                    np.array([3.5, 16.5])]
+        exp_ans2 = [np.array([0.05])]
         
         # Create an arbitrary list of extra rules
         extra_rules = [0.5*self.y[3]+3*self.y[4]<12]
@@ -72,6 +80,9 @@ class test_get_constraints(unittest.TestCase):
         # Determine current output value rules for the discipline to meet
         output_rules =\
             getConstraints(self.Discips[2]['outs'],self.Output_Rules)
+        output_rules2 = \
+            getConstraints(self.Discips2[1]['outs']+self.Discips2[1]['ins'],
+                           self.Output_Rules2)
             
         # Add arbitrary rule to the output rules
         output_rules += extra_rules
@@ -79,20 +90,32 @@ class test_get_constraints(unittest.TestCase):
         # Gather any new inequalities of relevance to the discipline
         self.Discips[2] =\
             getInequalities(self.Discips[2],output_rules,'out_ineqs')
+        self.Discips2[1] =\
+            getInequalities(self.Discips2[1],output_rules2,'out_ineqs')
         
         # Calculate left-hand side of output rule inequality for each point
         self.Discips[2]['out_ineqs'] =\
             calcRules(self.Discips[2],'out_ineqs','tested_outs','outs',
+                      'tested_ins','ins')
+        self.Discips2[1]['out_ineqs'] =\
+            calcRules(self.Discips2[1],'out_ineqs','tested_outs','outs',
                       'tested_ins','ins')
         
         # Loop through each key of the 'out_ineqs' key
         count = 0
         for key in self.Discips[2]['out_ineqs']:
             
-            # Check that array is equal to expected the proper answers array
+            # Check that array is equal to the expected answers array
             np.testing.assert_array_equal(self.Discips[2]['out_ineqs'][key],\
                                           exp_ans[count])
             count += 1
+        
+        # Loop through each key of the 'out_ineqs' key
+        for key in self.Discips2[1]['out_ineqs']:
+            
+            # Check that value in array is equal to expected answer
+            self.assertAlmostEqual(self.Discips2[1]['out_ineqs'][key][0], 
+                                   exp_ans2[0][0])
 
         return
     
