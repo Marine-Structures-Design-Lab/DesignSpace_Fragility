@@ -42,6 +42,7 @@ class test_output_success(unittest.TestCase):
             # Create new keys
             self.Discips[i] = createKey('tested_outs',self.Discips[i])
             self.Discips[i] = createKey('pass?',self.Discips[i])
+            self.Discips[i] = createKey('tested_ins',self.Discips[i])
         
         # Add output values to each dictionary
         self.Discips[0]['tested_outs'] = np.array([[0.1],
@@ -50,6 +51,14 @@ class test_output_success(unittest.TestCase):
                                                    [0.6, 1.1]])
         self.Discips[2]['tested_outs'] = np.array([[0.2, 1.1],
                                                    [-0.4, 2.2]])
+        
+        # Add input values to each dictionary
+        self.Discips[0]['tested_ins'] = np.array([[0.1,0.2,0.3],
+                                                  [0.4,0.5,0.6]])
+        self.Discips[1]['tested_ins'] = np.array([[0.7,0.8,0.9],
+                                                  [1.0,0.0,0.1]])
+        self.Discips[2]['tested_ins'] = np.array([[0.2,0.3,0.4],
+                                                  [0.5,0.6,0.7]])
         
         # Create copy of the dictionary
         self.Discips1 = copy.deepcopy(self.Discips)
@@ -74,7 +83,8 @@ class test_output_success(unittest.TestCase):
             
             # Calculate left-hand side of output rule inequality for each point
             self.Discips2[i]['out_ineqs'] =\
-                calcRules(self.Discips2[i],'out_ineqs','tested_outs','outs')
+                calcRules(self.Discips2[i],'out_ineqs','tested_outs','outs',
+                          'tested_ins','ins')
             
             # Initialize object for each discipline
             outchk = checkOutput(self.Discips1[i],output_rules)
@@ -97,7 +107,7 @@ class test_output_success(unittest.TestCase):
         y = sp.symbols('y1:3')
         
         # Create new discipline and output rules
-        self.Discipline = [{"outs": [y[0], y[1]]}]
+        self.Discipline = [{"outs": [y[0], y[1]], "ins":[]}]
         self.ORules = [y[0] > 0.1,
                        sp.Or(y[0] > 0.25, y[1] > 0.3),
                        sp.And(y[1] > 0.2, y[1] < 0.6),
@@ -113,6 +123,7 @@ class test_output_success(unittest.TestCase):
         
         # Create needed keys
         self.Discipline[0] = createKey('pass?', self.Discipline[0])
+        self.Discipline[0] = createKey('tested_ins', self.Discipline[0])
         
         # Create a key for the output rule inequalities relevant to discipline
         self.Discipline[0] = createDict('out_ineqs', self.Discipline[0])
@@ -126,7 +137,8 @@ class test_output_success(unittest.TestCase):
         
         # Calculate left-hand side of output rule inequality for each point
         self.Discipline[0]['out_ineqs'] =\
-            calcRules(self.Discipline[0], 'out_ineqs', 'tested_outs', 'outs')
+            calcRules(self.Discipline[0], 'out_ineqs', 'tested_outs', 'outs',
+                      'tested_ins','ins')
         
         # Initialize object for discipline
         outchk = checkOutput(self.Discipline[0], output_rules)
