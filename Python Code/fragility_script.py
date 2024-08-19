@@ -13,7 +13,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from windfall_regret import evalCompProb, calcWindRegret, quantRisk, plotWindRegret
+from windfall_regret import evalCompProb, calcWindRegret, quantRisk, \
+    plotWindRegret
 from entropy_tracker import prepEntropy, evalEntropy
 from fragility_check import checkFragility
 import copy

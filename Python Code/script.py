@@ -121,9 +121,17 @@ auto_accept = False     # True = yes, False = no
 
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
-fragility = False       # True = yes, False = no
+fragility = True       # True = yes, False = no
 fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
+
+# Decide on which elements of the extended fragility framework to pursue
+### Options: sub_spaces, interdependencies, objective_changes
+fragility_extensions = {
+    "sub_spaces",         # Consider design sub-spaces
+    "interdependencies",  # Consider design space interdependencies
+    "objective_changes"   # Consider changes to requirements and analyses
+}
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
