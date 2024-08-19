@@ -72,7 +72,7 @@ class test_get_constraints(unittest.TestCase):
                    np.array([1.0, 5.0]),
                    np.array([1.0, 5.0]),
                    np.array([3.5, 16.5])]
-        exp_ans2 = [np.array([0.05])]
+        exp_ans2 = [np.array([0.0500000000000000])]
         
         # Create an arbitrary list of extra rules
         extra_rules = [0.5*self.y[3]+3*self.y[4]<12]
