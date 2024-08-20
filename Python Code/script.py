@@ -128,9 +128,9 @@ fragility_shift = 0.4  # Should be a positive float
 # Decide on which elements of the extended fragility framework to pursue
 ### Options: sub_spaces, interdependencies, objective_changes
 fragility_extensions = {
-    "sub_spaces",         # Consider design sub-spaces
-    "interdependencies",  # Consider design space interdependencies
-    "objective_changes"   # Consider changes to requirements and analyses
+    "sub_spaces": [1, 2, 3, 4, 5, 6], # Design sub-space dimensions to consider
+    "interdependencies": True,        # Consider design space interdependencies
+    "objective_changes": True         # Consider changes to req's and analyses
 }
 
 # Indicate when and to what design space(s) a design change should occur
@@ -431,7 +431,8 @@ while iters <= iters_max:
                 # Initialize fragility assessment object
                 fragnalysis = fragilityCommands(Discips_fragility, 
                     irules_fragility, pf_combos, pf_fragility,
-                    pf_std_fragility, passfail, passfail_std)
+                    pf_std_fragility, passfail, passfail_std, 
+                    fragility_extensions)
                 
                 # Perform desired fragility assessment
                 wr, run_wind, run_reg, ris = \

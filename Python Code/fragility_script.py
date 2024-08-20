@@ -26,7 +26,8 @@ CLASS
 class fragilityCommands:
     
     def __init__(self, Discips_fragility, irules_fragility, pf_combos,
-                 pf_fragility, pf_std_fragility, passfail, passfail_std):
+                 pf_fragility, pf_std_fragility, passfail, passfail_std,
+                 fragility_extensions):
         """
         Parameters
         ----------
@@ -51,6 +52,9 @@ class fragilityCommands:
         passfail_std : List of dictionaries
             History of each discipline's pass-fail standard deviatiokns up to a
             certain point in time
+        fragility_extensions : Dictionary
+            Different extensions to the initial fragility framework extension
+            that a design manager wants to include in the assessment
         """
         self.Df = Discips_fragility
         self.irf = irules_fragility
@@ -59,6 +63,7 @@ class fragilityCommands:
         self.pf_std_frag = pf_std_fragility
         self.pf = passfail
         self.pf_std = passfail_std
+        self.frag_ext = fragility_extensions
         return
     
     
@@ -91,9 +96,10 @@ class fragilityCommands:
         
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = calcWindRegret\
-            (self.irf, self.Df, self.pf_combos, prob_feas, self.pf_frag)
+            (self.irf, self.Df, self.pf_combos, prob_feas, self.pf_frag,
+             self.frag_ext)
         
-        # Quantify risk or potential of space reduction -- VARIABLE COMBOS!!
+        # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
         ris = quantRisk(self.Df, run_wind, run_reg, wr)
@@ -135,9 +141,10 @@ class fragilityCommands:
         
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = calcWindRegret\
-            (self.irf, self.Df, self.pf_combos, TVE, self.pf_frag)
+            (self.irf, self.Df, self.pf_combos, TVE, self.pf_frag,
+             self.frag_ext)
         
-        # Quantify risk or potential of space reduction -- VARIABLE COMBOS!!
+        # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
         ### Negative value means pot. regret or windfall REDUCED
         ris = quantRisk(self.Df, run_wind, run_reg, wr)

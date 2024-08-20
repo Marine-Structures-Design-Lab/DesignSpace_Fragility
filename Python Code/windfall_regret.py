@@ -17,6 +17,7 @@ LIBRARIES
 import numpy as np
 import copy
 import scipy.stats as stats
+import itertools
 import matplotlib.pyplot as plt
 # from matplotlib.lines import Line2D
 from point_sorter import sortPoints
@@ -26,7 +27,7 @@ from merge_constraints import sharedIndices
 """
 SECONDARY FUNCTIONS
 """
-def initializeWR(irf, passfail):
+def initializeWR(irf, passfail, frag_ext, Df):
     """
     Description
     -----------
@@ -41,6 +42,12 @@ def initializeWR(irf, passfail):
     passfail : Dictionary
         Pass-fail predictions for the non-reduced, reduced, and leftover design
         spaces of rule combinations from newest round of fragility assessment
+    frag_ext : Dictionary
+        Different extensions to the initial fragility framework extension
+        that a design manager wants to include in the assessment
+    Df : Dictionary
+        All information pertaining to each discipline at the beginning of
+        the newest space reduction cycle
 
     Returns
     -------
@@ -61,29 +68,54 @@ def initializeWR(irf, passfail):
     run_wind = {}
     run_reg = {}
     
+    # Make input rule list into a tuple
+    irf_tuple = tuple(irf)
+    
     # Loop through each new rule combo being proposed
     for rule, lis in passfail.items():
         
+        # Create a dictionary key
+        rule_key = rule + irf_tuple
+        
         # Add empty list to dictionaries
-        windreg[rule+tuple(irf)] = []
-        run_wind[rule+tuple(irf)] = []
-        run_reg[rule+tuple(irf)] = []
+        windreg[rule_key] = []
+        run_wind[rule_key] = []
+        run_reg[rule_key] = []
         
         # Loop through each discipline's passfail data
         for ind_dic, dic in enumerate(lis):
             
-            # Create empty dictionaries for discipline
-            windreg[rule+tuple(irf)].append({})
-            run_wind[rule+tuple(irf)].append({})
-            run_reg[rule+tuple(irf)].append({})
+            # Initialize empty dictionaries
+            new_dict1 = {}
+            new_dict2 = {}
+            
+            # Loop through the discipline's subspace dimensions
+            for r in frag_ext.get('sub_spaces', len(Df[ind_dic]['ins'])):
+                
+                # Continue if number of dimensions is greater than discipline's
+                # number of design variables available
+                if r > len(Df[ind_dic]['ins']): continue
+                
+                # Loop through each combination of design variables at r-size
+                for combo in itertools.combinations(Df[ind_dic]['ins'], r):
+                    
+                    # Assign an empty dictionary to the nested dictionaries
+                    new_dict1[combo] = {}
+                    new_dict2[combo] = {}
+            
+            # Append dictionary to discipline
+            windreg[rule_key].append({})
+            run_wind[rule_key].append(new_dict1)
+            run_reg[rule_key].append(new_dict2)
             
             # Loop through each design space of discipline
             for ds, arr in dic.items():
                 
                 # Initialize empty arrays and values
-                windreg[rule+tuple(irf)][ind_dic][ds]=np.array([], dtype=float)
-                run_wind[rule+tuple(irf)][ind_dic][ds] = 0.0
-                run_reg[rule+tuple(irf)][ind_dic][ds] = 0.0
+                windreg[rule_key][ind_dic][ds]=np.array([], dtype=float)
+                for combo in run_wind[rule_key][ind_dic]:
+                    run_wind[rule_key][ind_dic][combo][ds] = 0.0
+                    run_reg[rule_key][ind_dic][combo][ds] = 0.0
     
     # Return initialized dictionaries for windfall and regret tracking
     return windreg, run_wind, run_reg
@@ -246,7 +278,9 @@ def assignWR(prob_tve, ind_pf, indices_in_both, pf):
             wr['non_reduced'] = prob_tve
             wr['reduced'] = prob_tve
             
-            # Assign to proper running windfall count
+            # Assign to proper running windfall count - NEED TO LOOP THROUGH VARIABLE COMBOS AND BE MORE CAREFUL WITH ASSIGNMENT HERE!!!
+            ### PROBABLY CREATE A TERTIARY FUNCTION FOR PROPER CALCULATION OF AVERAGES!!!
+            ### TRY TO USE NUMPY MATRIX MATH TO BE AS QUICK AND EFFICIENT AS POSSIBLE!!!!
             run_wind['non_reduced'] = prob_tve
             run_wind['reduced'] = prob_tve
                         
@@ -342,7 +376,7 @@ def evalCompProb(pf_fragility, pf_std_fragility):
     return prob_feas
 
 
-def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
+def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
     """
     Description
     -----------
@@ -369,6 +403,9 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
         Pass-fail predictions for the non-reduced design spaces of each
         discipline before any new rule(s) are proposed in the current time
         stamp
+    frag_ext : Dictionary
+        Different extensions to the initial fragility framework extension
+        that a design manager wants to include in the assessment
     
     Returns
     -------
@@ -385,7 +422,7 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
     """
     
     # Initialize empty dictionaries
-    windreg, run_wind, run_reg = initializeWR(irf, passfail)
+    windreg, run_wind, run_reg = initializeWR(irf, passfail, frag_ext, Df)
     
     # Loop through each new rule combo being proposed
     for rule, lis in passfail.items():
@@ -400,7 +437,7 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility):
             # Loop through each complementary probability or TVE value
             for ind_pf, p_tve in enumerate(prob_tve[ind_dic]):
                 
-                # Prepare complementary probability or TVE for assignments
+                # Prepare complementary probability or TVE for assignments -- Starting back up around here!!!
                 wr, r_wind, r_reg = assignWR(p_tve, ind_pf,
                                              indices_in_both, 
                                              pf_fragility[ind_dic][ind_pf])
@@ -482,8 +519,8 @@ def quantRisk(Df, run_wind, run_reg, windreg):
     # Loop through each new rule (set) being proposed
     for rule, lis in run_wind.items():
         
-        # Add empty list to dictionary
-        risk[rule] = []
+        # Add empty dictionary to dictionary
+        risk[rule] = {}
         
         # Print rule (set) being considered
         print(f"For the rule set {str(rule)}...")
@@ -492,16 +529,30 @@ def quantRisk(Df, run_wind, run_reg, windreg):
         for ind_dic, (reg_dic, wind_dic) in enumerate(zip(run_reg[rule], 
                                                           run_wind[rule])):
             
+            ########## Space Remaining ##########
+            
             # Calculate non-reduced and reduced percentages
             nrp = round((windreg[rule][ind_dic]['non_reduced'].shape[0] / \
                 Df[ind_dic]['tp_actual'])*100, 2)
             rp = round((windreg[rule][ind_dic]['reduced'].shape[0] / \
                 Df[ind_dic]['tp_actual'])*100, 2)
             
-            ########## Space Remaining ##########
             # Print percent of space that would remain in discipline
             print(f"Discipline {ind_dic+1} would go from {nrp}% to {rp}% "
                   f"of its original design space remaining!")
+            
+            # Loop through the discipline's subspace dimensions
+            for r in frag_ext.get('sub_spaces', len(Df[ind_dic]['ins'])):
+                
+                # Continue if number of dimensions is greater than discipline's
+                # number of design variables available
+                if r > len(Df[ind_dic]['ins']): continue
+                
+                # Loop through each combination of design variables at r-size
+                for combo in itertools.combinations(Df[ind_dic]['ins'], r):
+                    
+                    # Assign an empty list to the nested dictionary
+                    risk[rule][combo] = []
             
             
             ########## Regret and Windfall ##########
