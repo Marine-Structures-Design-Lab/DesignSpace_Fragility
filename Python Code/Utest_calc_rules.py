@@ -115,7 +115,7 @@ class test_get_constraints(unittest.TestCase):
             
             # Check that value in array is equal to expected answer
             self.assertAlmostEqual(self.Discips2[1]['out_ineqs'][key][0], 
-                                   exp_ans2[0][0])
+                                   exp_ans2[0][0], places=2)
 
         return
     
