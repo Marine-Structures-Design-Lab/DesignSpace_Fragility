@@ -118,8 +118,8 @@ def createTimeData(test_case_name):
     """
     
     # Change the time sets below based on the experiments run
-    set_of_times = {0, 40, 68, 91, 107, 118, 127, 135, 143, 151, 159, 167, 175,
-                    183, 191, 199, 200}
+    set_of_times = {0, 80, 137, 184, 216, 238, 257, 271, 283, 291, 299, 307,
+                    315, 323, 331, 339, 347, 355, 363, 371, 379, 387, 395, 400}
     
     # Return the set of times
     return set_of_times
