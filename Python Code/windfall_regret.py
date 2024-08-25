@@ -278,9 +278,7 @@ def assignWR(prob_tve, ind_pf, indices_in_both, pf):
             wr['non_reduced'] = prob_tve
             wr['reduced'] = prob_tve
             
-            # Assign to proper running windfall count - NEED TO LOOP THROUGH VARIABLE COMBOS AND BE MORE CAREFUL WITH ASSIGNMENT HERE!!!
-            ### PROBABLY CREATE A TERTIARY FUNCTION FOR PROPER CALCULATION OF AVERAGES!!!
-            ### TRY TO USE NUMPY MATRIX MATH TO BE AS QUICK AND EFFICIENT AS POSSIBLE!!!!
+            # Assign to proper running windfall count
             run_wind['non_reduced'] = prob_tve
             run_wind['reduced'] = prob_tve
                         
@@ -322,6 +320,25 @@ def assignWR(prob_tve, ind_pf, indices_in_both, pf):
     
     # Return complementary probability or TVE dictionaries
     return wr, run_wind, run_reg
+
+
+def averageWR():
+    """
+    Description
+    -----------
+    Calculate the proper
+    
+    Parameters
+    ----------
+    
+
+    Returns
+    -------
+    
+    """
+    
+    
+    return
 
 
 """
@@ -424,8 +441,14 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
     # Initialize empty dictionaries
     windreg, run_wind, run_reg = initializeWR(irf, passfail, frag_ext, Df)
     
+    # Make input rule list into a tuple
+    irf_tuple = tuple(irf)
+    
     # Loop through each new rule combo being proposed
     for rule, lis in passfail.items():
+        
+        # Create a dictionary key
+        rule_key = rule + irf_tuple
         
         # Loop through each discipline's passfail data
         for ind_dic, dic in enumerate(lis):
@@ -437,7 +460,7 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
             # Loop through each complementary probability or TVE value
             for ind_pf, p_tve in enumerate(prob_tve[ind_dic]):
                 
-                # Prepare complementary probability or TVE for assignments -- Starting back up around here!!!
+                # Prepare complementary probability or TVE for assignments
                 wr, r_wind, r_reg = assignWR(p_tve, ind_pf,
                                              indices_in_both, 
                                              pf_fragility[ind_dic][ind_pf])
@@ -446,36 +469,43 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
                 for ds, comp_prob in wr.items():
                     
                     # Append value to list of values of proper windreg key
-                    windreg[rule+tuple(irf)][ind_dic][ds] = np.append\
-                        (windreg[rule+tuple(irf)][ind_dic][ds],
+                    windreg[rule_key][ind_dic][ds] = np.append\
+                        (windreg[rule_key][ind_dic][ds],
                          comp_prob)
                 
-                # Loop through each key-value pair in r_wind dictionary
+                # Loop through each subspace being assessed
+                for combo in run_wind[rule_key][ind_dic]:
+                    
+                    
+                    
+                    
+                
+                # Loop through each key-value pair in r_wind dictionary - Fix this starting here!!!
                 for ds, comp_prob in r_wind.items():
                     
                     # Add probability or TVE to proper running windfall sum
-                    run_wind[rule+tuple(irf)][ind_dic][ds]+=r_wind[ds]
+                    run_wind[rule_key][ind_dic][ds]+=r_wind[ds]
                 
                 # Loop through each key-value pair in r_reg dictionary
                 for ds, comp_prob in r_reg.items():
                     
                     # Add probability or TVE to proper running regret sum
-                    run_reg[rule+tuple(irf)][ind_dic][ds] += r_reg[ds]
+                    run_reg[rule_key][ind_dic][ds] += r_reg[ds]
                         
             # Loop through each design space of discipline
             for ds, arr in dic.items():
             
                 # Divide probability or TVE sums by number of remaining points
                 if Df[ind_dic]['space_remaining'].shape[0] > 0:
-                    run_wind[rule+tuple(irf)][ind_dic][ds] = \
-                        run_wind[rule+tuple(irf)][ind_dic][ds] / \
+                    run_wind[rule_key][ind_dic][ds] = \
+                        run_wind[rule_key][ind_dic][ds] / \
                             Df[ind_dic]['space_remaining'].shape[0]
-                    run_reg[rule+tuple(irf)][ind_dic][ds] = \
-                        run_reg[rule+tuple(irf)][ind_dic][ds] / \
+                    run_reg[rule_key][ind_dic][ds] = \
+                        run_reg[rule_key][ind_dic][ds] / \
                             Df[ind_dic]['space_remaining'].shape[0]
                 else:
-                    run_wind[rule+tuple(irf)][ind_dic][ds] = 0.0
-                    run_reg[rule+tuple(irf)][ind_dic][ds] = 0.0
+                    run_wind[rule_key][ind_dic][ds] = 0.0
+                    run_reg[rule_key][ind_dic][ds] = 0.0
                     
     # Returning windfall and regret information for new rule(s)
     return windreg, run_wind, run_reg

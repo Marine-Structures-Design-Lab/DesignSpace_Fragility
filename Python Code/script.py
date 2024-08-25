@@ -128,7 +128,7 @@ fragility_shift = 0.4  # Should be a positive float
 # Decide on which elements of the extended fragility framework to pursue
 ### Options: sub_spaces, interdependencies, objective_changes
 fragility_extensions = {
-    "sub_spaces": [1, 2, 3, 4, 5, 6], # Design sub-space dimensions to consider
+    "sub_spaces": [1, 2, 6], # Design sub-space dimensions to consider
     "interdependencies": True,        # Consider design space interdependencies
     "objective_changes": True         # Consider changes to req's and analyses
 }
