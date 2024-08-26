@@ -25,16 +25,6 @@ from merge_constraints import sharedIndices
 
 
 """
-TERTIARY FUNCTIONS
-"""
-def subspaceConsolidate():
-    
-    
-    return
-
-
-
-"""
 SECONDARY FUNCTIONS
 """
 def initializeWR(irf, passfail, frag_ext, Df):
@@ -288,7 +278,7 @@ def assignWR(prob_tve, indices_in_both, pf, windreg):
                 
                 # Assign complementary probability or TVE with proper sign
                 windreg['non_reduced']=np.append(windreg['non_reduced'],p_tve)
-                windreg['non_reduced']=np.append(windreg['non_reduced'],p_tve)
+                windreg['reduced']=np.append(windreg['reduced'],p_tve)
                 
                 # Assign to proper running windfall count
                 run_wind[ind_pf]['non_reduced'] = p_tve
@@ -334,7 +324,7 @@ def assignWR(prob_tve, indices_in_both, pf, windreg):
     return windreg, run_wind, run_reg
 
 
-def averageWR(run_WorR, combo, Df):
+def averageWR(r_WorR, combo, Df, run_WorR):
     """
     Description
     -----------
@@ -351,31 +341,34 @@ def averageWR(run_WorR, combo, Df):
     
     # Determine averages for consolidated groupings of space remaining (2D) and
     ### running windfall or regret data (1D) based on subspace being assessed
-    sub_space_rem, sub_run_WorR = subspaceConsolidate(run_WorR, Df['space_remaining'], combo)
     
-    # Determine average windfall or regret amount for the design subspace
-    sub_WorR = np.mean(sub_run_WorR)
+    # Determine the dimensions of the (sub)space being checked
+    indices = [Df['ins'].index(symbol) for symbol in combo]
     
-    # Return design subspace average
-    return sub_WorR
+    # Check if index list is as long as the discipline's design variable list
+    if len(indices) >= len(Df['ins']):
+        
+        # Loop through each point contributing to the average
+        for diction in r_WorR:
+            
+            # Loop through each design space
+            for ds in run_WorR:
+                
+                # Add to running total if point has regret or windfall amount
+                if ds in diction: run_WorR[ds] += diction[ds]
+        
+        # Loop through each design space
+        for ds in run_WorR:
+            
+            # Divide probability or TVE sums by number of remaining points
+            if len(r_WorR) > 0:
+                run_WorR[ds] = run_WorR[ds] / len(r_WorR)
+            else:
+                run_WorR[ds] = 0.0
     
     
-    
-    
-    # # Loop through each design space of discipline
-    # for ds, arr in dic.items():
-    
-    #     # Divide probability or TVE sums by number of remaining points
-    #     if Df[ind_dic]['space_remaining'].shape[0] > 0:
-    #         run_wind[rule_key][ind_dic][ds] = \
-    #             run_wind[rule_key][ind_dic][ds] / \
-    #                 Df[ind_dic]['space_remaining'].shape[0]
-    #         run_reg[rule_key][ind_dic][ds] = \
-    #             run_reg[rule_key][ind_dic][ds] / \
-    #                 Df[ind_dic]['space_remaining'].shape[0]
-    #     else:
-    #         run_wind[rule_key][ind_dic][ds] = 0.0
-    #         run_reg[rule_key][ind_dic][ds] = 0.0
+    # Return design subspace average - DICTIONARY WITH NON-REDUCED AND REDUCED KEYS!!!
+    return run_WorR
     
     
     
@@ -506,17 +499,16 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
             
             # Loop through each subspace being assessed
             for combo, des_spaces in run_wind[rule_key][ind_dic].items():
+            
+                # Determine average potential for windfall for subspace
+                run_wind[rule_key][ind_dic][combo] = \
+                    averageWR(r_wind, combo, Df[ind_dic], 
+                              run_wind[rule_key][ind_dic][combo])
                 
-                # Loop through each design space of subspace
-                for  ds, p_tve in des_spaces.items():
-                    
-                    # Determine average potential for windfall for subspace
-                    run_wind[rule_key][ind_dic][combo][ds] = \
-                        averageWR(r_wind, combo, Df[ind_dic])
-                    
-                    # Determine average potential for regret for subspace
-                    run_reg[rule_key][ind_dic][combo][ds] = \
-                        averageWR(r_reg, combo, Df[ind_dic])
+                # Determine average potential for regret for subspace
+                run_reg[rule_key][ind_dic][combo] = \
+                    averageWR(r_reg, combo, Df[ind_dic],
+                              run_reg[rule_key][ind_dic][combo])
                 
     # Returning average windfall and regret information for new rule(s)
     return windreg, run_wind, run_reg
@@ -560,8 +552,8 @@ def quantRisk(Df, run_wind, run_reg, windreg):
     # Loop through each new rule (set) being proposed
     for rule, lis in run_wind.items():
         
-        # Add empty dictionary to dictionary
-        risk[rule] = {}
+        # Add a rule key with a list of empty dictionaries for each discipline
+        risk[rule] = [{} for _ in lis]
         
         # Print rule (set) being considered
         print(f"For the rule set {str(rule)}...")
@@ -582,48 +574,38 @@ def quantRisk(Df, run_wind, run_reg, windreg):
             print(f"Discipline {ind_dic+1} would go from {nrp}% to {rp}% "
                   f"of its original design space remaining!")
             
-            
-            
             # Loop through each subspace being assessed
             for combo, des_spaces in run_wind[rule][ind_dic].items():
-            
-            ########## Regret and Windfall ##########
-            
-            # Create an empty dictionary for regret and windfall tracking
-            risk[rule].append({
-                "regret" : None, 
-                "windfall" : None
-                })
-            
-            ########## Regret ##########
-            
-            # Calculate the potential for regret for the space reduction
-            ### + value indicates added potential for regret
-            ### - value indicates reduced potential for regret
-            reg_value = reg_dic['reduced'] / reg_dic['non_reduced'] - 1 \
-                if reg_dic['non_reduced'] != 0 else 0.0
-            
-            # Print the potential for regret results of space reduction
-            print(f"Discipline {ind_dic+1} has {round(reg_value, 2)} added"
-                  f" potential for regret.")
-            
-            # Replace regret value in risk dictionary
-            risk[rule][ind_dic]['regret'] = reg_value
-            
-            ########## Windfall ##########
-            
-            # Calculate the potential for windfall for the space reduction
-            ### + value indicates added potential for windfall
-            ### - value indicates reduced potential for windfall
-            wind_value = wind_dic['reduced'] / wind_dic['non_reduced'] - 1\
-                if wind_dic['non_reduced'] != 0 else 0.0
-            
-            # Print the potential for windfal results of space reduction
-            print(f"Discipline {ind_dic+1} has {round(wind_value, 2)} "
-                  f"added potential for windfall.")
-            
-            # Replace windfall value in risk dictionary
-            risk[rule][ind_dic]['windfall'] = wind_value
+                
+                ########## Regret and Windfall ##########
+                
+                # Create an empty dictionary for regret and windfall tracking
+                risk[rule][ind_dic][combo] = {
+                    "regret" : None, 
+                    "windfall" : None
+                }
+                
+                ########## Regret ##########
+                
+                # Calculate the potential for regret for the space reduction
+                ### + value indicates added potential for regret
+                ### - value indicates reduced potential for regret
+                reg_value = reg_dic[ind_dic]['reduced'] / reg_dic[ind_dic]['non_reduced'] - 1 \
+                    if reg_dic[ind_dic]['non_reduced'] != 0 else 0.0
+                
+                # Replace regret value in risk dictionary
+                risk[rule][ind_dic][combo]['regret'] = reg_value
+                
+                ########## Windfall ##########
+                
+                # Calculate the potential for windfall for the space reduction
+                ### + value indicates added potential for windfall
+                ### - value indicates reduced potential for windfall
+                wind_value = wind_dic[ind_dic]['reduced'] / wind_dic[ind_dic]['non_reduced'] - 1\
+                    if wind_dic[ind_dic]['non_reduced'] != 0 else 0.0
+                
+                # Replace windfall value in risk dictionary
+                risk[rule][ind_dic][combo]['windfall'] = wind_value
             
     # Return the dictionary for risk tracking
     return risk
