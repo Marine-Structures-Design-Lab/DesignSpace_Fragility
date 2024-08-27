@@ -67,12 +67,19 @@ class fragilityCommands:
         return
     
     
-    def PFM(self):
+    def PFM(self, total_points):
         """
         Description
         -----------
         Performs the necessary commands to evaluate each design space's
         fragility with the probabilistic fragility model approach.
+        
+        Parameters
+        ----------
+        total_points : Integer
+            An approximate total number of evenly spaced points the user
+            desires for tracking the space remaining in a discipline's design
+            space
 
         Returns
         -------
@@ -97,7 +104,7 @@ class fragilityCommands:
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = calcWindRegret\
             (self.irf, self.Df, self.pf_combos, prob_feas, self.pf_frag,
-             self.frag_ext)
+             self.frag_ext, total_points)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
@@ -108,12 +115,19 @@ class fragilityCommands:
         return wr, run_wind, run_reg, ris
     
     
-    def EFM(self):
+    def EFM(self, total_points):
         """
         Description
         -----------
         Performs the necessary commands to evaluate each design space's
         fragility with the entropic fragility model approach.
+        
+        Parameters
+        ----------
+        total_points : Integer
+            An approximate total number of evenly spaced points the user
+            desires for tracking the space remaining in a discipline's design
+            space
 
         Returns
         -------
@@ -142,7 +156,7 @@ class fragilityCommands:
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = calcWindRegret\
             (self.irf, self.Df, self.pf_combos, TVE, self.pf_frag,
-             self.frag_ext)
+             self.frag_ext, total_points)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED

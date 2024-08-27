@@ -25,6 +25,27 @@ from merge_constraints import sharedIndices
 
 
 """
+TERTIARY FUNCTIONS
+"""
+def createBins(sub_dims, npoints_dim):
+    
+    # Generate evenly spaced points between 0 and 1
+    points = np.linspace(0, 1, npoints_dim)
+    
+    # Create bin edges by finding midpoints between the points
+    midpoints = (points[:-1] + points[1:]) / 2
+    
+    # Create the bin edges with -∞ for the leftmost bin and +∞ for the rightmost bin
+    b_edges = np.concatenate(([-np.inf], midpoints, [np.inf]))
+    
+    # Return the same bin edges for all dimensions
+    bin_edges = [b_edges] * sub_dims
+    
+    # Return the list of bin edges
+    return bin_edges
+
+
+"""
 SECONDARY FUNCTIONS
 """
 def initializeWR(irf, passfail, frag_ext, Df):
@@ -111,8 +132,13 @@ def initializeWR(irf, passfail, frag_ext, Df):
             # Loop through each design space of discipline
             for ds, arr in dic.items():
                 
-                # Initialize empty arrays and values
+                # Initialize empty arrays for windfall-regret
                 windreg[rule_key][ind_dic][ds]=np.array([], dtype=float)
+                
+                # Continue to next design space if "leftover"
+                if ds == "leftover": continue
+                
+                # Initialize empty values for running regret and windfall
                 for combo in run_wind[rule_key][ind_dic]:
                     run_wind[rule_key][ind_dic][combo][ds] = 0.0
                     run_reg[rule_key][ind_dic][combo][ds] = 0.0
@@ -324,7 +350,7 @@ def assignWR(prob_tve, indices_in_both, pf, windreg):
     return windreg, run_wind, run_reg
 
 
-def averageWR(r_WorR, combo, Df, run_WorR):
+def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     """
     Description
     -----------
@@ -338,9 +364,6 @@ def averageWR(r_WorR, combo, Df, run_WorR):
     -------
     
     """
-    
-    # Determine averages for consolidated groupings of space remaining (2D) and
-    ### running windfall or regret data (1D) based on subspace being assessed
     
     # Determine the dimensions of the (sub)space being checked
     indices = [Df['ins'].index(symbol) for symbol in combo]
@@ -366,16 +389,77 @@ def averageWR(r_WorR, combo, Df, run_WorR):
             else:
                 run_WorR[ds] = 0.0
     
+    # Perform the following commands for the subspace
+    else:
+        
+        # Extract the relevant subspace of data
+        subset_data = Df['space_remaining'][:, indices]
+        
+        # Calculate the max number of space remining points in each dimension
+        npoints_dim = int(round(total_points ** (1. / len(Df['ins']))))
+        
+        # Create bin edges for subspace
+        bin_edges = createBins(len(indices), npoints_dim)
+        
+        # Initialize a numpy array for bin indices
+        bin_indices = np.zeros_like(subset_data, dtype=int)
+        
+        # Loop through each dimensions
+        for dim in range(0, len(indices)):
+            
+            # Determine which bin each data point falls in for each dimension
+            bin_indices[:, dim] = np.digitize(subset_data[:, dim], bins=bin_edges[dim]) - 1
+            
+        # Find unique bins and corresponding indices
+        unique_bins, inverse_indices = np.unique(bin_indices, axis=0, return_inverse=True)
+        
+        # Initialize 0.0 values for first averages
+        first_averages = {
+            "non_reduced": np.zeros(len(unique_bins)),
+            "reduced": np.zeros(len(unique_bins))
+        }
+        
+        # Loop through each unique bin
+        for bin_index in range(0, len(unique_bins)):
+            
+            # Initialize a counting variable for first average
+            count = 0
+            
+            # Extract the subset that corresponds to the current bin
+            selected_indices = np.where(inverse_indices == bin_index)[0]
+            selected_r_WorR = [r_WorR[i] for i in selected_indices]
+            
+            # Loop through each point contributing to first average
+            for diction in selected_r_WorR:
+                
+                # Loop through each design space
+                for ds in run_WorR:
+                    
+                    # Add to running total if point has regret or windfall
+                    if ds in diction: first_averages[ds][bin_index] += diction[ds]
+                
+                # Add 1 to the count
+                count += 1
+            
+            # Loop through each design space
+            for ds in run_WorR:
+                
+                # Divide first average sums by counting variable
+                if count > 0:
+                    first_averages[ds][bin_index] = first_averages[ds][bin_index] / count
+                else:
+                    first_averages[ds][bin_index] = 0.0
+        
+        # Loop through each design space
+        for ds in run_WorR:
+            
+            # Determine regret or windfall averages of the subspace
+            run_WorR[ds] = np.mean(first_averages[ds])
     
-    # Return design subspace average - DICTIONARY WITH NON-REDUCED AND REDUCED KEYS!!!
+    # Return design subspace average
     return run_WorR
     
     
-    
-    
-    
-
-
 """
 MAIN FUNCTIONS
 """
@@ -428,7 +512,8 @@ def evalCompProb(pf_fragility, pf_std_fragility):
     return prob_feas
 
 
-def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
+def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext,
+                   total_points):
     """
     Description
     -----------
@@ -458,6 +543,10 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
     frag_ext : Dictionary
         Different extensions to the initial fragility framework extension
         that a design manager wants to include in the assessment
+    total_points : Integer
+        An approximate total number of evenly spaced points the user
+        desires for tracking the space remaining in a discipline's design
+        space
     
     Returns
     -------
@@ -503,12 +592,14 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext):
                 # Determine average potential for windfall for subspace
                 run_wind[rule_key][ind_dic][combo] = \
                     averageWR(r_wind, combo, Df[ind_dic], 
-                              run_wind[rule_key][ind_dic][combo])
+                              run_wind[rule_key][ind_dic][combo],
+                              total_points)
                 
                 # Determine average potential for regret for subspace
                 run_reg[rule_key][ind_dic][combo] = \
                     averageWR(r_reg, combo, Df[ind_dic],
-                              run_reg[rule_key][ind_dic][combo])
+                              run_reg[rule_key][ind_dic][combo],
+                              total_points)
                 
     # Returning average windfall and regret information for new rule(s)
     return windreg, run_wind, run_reg

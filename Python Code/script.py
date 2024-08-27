@@ -436,7 +436,7 @@ while iters <= iters_max:
                 
                 # Perform desired fragility assessment
                 wr, run_wind, run_reg, ris = \
-                    getattr(fragnalysis, fragility_type)()
+                    getattr(fragnalysis, fragility_type)(total_points)
                 
                 # Assess risk from fragility assessment
                 banned_rules, windreg, running_windfall, running_regret, risk,\
