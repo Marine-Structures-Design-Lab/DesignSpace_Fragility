@@ -134,24 +134,34 @@ class checkFragility:
             # Loop through each discipline's regret and windfall values
             for ind_dic, dic in enumerate(lis):
                 
-                # Establish maximum fragility threshold
-                threshold = scale_weight * \
-                    ((self.Df[ind_dic]['space_remaining'].shape[0]/ \
-                      self.Df[ind_dic]['tp_actual']) / \
-                    (1-calcExponential(iters/iters_max, p))) * \
-                    (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
+                # Initialize a small max risk-to-threshold ratio
+                risk_threshold = -np.inf
                 
-                # Subtract windfall from regret
-                net_risk = dic['regret'] - dic['windfall']
-                
-                # Gather information for discipline
-                max_risk[rule][ind_dic] = {
-                    'value': net_risk,
-                    'threshold': threshold
-                }
-                
+                # Loop through each subspace being assessed
+                for combo, dic2 in dic.items():
+                    
+                    # Establish maximum fragility threshold for (sub)space -- COME BACK AND FIX THIS!!! maybe use count from calcWindRegret
+                    threshold = scale_weight * \
+                        ((self.Df[ind_dic]['space_remaining'].shape[0]/ \
+                          self.Df[ind_dic]['tp_actual']) / \
+                        (1-calcExponential(iters/iters_max, p))) * \
+                        (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
+                    
+                    # Subtract windfall from regret
+                    net_risk = dic2['regret'] - dic2['windfall']
+                    
+                    # Check if risk-to-threshold ratio is greater than maximum
+                    if net_risk / threshold > risk_threshold:
+                        
+                        # Reassign risk information for discipline
+                        max_risk[rule][ind_dic] = {
+                            'value': net_risk,
+                            'threshold': threshold,
+                            'sub-space': combo
+                        }
+                    
                 # Check if added risk exceeds maximum threshold
-                if net_risk > threshold:
+                if max_risk[rule][ind_dic]['value'] > max_risk[rule][ind_dic]['threshold']:
                     
                     # Set fragile tracker to true for the rule
                     max_risk[rule]['fragile'] = True

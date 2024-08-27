@@ -681,8 +681,8 @@ def quantRisk(Df, run_wind, run_reg, windreg):
                 # Calculate the potential for regret for the space reduction
                 ### + value indicates added potential for regret
                 ### - value indicates reduced potential for regret
-                reg_value = reg_dic[ind_dic]['reduced'] / reg_dic[ind_dic]['non_reduced'] - 1 \
-                    if reg_dic[ind_dic]['non_reduced'] != 0 else 0.0
+                reg_value = reg_dic[combo]['reduced'] / reg_dic[combo]['non_reduced'] - 1 \
+                    if reg_dic[combo]['non_reduced'] != 0 else 0.0
                 
                 # Replace regret value in risk dictionary
                 risk[rule][ind_dic][combo]['regret'] = reg_value
@@ -692,8 +692,8 @@ def quantRisk(Df, run_wind, run_reg, windreg):
                 # Calculate the potential for windfall for the space reduction
                 ### + value indicates added potential for windfall
                 ### - value indicates reduced potential for windfall
-                wind_value = wind_dic[ind_dic]['reduced'] / wind_dic[ind_dic]['non_reduced'] - 1\
-                    if wind_dic[ind_dic]['non_reduced'] != 0 else 0.0
+                wind_value = wind_dic[combo]['reduced'] / wind_dic[combo]['non_reduced'] - 1\
+                    if wind_dic[combo]['non_reduced'] != 0 else 0.0
                 
                 # Replace windfall value in risk dictionary
                 risk[rule][ind_dic][combo]['windfall'] = wind_value
