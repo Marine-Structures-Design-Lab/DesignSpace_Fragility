@@ -110,7 +110,8 @@ def initializeWR(irf, passfail, frag_ext, Df):
             new_dict1 = {}
             new_dict2 = {}
             
-            # Loop through the discipline's subspace dimensions
+            # Loop through the discipline's subspace dimensions (default is to
+            # not assess fragility of any subspaces)
             for r in frag_ext.get('sub_spaces', len(Df[ind_dic]['ins'])):
                 
                 # Continue if number of dimensions is greater than discipline's
@@ -365,11 +366,12 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     
     """
     
-    # Determine the dimensions of the (sub)space being checked
-    indices = [Df['ins'].index(symbol) for symbol in combo]
+    # Determine the dimensions of the (sub)space being assessed
+    indices_rem = [Df['ins'].index(symbol) for symbol in combo]
     
     # Check if index list is as long as the discipline's design variable list
-    if len(indices) >= len(Df['ins']):
+    ### MIGHT NOT NEED THIS IF STATEMENT!!!
+    if len(indices_rem) >= len(Df['ins']):
         
         # Loop through each point contributing to the average
         for diction in r_WorR:
@@ -392,23 +394,23 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     # Perform the following commands for the subspace
     else:
         
-        # Extract the relevant subspace of data
-        subset_data = Df['space_remaining'][:, indices]
+        # Extract the relevant subspaces of data remaining
+        subset_data_rem = Df['space_remaining'][:, indices_rem]
         
-        # Calculate the max number of space remining points in each dimension
+        # Calculate the max number of space remaining points in each dimension
         npoints_dim = int(round(total_points ** (1. / len(Df['ins']))))
         
-        # Create bin edges for subspace
-        bin_edges = createBins(len(indices), npoints_dim)
+        # Create bin edges for subspace remaining
+        bin_edges = createBins(len(indices_rem), npoints_dim)
         
         # Initialize a numpy array for bin indices
-        bin_indices = np.zeros_like(subset_data, dtype=int)
+        bin_indices = np.zeros_like(subset_data_rem, dtype=int)
         
-        # Loop through each dimensions
-        for dim in range(0, len(indices)):
+        # Loop through each dimension remaining
+        for dim in range(0, len(indices_rem)):
             
-            # Determine which bin each data point falls in for each dimension
-            bin_indices[:, dim] = np.digitize(subset_data[:, dim], bins=bin_edges[dim]) - 1
+            # Determine which bin each consolidated data point will fall in
+            bin_indices[:, dim] = np.digitize(subset_data_rem[:, dim], bins=bin_edges[dim]) - 1
             
         # Find unique bins and corresponding indices
         unique_bins, inverse_indices = np.unique(bin_indices, axis=0, return_inverse=True)
