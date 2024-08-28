@@ -370,10 +370,9 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     indices_rem = [Df['ins'].index(symbol) for symbol in combo]
     
     # Check if index list is as long as the discipline's design variable list
-    ### MIGHT NOT NEED THIS IF STATEMENT!!!
     if len(indices_rem) >= len(Df['ins']):
         
-        # Loop through each point contributing to the average
+        # Loop through each point contributing to the sum
         for diction in r_WorR:
             
             # Loop through each design space
@@ -381,15 +380,6 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
                 
                 # Add to running total if point has regret or windfall amount
                 if ds in diction: run_WorR[ds] += diction[ds]
-        
-        # Loop through each design space
-        for ds in run_WorR:
-            
-            # Divide probability or TVE sums by number of remaining points
-            if len(r_WorR) > 0:
-                run_WorR[ds] = run_WorR[ds] / len(r_WorR)
-            else:
-                run_WorR[ds] = 0.0
     
     # Perform the following commands for the subspace
     else:
@@ -455,8 +445,8 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
         # Loop through each design space
         for ds in run_WorR:
             
-            # Determine regret or windfall averages of the subspace
-            run_WorR[ds] = np.mean(first_averages[ds])
+            # Determine regret or windfall sums of the subspace
+            run_WorR[ds] = np.sum(first_averages[ds])
     
     # Return design subspace average
     return run_WorR
