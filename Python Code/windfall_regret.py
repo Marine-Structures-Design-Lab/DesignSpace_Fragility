@@ -37,8 +37,8 @@ def createBins(Df, indices_rem, total_points):
     Parameters
     ----------
     Df : Dictionary
-        All information pertaining to a discipline at the beginning of
-        the newest space reduction cycle
+        All information pertaining to a discipline at the beginning of the
+        newest space reduction cycle
     indices_rem : List of integers
         Indices of the design variables for the subspace being assessed
     total_points : Integer
@@ -67,7 +67,7 @@ def createBins(Df, indices_rem, total_points):
     # Create bin edges by finding midpoints between the points
     midpoints = (points[:-1] + points[1:]) / 2
     
-    # Create the bin edges with -∞ for the leftmost bin and +∞ for the rightmost bin
+    # Create the bin edges with -∞ for the leftmost and +∞ for the rightmost
     b_edges = np.concatenate(([-np.inf], midpoints, [np.inf]))
     
     # Return the same bin edges for all dimensions
@@ -80,10 +80,12 @@ def createBins(Df, indices_rem, total_points):
     for dim in range(0, len(indices_rem)):
         
         # Determine which bin each consolidated data point will fall in
-        bin_indices[:, dim] = np.digitize(subset_data_rem[:, dim], bins=bin_edges[dim]) - 1
+        bin_indices[:, dim] = \
+            np.digitize(subset_data_rem[:, dim], bins=bin_edges[dim]) - 1
         
     # Find unique bins and corresponding indices
-    unique_bins, inverse_indices = np.unique(bin_indices, axis=0, return_inverse=True)
+    unique_bins, inverse_indices = np.unique(bin_indices, axis=0, 
+                                             return_inverse=True)
     
     # Return the list of bin edges
     return unique_bins, inverse_indices
@@ -111,8 +113,8 @@ def initializeWR(irf, passfail, frag_ext, Df):
         Different extensions to the initial fragility framework extension
         that a design manager wants to include in the assessment
     Df : Dictionary
-        All information pertaining to each discipline at the beginning of
-        the newest space reduction cycle
+        All information pertaining to each discipline at the beginning of the
+        newest space reduction cycle
 
     Returns
     -------
@@ -399,15 +401,31 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     """
     Description
     -----------
-    Calculate the proper
+    Consolidates regret or windfall data into the subspace being assessed and
+    then sums the averages within the subspace.
     
     Parameters
     ----------
-    
+    r_WorR : ist of dictionaries
+        Newest contributions to running windfall or running regret totals of 
+        the non-reduced and reduced design spaces
+    combo : Tuple of sympy variables
+        The design variables making up the subspace being assessed
+    Df : Dictionary
+        All information pertaining to a discipline at the beginning of the
+        newest space reduction cycle
+    run_WorR : Dictionary
+        Initialized regret or windfall potential in remaining design spaces for
+        for all the rules proposed in the current time stamp
+    total_points : Integer
+        Total number of space remaining points created at the beginning of the
+        simulation
 
     Returns
     -------
-    
+    run_WorR : Dictionary
+        Sum of regret or windfall potential in remaining design spaces for all
+        of the rules proposed in the current time stamp
     """
     
     # Determine the dimensions of the (sub)space being assessed
@@ -429,7 +447,7 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     else:
             
         # Find unique bins and corresponding indices
-        unique_bins, inverse_indices = createBins(Df, indices_rem, total_points)
+        unique_bins, inverse_indices = createBins(Df,indices_rem,total_points)
         
         # Initialize 0.0 values for first averages
         first_averages = {
@@ -454,7 +472,8 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
                 for ds in run_WorR:
                     
                     # Add to running total if point has regret or windfall
-                    if ds in diction: first_averages[ds][bin_index] += diction[ds]
+                    if ds in diction: first_averages[ds][bin_index] += \
+                        diction[ds]
                 
                 # Add 1 to the count
                 count += 1
@@ -464,7 +483,8 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
                 
                 # Divide first average sums by counting variable
                 if count > 0:
-                    first_averages[ds][bin_index] = first_averages[ds][bin_index] / count
+                    first_averages[ds][bin_index] = \
+                        first_averages[ds][bin_index] / count
                 else:
                     first_averages[ds][bin_index] = 0.0
         
@@ -573,11 +593,11 @@ def calcWindRegret(irf, Df, passfail, prob_tve, pf_fragility, frag_ext,
         the non-reduced, reduced, and leftover design spaces of each 
         discipline for all of the rules proposed in the current time stamp
     run_wind : Dictionary
-        Fraction of windfall potential in remaining design spaces for all
-        of the rules proposed in the current time stamp
+        Sum of windfall potential in remaining design spaces for all of the
+        rules proposed in the current time stamp
     run_reg : Dictionary
-        Fraction of regret potential in remaining design spaces for all of
-        the rules proposed in the current time stamp
+        Sum of regret potential in remaining design spaces for all of the rules
+        proposed in the current time stamp
     """
     
     # Initialize empty dictionaries
@@ -699,7 +719,8 @@ def quantRisk(Df, run_wind, run_reg, windreg):
                 # Calculate the potential for regret for the space reduction
                 ### + value indicates added potential for regret
                 ### - value indicates reduced potential for regret
-                reg_value = reg_dic[combo]['reduced'] / reg_dic[combo]['non_reduced'] - 1 \
+                reg_value = reg_dic[combo]['reduced'] / \
+                    reg_dic[combo]['non_reduced'] - 1 \
                     if reg_dic[combo]['non_reduced'] != 0 else 0.0
                 
                 # Replace regret value in risk dictionary
@@ -710,7 +731,8 @@ def quantRisk(Df, run_wind, run_reg, windreg):
                 # Calculate the potential for windfall for the space reduction
                 ### + value indicates added potential for windfall
                 ### - value indicates reduced potential for windfall
-                wind_value = wind_dic[combo]['reduced'] / wind_dic[combo]['non_reduced'] - 1\
+                wind_value = wind_dic[combo]['reduced'] / \
+                    wind_dic[combo]['non_reduced'] - 1\
                     if wind_dic[combo]['non_reduced'] != 0 else 0.0
                 
                 # Replace windfall value in risk dictionary

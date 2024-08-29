@@ -23,6 +23,29 @@ import numpy as np
 FUNCTION
 """
 def adaptiveFactor(combo, Df, total_points):
+    """
+    Description
+    -----------
+    Calculates the fraction of a (sub)space's remaining design space size
+    relative to its original size.
+
+    Parameters
+    ----------
+    combo : Tuple of sympy variables
+        Design variables making up the subspace being assessed
+    Df : Dictionary
+        All information pertaining to a discipline at the beginning of the
+        newest space reduction cycle
+    total_points : Integer
+        Total number of space remaining points created at the beginning of the
+        simulation
+
+    Returns
+    -------
+    space_rem : Float
+        Fraction of (sub)space remaining relative to the original (sub)space
+        size
+    """
     
     # Determine the dimensions of the (sub)space being assessed
     indices_rem = [Df['ins'].index(symbol) for symbol in combo]
@@ -37,7 +60,7 @@ def adaptiveFactor(combo, Df, total_points):
     else:
         
         # Find unique bins and corresponding indices
-        unique_bins, inverse_indices = createBins(Df, indices_rem, total_points)
+        unique_bins, inverse_indices = createBins(Df,indices_rem,total_points)
         
         # Determine remaining subspace size
         sub_rem = unique_bins.shape[0]
@@ -123,7 +146,8 @@ class checkFragility:
                     net_risk = dic[combo]['regret'] - dic[combo]['windfall']
                     
                     # Update max risk value
-                    max_risk[rule]["value"] = max(max_risk[rule]["value"], net_risk)
+                    max_risk[rule]["value"] = max(max_risk[rule]["value"], 
+                                                  net_risk)
             
             # Set boolean value depending on max risk value
             if max_risk[rule]["value"] > threshold:
@@ -182,11 +206,12 @@ class checkFragility:
                 # Loop through each subspace being assessed
                 for combo, dic2 in dic.items():
                     
-                    # Establish maximum fragility threshold for (sub)space -- COME BACK AND FIX THIS!!! maybe use count from calcWindRegret
+                    # Establish maximum fragility threshold for (sub)space
                     threshold = scale_weight * \
                         (adaptiveFactor(combo, self.Df[ind_dic], total_points)\
                         / (1-calcExponential(iters/iters_max, p))) * \
-                        (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
+                        (1/(1-(iters/iters_max))) if iters != iters_max \
+                        else np.inf
                     
                     # Subtract windfall from regret
                     net_risk = dic2['regret'] - dic2['windfall']
@@ -205,7 +230,8 @@ class checkFragility:
                         risk_threshold = net_risk / threshold
                     
                 # Check if added risk exceeds maximum threshold
-                if max_risk[rule][ind_dic]['value'] > max_risk[rule][ind_dic]['threshold']:
+                if max_risk[rule][ind_dic]['value'] > \
+                    max_risk[rule][ind_dic]['threshold']:
                     
                     # Set fragile tracker to true for the rule
                     max_risk[rule]['fragile'] = True
