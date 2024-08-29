@@ -27,7 +27,13 @@ from merge_constraints import sharedIndices
 """
 TERTIARY FUNCTIONS
 """
-def createBins(sub_dims, npoints_dim):
+def createBins(Df, indices_rem, total_points):
+    
+    # Extract the relevant subspaces of data remaining
+    subset_data_rem = Df['space_remaining'][:, indices_rem]
+    
+    # Calculate the max number of space remaining points in each dimension
+    npoints_dim = int(round(total_points ** (1. / len(Df['ins']))))
     
     # Generate evenly spaced points between 0 and 1
     points = np.linspace(0, 1, npoints_dim)
@@ -39,10 +45,22 @@ def createBins(sub_dims, npoints_dim):
     b_edges = np.concatenate(([-np.inf], midpoints, [np.inf]))
     
     # Return the same bin edges for all dimensions
-    bin_edges = [b_edges] * sub_dims
+    bin_edges = [b_edges] * len(indices_rem)
+    
+    # Initialize a numpy array for bin indices
+    bin_indices = np.zeros_like(subset_data_rem, dtype=int)
+    
+    # Loop through each dimension remaining
+    for dim in range(0, len(indices_rem)):
+        
+        # Determine which bin each consolidated data point will fall in
+        bin_indices[:, dim] = np.digitize(subset_data_rem[:, dim], bins=bin_edges[dim]) - 1
+        
+    # Find unique bins and corresponding indices
+    unique_bins, inverse_indices = np.unique(bin_indices, axis=0, return_inverse=True)
     
     # Return the list of bin edges
-    return bin_edges
+    return unique_bins, inverse_indices
 
 
 """
@@ -383,27 +401,9 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     
     # Perform the following commands for the subspace
     else:
-        
-        # Extract the relevant subspaces of data remaining
-        subset_data_rem = Df['space_remaining'][:, indices_rem]
-        
-        # Calculate the max number of space remaining points in each dimension
-        npoints_dim = int(round(total_points ** (1. / len(Df['ins']))))
-        
-        # Create bin edges for subspace remaining
-        bin_edges = createBins(len(indices_rem), npoints_dim)
-        
-        # Initialize a numpy array for bin indices
-        bin_indices = np.zeros_like(subset_data_rem, dtype=int)
-        
-        # Loop through each dimension remaining
-        for dim in range(0, len(indices_rem)):
-            
-            # Determine which bin each consolidated data point will fall in
-            bin_indices[:, dim] = np.digitize(subset_data_rem[:, dim], bins=bin_edges[dim]) - 1
             
         # Find unique bins and corresponding indices
-        unique_bins, inverse_indices = np.unique(bin_indices, axis=0, return_inverse=True)
+        unique_bins, inverse_indices = createBins(Df, indices_rem, total_points)
         
         # Initialize 0.0 values for first averages
         first_averages = {

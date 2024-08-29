@@ -122,7 +122,7 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
+fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
 # Decide on which elements of the extended fragility framework to pursue
@@ -134,7 +134,7 @@ fragility_shift = 0.4  # Should be a positive float
 ### subspaces only consisting of 1 design variable, 2 => Look at fragility of
 ### subspaces consisting of 2 design variables, and so on
 fragility_extensions = {
-    "sub_spaces": [1, 2, 6], # Design sub-space dimensions to consider
+    "sub_spaces": [1, 2, 3, 4, 5, 6], # Design sub-space dimensions to consider
     "interdependencies": True,        # Consider design space interdependencies
     "objective_changes": True         # Consider changes to req's and analyses
 }
@@ -438,11 +438,11 @@ while iters <= iters_max:
                 fragnalysis = fragilityCommands(Discips_fragility, 
                     irules_fragility, pf_combos, pf_fragility,
                     pf_std_fragility, passfail, passfail_std, 
-                    fragility_extensions)
+                    fragility_extensions, total_points)
                 
                 # Perform desired fragility assessment
                 wr, run_wind, run_reg, ris = \
-                    getattr(fragnalysis, fragility_type)(total_points)
+                    getattr(fragnalysis, fragility_type)()
                 
                 # Assess risk from fragility assessment
                 banned_rules, windreg, running_windfall, running_regret, risk,\

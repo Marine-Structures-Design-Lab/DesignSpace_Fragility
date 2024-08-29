@@ -14,8 +14,43 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from exponential_reduction import calcExponential
+from windfall_regret import createBins
 import random
 import numpy as np
+
+
+"""
+FUNCTION
+"""
+def adaptiveFactor(combo, Df, total_points):
+    
+    # Determine the dimensions of the (sub)space being assessed
+    indices_rem = [Df['ins'].index(symbol) for symbol in combo]
+    
+    # Check if index list is as long as the discipline's design variable list
+    if len(indices_rem) >= len(Df['ins']):
+        
+        # Calculate fraction of total design space remaining to starting size
+        space_rem = (Df['space_remaining'].shape[0] / Df['tp_actual'])
+        
+    # Perform the following commands for the subspace
+    else:
+        
+        # Find unique bins and corresponding indices
+        unique_bins, inverse_indices = createBins(Df, indices_rem, total_points)
+        
+        # Determine remaining subspace size
+        sub_rem = unique_bins.shape[0]
+        
+        # Determine original subspace size
+        npoints_dim = int(round(total_points ** (1. / len(Df['ins']))))
+        sub_orig = len(indices_rem) * npoints_dim
+        
+        # Calculate fraction of total subspace remaining to starting size
+        space_rem = sub_rem / sub_orig
+        
+    # Return the fraction of subspace remaining to starting subspace size
+    return space_rem
 
 
 """
@@ -81,11 +116,14 @@ class checkFragility:
             # Loop through each discipline's regret and windfall values
             for dic in lis:
                 
-                # Subtract windfall from regret
-                net_risk = dic['regret'] - dic['windfall']
-                
-                # Update max risk value
-                max_risk[rule]["value"] = max(max_risk[rule]["value"],net_risk)
+                # Loop through each subspace being assessed
+                for combo, dic2 in dic.items():
+                    
+                    # Subtract windfall from regret
+                    net_risk = dic[combo]['regret'] - dic[combo]['windfall']
+                    
+                    # Update max risk value
+                    max_risk[rule]["value"] = max(max_risk[rule]["value"], net_risk)
             
             # Set boolean value depending on max risk value
             if max_risk[rule]["value"] > threshold:
@@ -96,7 +134,7 @@ class checkFragility:
         return max_risk
     
     
-    def basicCheck2(self, iters, iters_max, p, scale_weight):
+    def basicCheck2(self, iters, iters_max, p, scale_weight, total_points):
         """
         Description
         -----------
@@ -114,6 +152,10 @@ class checkFragility:
             Exponential function parameters dictating space reduction pace.
         scale_weight : Float
             Amount to scale asymptotic function's maximum risk threshold.
+        total_points : Integer
+            An approximate total number of evenly spaced points the user
+            desires for tracking the space remaining in a discipline's design
+            space
 
         Returns
         -------
@@ -142,9 +184,8 @@ class checkFragility:
                     
                     # Establish maximum fragility threshold for (sub)space -- COME BACK AND FIX THIS!!! maybe use count from calcWindRegret
                     threshold = scale_weight * \
-                        ((self.Df[ind_dic]['space_remaining'].shape[0]/ \
-                          self.Df[ind_dic]['tp_actual']) / \
-                        (1-calcExponential(iters/iters_max, p))) * \
+                        (adaptiveFactor(combo, self.Df[ind_dic], total_points)\
+                        / (1-calcExponential(iters/iters_max, p))) * \
                         (1/(1-(iters/iters_max))) if iters != iters_max else np.inf
                     
                     # Subtract windfall from regret
@@ -159,6 +200,9 @@ class checkFragility:
                             'threshold': threshold,
                             'sub-space': combo
                         }
+                        
+                        # Set new max risk-to-threshold value
+                        risk_threshold = net_risk / threshold
                     
                 # Check if added risk exceeds maximum threshold
                 if max_risk[rule][ind_dic]['value'] > max_risk[rule][ind_dic]['threshold']:

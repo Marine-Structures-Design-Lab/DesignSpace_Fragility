@@ -27,7 +27,7 @@ class fragilityCommands:
     
     def __init__(self, Discips_fragility, irules_fragility, pf_combos,
                  pf_fragility, pf_std_fragility, passfail, passfail_std,
-                 fragility_extensions):
+                 fragility_extensions, total_points):
         """
         Parameters
         ----------
@@ -55,6 +55,10 @@ class fragilityCommands:
         fragility_extensions : Dictionary
             Different extensions to the initial fragility framework extension
             that a design manager wants to include in the assessment
+        total_points : Integer
+            An approximate total number of evenly spaced points the user
+            desires for tracking the space remaining in a discipline's design
+            space
         """
         self.Df = Discips_fragility
         self.irf = irules_fragility
@@ -64,10 +68,11 @@ class fragilityCommands:
         self.pf = passfail
         self.pf_std = passfail_std
         self.frag_ext = fragility_extensions
+        self.tp = total_points
         return
     
     
-    def PFM(self, total_points):
+    def PFM(self):
         """
         Description
         -----------
@@ -76,10 +81,7 @@ class fragilityCommands:
         
         Parameters
         ----------
-        total_points : Integer
-            An approximate total number of evenly spaced points the user
-            desires for tracking the space remaining in a discipline's design
-            space
+        None.
 
         Returns
         -------
@@ -104,7 +106,7 @@ class fragilityCommands:
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = calcWindRegret\
             (self.irf, self.Df, self.pf_combos, prob_feas, self.pf_frag,
-             self.frag_ext, total_points)
+             self.frag_ext, self.tp)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
@@ -115,7 +117,7 @@ class fragilityCommands:
         return wr, run_wind, run_reg, ris
     
     
-    def EFM(self, total_points):
+    def EFM(self):
         """
         Description
         -----------
@@ -124,10 +126,7 @@ class fragilityCommands:
         
         Parameters
         ----------
-        total_points : Integer
-            An approximate total number of evenly spaced points the user
-            desires for tracking the space remaining in a discipline's design
-            space
+        None.
 
         Returns
         -------
@@ -156,7 +155,7 @@ class fragilityCommands:
         # Calculate windfall and regret for remaining design spaces
         wr, run_wind, run_reg = calcWindRegret\
             (self.irf, self.Df, self.pf_combos, TVE, self.pf_frag,
-             self.frag_ext, total_points)
+             self.frag_ext, self.tp)
         
         # Quantify risk or potential of space reduction
         ### Positive value means pot. regret or windfall ADDED
@@ -254,7 +253,7 @@ class fragilityCommands:
         
         # Execute fragility assessment
         net_wr = fragile.basicCheck2(iters, iters_max, exp_parameters, 
-                                    fragility_shift)
+                                     fragility_shift, self.tp)
         
         # Print results of fragility assessment
         print(f"Fragility assessment: {net_wr}")
