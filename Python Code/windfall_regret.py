@@ -28,6 +28,32 @@ from merge_constraints import sharedIndices
 TERTIARY FUNCTIONS
 """
 def createBins(Df, indices_rem, total_points):
+    """
+    Description
+    -----------
+    Creates unique bins for the space remaining points of a particular subspace
+    being assessed.
+
+    Parameters
+    ----------
+    Df : Dictionary
+        All information pertaining to a discipline at the beginning of
+        the newest space reduction cycle
+    indices_rem : List of integers
+        Indices of the design variables for the subspace being assessed
+    total_points : Integer
+        Total number of space remaining points created at the beginning of the
+        simulation
+
+    Returns
+    -------
+    unique_bins : Numpy array (2D)
+        Integer value labels for unique bins in each dimension of the subspace
+        for each remaining design point
+    inverse_indices : Numpy array (1D)
+        Integer value labels corresponding to each unique bin for each
+        remaining design point
+    """
     
     # Extract the relevant subspaces of data remaining
     subset_data_rem = Df['space_remaining'][:, indices_rem]
