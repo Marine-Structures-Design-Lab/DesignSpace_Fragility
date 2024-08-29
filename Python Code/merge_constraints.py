@@ -623,11 +623,6 @@ class mergeConstraints:
             # Get perceptions of feasibility in the non-reduced design space
             pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
             
-            # MOVE ABOVE STATEMENT IN ITS OWN FOR LOOP AND BELOW IN ITS OWN FOR
-            # LOOP SO THAT IN THE MIDDLE, I LEAVE MYSELF THE OPTION TO DO AN MOGP
-            # BEFORE ACTUALLY MAKING THE PREDICTIONS
-            ### MAKE SURE INTERDEPENDENCIES ARE ONLY CONSIDERED FOR FRAGILITY AND NOT FOR OPINION FORMATION!!!!!!!
-            
             # Loop through each new rule combination - rule is a tuple here!
             for j, rule in enumerate(rule_combos):
                 
@@ -655,7 +650,7 @@ class mergeConstraints:
                 
         # Display formed opinions
         print("Opinions: " + str(opinions))
-                
+        
         # Return the opinions of each rule and passfail data
         return opinions, passfail, passfail_std
     

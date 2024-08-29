@@ -135,7 +135,7 @@ fragility_shift = 0.4  # Should be a positive float
 ### subspaces consisting of 2 design variables, and so on
 fragility_extensions = {
     "sub_spaces": [1, 2, 3, 4, 5, 6], # Design sub-space dimensions to consider
-    "interdependencies": True,        # Consider design space interdependencies
+    "interdependencies": False,       # Consider design space interdependencies
     "objective_changes": True         # Consider changes to req's and analyses
 }
 
@@ -380,14 +380,26 @@ while iters <= iters_max:
                 passfail.append(copy.deepcopy(pf))
                 passfail_std.append(copy.deepcopy(pf_std))
                 
-                # Gather INITIAL passfail data of NON-REDUCED array
-                if irules_fragility == []:
-                    pf_fragility = []
-                    pf_std_fragility = []
-                    first_key = next(iter(pf.keys()))
-                    for item1, item2 in zip(pf[first_key], pf_std[first_key]):
-                        pf_fragility.append(item1['non_reduced'])
-                        pf_std_fragility.append(item2['non_reduced'])
+                # Check if any new rules have been proposed in this cycle yet
+                if irules_fragility == [] and fragility:
+                    
+                    # Check if fragility to consider interdependencies
+                    if fragility_extensions['interdependencies']:
+                        
+                        # Form new passfail predictions with MOGP
+                        pf_fragility = [] # Replace this with a function call that returns a list of 1D numpy arrays with MOGP's predictions for each discipline
+                        pf_std_fragility = [] # Replace this with a function call that returns a list of 1D numpy arrays with MOGP's standard deviations for each discipline
+                        
+                    # Do following because interdependenices ignored
+                    else:
+                    
+                        # Gather INITIAL passfail data of NON-REDUCED arrays
+                        pf_fragility = []
+                        pf_std_fragility = []
+                        first_key = next(iter(pf.keys()))
+                        for item1, item2 in zip(pf[first_key], pf_std[first_key]):
+                            pf_fragility.append(item1['non_reduced'])
+                            pf_std_fragility.append(item2['non_reduced'])
                 
                 # Append time to passfail data
                 passfail[-1]['time'] = iters
@@ -429,8 +441,8 @@ while iters <= iters_max:
                 
                 # Increase fragility counter by one
                 fragility_counter += 1
-                
-                # Gather passfail data of rule combo(s) in smaller dictionary
+
+                # Gather passfail data from independent GPR predictions
                 pf_combos = {key: pf[key] for key in rule_combos}
                 pf_std_combos = {key: pf_std[key] for key in rule_combos}
                 
