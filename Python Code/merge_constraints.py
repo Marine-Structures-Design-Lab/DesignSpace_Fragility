@@ -162,6 +162,60 @@ def initializeFit(discip, x_train, y_train, **kwargs):
     return gpr_model
 
 
+def normalizePredictions(pf_mean, pf_std):
+    
+    # Separate negative and positive predictions
+    neg_predictions = pf_mean[pf_mean < 0.0]
+    pos_predictions = pf_mean[pf_mean >= 0.0]
+    
+    # Normalize negative predictions to be between -1 and 0
+    if len(neg_predictions) >= 1:
+        min_neg = np.min(neg_predictions)
+        max_neg = np.max(neg_predictions)
+        if max_neg != min_neg:
+            normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / \
+                                               (max_neg - min_neg))
+            scale_factor_neg = 1 / (max_neg - min_neg)
+        else:
+            normalized_neg_predictions = neg_predictions
+            scale_factor_neg = 1.0
+    else:
+        normalized_neg_predictions = np.empty(0)
+    
+    # Normalize positive predictions to be between 0 and 1
+    if len(pos_predictions) >= 1:
+        min_pos = np.min(pos_predictions)
+        max_pos = np.max(pos_predictions)
+        if max_pos != min_pos:
+            normalized_pos_predictions = (pos_predictions - min_pos) / \
+                (max_pos - min_pos)
+            scale_factor_pos = 1 / (max_pos - min_pos)
+        else:
+            normalized_pos_predictions = pos_predictions
+            scale_factor_pos = 1.0
+    else:
+        normalized_pos_predictions = np.empty(0)
+    
+    # Combine normalized predictions
+    normalized_predictions = np.zeros_like(pf_mean)
+    if len(neg_predictions) > 0:
+        normalized_predictions[pf_mean < 0.0] = normalized_neg_predictions
+    if len(pos_predictions) > 0:
+        normalized_predictions[pf_mean >= 0.0] = normalized_pos_predictions
+    
+    # Adjust standard deviations proportionally
+    adjusted_std_devs = np.zeros_like(pf_std)
+    if len(neg_predictions) > 0:
+        adjusted_std_devs[pf_mean < 0.0] = pf_std[pf_mean < 0.0] * \
+            scale_factor_neg
+    if len(pos_predictions) > 0:
+        adjusted_std_devs[pf_mean >= 0.0] = pf_std[pf_mean >= 0.0] * \
+            scale_factor_pos
+    
+    # Return the normalized predictions and adjusted standard deviations
+    return normalized_predictions, adjusted_std_devs
+
+
 def analyzeInfeasibility(predictions, std_devs):
     """
     Description
@@ -308,6 +362,7 @@ def bezierPoint(m1, **kwargs):
     return y
 
 
+
 """
 SECONDARY FUNCTIONS
 """
@@ -342,11 +397,9 @@ def getPerceptions(discip, gpr_params):
     # Initialize data for training a GPR
     x_train, y_train = trainData(discip)
     
-    # Standardize the training data
+    # Standardize the x-training data
     scaler_x = StandardScaler()
     x_train_scaled = scaler_x.fit_transform(x_train)
-    scaler_y = StandardScaler()
-    y_train_scaled = scaler_y.fit_transform(y_train.reshape(-1, 1)).ravel()
 
     # # Plot histograms of y_train before and after scaling
     # plt.figure(figsize=(12, 5))
@@ -378,53 +431,9 @@ def getPerceptions(discip, gpr_params):
         pf_mean = np.empty(0)
         pf_std = np.empty(0)
     
-    # Separate negative and positive predictions
-    neg_predictions = pf_mean[pf_mean < 0.0]
-    pos_predictions = pf_mean[pf_mean >= 0.0]
-    
-    # Normalize negative predictions to be between -1 and 0
-    if len(neg_predictions) >= 1:
-        min_neg = np.min(neg_predictions)
-        max_neg = np.max(neg_predictions)
-        if max_neg != min_neg:
-            normalized_neg_predictions = -1 + ((neg_predictions - min_neg) / \
-                                               (max_neg - min_neg))
-            scale_factor_neg = 1 / (max_neg - min_neg)
-        else:
-            normalized_neg_predictions = neg_predictions
-            scale_factor_neg = 1.0
-    else:
-        normalized_neg_predictions = np.empty(0)
-    
-    # Normalize positive predictions to be between 0 and 1
-    if len(pos_predictions) >= 1:
-        min_pos = np.min(pos_predictions)
-        max_pos = np.max(pos_predictions)
-        if max_pos != min_pos:
-            normalized_pos_predictions = (pos_predictions - min_pos) / \
-                (max_pos - min_pos)
-            scale_factor_pos = 1 / (max_pos - min_pos)
-        else:
-            normalized_pos_predictions = pos_predictions
-            scale_factor_pos = 1.0
-    else:
-        normalized_pos_predictions = np.empty(0)
-    
-    # Combine normalized predictions
-    normalized_predictions = np.zeros_like(pf_mean)
-    if len(neg_predictions) > 0:
-        normalized_predictions[pf_mean < 0.0] = normalized_neg_predictions
-    if len(pos_predictions) > 0:
-        normalized_predictions[pf_mean >= 0.0] = normalized_pos_predictions
-    
-    # Adjust standard deviations proportionally
-    adjusted_std_devs = np.zeros_like(pf_std)
-    if len(neg_predictions) > 0:
-        adjusted_std_devs[pf_mean < 0.0] = pf_std[pf_mean < 0.0] * \
-            scale_factor_neg
-    if len(pos_predictions) > 0:
-        adjusted_std_devs[pf_mean >= 0.0] = pf_std[pf_mean >= 0.0] * \
-            scale_factor_pos
+    # Normalize the predictions and adjust the standard deviations accordingly
+    normalized_predictions, adjusted_std_devs = \
+        normalizePredictions(pf_mean, pf_std)
     
     # Return the normalized predicted data
     return normalized_predictions, adjusted_std_devs

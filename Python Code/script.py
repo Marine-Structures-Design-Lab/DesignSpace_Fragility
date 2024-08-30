@@ -29,6 +29,7 @@ from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints, getPerceptions
+from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from exploration_amount import exploreSpace
@@ -134,8 +135,8 @@ fragility_shift = 0.4  # Should be a positive float
 ### subspaces only consisting of 1 design variable, 2 => Look at fragility of
 ### subspaces consisting of 2 design variables, and so on
 fragility_extensions = {
-    "sub_spaces": [1, 2, 3, 4, 5, 6], # Design sub-space dimensions to consider
-    "interdependencies": False,       # Consider design space interdependencies
+    "sub_spaces": [], # Design sub-space dimensions to consider
+    "interdependencies": True,       # Consider design space interdependencies
     "objective_changes": True         # Consider changes to req's and analyses
 }
 
@@ -386,9 +387,9 @@ while iters <= iters_max:
                     # Check if fragility to consider interdependencies
                     if fragility_extensions['interdependencies']:
                         
-                        # Form new passfail predictions with MOGP
-                        pf_fragility = [] # Replace this with a function call that returns a list of 1D numpy arrays with MOGP's predictions for each discipline
-                        pf_std_fragility = [] # Replace this with a function call that returns a list of 1D numpy arrays with MOGP's standard deviations for each discipline
+                        # Form new passfail predicti ons with MOGP
+                        pf_fragility, pf_std_fragility = \
+                            connectPerceptions(Discips)
                         
                     # Do following because interdependenices ignored
                     else:
@@ -397,7 +398,8 @@ while iters <= iters_max:
                         pf_fragility = []
                         pf_std_fragility = []
                         first_key = next(iter(pf.keys()))
-                        for item1, item2 in zip(pf[first_key], pf_std[first_key]):
+                        for item1, item2 in zip(pf[first_key], 
+                                                pf_std[first_key]):
                             pf_fragility.append(item1['non_reduced'])
                             pf_std_fragility.append(item2['non_reduced'])
                 
