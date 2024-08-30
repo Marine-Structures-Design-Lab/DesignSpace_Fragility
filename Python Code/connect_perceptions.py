@@ -69,14 +69,32 @@ def organizeData(Discips):
         # Increase the row counter
         start_row += array_size[i]
     
-    # Return combined matrices of training data
-    return x_full, y_full
-
-
-def testData(discip):
+    
+    # GENERATE SYNTHETIC DATA SO ONE DISCIPLINE DOES NOT DOMINATE THE OTHERS!!!
     
     
-    return
+    # Return combined matrices of training data and full design variable list
+    return x_full, y_full, x_vars
+
+
+def prepareData(Discips, x_vars):
+    
+    # Initialize list for each discipline's array of testing data
+    test_data = [None for _ in Discips]
+    
+    # Loop through each discipline
+    for discip in Discips:
+        
+        # Determine indices of discipline's design variables in full list
+        indices_x = [x_vars.index(var) for var in discip['ins']]
+        
+        
+        
+        
+    
+    
+    # Return the organize testing data
+    return test_data
 
 
 """
@@ -84,45 +102,46 @@ MAIN FUNCTION
 """
 def connectPerceptions(Discips):
     
-    # Isolate each discipline's training data with Nan where necessary
-    x_train, y_train = organizeData(Discips)
+    # Isolate each discipline's training data
+    x_train, y_train, x_vars = organizeData(Discips)
     
     # Standardize the training data
     scaler_x = StandardScaler()
     x_train_scaled = scaler_x.fit_transform(x_train)
     scaler_y = StandardScaler()
-    y_train_scaled = scaler_y.fit_transform(y_train)
+    y_train_scaled = scaler_y.fit_transform(y_train.reshape(-1,1))
     
     # Define an RBF kernel
     kernel = GPy.kern.RBF(input_dim=x_train_scaled.shape[1], ARD=True)
     
-    # Create and optimize the GP model
+    # Create the GP model
     model = GPy.models.GPRegression(x_train_scaled, y_train_scaled, kernel)
+    
+    # Optimize the model
     model.optimize()
     
     # Initialize lists for each discipline's array of pass-fail predictions
     pf_fragility = [None for _ in Discips]
     pf_std_fragility = [None for _ in Discips]
     
-    # Loop through each discipline
-    for discip in Discips:
+    # Prepare all data for testing
+    test_data = prepareData(Discips, x_vars)
+    
+    # Loop through each discipline's test matrix
+    for discip in test_data:
         
+        # Standardize the testing data
+        print(discip)
         
-    
-    # Isolate each disciplines testing data with Nan where necessary
-    
-    
-    # Standardize the testing data
-    
-    # Use the model to make predictions
-    
-    # Convert variances into standard deviations
-    
-    # Unstandardize the predictions
-    
-    # Normalize the predictions and adjust the standard deviations accordingly
-    
-    # Break the predictions up into a list of 1D numpy arrays for predictions and standard deviations
-    
+        # Use the model to make predictions
+        
+        # Convert variances into standard deviations
+        
+        # Unstandardize the predictions
+        
+        # Normalize predictions and adjust standard deviations accordingly
+        
+        # Add the predictions and standard deviations to the fragility lists
+       
     # Return the pass-fail predictions and standard deviations
     return pf_fragility, pf_std_fragility
