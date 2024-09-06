@@ -163,6 +163,26 @@ def initializeFit(discip, x_train, y_train, **kwargs):
 
 
 def normalizePredictions(pf_mean, pf_std):
+    """
+    Description
+    -----------
+    Normalizes the mean of the pass-fail predictions between -1 and +1 and
+    scales the standard deviations of the predictions accordingly.
+
+    Parameters
+    ----------
+    pf_mean : Numpy array
+        Non-normalized means of the pass-fail predictions
+    pf_std : Numpy array
+        Non-adjusted standard deviations of the pass-fail predictions
+
+    Returns
+    -------
+    normalized_predictions : Numpy array
+        Normalized means of the pass-fail predictions
+    adjusted_std_devs : Numpy array
+        Adjusted standard deviations of the pass-fail predictions
+    """
     
     # Separate negative and positive predictions
     neg_predictions = pf_mean[pf_mean < 0.0]

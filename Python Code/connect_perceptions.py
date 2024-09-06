@@ -1,6 +1,9 @@
 """
 SUMMARY:
-
+Trains a new Gaussian process regressor with combined data from the explored
+points of each discipline rather than just the data unique to each discipline
+and then uses the regressor to predict pass-fail amounts in each discipline's
+remaining design space.
 
 CREATOR:
 Joseph B. Van Houten
@@ -20,6 +23,30 @@ from merge_constraints import trainData, normalizePredictions
 SECONDARY FUNCTION
 """
 def organizeData(Discips):
+    """
+    Description
+    -----------
+    Takes explored points from each discipline and organizes it into a combined
+    numpy array used to train a combined Gaussian process regressor.
+
+    Parameters
+    ----------
+    Discips : List of dictionaries
+        All of the information pertaining to each discipline of the design
+        problem.
+
+    Returns
+    -------
+    x_full : Numpy array
+        All of the combined x-training data gathered from the explored points
+        of each discipline
+    y_full : Numpy array
+        All of the combined y-training data gathered from the explored points
+        of each discipline
+    x_vars : List
+        Sympy variables for all of the design variables of the design problem.
+
+    """
     
     # Initialize empty lists for x and y training data
     x_train = [None for _ in Discips]
@@ -74,6 +101,25 @@ def organizeData(Discips):
 
 
 def prepareData(Discips, x_vars):
+    """
+    Description
+    -----------
+    Prepares the space remaining data in each discipline to be test points for
+    the trained GPR that considers interdependencies.
+
+    Parameters
+    ----------
+    Discips : List of dictionaries
+        All of the information pertaining to each discipline of the design
+        problem.
+    x_vars : List
+        Sympy variables for all of the design variables of the design problem
+
+    Returns
+    -------
+    test_data : List of numpy arrays
+        Organized space remaining data of each discipline ready for testing
+    """
     
     # Initialize list for each discipline's array of testing data
     test_data = [None for _ in Discips]
@@ -85,7 +131,8 @@ def prepareData(Discips, x_vars):
         indices_x = [x_vars.index(var) for var in discip['ins']]
         
         # Initialize a numpy array of nan values for testing data
-        test_data[i] = np.full((discip['space_remaining'].shape[0], len(x_vars)), np.nan)
+        test_data[i] = np.full((discip['space_remaining'].shape[0], 
+                                len(x_vars)), np.nan)
         
         # Populate the array with the discipline's remaining design space data
         test_data[i][:, indices_x] = discip['space_remaining']
@@ -98,6 +145,27 @@ def prepareData(Discips, x_vars):
 MAIN FUNCTION
 """
 def connectPerceptions(Discips):
+    """
+    Description
+    -----------
+    Predicts pass-fail amounts in each discipline's remaining design space with
+    a GPR that is trained with combined exploration data from each discipline.
+
+    Parameters
+    ----------
+    Discips : List of dictionaries
+        All of the information pertaining to each discipline of the design
+        problem.
+
+    Returns
+    -------
+    pf_fragility : List of numpy arrays
+        Predicted pass-fail amounts for the non-reduced design space in each
+        discipline
+    pf_std_fragility : List of numpy arrays
+        Standard deviations of predicted pass-fail amounts for the non-reduced
+        design space in each discipline
+    """
     
     # Isolate each discipline's training data
     x_train, y_train, x_vars = organizeData(Discips)
@@ -141,7 +209,8 @@ def connectPerceptions(Discips):
         std_dev_unscaled = std_dev_scaled * scaler_y.scale_
         
         # Normalize predictions and adjust standard deviations accordingly
-        normalized_predictions, adjusted_std_devs = normalizePredictions(mu_unscaled, std_dev_unscaled)
+        normalized_predictions, adjusted_std_devs = \
+            normalizePredictions(mu_unscaled, std_dev_unscaled)
 
         # Add the predictions and standard deviations to the fragility lists
         pf_fragility[i] = normalized_predictions.reshape(-1)
@@ -149,3 +218,4 @@ def connectPerceptions(Discips):
        
     # Return the pass-fail predictions and standard deviations
     return pf_fragility, pf_std_fragility
+
