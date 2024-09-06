@@ -133,9 +133,10 @@ fragility_shift = 0.4  # Should be a positive float
 ### removing dimensions from the design space and assessing the fragility of
 ### the design space without that dimension.  1 => Look at fragility of
 ### subspaces only consisting of 1 design variable, 2 => Look at fragility of
-### subspaces consisting of 2 design variables, and so on
+### subspaces consisting of 2 design variables, and so on.  Needs to have at
+### least 1 integer in there by default
 fragility_extensions = {
-    "sub_spaces": [], # Design sub-space dimensions to consider
+    "sub_spaces": [6], # Design sub-space dimensions to consider
     "interdependencies": True,       # Consider design space interdependencies
     "objective_changes": True         # Consider changes to req's and analyses
 }
@@ -387,7 +388,7 @@ while iters <= iters_max:
                     # Check if fragility to consider interdependencies
                     if fragility_extensions['interdependencies']:
                         
-                        # Form new passfail predicti ons with MOGP
+                        # Form passfail predictions considering interdependence
                         pf_fragility, pf_std_fragility = \
                             connectPerceptions(Discips)
                         

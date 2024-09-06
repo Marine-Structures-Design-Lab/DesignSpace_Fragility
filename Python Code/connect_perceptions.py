@@ -13,7 +13,7 @@ LIBRARIES
 import numpy as np
 import GPy
 from sklearn.preprocessing import StandardScaler
-from merge_constraints import trainData
+from merge_constraints import trainData, normalizePredictions
 
 
 """
@@ -68,11 +68,7 @@ def organizeData(Discips):
         
         # Increase the row counter
         start_row += array_size[i]
-    
-    
-    # GENERATE SYNTHETIC DATA SO ONE DISCIPLINE DOES NOT DOMINATE THE OTHERS!!!
-    
-    
+ 
     # Return combined matrices of training data and full design variable list
     return x_full, y_full, x_vars
 
@@ -83,17 +79,18 @@ def prepareData(Discips, x_vars):
     test_data = [None for _ in Discips]
     
     # Loop through each discipline
-    for discip in Discips:
+    for i, discip in enumerate(Discips):
         
         # Determine indices of discipline's design variables in full list
         indices_x = [x_vars.index(var) for var in discip['ins']]
         
+        # Initialize a numpy array of nan values for testing data
+        test_data[i] = np.full((discip['space_remaining'].shape[0], len(x_vars)), np.nan)
         
-        
-        
+        # Populate the array with the discipline's remaining design space data
+        test_data[i][:, indices_x] = discip['space_remaining']
     
-    
-    # Return the organize testing data
+    # Return the organized testing data
     return test_data
 
 
@@ -128,20 +125,27 @@ def connectPerceptions(Discips):
     test_data = prepareData(Discips, x_vars)
     
     # Loop through each discipline's test matrix
-    for discip in test_data:
+    for i, discip in enumerate(test_data):
         
         # Standardize the testing data
-        print(discip)
+        x_test_scaled = scaler_x.fit_transform(discip)
         
         # Use the model to make predictions
+        mu_scaled, sigma_scaled = model.predict(x_test_scaled)
         
         # Convert variances into standard deviations
+        std_dev_scaled = np.sqrt(sigma_scaled)
         
         # Unstandardize the predictions
+        mu_unscaled = scaler_y.inverse_transform(mu_scaled)
+        std_dev_unscaled = std_dev_scaled * scaler_y.scale_
         
         # Normalize predictions and adjust standard deviations accordingly
-        
+        normalized_predictions, adjusted_std_devs = normalizePredictions(mu_unscaled, std_dev_unscaled)
+
         # Add the predictions and standard deviations to the fragility lists
+        pf_fragility[i] = normalized_predictions.reshape(-1)
+        pf_std_fragility[i] = adjusted_std_devs.reshape(-1)
        
     # Return the pass-fail predictions and standard deviations
     return pf_fragility, pf_std_fragility
