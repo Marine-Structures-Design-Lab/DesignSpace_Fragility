@@ -11,8 +11,8 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from merge_constraints import mergeConstraints, sharedIndices, trainData, \
-    analyzeInfeasibility, analyzeFeasibility, bezierPoint, getPerceptions, \
-    getPredictions
+    normalizePredictions, analyzeInfeasibility, analyzeFeasibility, \
+    bezierPoint, getPerceptions, getPredictions
 import unittest
 import numpy as np
 import sympy as sp
@@ -156,6 +156,37 @@ class test_merge_constraints(unittest.TestCase):
         # Test that function is also gathering eliminated data if it exists
         np.testing.assert_array_almost_equal(xtrain2, exp_xtrain2)
         np.testing.assert_array_almost_equal(ytrain2, exp_ytrain2)
+    
+    
+    def test_normalize_predictions(self):
+        """
+        Unit tests for normalizePredictions function
+        """
+        
+        # Create arrays of non-normalized predictions
+        pf_mean1 = np.array([-0.5])
+        pf_mean2 = np.array([0.1, -0.2, 0.3, -0.4, 0.5, -0.6])
+        
+        
+        # Create arrays of non-adjusted standard deviations
+        pf_std1 = np.array([0.3])
+        pf_std2 = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+        
+        # Determine the expected output arrays
+        exp_mean1 = np.array([-0.5])
+        exp_mean2 = np.array([0.0, 0.0, 0.5, -0.5, 1.0, -1.0])
+        exp_std1 = np.array([0.3])
+        exp_std2 = np.array([0.25, 0.5, 0.75, 1.0, 1.25, 1.5])
+        
+        # Execute the function
+        act_mean1, act_std1 = normalizePredictions(pf_mean1, pf_std1)
+        act_mean2, act_std2 = normalizePredictions(pf_mean2, pf_std2)
+        
+        # Check that arrays are nearly equali
+        np.testing.assert_array_almost_equal(act_mean1, exp_mean1)
+        np.testing.assert_array_almost_equal(act_std1, exp_std1)
+        np.testing.assert_array_almost_equal(act_mean2, exp_mean2)
+        np.testing.assert_array_almost_equal(act_std2, exp_std2)
     
     
     def test_analyze_infeasibility(self):

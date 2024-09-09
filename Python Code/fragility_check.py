@@ -67,7 +67,7 @@ def adaptiveFactor(combo, Df, total_points):
         
         # Determine original subspace size
         npoints_dim = int(round(total_points ** (1. / len(Df['ins']))))
-        sub_orig = len(indices_rem) * npoints_dim
+        sub_orig = npoints_dim ** len(indices_rem)
         
         # Calculate fraction of total subspace remaining to starting size
         space_rem = sub_rem / sub_orig

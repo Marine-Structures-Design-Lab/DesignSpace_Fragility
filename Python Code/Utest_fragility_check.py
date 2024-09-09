@@ -10,7 +10,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from fragility_check import checkFragility
+from fragility_check import checkFragility, adaptiveFactor
 import unittest
 import sympy as sp
 import numpy as np
@@ -27,34 +27,15 @@ class test_fragility_check(unittest.TestCase):
         """
         
         # Initialize sympy input variables
-        x = sp.symbols('x1:7')
+        self.x = sp.symbols('x1:7')
         
         # Create new input rules being proposed
-        self.rule1 = x[0] > 0.5
-        self.rule2 = sp.And(x[3] > 0.1, x[3] < 0.5)
-        self.rule3 = sp.Or(x[4] > 0.7, x[5] < 0.8)
-        
-        # Create added potentials for regret and windfall for rule combos
-        risk = {
-            (self.rule1, self.rule2): [
-                {'regret': -0.1, 'windfall': 0.1},
-                {'regret': 0.0, 'windfall': 0.0},
-                {'regret': 0.29, 'windfall': -0.1}
-                ],
-            (self.rule1, self.rule3): [
-                {'regret': 0.0, 'windfall': 0.0},
-                {'regret': 0.9, 'windfall': -0.3},
-                {'regret': 0.0, 'windfall': 0.0}
-                ],
-            (self.rule2, self.rule3): [
-                {'regret': 0.0, 'windfall': 0.0},
-                {'regret': 0.0, 'windfall': 0.0},
-                {'regret': -0.45, 'windfall': 0.50}
-                ]
-            }
+        self.rule1 = self.x[0] > 0.5
+        self.rule2 = sp.And(self.x[3] > 0.1, self.x[3] < 0.5)
+        self.rule3 = sp.Or(self.x[4] > 0.7, self.x[5] < 0.8)
         
         # Initialize dictionaries for each discipline
-        Discips_fragility = [
+        self.Discips_fragility = [
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                          [0.0, 0.0, 0.5],
                                          [0.0, 0.0, 1.0],
@@ -82,7 +63,8 @@ class test_fragility_check(unittest.TestCase):
                                          [1.0, 1.0, 0.0],
                                          [1.0, 1.0, 0.5],
                                          [1.0, 1.0, 1.0]]),
-            'tp_actual': 27},
+            'tp_actual': 27,
+            'ins': [self.x[0], self.x[1], self.x[2]]},
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                          [0.0, 0.0, 0.5],
                                          [0.0, 0.0, 1.0],
@@ -101,7 +83,8 @@ class test_fragility_check(unittest.TestCase):
                                          [0.5, 1.0, 0.0],
                                          [0.5, 1.0, 0.5],
                                          [0.5, 1.0, 1.0]]),
-            'tp_actual': 27},
+            'tp_actual': 27,
+            'ins': [self.x[2], self.x[3], self.x[4]]},
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                          [0.0, 0.0, 0.5],
                                          [0.0, 0.0, 1.0],
@@ -111,12 +94,62 @@ class test_fragility_check(unittest.TestCase):
                                          [0.0, 1.0, 0.0],
                                          [0.0, 1.0, 0.5],
                                          [0.0, 1.0, 1.0]]),
-            'tp_actual': 27},
-        
+            'tp_actual': 27,
+            'ins': [self.x[0], self.x[4], self.x[5]]},
         ]
         
+        # Establish different (sub)spaces
+        combo1 = (self.x[0], self.x[1], self.x[2])
+        combo2 = (self.x[2], self.x[3], self.x[4])
+        combo3 = (self.x[0], self.x[4], self.x[5])
+        
+        # Create added potentials for regret and windfall for rule combos
+        risk = {
+            (self.rule1, self.rule2): [
+                {combo1: {'regret': -0.1, 'windfall': 0.1}},
+                {combo2: {'regret': 0.0, 'windfall': 0.0}},
+                {combo3: {'regret': 0.29, 'windfall': -0.1}}
+                ],
+            (self.rule1, self.rule3): [
+                {combo1: {'regret': 0.0, 'windfall': 0.0}},
+                {combo2: {'regret': 0.9, 'windfall': -0.3}},
+                {combo3: {'regret': 0.0, 'windfall': 0.0}}
+                ],
+            (self.rule2, self.rule3): [
+                {combo1: {'regret': 0.0, 'windfall': 0.0}},
+                {combo2: {'regret': 0.0, 'windfall': 0.0}},
+                {combo3: {'regret': -0.45, 'windfall': 0.50}}
+                ]
+            }
+        
         # Create an object call
-        self.fragile = checkFragility(risk, Discips_fragility)
+        self.fragile = checkFragility(risk, self.Discips_fragility)
+    
+    
+    def test_adaptive_factor(self):
+        """
+        Unit tests for the adaptiveFactor function
+        """
+        
+        # Establish different (sub)spaces
+        combo1 = (self.x[0], self.x[1], self.x[2])
+        combo2 = (self.x[3], self.x[4])
+        combo3 = (self.x[0],)
+        
+        # Execute function for each discipline and (sub)space
+        space_rem1 = adaptiveFactor(combo1, self.Discips_fragility[0], 27)
+        space_rem2 = adaptiveFactor(combo2, self.Discips_fragility[1], 27)
+        space_rem3 = adaptiveFactor(combo3, self.Discips_fragility[2], 27)
+        
+        # Determine expected fraction of (sub)spaces remaining
+        exp_space_rem1 = 1.0
+        exp_space_rem2 = 1.0
+        exp_space_rem3 = 1.0 / 3.0
+        
+        # Check that expected space remaining equals actual space remaining
+        self.assertAlmostEqual(space_rem1, exp_space_rem1)
+        self.assertAlmostEqual(space_rem2, exp_space_rem2)
+        self.assertAlmostEqual(space_rem3, exp_space_rem3)
     
     
     def test_basic_check(self):
@@ -195,7 +228,7 @@ class test_fragility_check(unittest.TestCase):
             }
         
         # Run the method
-        max_risk = self.fragile.basicCheck2(iters, iters_max, p, shift)
+        max_risk = self.fragile.basicCheck2(iters, iters_max, p, shift, 27)
         
         # Check that each rule returns expected boolean fragility result
         for rule in exp_max_risk.keys():
