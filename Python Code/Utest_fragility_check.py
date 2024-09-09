@@ -106,7 +106,8 @@ class test_fragility_check(unittest.TestCase):
         # Create added potentials for regret and windfall for rule combos
         risk = {
             (self.rule1, self.rule2): [
-                {combo1: {'regret': -0.1, 'windfall': 0.1}},
+                {(self.x[0],): {'regret': -0.1, 'windfall': 0.1},
+                 combo1: {'regret': -0.9, 'windfall': 0.3}},
                 {combo2: {'regret': 0.0, 'windfall': 0.0}},
                 {combo3: {'regret': 0.29, 'windfall': -0.1}}
                 ],
@@ -209,21 +210,30 @@ class test_fragility_check(unittest.TestCase):
         exp_max_risk = {
             (self.rule1, self.rule2): {
                 'fragile': True,
-                0: {'value': -0.2, 'threshold': 0.9810327561},
-                1: {'value': 0.0, 'threshold': 0.6540218374},
-                2: {'value': 0.39, 'threshold': 0.3270109187}
+                0: {'value': -0.2, 'threshold': 0.9810327561, 
+                    'sub-space': (self.x[0],)},
+                1: {'value': 0.0, 'threshold': 0.6540218374, 
+                    'sub-space': tuple(self.Discips_fragility[1]['ins'])},
+                2: {'value': 0.39, 'threshold': 0.3270109187, 
+                    'sub-space': tuple(self.Discips_fragility[2]['ins'])}
                 },
             (self.rule1, self.rule3): {
                 'fragile': True,
-                0: {'value': 0.0, 'threshold': 0.9810327561},
-                1: {'value': 1.2, 'threshold': 0.6540218374},
-                2: {'value': 0.0, 'threshold': 0.3270109187}
+                0: {'value': 0.0, 'threshold': 0.9810327561,
+                    'sub-space': tuple(self.Discips_fragility[0]['ins'])},
+                1: {'value': 1.2, 'threshold': 0.6540218374,
+                    'sub-space': tuple(self.Discips_fragility[1]['ins'])},
+                2: {'value': 0.0, 'threshold': 0.3270109187,
+                    'sub-space': tuple(self.Discips_fragility[2]['ins'])}
                 },
             (self.rule2, self.rule3): {
                 'fragile': False,
-                0: {'value': 0.0, 'threshold': 0.9810327561},
-                1: {'value': 0.0, 'threshold': 0.6540218374},
-                2: {'value': -0.95, 'threshold': 0.3270109187}
+                0: {'value': 0.0, 'threshold': 0.9810327561,
+                    'sub-space': tuple(self.Discips_fragility[0]['ins'])},
+                1: {'value': 0.0, 'threshold': 0.6540218374,
+                    'sub-space': tuple(self.Discips_fragility[1]['ins'])},
+                2: {'value': -0.95, 'threshold': 0.3270109187,
+                    'sub-space': tuple(self.Discips_fragility[2]['ins'])}
                 }
             }
         
@@ -235,13 +245,15 @@ class test_fragility_check(unittest.TestCase):
             self.assertEqual(exp_max_risk[rule]['fragile'], 
                              max_risk[rule]['fragile'])
         
-        # Check that proper value and threshold are being calculated
+        # Check that proper value, threshold, and subspace are determined
         for rule in exp_max_risk.keys():
             for ind_dic in range(0, 3):
                 self.assertAlmostEqual(exp_max_risk[rule][ind_dic]['value'],
                                        max_risk[rule][ind_dic]['value'])
                 self.assertAlmostEqual(exp_max_risk[rule][ind_dic]['threshold'],
                                        max_risk[rule][ind_dic]['threshold'])
+                self.assertEqual(exp_max_risk[rule][ind_dic]['sub-space'],
+                                 max_risk[rule][ind_dic]['sub-space'])
         
         
     def test_new_combo(self):
