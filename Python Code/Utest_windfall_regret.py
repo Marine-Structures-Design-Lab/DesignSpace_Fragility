@@ -10,8 +10,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from windfall_regret import initializeWR, complementProb, minmaxNormalize, \
-    assignWR, evalCompProb, calcWindRegret, quantRisk
+from windfall_regret import createBins, initializeWR, complementProb, \
+    minmaxNormalize, assignWR, evalCompProb, calcWindRegret, quantRisk
 import unittest
 import sympy as sp
 import numpy as np
@@ -104,8 +104,66 @@ class test_windfall_regret(unittest.TestCase):
              'ins': [x[0], x[4], x[5]],
              'outs': [y[3], y[4]]}
         ]
+    
+    
+    def test_create_bins(self):
+        """
+        Unit tests for the createBins function
+        """
         
+        # Execute the function for each discipline
+        unique_bins1, inverse_indices1 = createBins(self.Discips_fragility[0],
+                                                    [0, 1, 2], 1350)
+        unique_bins2, inverse_indices2 = createBins(self.Discips_fragility[1],
+                                                    [1, 2], 1400)
+        unique_bins3, inverse_indices3 = createBins(self.Discips_fragility[2],
+                                                    [2], 1300)
         
+        # Determine the expected results
+        exp_unique_bins1 = np.array([[0, 0, 0],
+                                     [0, 0, 1],
+                                     [0, 0, 2],
+                                     [0, 0, 3],
+                                     [0, 0, 4],
+                                     [6, 0, 5],
+                                     [6, 0, 6],
+                                     [6, 0, 7],
+                                     [6, 0, 8],
+                                     [6, 0, 9]])
+        exp_inverse_indices1 = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        exp_unique_bins2 = np.array([[0, 0],
+                                     [1, 0],
+                                     [2, 0],
+                                     [3, 0],
+                                     [4, 0],
+                                     [5, 0],
+                                     [6, 0],
+                                     [7, 0],
+                                     [8, 0],
+                                     [9, 0]])
+        exp_inverse_indices2 = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        exp_unique_bins3 = np.array([[0],
+                                     [7],
+                                     [8],
+                                     [9],
+                                     [10]])
+        exp_inverse_indices3 = np.array([3, 4, 0, 0, 1, 2, 3, 0, 0, 0])
+        
+        # Check that arrays are equal for each discipline
+        np.testing.assert_array_almost_equal(unique_bins1, 
+                                             exp_unique_bins1)
+        np.testing.assert_array_almost_equal(inverse_indices1, 
+                                             exp_inverse_indices1)
+        np.testing.assert_array_almost_equal(unique_bins2, 
+                                             exp_unique_bins2)
+        np.testing.assert_array_almost_equal(inverse_indices2, 
+                                             exp_inverse_indices2)
+        np.testing.assert_array_almost_equal(unique_bins3, 
+                                             exp_unique_bins3)
+        np.testing.assert_array_almost_equal(inverse_indices3, 
+                                             exp_inverse_indices3)
+        
+    
     def test_initialize_wr(self):
         """
         Unit tests for the initalizeWR function
@@ -382,6 +440,12 @@ class test_windfall_regret(unittest.TestCase):
             self.assertDictEqual(wr, exp_wr[ind])
             self.assertDictEqual(run_wind, exp_run_wind[ind])
             self.assertDictEqual(run_reg, exp_run_reg[ind])
+    
+    
+    def test_average_wr(self):
+        """
+        Unit tests for the averageWR function
+        """
     
     
     def test_eval_comp_prob(self):
