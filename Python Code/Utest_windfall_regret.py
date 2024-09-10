@@ -11,7 +11,8 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from windfall_regret import createBins, initializeWR, complementProb, \
-    minmaxNormalize, assignWR, evalCompProb, calcWindRegret, quantRisk
+    minmaxNormalize, assignWR, averageWR, evalCompProb, calcWindRegret, \
+    quantRisk
 import unittest
 import sympy as sp
 import numpy as np
@@ -28,18 +29,18 @@ class test_windfall_regret(unittest.TestCase):
         """
         
         # Initialize sympy input variables
-        x = sp.symbols('x1:7')
+        self.x = sp.symbols('x1:7')
         y = sp.symbols('y1:6')
         
         # Create set of input rules already adopted
-        rule1 = x[0] < 0.5
-        rule2 = sp.And(x[3] > 0.05, x[3] < 0.55)
-        rule3 = sp.Or(x[4] > 0.7, x[5] < 0.8)
+        rule1 = self.x[0] < 0.5
+        rule2 = sp.And(self.x[3] > 0.05, self.x[3] < 0.55)
+        rule3 = sp.Or(self.x[4] > 0.7, self.x[5] < 0.8)
         self.irf = [rule1, rule2, rule3]
         
         # Create new set of input rules being proposed
-        self.rule4 = x[2] < 0.7
-        self.rule5 = sp.Or(x[0] > 0.3, x[5] < 0.4)
+        self.rule4 = self.x[2] < 0.7
+        self.rule5 = sp.Or(self.x[0] > 0.3, self.x[5] < 0.4)
         
         # Initialize Discipline information at the beginning of the time stamp
         self.Discips_fragility = [
@@ -61,7 +62,7 @@ class test_windfall_regret(unittest.TestCase):
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
-             'ins': [x[0], x[1], x[2]],
+             'ins': [self.x[0], self.x[1], self.x[2]],
              'outs': [y[0]]},
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                           [1.0, 0.1, 0.0],
@@ -81,7 +82,7 @@ class test_windfall_regret(unittest.TestCase):
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
-             'ins': [x[2], x[3], x[4]],
+             'ins': [self.x[2], self.x[3], self.x[4]],
              'outs': [y[1], y[2]]},
             {'space_remaining': np.array([[0.0, 0.6, 0.9],
                                           [0.1, 0.5, 1.0],
@@ -101,7 +102,7 @@ class test_windfall_regret(unittest.TestCase):
              'Pass_Amount': np.zeros(10),
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
-             'ins': [x[0], x[4], x[5]],
+             'ins': [self.x[0], self.x[4], self.x[5]],
              'outs': [y[3], y[4]]}
         ]
     
@@ -233,69 +234,97 @@ class test_windfall_regret(unittest.TestCase):
               'reduced': np.array([], dtype=float),
               'leftover': np.array([], dtype=float)}]}
         exp_run_wind1 = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0}]}
+            [{(self.x[0],): {'non_reduced': 0.0, 'reduced': 0.0}, 
+              (self.x[1],): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[2],): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[0], self.x[1]): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[0], self.x[2]): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[1], self.x[2]): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[0], self.x[1], self.x[2]): {'non_reduced': 0.0, 
+                                                  'reduced': 0.0}},
+             {(self.x[2],): {'non_reduced': 0.0, 'reduced': 0.0}, 
+               (self.x[3],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[4],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[2], self.x[3]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[2], self.x[4]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[3], self.x[4]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[2], self.x[3], self.x[4]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}},
+             {(self.x[0],): {'non_reduced': 0.0, 'reduced': 0.0}, 
+               (self.x[4],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[5],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[0], self.x[4]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[0], self.x[5]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[4], self.x[5]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[0], self.x[4], self.x[5]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}}]}
         exp_run_wind2 = {(self.rule4,) + tuple(self.irf): \
-            [{'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0}],
+            [{(self.x[0], self.x[1], self.x[2]): {'non_reduced': 0.0, 
+                                                  'reduced': 0.0}},
+             {(self.x[2], self.x[3], self.x[4]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}},
+             {(self.x[0], self.x[4], self.x[5]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}}],
                          (self.rule5,) + tuple(self.irf): \
-            [{'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0}]}
+            [{(self.x[0], self.x[1], self.x[2]): {'non_reduced': 0.0, 
+                                                  'reduced': 0.0}},
+             {(self.x[2], self.x[3], self.x[4]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}},
+             {(self.x[0], self.x[4], self.x[5]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}}]}
         exp_run_reg1 = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0}]}
+            [{(self.x[0],): {'non_reduced': 0.0, 'reduced': 0.0}, 
+              (self.x[1],): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[2],): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[0], self.x[1]): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[0], self.x[2]): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[1], self.x[2]): {'non_reduced': 0.0, 'reduced': 0.0},
+              (self.x[0], self.x[1], self.x[2]): {'non_reduced': 0.0, 
+                                                  'reduced': 0.0}},
+             {(self.x[2],): {'non_reduced': 0.0, 'reduced': 0.0}, 
+               (self.x[3],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[4],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[2], self.x[3]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[2], self.x[4]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[3], self.x[4]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[2], self.x[3], self.x[4]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}},
+             {(self.x[0],): {'non_reduced': 0.0, 'reduced': 0.0}, 
+               (self.x[4],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[5],): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[0], self.x[4]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[0], self.x[5]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[4], self.x[5]): {'non_reduced': 0.0, 'reduced': 0.0},
+               (self.x[0], self.x[4], self.x[5]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}}]}
         exp_run_reg2 = {(self.rule4,) + tuple(self.irf): \
-            [{'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0}],
-                        (self.rule5,) + tuple(self.irf): \
-            [{'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0},
-             {'non_reduced': 0.0,
-              'reduced': 0.0,
-              'leftover': 0.0}]}
+            [{(self.x[0], self.x[1], self.x[2]): {'non_reduced': 0.0, 
+                                                  'reduced': 0.0}},
+             {(self.x[2], self.x[3], self.x[4]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}},
+             {(self.x[0], self.x[4], self.x[5]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}}],
+                         (self.rule5,) + tuple(self.irf): \
+            [{(self.x[0], self.x[1], self.x[2]): {'non_reduced': 0.0, 
+                                                  'reduced': 0.0}},
+             {(self.x[2], self.x[3], self.x[4]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}},
+             {(self.x[0], self.x[4], self.x[5]): {'non_reduced': 0.0, 
+                                                   'reduced': 0.0}}]}
+        
+        # Initialize fragility extensions
+        frag_ext1 = {
+            "sub_spaces": [1, 2, 3]
+        }
+        frag_ext2 = {"subs": [100, 102]}
         
         # Run the function
-        windreg1, run_wind1, run_reg1 = initializeWR(self.irf, passfail1)
-        windreg2, run_wind2, run_reg2 = initializeWR(self.irf, passfail2)
+        windreg1, run_wind1, run_reg1 = initializeWR(self.irf, passfail1, 
+                                                     frag_ext1, 
+                                                     self.Discips_fragility)
+        windreg2, run_wind2, run_reg2 = initializeWR(self.irf, passfail2, 
+                                                     frag_ext2, 
+                                                     self.Discips_fragility)
         
         # Ensure that proper keys are produced in each dictionary
         self.assertSetEqual(set(windreg1.keys()), set(exp_windreg1.keys()))
@@ -332,18 +361,30 @@ class test_windfall_regret(unittest.TestCase):
             for ind, dic in enumerate(list_dics):
                 self.assertSetEqual(set(run_reg1[key1][ind].keys()),
                                     set(list_dics[ind].keys()))
+                for combo in dic:
+                    self.assertSetEqual(set(run_reg1[key1][ind][combo].keys()),
+                                        set(list_dics[ind][combo].keys()))
         for key1, list_dics in exp_run_reg2.items():
             for ind, dic in enumerate(list_dics):
                 self.assertSetEqual(set(run_reg2[key1][ind].keys()),
                                     set(list_dics[ind].keys()))
+                for combo in dic:
+                    self.assertSetEqual(set(run_reg2[key1][ind][combo].keys()),
+                                        set(list_dics[ind][combo].keys()))
         for key1, list_dics in exp_run_wind1.items():
             for ind, dic in enumerate(list_dics):
                 self.assertSetEqual(set(run_wind1[key1][ind].keys()),
                                     set(list_dics[ind].keys()))
+                for combo in dic:
+                    self.assertSetEqual(set(run_wind1[key1][ind][combo].keys()),
+                                        set(list_dics[ind][combo].keys()))
         for key1, list_dics in exp_run_wind2.items():
             for ind, dic in enumerate(list_dics):
                 self.assertSetEqual(set(run_wind2[key1][ind].keys()),
                                     set(list_dics[ind].keys()))
+                for combo in dic:
+                    self.assertSetEqual(set(run_wind2[key1][ind][combo].keys()),
+                                        set(list_dics[ind][combo].keys()))
     
     
     def test_complement_prob(self):
@@ -411,42 +452,106 @@ class test_windfall_regret(unittest.TestCase):
         Unit tests for the assignWR function
         """
         
-        # Initialize a probability of feasibility value
-        prob_feas = 0.5
+        # Initialize an array of probability of feasibility values
+        prob_feas = np.array([0.5, 0.2, 0.4, 0.1])
         
         # Initialize list of indices for non-reduced and reduced design points
         indices_in_both = [0, 1]
         
-        # Initialize a list of passfail values
-        pf = [-0.1, 0.1, -0.1, 0.1]
+        # Initialize a numpy array of passfail values
+        pf = np.array([-0.1, 0.1, -0.2, 0.2])
+        
+        # Initalize windreg dictionary
+        windreg = {
+            'non_reduced': np.array([]),
+            'reduced': np.array([]),
+            'leftover': np.array([])
+        }
         
         # Determine expected windfall and regret values
-        exp_wr = [{'non_reduced': prob_feas, 'reduced': prob_feas},
-                  {'non_reduced': -prob_feas, 'reduced': -prob_feas},
-                  {'non_reduced': prob_feas, 'leftover': -prob_feas},
-                  {'non_reduced': -prob_feas, 'leftover': prob_feas}]
-        exp_run_wind = [{'non_reduced': prob_feas, 'reduced': prob_feas},
+        exp_wr = {
+            'non_reduced': np.array([0.5, -0.2, 0.4, -0.1]),
+            'reduced': np.array([0.5, -0.2]),
+            'leftover': np.array([-0.4, 0.1])
+        }
+        exp_run_wind = [{'non_reduced': prob_feas[0], 'reduced': prob_feas[0]},
                         {},
-                        {'non_reduced': prob_feas},
-                        {'reduced': prob_feas}]
+                        {'non_reduced': prob_feas[2]},
+                        {'reduced': prob_feas[3]}]
         exp_run_reg = [{},
-                       {'non_reduced': prob_feas, 'reduced': prob_feas},
-                       {'reduced': prob_feas},
-                       {'non_reduced': prob_feas}]
+                       {'non_reduced': prob_feas[1], 'reduced': prob_feas[1]},
+                       {'reduced': prob_feas[2]},
+                       {'non_reduced': prob_feas[3]}]
         
-        # Run the function and check that proper dictionaries are produced
-        for ind, val in enumerate(pf):
-            wr, run_wind, run_reg = assignWR(prob_feas,ind,indices_in_both,val)
-            self.assertDictEqual(wr, exp_wr[ind])
-            self.assertDictEqual(run_wind, exp_run_wind[ind])
-            self.assertDictEqual(run_reg, exp_run_reg[ind])
+        # Run the function
+        windreg, run_wind, run_reg = assignWR(prob_feas, indices_in_both,
+                                              pf, windreg)
+        
+        # Check that proper windreg dictionary is produced
+        for key, array in exp_wr.items():
+            np.testing.assert_array_almost_equal(windreg[key], array)
+            
+        # Check that proper running windfall and running regret values produced
+        for i in range(0, len(prob_feas)):
+            for key in exp_run_wind[i].keys():
+                self.assertAlmostEqual(exp_run_wind[i][key], run_wind[i][key])
+            for key in exp_run_reg[i].keys():
+                self.assertAlmostEqual(exp_run_reg[i][key], run_reg[i][key])
     
     
     def test_average_wr(self):
         """
         Unit tests for the averageWR function
         """
-    
+        
+        # Initialize an array of probability of feasibility values
+        prob_feas = np.array([0.5, 0.2, 0.4, 0.1])
+        
+        # Initialize list of dictionaries for running windfall and regret
+        r_wind = [{'non_reduced': prob_feas[0], 'reduced': prob_feas[0]},
+                  {},
+                  {'non_reduced': prob_feas[2]},
+                  {'reduced': prob_feas[3]}]
+        r_reg = [{},
+                 {'non_reduced': prob_feas[1], 'reduced': prob_feas[1]},
+                 {'reduced': prob_feas[2]},
+                 {'non_reduced': prob_feas[3]}]
+        
+        # Initialize a discipline's dictionary of information
+        Df = {
+            'space_remaining': np.array([[0.0, 0.1, 1.0],
+                                         [0.0, 0.2, 0.6],
+                                         [0.0, 0.1, 0.1],
+                                         [0.1, 0.2, 0.6]]),
+            'ins': [self.x[0], self.x[1], self.x[2]]
+        }
+        
+        # Determine different (sub)spaces to assess
+        combo1 = (self.x[0], self.x[1], self.x[2])
+        combo2 = (self.x[1], self.x[2])
+        combo3 = (self.x[0],)
+        
+        # Initialize regret or windfall summation dictionaries
+        run_WorR1 = {'non_reduced': 0.0, 'reduced': 0.0}
+        run_WorR2 = {'non_reduced': 0.0, 'reduced': 0.0}
+        run_WorR3 = {'non_reduced': 0.0, 'reduced': 0.0}
+        
+        # Execute the functions
+        run_WorR1 = averageWR(r_wind, combo1, Df, run_WorR1, 1331)
+        run_WorR2 = averageWR(r_reg, combo2, Df, run_WorR2, 1331)
+        run_WorR3 = averageWR(r_wind, combo3, Df, run_WorR3, 1331)
+        
+        # Determine expected regret or windfall summations
+        exp_run_WorR1 = {'non_reduced': 0.5+0.4, 'reduced': 0.5+0.1}
+        exp_run_WorR2 = {'non_reduced': (0.2+0.1)/2, 'reduced': 0.2/2+0.4}
+        exp_run_WorR3 = {'non_reduced': (0.5+0.4)/3, 'reduced': 0.5/3+0.1}
+        
+        # Check that sums in expected arrays match actual sums
+        for key in exp_run_WorR1.keys():
+            self.assertAlmostEqual(run_WorR1[key], exp_run_WorR1[key])
+            self.assertAlmostEqual(run_WorR2[key], exp_run_WorR2[key])
+            self.assertAlmostEqual(run_WorR3[key], exp_run_WorR3[key])
+        
     
     def test_eval_comp_prob(self):
         """

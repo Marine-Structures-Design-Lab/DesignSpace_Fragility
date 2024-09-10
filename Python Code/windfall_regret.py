@@ -158,11 +158,14 @@ def initializeWR(irf, passfail, frag_ext, Df):
             
             # Loop through the discipline's subspace dimensions (default is to
             # not assess fragility of any subspaces)
-            for r in frag_ext.get('sub_spaces', len(Df[ind_dic]['ins'])):
+            for r in frag_ext.get('sub_spaces', [len(Df[ind_dic]['ins'])]):
                 
-                # Continue if number of dimensions is greater than discipline's
+                # Check if number of dimensions is greater than discipline's
                 # number of design variables available
-                if r > len(Df[ind_dic]['ins']): continue
+                if r > len(Df[ind_dic]['ins']):
+                    
+                    # Reassign r to be size of total design space
+                    r = len(Df[ind_dic]['ins'])
                 
                 # Loop through each combination of design variables at r-size
                 for combo in itertools.combinations(Df[ind_dic]['ins'], r):
@@ -406,7 +409,7 @@ def averageWR(r_WorR, combo, Df, run_WorR, total_points):
     
     Parameters
     ----------
-    r_WorR : ist of dictionaries
+    r_WorR : List of dictionaries
         Newest contributions to running windfall or running regret totals of 
         the non-reduced and reduced design spaces
     combo : Tuple of sympy variables
