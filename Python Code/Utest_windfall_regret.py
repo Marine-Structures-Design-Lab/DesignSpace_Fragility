@@ -619,17 +619,17 @@ class test_windfall_regret(unittest.TestCase):
         
         # Create probability of feasibility / TVE data
         prob_tve = [np.array([1.0, 0.8692216889, 0.7410308257, 
-                                   0.6166254663, 0.4970941278, 0.3833876659, 
-                                   0.2762976001, 0.1764416626, 0.0842568714, 
-                                   0.0]),
-                         np.array([1.0, 0.8692216889, 0.7410308257, 
-                                   0.6166254663, 0.4970941278, 0.3833876659, 
-                                   0.2762976001, 0.1764416626, 0.0842568714, 
-                                   0.0]),
-                         np.array([1.0, 0.8692216889, 0.7410308257, 
-                                   0.6166254663, 0.4970941278, 0.3833876659, 
-                                   0.2762976001, 0.1764416626, 0.0842568714, 
-                                   0.0]),
+                              0.6166254663, 0.4970941278, 0.3833876659, 
+                              0.2762976001, 0.1764416626, 0.0842568714, 
+                              0.0]),
+                    np.array([1.0, 0.8692216889, 0.7410308257, 
+                              0.6166254663, 0.4970941278, 0.3833876659, 
+                              0.2762976001, 0.1764416626, 0.0842568714, 
+                              0.0]),
+                    np.array([1.0, 0.8692216889, 0.7410308257, 
+                              0.6166254663, 0.4970941278, 0.3833876659, 
+                              0.2762976001, 0.1764416626, 0.0842568714, 
+                              0.0]),
         ]
         
         # Determine expected windfall and regret dictionaries
@@ -665,32 +665,37 @@ class test_windfall_regret(unittest.TestCase):
         
         # Determine expected running windfall dictionaries
         exp_run_wind = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': 0.0000000000,
-              'reduced': 0.09203838,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.0000000000,
-              'reduced': 0.4644355909,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.4644355909,
-              'reduced': 0.1741043958,
-              'leftover': 0.0000000000}]}
+            [{tuple(self.Discips_fragility[0]['ins']): {
+                'non_reduced': 0.0000000000,
+                'reduced': 0.9203838}},
+             {tuple(self.Discips_fragility[1]['ins']): {
+                 'non_reduced': 0.0000000000,
+                 'reduced': 4.644355909}},
+             {tuple(self.Discips_fragility[2]['ins']): {
+                 'non_reduced': 4.644355909,
+                 'reduced': 1.741043958}}]}
         
         # Determine expected running regret dictionaries
         exp_run_reg = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': 0.4644355909,
-              'reduced': 0.3723972109,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.4644355909,
-              'reduced': 0.0000000000,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.0000000000,
-              'reduced': 0.2903311951,
-              'leftover': 0.0000000000}]}
+            [{tuple(self.Discips_fragility[0]['ins']): {
+                'non_reduced': 4.644355909,
+                'reduced': 3.723972109}},
+             {tuple(self.Discips_fragility[1]['ins']): {
+                 'non_reduced': 4.644355909,
+                 'reduced': 0.0000000000}},
+             {tuple(self.Discips_fragility[2]['ins']): {
+                 'non_reduced': 0.0000000000,
+                 'reduced': 2.903311951}}]}
+        
+        # Initialize fragility extensions
+        frag_ext = {
+            "sub_spaces": [3]
+        }
         
         # Run the function
         windreg, run_wind, run_reg = \
             calcWindRegret(self.irf, self.Discips_fragility, passfail, 
-                           prob_tve, pf_fragility)
+                           prob_tve, pf_fragility, frag_ext, 1331)
         
         # Ensure actual windreg arrays match up with expected arrays
         for rule, list_dics in exp_windreg.items():
@@ -702,14 +707,18 @@ class test_windfall_regret(unittest.TestCase):
         # Ensure actual running windfall values match up with expected values
         for rule, list_dics in exp_run_wind.items():
             for ind, dic in enumerate(list_dics):
-                for ds, val in dic.items():
-                    self.assertAlmostEqual(run_wind[rule][ind][ds], val)
+                for combo, combo_dic in dic.items():
+                    for ds, val in combo_dic.items():
+                        self.assertAlmostEqual(run_wind[rule][ind][combo][ds], 
+                                               val)
         
         # Ensure actual running regret values match up with expected values
         for rule, list_dics in exp_run_reg.items():
             for ind, dic in enumerate(list_dics):
-                for ds, val in dic.items():
-                    self.assertAlmostEqual(run_reg[rule][ind][ds], val)
+                for combo, combo_dic in dic.items():
+                    for ds, val in combo_dic.items():
+                        self.assertAlmostEqual(run_reg[rule][ind][combo][ds], 
+                                               val)
     
     
     def test_quant_risk(self):
@@ -750,36 +759,39 @@ class test_windfall_regret(unittest.TestCase):
         
         # Initialize running windfall dictionaries
         run_wind = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': 0.0000000000,
-              'reduced': 0.09203838,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.0000000000,
-              'reduced': 0.4644355909,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.4644355909,
-              'reduced': 0.1741043958,
-              'leftover': 0.0000000000}]}
+            [{tuple(self.Discips_fragility[0]['ins']): {
+                'non_reduced': 0.0000000000,
+                'reduced': 0.9203838}},
+             {tuple(self.Discips_fragility[1]['ins']): {
+                 'non_reduced': 0.0000000000,
+                 'reduced': 4.644355909}},
+             {tuple(self.Discips_fragility[2]['ins']): {
+                 'non_reduced': 4.644355909,
+                 'reduced': 1.741043958}}]}
         
         # Initialize running regret dictionaries
         run_reg = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'non_reduced': 0.4644355909,
-              'reduced': 0.3723972109,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.4644355909,
-              'reduced': 0.0000000000,
-              'leftover': 0.0000000000},
-             {'non_reduced': 0.0000000000,
-              'reduced': 0.2903311951,
-              'leftover': 0.0000000000}]}
+            [{tuple(self.Discips_fragility[0]['ins']): {
+                'non_reduced': 4.644355909,
+                'reduced': 3.723972109}},
+             {tuple(self.Discips_fragility[1]['ins']): {
+                 'non_reduced': 4.644355909,
+                 'reduced': 0.0000000000}},
+             {tuple(self.Discips_fragility[2]['ins']): {
+                 'non_reduced': 0.0000000000,
+                 'reduced': 2.903311951}}]}
         
         # Determine expected risk dictionaries
         exp_risk = {(self.rule4, self.rule5) + tuple(self.irf): \
-            [{'regret': -0.1981725385,
-              'windfall': 0.0},
-             {'regret': -1.0,
-              'windfall': 0.0},
-             {'regret': 0.0,
-              'windfall': -0.62512693}]}
+            [{tuple(self.Discips_fragility[0]['ins']): {
+                'regret': -0.1981725385,
+                'windfall': 0.0}},
+             {tuple(self.Discips_fragility[1]['ins']): {
+                 'regret': -1.0,
+                 'windfall': 0.0}},
+             {tuple(self.Discips_fragility[2]['ins']): {
+                 'regret': 0.0,
+                 'windfall': -0.62512693}}]}
         
         # Run the method
         risk = quantRisk(self.Discips_fragility, run_wind, run_reg, windreg)
@@ -787,8 +799,10 @@ class test_windfall_regret(unittest.TestCase):
         # Ensure actual risk values match up with expected values
         for rule, list_dics in exp_risk.items():
             for ind, dic in enumerate(list_dics):
-                for pot, val in dic.items():
-                    self.assertAlmostEqual(risk[rule][ind][pot], val)
+                for combo, combo_dic in dic.items():
+                    for pot, val in combo_dic.items():
+                        self.assertAlmostEqual(risk[rule][ind][combo][pot], 
+                                               val)
 
 
 """
