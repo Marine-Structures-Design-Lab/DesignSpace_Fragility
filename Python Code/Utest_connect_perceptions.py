@@ -10,7 +10,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from connect_perceptions import organizeData, prepareData, connectPerceptions
+from connect_perceptions import organizeVars, connectPerceptions
 import unittest
 import sympy as sp
 import numpy as np
@@ -48,26 +48,51 @@ class test_connect_perceptions(unittest.TestCase):
              'Pass_Amount': np.zeros(5)}
         ]
         
+        self.Discips2 = [
+            {'tested_ins': np.random.rand(10, 3),
+             'ins': [self.x[0], self.x[1], self.x[2]],
+             'space_remaining': np.random.rand(20, 3),
+             'Fail_Amount': np.random.rand(10),
+             'Pass_Amount': np.random.rand(10)},
+            {'tested_ins': np.random.rand(8, 3),
+             'ins': [self.x[2], self.x[3], self.x[4]],
+             'space_remaining': np.random.rand(30, 3),
+             'Fail_Amount': np.random.rand(8),
+             'Pass_Amount': np.random.rand(8)},
+            {'tested_ins': np.random.rand(5, 3),
+             'ins': [self.x[0], self.x[4], self.x[5]],
+             'space_remaining': np.random.rand(15, 3),
+             'Fail_Amount': np.random.rand(5),
+             'Pass_Amount': np.random.rand(5)}
+        ]
         
-    def test_organize_data(self):
+        
+    def test_organize_vars(self):
         """
-        Unit tests for the organizeData function
+        Unit tests for the organizeVars function
         """
         
         # Execute function
-        x_full, y_full, x_vars = organizeData(self.Discips)
-    
-    
-    def test_prepare_data(self):
-        """
-        Unit tests for the prepareData function
-        """
+        x_vars = organizeVars(self.Discips)
+        
+        # Determine expected variable list
+        exp_x_vars = list(sp.symbols('x1:7'))
+        
+        # Ensure expected results match actual results
+        self.assertListEqual(x_vars, exp_x_vars)
     
     
     def test_connect_perceptions(self):
         """
         Unit tests for the connectPerceptions function
         """
+        
+        # Execute the function
+        pf_fragility, pf_std_fragility = connectPerceptions(self.Discips2)
+        
+        
+        
+        # Ensure pass-fail predictions all fall between -1 and +1
 
 
 

@@ -15,6 +15,7 @@ LIBRARIES
 """
 import numpy as np
 import GPy
+from GPy.util.multioutput import LCM
 from sklearn.preprocessing import StandardScaler
 from merge_constraints import trainData, normalizePredictions
 
@@ -22,12 +23,11 @@ from merge_constraints import trainData, normalizePredictions
 """
 SECONDARY FUNCTION
 """
-def organizeData(Discips):
+def organizeVars(Discips):
     """
     Description
     -----------
-    Takes explored points from each discipline and organizes it into a combined
-    numpy array used to train a combined Gaussian process regressor.
+    
 
     Parameters
     ----------
@@ -37,35 +37,15 @@ def organizeData(Discips):
 
     Returns
     -------
-    x_full : Numpy array
-        All of the combined x-training data gathered from the explored points
-        of each discipline
-    y_full : Numpy array
-        All of the combined y-training data gathered from the explored points
-        of each discipline
     x_vars : List
         Sympy variables for all of the design variables of the design problem.
-
     """
-    
-    # Initialize empty lists for x and y training data
-    x_train = [None for _ in Discips]
-    y_train = [None for _ in Discips]
-    
-    # Initialize an empty list for tracking training data array sizes
-    array_size = [None for _ in Discips]
     
     # Initalize empty list for design variables
     x_vars = []
     
     # Loop through each discipline
     for i, discip in enumerate(Discips):
-        
-        # Combine tested input data from remaining and eliminated arrays
-        x_train[i], y_train[i] = trainData(discip)
-        
-        # Determine the discipline's amount of training points
-        array_size[i] = x_train[i].shape[0]
         
         # Loop through each design variable of the discipline
         for symbol in discip['ins']:
@@ -75,70 +55,9 @@ def organizeData(Discips):
                 
                 # Append the variable to the design variable list
                 x_vars.append(symbol)
-                
-    # Initialize x and y training data arrays with Nan
-    x_full = np.full((sum(array_size), len(x_vars)), np.nan)
-    y_full = np.full(sum(array_size), np.nan)
-    
-    # Initialize a row starting count at 0
-    start_row = 0
-                
-    # Loop through each discipline's x and y training data
-    for i, (xt, yt) in enumerate(zip(x_train, y_train)):
-        
-        # Determine indices of discipline's design variables in full list
-        indices_x = [x_vars.index(var) for var in Discips[i]['ins']]
-        
-        # Replace Nan values in large training arrays with training data
-        x_full[start_row:start_row + array_size[i], indices_x] = xt
-        y_full[start_row:start_row + array_size[i]] = yt
-        
-        # Increase the row counter
-        start_row += array_size[i]
  
-    # Return combined matrices of training data and full design variable list
-    return x_full, y_full, x_vars
-
-
-def prepareData(Discips, x_vars):
-    """
-    Description
-    -----------
-    Prepares the space remaining data in each discipline to be test points for
-    the trained GPR that considers interdependencies.
-
-    Parameters
-    ----------
-    Discips : List of dictionaries
-        All of the information pertaining to each discipline of the design
-        problem.
-    x_vars : List
-        Sympy variables for all of the design variables of the design problem
-
-    Returns
-    -------
-    test_data : List of numpy arrays
-        Organized space remaining data of each discipline ready for testing
-    """
-    
-    # Initialize list for each discipline's array of testing data
-    test_data = [None for _ in Discips]
-    
-    # Loop through each discipline
-    for i, discip in enumerate(Discips):
-        
-        # Determine indices of discipline's design variables in full list
-        indices_x = [x_vars.index(var) for var in discip['ins']]
-        
-        # Initialize a numpy array of nan values for testing data
-        test_data[i] = np.full((discip['space_remaining'].shape[0], 
-                                len(x_vars)), np.nan)
-        
-        # Populate the array with the discipline's remaining design space data
-        test_data[i][:, indices_x] = discip['space_remaining']
-    
-    # Return the organized testing data
-    return test_data
+    # Return full design variable list
+    return x_vars
 
 
 """
@@ -148,8 +67,7 @@ def connectPerceptions(Discips):
     """
     Description
     -----------
-    Predicts pass-fail amounts in each discipline's remaining design space with
-    a GPR that is trained with combined exploration data from each discipline.
+    
 
     Parameters
     ----------
@@ -167,50 +85,75 @@ def connectPerceptions(Discips):
         design space in each discipline
     """
     
-    # Isolate each discipline's training data
-    x_train, y_train, x_vars = organizeData(Discips)
+    # Initialize a list of kernels
+    kernels = [None for _ in Discips]
     
-    # Standardize the training data
-    scaler_x = StandardScaler()
-    x_train_scaled = scaler_x.fit_transform(x_train)
-    scaler_y = StandardScaler()
-    y_train_scaled = scaler_y.fit_transform(y_train.reshape(-1,1))
+    # Initialize lists for x and y training data
+    X_combined = [None for _ in Discips]
+    Y_combined = [None for _ in Discips]
     
-    # Define an RBF kernel
-    kernel = GPy.kern.RBF(input_dim=x_train_scaled.shape[1], ARD=True)
+    # Initialize a list of scalers for each discipline's x-training data
+    scalers_x = [None for _ in Discips]
     
-    # Create the GP model
-    model = GPy.models.GPRegression(x_train_scaled, y_train_scaled, kernel)
+    # Loop through each discipline
+    for i, discip in enumerate(Discips):
+        
+        # Initialize data for training a GPR
+        x_train, y_train = trainData(discip)
+        
+        # Reshape the y training data
+        y_train = y_train.reshape(-1, 1)
+        
+        # Standardize the x-training data
+        scaler_x = StandardScaler()
+        x_train_scaled = scaler_x.fit_transform(x_train)
+        
+        # Store the scaler for this discipline
+        scalers_x[i] = scaler_x
+        
+        # Store the x and y training data in the combined list
+        X_combined[i] = x_train_scaled
+        Y_combined[i] = y_train
+        
+        # Train and optimize the individual GPR
+        kernels[i] = GPy.kern.RBF(input_dim=x_train_scaled.shape[1], ARD=True)
+        gpr = GPy.models.GPRegression(x_train_scaled, y_train, kernels[i])
+        gpr.optimize()
     
-    # Optimize the model
-    model.optimize()
+    # Create a Linear Coregionalization Model (LCM) to combine the kernels
+    lcm = LCM(input_dim=[x_train_scaled.shape[1] for x_train_scaled in X_combined], 
+              num_outputs=len(Discips),
+              kernels_list=kernels)
+    
+    # Build and optimize the Multi-Output GPR model
+    mogp = GPy.models.GPCoregionalizedRegression(X_combined, Y_combined, 
+                                                 kernel=lcm)
+    mogp.optimize()
     
     # Initialize lists for each discipline's array of pass-fail predictions
     pf_fragility = [None for _ in Discips]
     pf_std_fragility = [None for _ in Discips]
     
-    # Prepare all data for testing
-    test_data = prepareData(Discips, x_vars)
-    
     # Loop through each discipline's test matrix
-    for i, discip in enumerate(test_data):
+    for i, discip in enumerate(Discips):
+        
+        x_test = scalers_x[i].transform(discip['space_remaining']) \
+            if discip['space_remaining'].size > 0 \
+            else np.empty((0, len(discip['ins'])))
         
         # Standardize the testing data
-        x_test_scaled = scaler_x.fit_transform(discip)
+        x_test_scaled = scalers_x[i].transform(x_test)
+        print(x_test_scaled)
         
         # Use the model to make predictions
-        mu_scaled, sigma_scaled = model.predict(x_test_scaled)
+        mu, sigma = mogp.predict(x_test_scaled, Y_metadata={'output_index': i})
         
         # Convert variances into standard deviations
-        std_dev_scaled = np.sqrt(sigma_scaled)
-        
-        # Unstandardize the predictions
-        mu_unscaled = scaler_y.inverse_transform(mu_scaled)
-        std_dev_unscaled = std_dev_scaled * scaler_y.scale_
+        std_dev = np.sqrt(sigma)
         
         # Normalize predictions and adjust standard deviations accordingly
         normalized_predictions, adjusted_std_devs = \
-            normalizePredictions(mu_unscaled, std_dev_unscaled)
+            normalizePredictions(mu, std_dev)
 
         # Add the predictions and standard deviations to the fragility lists
         pf_fragility[i] = normalized_predictions.reshape(-1)
