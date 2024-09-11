@@ -29,6 +29,7 @@ from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints, getPerceptions
+from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from exploration_amount import exploreSpace
@@ -86,7 +87,7 @@ problem_name = 'SenYang'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 400    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -122,8 +123,23 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = False       # True = yes, False = no
-fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
+fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
+
+# Decide on which elements of the extended fragility framework to pursue
+### Options: sub_spaces, interdependencies, objective_changes
+### For sub-spaces, inputs in the list should be integers ranging between 1 to
+### the maximum number of dimensions in a design space.  It will end up
+### removing dimensions from the design space and assessing the fragility of
+### the design space without that dimension.  1 => Look at fragility of
+### subspaces only consisting of 1 design variable, 2 => Look at fragility of
+### subspaces consisting of 2 design variables, and so on.  Needs to have at
+### least 1 integer in there by default
+fragility_extensions = {
+    "sub_spaces": [6], # Design sub-space dimensions to consider
+    "interdependencies": False,       # Consider design space interdependencies
+    "objective_changes": False         # Consider changes to req's and analyses
+}
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
@@ -197,7 +213,7 @@ for i in range(0,len(Discips)):
     # Initialize an array for estimating the space remaining for the discipline
     Discips[i]['space_remaining'], Discips[i]['tp_actual'], \
         Discips[i]['space_remaining_ind'] = uniformGrid(total_points, 
-                                                        len(Discips[i]['ins']),
+                                                        Discips[i]['ins'],
                                                         Input_Rules)
         
     # Collect space remaining information for the discipline
@@ -366,14 +382,27 @@ while iters <= iters_max:
                 passfail.append(copy.deepcopy(pf))
                 passfail_std.append(copy.deepcopy(pf_std))
                 
-                # Gather INITIAL passfail data of NON-REDUCED array
-                if irules_fragility == []:
-                    pf_fragility = []
-                    pf_std_fragility = []
-                    first_key = next(iter(pf.keys()))
-                    for item1, item2 in zip(pf[first_key], pf_std[first_key]):
-                        pf_fragility.append(item1['non_reduced'])
-                        pf_std_fragility.append(item2['non_reduced'])
+                # Check if any new rules have been proposed in this cycle yet
+                if irules_fragility == [] and fragility:
+                    
+                    # Check if fragility to consider interdependencies
+                    if fragility_extensions['interdependencies']:
+                        
+                        # Form passfail predictions considering interdependence
+                        pf_fragility, pf_std_fragility = \
+                            connectPerceptions(Discips)
+                        
+                    # Do following because interdependenices ignored
+                    else:
+                    
+                        # Gather INITIAL passfail data of NON-REDUCED arrays
+                        pf_fragility = []
+                        pf_std_fragility = []
+                        first_key = next(iter(pf.keys()))
+                        for item1, item2 in zip(pf[first_key], 
+                                                pf_std[first_key]):
+                            pf_fragility.append(item1['non_reduced'])
+                            pf_std_fragility.append(item2['non_reduced'])
                 
                 # Append time to passfail data
                 passfail[-1]['time'] = iters
@@ -415,15 +444,16 @@ while iters <= iters_max:
                 
                 # Increase fragility counter by one
                 fragility_counter += 1
-                
-                # Gather passfail data of rule combo(s) in smaller dictionary
+
+                # Gather passfail data from independent GPR predictions
                 pf_combos = {key: pf[key] for key in rule_combos}
                 pf_std_combos = {key: pf_std[key] for key in rule_combos}
                 
                 # Initialize fragility assessment object
                 fragnalysis = fragilityCommands(Discips_fragility, 
                     irules_fragility, pf_combos, pf_fragility,
-                    pf_std_fragility, passfail, passfail_std)
+                    pf_std_fragility, passfail, passfail_std, 
+                    fragility_extensions, total_points)
                 
                 # Perform desired fragility assessment
                 wr, run_wind, run_reg, ris = \
