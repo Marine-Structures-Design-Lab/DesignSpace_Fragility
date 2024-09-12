@@ -1,9 +1,6 @@
 """
 SUMMARY:
-Trains a new Gaussian process regressor with combined data from the explored
-points of each discipline rather than just the data unique to each discipline
-and then uses the regressor to predict pass-fail amounts in each discipline's
-remaining design space.
+
 
 CREATOR:
 Joseph B. Van Houten
@@ -15,7 +12,6 @@ LIBRARIES
 """
 import numpy as np
 import gpflow
-import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from merge_constraints import trainData, normalizePredictions
 
@@ -23,43 +19,6 @@ from merge_constraints import trainData, normalizePredictions
 """
 SECONDARY FUNCTIONS
 """
-def organizeVars(Discips):
-    """
-    Description
-    -----------
-    
-
-    Parameters
-    ----------
-    Discips : List of dictionaries
-        All of the information pertaining to each discipline of the design
-        problem.
-
-    Returns
-    -------
-    x_vars : List
-        Sympy variables for all of the design variables of the design problem.
-    """
-    
-    # Initalize empty list for design variables
-    x_vars = []
-    
-    # Loop through each discipline
-    for i, discip in enumerate(Discips):
-        
-        # Loop through each design variable of the discipline
-        for symbol in discip['ins']:
-            
-            # Check if variable is not already in the design variable list
-            if symbol not in x_vars:
-                
-                # Append the variable to the design variable list
-                x_vars.append(symbol)
- 
-    # Return full design variable list
-    return x_vars
-
-
 def padData(x, target_dim):
     
     current_dim = x.shape[1]
@@ -72,6 +31,16 @@ def padData(x, target_dim):
     
     return x_padded
 
+
+
+
+
+# Prepare train
+
+
+
+
+# Prepare test
 
 
 
@@ -178,43 +147,48 @@ def connectPerceptions(Discips):
     
     # Optimize the model using GPflow's SciPy optimizer
     optimizer = gpflow.optimizers.Scipy()
-    result = optimizer.minimize(
+    optimizer.minimize(
         model.training_loss,
         model.trainable_variables,
         options=dict(maxiter=1000)
     )
-
-    
-    
     
     # Initialize lists for each discipline's array of pass-fail predictions
     pf_fragility = [None for _ in Discips]
     pf_std_fragility = [None for _ in Discips]
     
-    # # Loop through each discipline's test matrix
-    # for i, discip in enumerate(Discips):
+    # Loop through each discipline's test matrix
+    for i, discip in enumerate(Discips):
         
-    #     x_test = scalers_x[i].transform(discip['space_remaining']) \
-    #         if discip['space_remaining'].size > 0 \
-    #         else np.empty((0, len(discip['ins'])))
+        x_test = scalers_x[i].transform(discip['space_remaining']) \
+            if discip['space_remaining'].size > 0 \
+            else np.empty((0, len(discip['ins'])))
         
-    #     # Standardize the testing data
-    #     x_test_scaled = scalers_x[i].transform(x_test)
-    #     print(x_test_scaled)
+        # Standardize the testing data
+        x_test_scaled = scalers_x[i].transform(x_test)
         
-    #     # Use the model to make predictions
-    #     mu, sigma = mogp.predict(x_test_scaled, Y_metadata={'output_index': i})
+        # Pad the array if necessary
+        x_test_padded = padData(x_test_scaled, target_dim)
         
-    #     # Convert variances into standard deviations
-    #     std_dev = np.sqrt(sigma)
+        # Add a column for the test index to the testing array
+        test_index = i * np.ones((x_test_padded.shape[0], 1))
+        x_test_full = np.hstack([x_test_padded, test_index])
         
-    #     # Normalize predictions and adjust standard deviations accordingly
-    #     normalized_predictions, adjusted_std_devs = \
-    #         normalizePredictions(mu, std_dev)
+        # Use the model to make predictions
+        mu, sigma = model.predict_f(x_test_full)
+        
+        # Convert variances into standard deviations
+        std_dev = np.sqrt(sigma)
+        
+        # Normalize predictions and adjust standard deviations accordingly
+        normalized_predictions, adjusted_std_devs = \
+            normalizePredictions(mu, std_dev)
 
-    #     # Add the predictions and standard deviations to the fragility lists
-    #     pf_fragility[i] = normalized_predictions.reshape(-1)
-    #     pf_std_fragility[i] = adjusted_std_devs.reshape(-1)
+        # Add the predictions and standard deviations to the fragility lists
+        pf_fragility[i] = normalized_predictions.reshape(-1)
+        pf_std_fragility[i] = adjusted_std_devs.reshape(-1)
+        print(pf_fragility)
+        print(pf_std_fragility)
        
     # Return the pass-fail predictions and standard deviations
     return pf_fragility, pf_std_fragility

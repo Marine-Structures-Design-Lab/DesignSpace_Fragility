@@ -10,7 +10,7 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from connect_perceptions import organizeVars, connectPerceptions
+from connect_perceptions import connectPerceptions
 import unittest
 import sympy as sp
 import numpy as np
@@ -67,19 +67,10 @@ class test_connect_perceptions(unittest.TestCase):
         ]
         
         
-    def test_organize_vars(self):
+    def test_pad_data(self):
         """
-        Unit tests for the organizeVars function
+        Unit tests for the padData function
         """
-        
-        # Execute function
-        x_vars = organizeVars(self.Discips)
-        
-        # Determine expected variable list
-        exp_x_vars = list(sp.symbols('x1:7'))
-        
-        # Ensure expected results match actual results
-        self.assertListEqual(x_vars, exp_x_vars)
     
     
     def test_connect_perceptions(self):
@@ -89,6 +80,8 @@ class test_connect_perceptions(unittest.TestCase):
         
         # Execute the function
         pf_fragility, pf_std_fragility = connectPerceptions(self.Discips2)
+        
+        # Check that all of the predictions are between -1 and +1
         
         
         

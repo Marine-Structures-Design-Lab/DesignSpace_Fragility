@@ -182,7 +182,7 @@ class test_merge_constraints(unittest.TestCase):
         act_mean1, act_std1 = normalizePredictions(pf_mean1, pf_std1)
         act_mean2, act_std2 = normalizePredictions(pf_mean2, pf_std2)
         
-        # Check that arrays are nearly equali
+        # Check that arrays are nearly equal
         np.testing.assert_array_almost_equal(act_mean1, exp_mean1)
         np.testing.assert_array_almost_equal(act_std1, exp_std1)
         np.testing.assert_array_almost_equal(act_mean2, exp_mean2)
