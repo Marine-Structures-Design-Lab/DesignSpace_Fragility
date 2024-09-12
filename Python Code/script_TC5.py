@@ -29,7 +29,7 @@ from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints, getPerceptions
-from connect_perceptions import connectPerceptions
+# from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from exploration_amount import exploreSpace
@@ -386,11 +386,11 @@ while iters <= iters_max:
                 if irules_fragility == [] and fragility:
                     
                     # Check if fragility to consider interdependencies
-                    if fragility_extensions['interdependencies']:
+                    if fragility_extensions['interdependencies']: continue
                         
                         # Form passfail predictions considering interdependence
-                        pf_fragility, pf_std_fragility = \
-                            connectPerceptions(Discips)
+                        # pf_fragility, pf_std_fragility = \
+                        #     connectPerceptions(Discips)
                         
                     # Do following because interdependenices ignored
                     else:

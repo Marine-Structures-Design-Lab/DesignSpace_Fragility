@@ -27,7 +27,7 @@ class test_connect_perceptions(unittest.TestCase):
         """
         
         # Initialize sympy design variables
-        self.x = sp.symbols('x1:7')
+        self.x = sp.symbols('x1:8')
         
         # Initialize tested and space remaining data for multiple disciplines
         self.Discips = [
@@ -59,9 +59,9 @@ class test_connect_perceptions(unittest.TestCase):
              'space_remaining': np.random.rand(30, 3),
              'Fail_Amount': np.random.rand(8),
              'Pass_Amount': np.random.rand(8)},
-            {'tested_ins': np.random.rand(5, 3),
-             'ins': [self.x[0], self.x[4], self.x[5]],
-             'space_remaining': np.random.rand(15, 3),
+            {'tested_ins': np.random.rand(5, 4),
+             'ins': [self.x[0], self.x[4], self.x[5], self.x[6]],
+             'space_remaining': np.random.rand(15, 4),
              'Fail_Amount': np.random.rand(5),
              'Pass_Amount': np.random.rand(5)}
         ]
