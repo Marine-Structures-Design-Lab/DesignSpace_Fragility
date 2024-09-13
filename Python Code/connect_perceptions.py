@@ -187,8 +187,6 @@ def connectPerceptions(Discips):
         # Add the predictions and standard deviations to the fragility lists
         pf_fragility[i] = normalized_predictions.reshape(-1)
         pf_std_fragility[i] = adjusted_std_devs.reshape(-1)
-        print(pf_fragility)
-        print(pf_std_fragility)
        
     # Return the pass-fail predictions and standard deviations
     return pf_fragility, pf_std_fragility
