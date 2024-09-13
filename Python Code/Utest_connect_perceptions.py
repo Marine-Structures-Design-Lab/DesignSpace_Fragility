@@ -49,21 +49,21 @@ class test_connect_perceptions(unittest.TestCase):
         ]
         
         self.Discips2 = [
-            {'tested_ins': np.random.rand(10, 3),
+            {'tested_ins': np.random.rand(100, 3),
              'ins': [self.x[0], self.x[1], self.x[2]],
-             'space_remaining': np.random.rand(20, 3),
-             'Fail_Amount': np.random.rand(10),
-             'Pass_Amount': np.random.rand(10)},
-            {'tested_ins': np.random.rand(8, 3),
+             'space_remaining': np.random.uniform(0, 1, (20000, 3)),
+             'Fail_Amount': np.random.uniform(-2, 2, size=100),
+             'Pass_Amount': np.random.uniform(-2, 2, size=100)},
+            {'tested_ins': np.random.rand(80, 3),
              'ins': [self.x[2], self.x[3], self.x[4]],
-             'space_remaining': np.random.rand(30, 3),
-             'Fail_Amount': np.random.rand(8),
-             'Pass_Amount': np.random.rand(8)},
-            {'tested_ins': np.random.rand(5, 4),
+             'space_remaining': np.random.uniform(0, 1, (30000, 3)),
+             'Fail_Amount': np.random.uniform(-2, 2, size=80),
+             'Pass_Amount': np.random.uniform(-2, 2, size=80)},
+            {'tested_ins': np.random.rand(50, 4),
              'ins': [self.x[0], self.x[4], self.x[5], self.x[6]],
-             'space_remaining': np.random.rand(15, 4),
-             'Fail_Amount': np.random.rand(5),
-             'Pass_Amount': np.random.rand(5)}
+             'space_remaining': np.random.uniform(0, 1, (25000, 4)),
+             'Fail_Amount': np.random.uniform(-2, 2, size=50),
+             'Pass_Amount': np.random.uniform(-2, 2, size=50)}
         ]
         
         
@@ -81,7 +81,11 @@ class test_connect_perceptions(unittest.TestCase):
         # Execute the function
         pf_fragility, pf_std_fragility = connectPerceptions(self.Discips2)
         
+        
         # Check that all of the predictions are between -1 and +1
+        for pf in pf_fragility:
+            print(np.mean(pf))
+            # self.assertTrue(np.all(pf >= -1.0) and np.all(pf <= 1.0))
         
         
         

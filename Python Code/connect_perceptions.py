@@ -25,7 +25,7 @@ def padData(x, target_dim):
     
     if current_dim < target_dim:
         x_padded = np.pad(x, ((0, 0), (0, target_dim - current_dim)), 
-                          constant_values=np.nan)
+                          constant_values=0.0)
     else:
         x_padded = x
     
@@ -74,14 +74,11 @@ def connectPerceptions(Discips):
     X = [None for _ in Discips]
     Y = [None for _ in Discips]
     
-    # Initalize list for output indices
-    output_index = [None for _ in Discips]
-    
     # Initialize a list of scalers for each discipline's x-training data
     scalers_x = [None for _ in Discips]
     
     # Determine number of design variables in discipline with the most
-    target_dim = max([len(discip['ins']) for discip in Discips])
+    target_dim = max([len(discip['ins'])+1 for discip in Discips])
     
     # Loop through each discipline
     for i, discip in enumerate(Discips):
@@ -99,6 +96,12 @@ def connectPerceptions(Discips):
         # Store the scaler for this discipline
         scalers_x[i] = scaler_x
         
+        # Create an array for the task index
+        output_index = i * np.ones((x_train_scaled.shape[0], 1))
+        
+        # Add the task index to the training array
+        x_train_scaled = np.hstack([output_index, x_train_scaled])
+        
         # Pad the array if necessary
         x_padded = padData(x_train_scaled, target_dim)
         
@@ -106,17 +109,9 @@ def connectPerceptions(Discips):
         X[i] = x_padded
         Y[i] = y_train
         
-        # Create an array for the task index
-        output_index[i] = i * np.ones((x_train_scaled.shape[0], 1))
-    
+
     # Combine the input data from all of the disciplines
-    X_combined = np.vstack(X)
-    
-    # Combine the task arrays from all of the disciplines
-    output_index = np.vstack(output_index)
-    
-    # Add the output index to the x-training array
-    X_full = np.hstack([X_combined, output_index])
+    X_full = np.vstack(X)
     
     # Concatenate the outputs
     Y_combined = np.vstack(Y)
@@ -128,14 +123,15 @@ def connectPerceptions(Discips):
     for i, discip in enumerate(Discips):
         
         # Define a list of active dimensions
-        active_dim = list(range(0, len(discip['ins'])))
+        active_dim = list(range(1, len(discip['ins'])+1))
         
         # Define the kernel for the discipline
-        kernels[i] = gpflow.kernels.RBF(len(discip['ins']), active_dims = active_dim)
+        kernels[i] = gpflow.kernels.RBF(len(discip['ins']), 
+                                        active_dims = active_dim)
     
     # Define the coregion kernel
     coregion_kernel = gpflow.kernels.Coregion(output_dim=len(Discips), rank=1,
-                                              active_dims = [target_dim])
+                                              active_dims = [0])
     
     # Combine the kernels for each discipline using the coregion kernel
     multi_kernel = kernels[0]*coregion_kernel
@@ -167,15 +163,17 @@ def connectPerceptions(Discips):
         # Standardize the testing data
         x_test_scaled = scalers_x[i].transform(x_test)
         
+        # Create an array for the task index
+        test_index = i * np.ones((x_test_scaled.shape[0], 1))
+        
+        # Add a column for the test index to the testing array
+        x_test_scaled = np.hstack([test_index, x_test_scaled])
+        
         # Pad the array if necessary
         x_test_padded = padData(x_test_scaled, target_dim)
         
-        # Add a column for the test index to the testing array
-        test_index = i * np.ones((x_test_padded.shape[0], 1))
-        x_test_full = np.hstack([x_test_padded, test_index])
-        
         # Use the model to make predictions
-        mu, sigma = model.predict_f(x_test_full)
+        mu, sigma = model.predict_f(x_test_padded)
         
         # Convert variances into standard deviations
         std_dev = np.sqrt(sigma)
