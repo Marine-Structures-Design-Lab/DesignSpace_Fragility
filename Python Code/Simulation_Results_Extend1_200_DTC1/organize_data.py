@@ -458,19 +458,19 @@ if __name__ == "__main__":
     # Upload saved data
     with open('Discips.pkl', 'rb') as f:
         Discips = pickle.load(f)
-    with open('Test_Case_1.pkl', 'rb') as f:
-        Test_Case_1 = pickle.load(f)
-    with open('Test_Case_2.pkl', 'rb') as f:
-        Test_Case_2 = pickle.load(f)
-    with open('Test_Case_3.pkl', 'rb') as f:
-        Test_Case_3 = pickle.load(f)
-    # with open('Test_Case_4.pkl', 'rb') as f:
-    #     Test_Case_4 = pickle.load(f)
-    # with open('Test_Case_5.pkl', 'rb') as f:
-    #     Test_Case_5 = pickle.load(f)
+    # with open('Test_Case_1.pkl', 'rb') as f:
+    #     Test_Case_1 = pickle.load(f)
+    # with open('Test_Case_2.pkl', 'rb') as f:
+    #     Test_Case_2 = pickle.load(f)
+    # with open('Test_Case_3.pkl', 'rb') as f:
+    #     Test_Case_3 = pickle.load(f)
+    with open('Test_Case_4.pkl', 'rb') as f:
+        Test_Case_4 = pickle.load(f)
+    with open('Test_Case_5.pkl', 'rb') as f:
+        Test_Case_5 = pickle.load(f)
     
     # Identify the test cases whose data will be assessed
-    test_case_names = ['Test_Case_1', 'Test_Case_2', 'Test_Case_3'] # , 'Test_Case_4', 'Test_Case_5'
+    test_case_names = ['Test_Case_4', 'Test_Case_5']
     
     # Initialize a dictionaries for data pertinent to each discipline
     all_disciplines_data = {
@@ -498,7 +498,7 @@ if __name__ == "__main__":
         }
     
     # Use ThreadPoolExecutor to parallelize the test case processing
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         
         # Submit each test case to be processed concurrently
         future_to_test_case = {
@@ -529,11 +529,11 @@ if __name__ == "__main__":
                     average_diver[discip_name]
     
     # Save the new data
-    with open('all_disciplines.pkl', 'wb') as f:
+    with open('allext_disciplines.pkl', 'wb') as f:
         pickle.dump(all_disciplines_data, f)
-    with open('feas1_disciplines.pkl', 'wb') as f:
+    with open('feas1ext_disciplines.pkl', 'wb') as f:
         pickle.dump(feas1_disciplines_data, f)
-    with open('feas2_disciplines.pkl', 'wb') as f:
+    with open('feas2ext_disciplines.pkl', 'wb') as f:
         pickle.dump(feas2_disciplines_data, f)
-    with open('diversity_disciplines.pkl', 'wb') as f:
+    with open('diversityext_disciplines.pkl', 'wb') as f:
         pickle.dump(diversity_data, f)
