@@ -49,7 +49,11 @@ def plotData(data, label_prefix, linestyle, colors, color_idx, marker):
     """
     
     # Loop through each test case's data
-    for i, (test_case, data_points) in enumerate(data.items()):
+    for i, test_case in enumerate(sorted(data.keys(), 
+                                         key=lambda x: int(x.split('_')[-1]))):
+        
+        # Assign data points
+        data_points = data[test_case]
         
         # Sort data points by its time iteration keys
         sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
@@ -106,15 +110,17 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     """
     
     # Initialize colors, line styles, markers, and legend names
-    colors = ['firebrick', 'darkorange', 'darkgreen']
+    colors = ['firebrick', 'darkorange', 'darkgreen', 'darkturquoise', 
+              'blueviolet']
     # line_styles = ['-', '--', ':', '-.', 'None', 'None']
     line_styles = ['-', '--', ':']
     # markers = ['', '', '', '', '*', '+']
-    markers = ['o', 'd', '*']
+    markers = ['o', 'd', '*', 'X', 'P']
     # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
     data_groups = ['Total Space', 'Feasible', 'Feasible-to-Remaining']
     custom_names = ["No fragility (TC1)", "Initial PFM (TC2)", 
-                    "Initial EFM (TC3)"] # , "Extended PFM (TC4)", "Extended EFM (TC5)"
+                    "Initial EFM (TC3)", "Extended PFM (TC4)",
+                    "Extended EFM (TC5)"]
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in all_disciplines_data.items():
@@ -196,7 +202,9 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker):
     """
     
     # Initialize custom legend names
-    custom_names = ["No fragility (TC1)", "PFM (TC2)", "EFM (TC3)"] 
+    custom_names = ["No fragility (TC1)", "Initial PFM (TC2)", 
+                    "Initial EFM (TC3)", "Extended PFM (TC4)", 
+                    "Extended EFM (TC5)"] 
     
     # Loop through each discipline's data
     for discipline, all_test_cases_data in discipline_data.items():
@@ -208,7 +216,11 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker):
         color_idx = 0
         
         # Loop through each test case's data
-        for j,(test_case,data_points) in enumerate(all_test_cases_data.items()):
+        for j, test_case in enumerate(sorted(all_test_cases_data.keys(), 
+            key=lambda x: int(x.split('_')[-1]))):
+            
+            # Label data points
+            data_points = all_test_cases_data[test_case]
             
             # Sort data points by its time iteration keys
             sorted_data_points = sorted(data_points.items(), key=lambda x: x[0])
@@ -279,10 +291,29 @@ with open('feas2_disciplines.pkl', 'rb') as f:
     feas2_disciplines_data = pickle.load(f)
 with open('diversity_disciplines.pkl', 'rb') as f:
     diversity_data = pickle.load(f)
+with open('allext_disciplines.pkl', 'rb') as f:
+    allext_disciplines_data = pickle.load(f)
+with open('feas1ext_disciplines.pkl', 'rb') as f:
+    feas1ext_disciplines_data = pickle.load(f)
+with open('feas2ext_disciplines.pkl', 'rb') as f:
+    feas2ext_disciplines_data = pickle.load(f)
+with open('diversityext_disciplines.pkl', 'rb') as f:
+    diversityext_data = pickle.load(f)
 # with open('Test_Case_1.pkl', 'rb') as f:
 #     Test_Case_1 = pickle.load(f)
 # with open('Discips.pkl', 'rb') as f:
 #     Discips = pickle.load(f)
+
+# Add extension data to total space remaining and diversity data
+for discip_key, discip_dict in all_disciplines_data.items():
+    for test_key, test_dict in allext_disciplines_data[discip_key].items():
+        discip_dict[test_key] = test_dict
+        feas1_disciplines_data[discip_key][test_key] = \
+            feas1ext_disciplines_data[discip_key][test_key]
+        feas2_disciplines_data[discip_key][test_key] = \
+            feas2ext_disciplines_data[discip_key][test_key]
+        diversity_data[discip_key][test_key] = \
+            diversityext_data[discip_key][test_key]
 
 # Create line plots for Disciplines 1, 2, and 3
 plotDisciplines(all_disciplines_data, feas1_disciplines_data,
@@ -290,6 +321,7 @@ plotDisciplines(all_disciplines_data, feas1_disciplines_data,
 
 # Create diversity plots for each discipline
 plotDiversity(diversity_data, 'Discrepancy', '-', 
-              ['firebrick', 'darkorange', 'darkgreen'],
-              marker = ['o', 'd', '*'])
+              ['firebrick', 'darkorange', 'darkgreen', 'darkturquoise', 
+               'blueviolet'],
+              marker = ['o', 'd', '*', 'X', 'P'])
 
