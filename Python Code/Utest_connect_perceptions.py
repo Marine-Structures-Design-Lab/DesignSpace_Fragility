@@ -10,7 +10,8 @@ joeyvan@umich.edu
 """
 LIBRARIES
 """
-from connect_perceptions import connectPerceptions
+from connect_perceptions import connectPerceptions, padData, prepareTrain, \
+    executeTest
 import unittest
 import sympy as sp
 import numpy as np
@@ -25,6 +26,9 @@ class test_connect_perceptions(unittest.TestCase):
         """
         Initialize variables and object call for functions
         """
+        
+        # Set seed for random values
+        np.random.seed(0)
         
         # Initialize sympy design variables
         self.x = sp.symbols('x1:8')
@@ -48,6 +52,7 @@ class test_connect_perceptions(unittest.TestCase):
              'Pass_Amount': np.zeros(5)}
         ]
         
+        
         self.Discips2 = [
             {'tested_ins': np.random.rand(100, 3),
              'ins': [self.x[0], self.x[1], self.x[2]],
@@ -70,6 +75,19 @@ class test_connect_perceptions(unittest.TestCase):
     def test_pad_data(self):
         """
         Unit tests for the padData function
+        """
+    
+    
+    def test_prepare_train(self):
+        """
+        Unit tests for the prepareTrain function
+        """
+        
+        
+        
+    def test_execute_test(self):
+        """
+        Unit tests for the executeTest function
         """
     
     
