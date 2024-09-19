@@ -100,4 +100,4 @@ SCRIPT
 directory_path = '.'
 
 # Store data in Test Case variable
-Test_Case_1 = loadSpaceRemaining(directory_path)
+Test_Case_4 = loadSpaceRemaining(directory_path)
