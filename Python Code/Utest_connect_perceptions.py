@@ -142,11 +142,6 @@ class test_connect_perceptions(unittest.TestCase):
         for pf, pf_std in zip(pf_fragility, pf_std_fragility):
             self.assertTrue(np.all(pf >= -1.0) and np.all(pf <= 1.0))
             self.assertTrue(np.all(pf_std > 0.0))
-        
-        
-        
-        # Ensure pass-fail predictions all fall between -1 and +1
-
 
 
 """
