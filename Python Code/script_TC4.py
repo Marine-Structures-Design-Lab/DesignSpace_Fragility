@@ -29,7 +29,7 @@ from point_sorter import sortPoints
 from design_changes import changeDesign
 from exploration_check import checkSpace
 from merge_constraints import mergeConstraints, getPerceptions
-# from connect_perceptions import connectPerceptions
+from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from exploration_amount import exploreSpace
@@ -136,8 +136,8 @@ fragility_shift = 0.4  # Should be a positive float
 ### subspaces consisting of 2 design variables, and so on.  Needs to have at
 ### least 1 integer in there by default
 fragility_extensions = {
-    "sub_spaces": [1, 2, 3, 4, 5, 6], # Design sub-space dimensions to consider
-    "interdependencies": False,       # Consider design space interdependencies
+    "sub_spaces": [6], # Design sub-space dimensions to consider
+    "interdependencies": True,       # Consider design space interdependencies
     "objective_changes": False         # Consider changes to req's and analyses
 }
 
@@ -386,11 +386,11 @@ while iters <= iters_max:
                 if irules_fragility == [] and fragility:
                     
                     # Check if fragility to consider interdependencies
-                    if fragility_extensions['interdependencies']: continue
+                    if fragility_extensions['interdependencies']:
                         
                         # Form passfail predictions considering interdependence
-                        # pf_fragility, pf_std_fragility = \
-                        #     connectPerceptions(Discips)
+                        pf_fragility, pf_std_fragility = \
+                            connectPerceptions(Discips)
                         
                     # Do following because interdependenices ignored
                     else:
