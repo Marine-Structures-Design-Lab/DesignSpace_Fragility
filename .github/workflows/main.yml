@@ -31,6 +31,7 @@ jobs:
         pip install iteration_utilities
         pip install -U scikit-learn
         pip install dit
+        pip install gpflow tensorflow~=2.10.0 tensorflow-probability~=0.18.0
 
     - name: Run Tests and Email Results
       env:
