@@ -81,7 +81,7 @@ def prepareTrain(Discips, target_dim):
     Returns
     -------
     X : List of numpy arrays
-        s-training data of each discipline for training the GP model
+        x-training data of each discipline for training the GP model
     Y : List of numpy arrays
         y-training data of each discipline for training the GP model
     scalers_x : List of objects
