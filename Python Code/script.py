@@ -478,7 +478,8 @@ while iters <= iters_max:
                     ### NOTE: ONLY WORKS WITH basicCheck2 IN fragility_script
                     risk_rob = fragnalysis.assessRobustness(net_wr)
                     
-                    # Only do gradient for variable combo
+                    # Calculate gradients of disciplines' pass-fail predictions
+                    grads = fragnalysis.calculateGradients(risk_rob)
                 
                 
                 

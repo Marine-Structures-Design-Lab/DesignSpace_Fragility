@@ -335,4 +335,12 @@ class fragilityCommands:
         
         # Return the added risk robustness dictionary
         return risk_robust
+    
+    
+    def calculateGradients(self, risk_robust):
+        
+        gradients = 0
+        
+        
+        return gradients
 
