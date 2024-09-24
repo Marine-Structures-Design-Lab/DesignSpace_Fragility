@@ -246,6 +246,9 @@ class fragilityCommands:
         break_loop : Boolean
             Flag for whether or not the current cycle of fragility assessments
             should be broken
+        net_wr : Dictionary
+            Endured risk for space reduction and boolean indicating whether the
+            maximum risk threshold has been exceeded
         """
         
         # Initialize a fragility check object
@@ -300,4 +303,36 @@ class fragilityCommands:
         
         # Return the documented fragility results
         return banned_rules, windreg, running_windfall, running_regret, risk, \
-            irules_new, self.irf, break_loop
+            irules_new, self.irf, break_loop, net_wr
+        
+    
+    def assessRobustness(self, net_wr):
+        
+        # Initialize an empty dictionary for tracking added risk robustness
+        risk_robust = {}
+        
+        # Loop through each rule combination
+        for rule, dic_discip in net_wr.items():
+            
+            # Initialize an empty list of dictionaries for disciplines
+            risk_robust[rule] = [{} for _ in self.Df]
+            
+            # Loop through each discipline
+            for ind_dic, dic_risk in dic_discip.items():
+                
+                # Continue if key is not an integer
+                if not isinstance(ind_dic, int): continue
+                
+                # Calculate the difference between the endured added risk and
+                ### maximum added risk threshold
+                risk_robust[rule][ind_dic]['difference'] = \
+                    net_wr[rule][ind_dic]['threshold'] - \
+                        net_wr[rule][ind_dic]['value']
+                
+                # Determine the sub-space having the highest risk
+                risk_robust[rule][ind_dic]['sub-space'] = \
+                    net_wr[rule][ind_dic]['sub-space']
+        
+        # Return the added risk robustness dictionary
+        return risk_robust
+

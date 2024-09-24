@@ -137,8 +137,8 @@ fragility_shift = 0.4  # Should be a positive float
 ### least 1 integer in there by default
 fragility_extensions = {
     "sub_spaces": [6], # Design sub-space dimensions to consider
-    "interdependencies": True,       # Consider design space interdependencies
-    "objective_changes": False         # Consider changes to req's and analyses
+    "interdependencies": False,       # Consider design space interdependencies
+    "objective_changes": True         # Consider changes to req's and analyses
 }
 
 # Indicate when and to what design space(s) a design change should occur
@@ -461,13 +461,29 @@ while iters <= iters_max:
                 
                 # Assess risk from fragility assessment
                 banned_rules, windreg, running_windfall, running_regret, risk,\
-                    irules_new, irules_fragility, break_loop = \
+                    irules_new, irules_fragility, break_loop, net_wr = \
                     fragnalysis.assessRisk(ris, iters, iters_max, 
                                            exp_parameters, irules_new,
                                            fragility_shift, banned_rules, 
                                            windreg, wr, running_windfall, 
-                                           run_wind, running_regret, run_reg, 
+                                           run_wind, running_regret, run_reg,
                                            risk)
+                
+                # Check if user wants to gauge objective space changes and if
+                ### no design spaces are fragile
+                # ######## Compile all risk_robustness values over time for post-processing
+                if fragility_extensions['objective_changes'] and break_loop:
+                    
+                    # Determine the added risk robustness
+                    ### NOTE: ONLY WORKS WITH basicCheck2 IN fragility_script
+                    risk_rob = fragnalysis.assessRobustness(net_wr)
+                    
+                    # Only do gradient for variable combo
+                
+                
+                
+                
+                
                 
                 # Break fragility loop if fragility assessment passed
                 if break_loop: break
