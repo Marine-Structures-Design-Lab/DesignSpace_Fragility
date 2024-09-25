@@ -17,9 +17,8 @@ from windfall_regret import evalCompProb, calcWindRegret, quantRisk, \
     plotWindRegret
 from entropy_tracker import prepEntropy, evalEntropy
 from fragility_check import checkFragility
-import jax.numpy as jnp
-from jax import grad
 from scipy.interpolate import Rbf
+from scipy.optimize import approx_fprime
 import numpy as np
 import copy
 
@@ -343,11 +342,14 @@ class fragilityCommands:
     
     def calculateGradients(self, risk_robust):
         
-        # Initialize a list of empty gradients for each discipline
-        gradients = [None for _ in self.Df]
+        # Initialize an empty dictionary
+        gradients = {}
         
         # Loop through each rule combination
         for rule in risk_robust:
+            
+            # Initialize a list of empty gradients for each discipline
+            gradients[rule] = [None for _ in self.Df]
             
             # Loop through each discipline
             for ind_discip, discip in enumerate(self.Df):
@@ -356,27 +358,27 @@ class fragilityCommands:
                 indices = [discip['ins'].index(var) for var \
                             in risk_robust[rule][ind_discip]['sub-space']]
                 
-                # Define RBF interpolator for multi-dimensional data
-                rbf = Rbf(*(jnp.array(discip['space_remaining'][:,indices])).T,
-                          jnp.array(self.pf_frag[ind_discip]), 
-                          function='multiquadric')
+                # Get the points and pass-fail values for interpolation
+                points = discip['space_remaining'][:, indices]
+                values = self.pf_frag[ind_discip]
                 
-                # Define an interpolated lambda function
-                interpolated_function = lambda *args: rbf(*args)
+                # Define RBF interpolator
+                rbf = Rbf(*(points.T), values, function='multiquadric')
                 
-                # Initialize an empty list of gradient functions
-                grads = []
+                # Initialize an empty array to store gradients for each point
+                gradient_array = np.zeros((len(points), len(indices)))
                 
-                # Loop through each dimension
-                for dim in indices:
+                # Loop through each point in the space remaining
+                for j, point in enumerate(points):
                     
-                    # Compute the gradient for the dimension
-                    grads.append(grad(interpolated_function, argnums = dim))
+                    # Determine gradient with finite difference method
+                    gradient_array[j, :] = approx_fprime(point, 
+                                                         lambda x: rbf(*x), 
+                                                         1e-5)
                 
-                # Predict gradients in each dimension at space remaining points
-                gradients[ind_discip] = np.array(g(*discip['space_remaining'][:,indices]) for g in grads)
-                print(gradients)
-                
+                # Store the gradient array
+                gradients[rule][ind_discip] = gradient_array
+                print(gradients[rule])
         
         # Return the list of gradients
         return gradients
