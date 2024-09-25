@@ -22,6 +22,11 @@ from scipy.optimize import approx_fprime
 import numpy as np
 import copy
 
+"""
+FUNCTIONS
+"""
+
+
 
 """
 CLASS
@@ -342,14 +347,16 @@ class fragilityCommands:
     
     def calculateGradients(self, risk_robust):
         
-        # Initialize an empty dictionary
+        # Initialize empty dictionaries for gradient information
         gradients = {}
+        gradients_mag = {}
         
         # Loop through each rule combination
         for rule in risk_robust:
             
             # Initialize a list of empty gradients for each discipline
             gradients[rule] = [None for _ in self.Df]
+            gradients_mag[rule] = [None for _ in self.Df]
             
             # Loop through each discipline
             for ind_discip, discip in enumerate(self.Df):
@@ -376,9 +383,13 @@ class fragilityCommands:
                                                          lambda x: rbf(*x), 
                                                          1e-5)
                 
-                # Store the gradient array
+                # Determine the magnitude of the gradient at each point
+                gradient_array_mag = np.linalg.norm(gradient_array, axis=1)
+                
+                # Store the gradient information
                 gradients[rule][ind_discip] = gradient_array
+                gradients_mag[rule][ind_discip] = gradient_array_mag
         
         # Return the list of gradients
-        return gradient
+        return gradients, gradients_mag
 

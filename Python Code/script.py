@@ -32,6 +32,7 @@ from merge_constraints import mergeConstraints, getPerceptions
 from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
+from objective_optimizer import optimizeGradientFactor
 from exploration_amount import exploreSpace
 from get_constraints import getConstraints, getInequalities
 from create_key import createKey, createDict, createNumpy
@@ -471,8 +472,10 @@ while iters <= iters_max:
                 
                 # Check if user wants to gauge objective space changes and if
                 ### no design spaces are fragile
-                # ######## Compile all risk_robustness values over time for post-processing
                 if fragility_extensions['objective_changes'] and break_loop:
+                    
+                    # Indicate that objective change check is initiating
+                    print("Initiating objective space fragility check.")
                     
                     # Determine the added risk robustness
                     ### NOTE: ONLY WORKS WITH basicCheck2 IN fragility_script
@@ -483,40 +486,17 @@ while iters <= iters_max:
                     ### vector of the most fragile design (sub)space at each
                     ### remaining design point, and the vector indicates the
                     ### direction of steepest ascent
-                    grads = fragnalysis.calculateGradients(risk_rob)
+                    grads, grads_mag = fragnalysis.calculateGradients(risk_rob)
                     
-                    # Establish an initial gradient factor value
-                    gradient_factor = 0.1
+                    # Determine gradient factor value that eliminates the added
+                    ### risk robustness
+                    gradient_factor = optimizeGradientFactor()
                     
-                    # Determine new pass-fail values for worst-case scenario
-                    
-                    
-                    # Initalize new fragility assessment object
+                    # Store the gradient factor and its current time stamp!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     
                     
-                    # Perform desired fragility assessment
-                    
-                    
-                    # Assess risk from fragility assessment
-                    
-                    
-                    # Determine the added risk robustness
-                    
-                    
-                    # Check if added risk robustness is about 0
-                    
-                    
-                    # If yes, repeat everything after gradient calculation / initial prediction with an updated gradient_factor
-                    
-                    
-                    # Return the gradient_fact
-                    
-                    
-                
-                
-                
-                
-                
+                    # Indicate that objective change check is complete
+                    print("Completed objective space fragility check.")
                 
                 # Break fragility loop if fragility assessment passed
                 if break_loop: break
