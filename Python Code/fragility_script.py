@@ -17,6 +17,10 @@ from windfall_regret import evalCompProb, calcWindRegret, quantRisk, \
     plotWindRegret
 from entropy_tracker import prepEntropy, evalEntropy
 from fragility_check import checkFragility
+import jax.numpy as jnp
+from jax import grad
+from scipy.interpolate import Rbf
+import numpy as np
 import copy
 
 
@@ -339,8 +343,41 @@ class fragilityCommands:
     
     def calculateGradients(self, risk_robust):
         
-        gradients = 0
+        # Initialize a list of empty gradients for each discipline
+        gradients = [None for _ in self.Df]
         
+        # Loop through each rule combination
+        for rule in risk_robust:
+            
+            # Loop through each discipline
+            for ind_discip, discip in enumerate(self.Df):
+                
+                # Determine list of indices for variables making up sub-space
+                indices = [discip['ins'].index(var) for var \
+                            in risk_robust[rule][ind_discip]['sub-space']]
+                
+                # Define RBF interpolator for multi-dimensional data
+                rbf = Rbf(*(jnp.array(discip['space_remaining'][:,indices])).T,
+                          jnp.array(self.pf_frag[ind_discip]), 
+                          function='multiquadric')
+                
+                # Define an interpolated lambda function
+                interpolated_function = lambda *args: rbf(*args)
+                
+                # Initialize an empty list of gradient functions
+                grads = []
+                
+                # Loop through each dimension
+                for dim in indices:
+                    
+                    # Compute the gradient for the dimension
+                    grads.append(grad(interpolated_function, argnums = dim))
+                
+                # Predict gradients in each dimension at space remaining points
+                gradients[ind_discip] = np.array(g(*discip['space_remaining'][:,indices]) for g in grads)
+                print(gradients)
+                
         
+        # Return the list of gradients
         return gradients
 
