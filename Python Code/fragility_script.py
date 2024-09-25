@@ -378,8 +378,7 @@ class fragilityCommands:
                 
                 # Store the gradient array
                 gradients[rule][ind_discip] = gradient_array
-                print(gradients[rule])
         
         # Return the list of gradients
-        return gradients
+        return gradient
 
