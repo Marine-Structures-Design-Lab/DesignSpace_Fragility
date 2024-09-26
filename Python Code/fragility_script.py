@@ -271,6 +271,9 @@ class fragilityCommands:
         
         # Indicate that the fragility loop should not be broken
         break_loop = False
+        
+        # Initialize final rule combo
+        final_combo = None
 
         # Check if ANY rule combos do not lead to fragile space
         if any(dic["fragile"] == False for dic in net_wr.values()):
@@ -311,85 +314,69 @@ class fragilityCommands:
         
         # Return the documented fragility results
         return banned_rules, windreg, running_windfall, running_regret, risk, \
-            irules_new, self.irf, break_loop, net_wr
+            irules_new, self.irf, break_loop, net_wr, final_combo
         
     
     def assessRobustness(self, net_wr):
         
-        # Initialize an empty dictionary for tracking added risk robustness
-        risk_robust = {}
+        # Initialize an empty list of dictionaries for disciplines
+        risk_robust = [{} for _ in self.Df]
         
-        # Loop through each rule combination
-        for rule, dic_discip in net_wr.items():
+        # Loop through each discipline
+        for ind_dic, dic_risk in net_wr.items():
             
-            # Initialize an empty list of dictionaries for disciplines
-            risk_robust[rule] = [{} for _ in self.Df]
+            # Continue if key is not an integer
+            if not isinstance(ind_dic, int): continue
             
-            # Loop through each discipline
-            for ind_dic, dic_risk in dic_discip.items():
-                
-                # Continue if key is not an integer
-                if not isinstance(ind_dic, int): continue
-                
-                # Calculate the difference between the endured added risk and
-                ### maximum added risk threshold
-                risk_robust[rule][ind_dic]['difference'] = \
-                    net_wr[rule][ind_dic]['threshold'] - \
-                        net_wr[rule][ind_dic]['value']
-                
-                # Determine the sub-space having the highest risk
-                risk_robust[rule][ind_dic]['sub-space'] = \
-                    net_wr[rule][ind_dic]['sub-space']
+            # Calculate the difference between the endured added risk and
+            ### maximum added risk threshold
+            risk_robust[ind_dic]['difference'] = net_wr[ind_dic]['threshold'] \
+                - net_wr[ind_dic]['value']
+            
+            # Determine the sub-space having the highest risk
+            risk_robust[ind_dic]['sub-space'] = net_wr[ind_dic]['sub-space']
         
-        # Return the added risk robustness dictionary
+        # Return the added risk robustness list of dictionaries
         return risk_robust
     
     
     def calculateGradients(self, risk_robust):
-        
-        # Initialize empty dictionaries for gradient information
-        gradients = {}
-        gradients_mag = {}
-        
-        # Loop through each rule combination
-        for rule in risk_robust:
             
-            # Initialize a list of empty gradients for each discipline
-            gradients[rule] = [None for _ in self.Df]
-            gradients_mag[rule] = [None for _ in self.Df]
-            
-            # Loop through each discipline
-            for ind_discip, discip in enumerate(self.Df):
-                
-                # Determine list of indices for variables making up sub-space
-                indices = [discip['ins'].index(var) for var \
-                            in risk_robust[rule][ind_discip]['sub-space']]
-                
-                # Get the points and pass-fail values for interpolation
-                points = discip['space_remaining'][:, indices]
-                values = self.pf_frag[ind_discip]
-                
-                # Define RBF interpolator
-                rbf = Rbf(*(points.T), values, function='multiquadric')
-                
-                # Initialize an empty array to store gradients for each point
-                gradient_array = np.zeros((len(points), len(indices)))
-                
-                # Loop through each point in the space remaining
-                for j, point in enumerate(points):
-                    
-                    # Determine gradient with finite difference method
-                    gradient_array[j, :] = approx_fprime(point, 
-                                                         lambda x: rbf(*x), 
-                                                         1e-5)
-                
-                # Determine the magnitude of the gradient at each point
-                gradient_array_mag = np.linalg.norm(gradient_array, axis=1)
-                
-                # Store the gradient information
-                gradients[rule][ind_discip] = gradient_array
-                gradients_mag[rule][ind_discip] = gradient_array_mag
+        # Initialize a list of empty gradients for each discipline
+        gradients = [None for _ in self.Df]
+        gradients_mag = [None for _ in self.Df]
         
-        # Return the list of gradients
+        # Loop through each discipline
+        for ind_discip, discip in enumerate(self.Df):
+            
+            # Determine list of indices for variables making up sub-space
+            indices = [discip['ins'].index(var) for var \
+                        in risk_robust[ind_discip]['sub-space']]
+            
+            # Get the points and pass-fail values for interpolation
+            points = discip['space_remaining'][:, indices]
+            values = self.pf_frag[ind_discip]
+            
+            # Define RBF interpolator
+            rbf = Rbf(*(points.T), values, function='multiquadric')
+            
+            # Initialize an empty array to store gradients for each point
+            gradient_array = np.zeros((len(points), len(indices)))
+            
+            # Loop through each point in the space remaining
+            for j, point in enumerate(points):
+                
+                # Determine gradient with finite difference method
+                gradient_array[j, :] = approx_fprime(point, lambda x: rbf(*x), 
+                                                     1e-5)
+            
+            # Determine the magnitude of the gradient at each point
+            gradient_array_mag = np.linalg.norm(gradient_array, axis=1)
+            
+            # Store the gradient information
+            gradients[ind_discip] = gradient_array
+            gradients_mag[ind_discip] = gradient_array_mag
+        
+        # Return the list of gradient information
         return gradients, gradients_mag
 

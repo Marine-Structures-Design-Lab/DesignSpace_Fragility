@@ -462,13 +462,12 @@ while iters <= iters_max:
                 
                 # Assess risk from fragility assessment
                 banned_rules, windreg, running_windfall, running_regret, risk,\
-                    irules_new, irules_fragility, break_loop, net_wr = \
-                    fragnalysis.assessRisk(ris, iters, iters_max, 
-                                           exp_parameters, irules_new,
-                                           fragility_shift, banned_rules, 
-                                           windreg, wr, running_windfall, 
-                                           run_wind, running_regret, run_reg,
-                                           risk)
+                    irules_new, irules_fragility, break_loop, net_wr, \
+                    final_combo = fragnalysis.assessRisk(ris, iters, iters_max, 
+                                    exp_parameters, irules_new, 
+                                    fragility_shift, banned_rules, windreg, wr, 
+                                    running_windfall, run_wind, running_regret, 
+                                    run_reg, risk)
                 
                 # Check if user wants to gauge objective space changes and if
                 ### no design spaces are fragile
@@ -477,9 +476,10 @@ while iters <= iters_max:
                     # Indicate that objective change check is initiating
                     print("Initiating objective space fragility check.")
                     
-                    # Determine the added risk robustness
+                    # Find added risk robustness for final rule combo
                     ### NOTE: ONLY WORKS WITH basicCheck2 IN fragility_script
-                    risk_rob = fragnalysis.assessRobustness(net_wr)
+                    risk_rob = \
+                        fragnalysis.assessRobustness(net_wr[final_combo])
                     
                     # Calculate pass-fail gradients and their magnitudes
                     ### Returns arrays where each row represents the gradient
@@ -488,9 +488,22 @@ while iters <= iters_max:
                     ### direction of steepest ascent
                     grads, grads_mag = fragnalysis.calculateGradients(risk_rob)
                     
+                    # Make new fragility input rule list minus newest addition
+                    irules_fragility2 = [item for item in irules_fragility \
+                                         if item not in irules_new]
+                    
                     # Determine gradient factor value that eliminates the added
                     ### risk robustness
-                    gradient_factor = optimizeGradientFactor()
+                    gradient_factor = optimizeGradientFactor(Discips_fragility, 
+                                        irules_fragility2, pf_combos, 
+                                        pf_fragility, pf_std_fragility, 
+                                        passfail, passfail_std, 
+                                        fragility_extensions, total_points, 
+                                        grads_mag, fragility_type, iters, 
+                                        iters_max, exp_parameters, irules_new, 
+                                        fragility_shift, banned_rules, windreg, 
+                                        running_windfall, running_regret, risk, 
+                                        final_combo)
                     
                     # Store the gradient factor and its current time stamp!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     
