@@ -196,8 +196,9 @@ temp_amount = 0
 # Initialize design change counter to 0
 change_counter = 0
 
-# Initialize a list of empty lists for data collection
+# Initialize empty lists for data collection
 Space_Remaining = [[] for _ in Discips]
+Gradient_Factor = []
 
 # Loop through each discipline
 for i in range(0,len(Discips)):
@@ -505,8 +506,11 @@ while iters <= iters_max:
                                         running_windfall, running_regret, risk, 
                                         final_combo)
                     
-                    # Store the gradient factor and its current time stamp!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    
+                    # Store the gradient factor and its current time stamp
+                    Gradient_Factor.append({
+                        'iter': copy.deepcopy(iters),
+                        'gradient_factor': copy.deepcopy(gradient_factor)
+                    })
                     
                     # Indicate that objective change check is complete
                     print("Completed objective space fragility check.")
@@ -670,6 +674,16 @@ with h5py.File(space_remaining_file_path, 'w') as hdf_file:
             iter_group.create_dataset("space_remaining", 
                                       data=data_point['space_remaining'], 
                                       compression="gzip")
+
+# Write Gradient_Factor to an .hdf5 file
+gradient_factor_file_path = f"gradient_factor_{unique_identifier}.hdf5"
+with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
+    for i, data_point in enumerate(Gradient_Factor):
+        iter_group = hdf_file.create_group(f"Data_Point_{i}")
+        iter_group.attrs['iter'] = data_point['iter']
+        iter_group.create_dataset("gradient_factor", 
+                                  data=data_point['gradient_factor'], 
+                                  compression="gzip")
 
 # Printing completion message to the redirected stdout
 print(f"Simulation completed. Space remaining data saved to "
