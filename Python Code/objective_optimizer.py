@@ -79,7 +79,7 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
                            exp_parameters, irules_new, fragility_shift,
                            banned_rules, windreg, running_windfall, 
                            running_regret, risk, final_combo, 
-                           initial_guess = 0.1):
+                           initial_guess = 0.0):
     
     # Find the maximum gradient factor value
     result = minimize(calcAddedRiskRobustness,
@@ -92,10 +92,9 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
                               exp_parameters, fragility_shift, banned_rules, 
                               windreg, running_windfall, running_regret, risk, 
                               final_combo),
-                      method='Nelder-Mead',
-                      options={'xatol': 1e-3})
+                      method='BFGS')
     
-    # Check if the optimization was successful
+    # Check if the optimization was successful - Change this to returning gradient factor value wherever difference is closest to 0 over time history
     if result.success:
         optimal_gradient_factor = result.x[0]
         print(f"Optimal Gradient Factor: {optimal_gradient_factor}")

@@ -682,8 +682,7 @@ with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
         iter_group = hdf_file.create_group(f"Data_Point_{i}")
         iter_group.attrs['iter'] = data_point['iter']
         iter_group.create_dataset("gradient_factor", 
-                                  data=data_point['gradient_factor'], 
-                                  compression="gzip")
+                                  data=data_point['gradient_factor'])
 
 # Printing completion message to the redirected stdout
 print(f"Simulation completed. Space remaining data saved to "
