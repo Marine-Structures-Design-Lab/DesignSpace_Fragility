@@ -22,11 +22,6 @@ from scipy.optimize import approx_fprime
 import numpy as np
 import copy
 
-"""
-FUNCTIONS
-"""
-
-
 
 """
 CLASS
