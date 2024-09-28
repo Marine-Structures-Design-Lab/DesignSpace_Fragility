@@ -706,6 +706,16 @@ def quantRisk(Df, run_wind, run_reg, windreg):
             print(f"Discipline {ind_dic+1} would go from {nrp}% to {rp}% "
                   f"of its original design space remaining!")
             
+            # Assign infinite risk to each subspace if rule set completely
+            ### eliminates the remaining design space
+            if rp <= 0:
+                for combo in run_wind[rule][ind_dic]:
+                    risk[rule][ind_dic][combo] = {
+                        "regret" : np.inf, 
+                        "windfall" : -np.inf
+                    }
+                continue
+            
             # Loop through each subspace being assessed
             for combo, des_spaces in run_wind[rule][ind_dic].items():
                 

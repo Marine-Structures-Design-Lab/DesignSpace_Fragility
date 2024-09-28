@@ -787,8 +787,8 @@ class test_windfall_regret(unittest.TestCase):
                 'regret': -0.1981725385,
                 'windfall': 0.0}},
              {tuple(self.Discips_fragility[1]['ins']): {
-                 'regret': -1.0,
-                 'windfall': 0.0}},
+                 'regret': np.inf,
+                 'windfall': -np.inf}},
              {tuple(self.Discips_fragility[2]['ins']): {
                  'regret': 0.0,
                  'windfall': -0.62512693}}]}

@@ -124,7 +124,7 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
+fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
 # Decide on which elements of the extended fragility framework to pursue
@@ -376,7 +376,7 @@ while iters <= iters_max:
             # Check if discipline can veto proposal or if dominance forces it
             irules_new, pf, pf_std = \
                 merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
-                
+            
             # Check if new rules are still being proposed
             if irules_new:
                 
