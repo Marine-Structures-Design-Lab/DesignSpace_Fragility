@@ -124,7 +124,7 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
+fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
 # Decide on which elements of the extended fragility framework to pursue
@@ -138,8 +138,8 @@ fragility_shift = 0.4  # Should be a positive float
 ### least 1 integer in there by default
 fragility_extensions = {
     "sub_spaces": [6], # Design sub-space dimensions to consider
-    "interdependencies": False,       # Consider design space interdependencies
-    "objective_changes": True         # Consider changes to req's and analyses
+    "interdependencies": True,       # Consider design space interdependencies
+    "objective_changes": False         # Consider changes to req's and analyses
 }
 
 # Indicate when and to what design space(s) a design change should occur
@@ -631,11 +631,23 @@ while iters <= iters_max:
     # Form pass-fail predictions for remaining design space with new points
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     pf_std = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
-    for i, discip in enumerate(Discips):
-        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
-            getPerceptions(discip, gpr_params)
-        pf[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
-        pf_std[None][i]['indices']=copy.deepcopy(discip['space_remaining_ind'])
+    if not fragility_extensions['interdependencies']:
+        for i, discip in enumerate(Discips):
+            pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
+                getPerceptions(discip, gpr_params)
+            pf[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
+            pf_std[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
+    else:
+        pf_none, pf_std_none = connectPerceptions(Discips)
+        for i, discip in enumerate(Discips):
+            pf[None][i]['non_reduced'] = copy.deepcopy(pf_none[i])
+            pf_std[None][i]['non_reduced'] = copy.deepcopy(pf_std_none[i])
+            pf[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
+            pf_std[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
     passfail_std.append(copy.deepcopy(pf_std))

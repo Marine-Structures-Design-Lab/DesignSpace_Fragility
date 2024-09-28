@@ -214,7 +214,7 @@ def prepEntropy(pf, Df, pf_std):
         All information pertaining to each discipline at the beginning of
         the newest space reduction cycle
     pf_std : List of dictionaries
-        History of each discipline's pass-fail standard deviatiokns up to a
+        History of each discipline's pass-fail standard deviations up to a
         certain point in time
 
     Returns

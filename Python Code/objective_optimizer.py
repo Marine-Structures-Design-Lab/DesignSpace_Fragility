@@ -55,7 +55,7 @@ def calcAddedRiskRobustness(gradient_factor, pf_fragility, grads_mag,
     irules_fragility2 = [item for item in irules_fragility \
                          if item not in irules_new]
     
-    # Initalize new fragility assessment object
+    # Initalize new fragility assessment object --- NEED TO USE THE SAME ORIGINAL TVE AND PROBABILITY VALUES in PFM OR EFM!!!
     fragnalysis = fragilityCommands(Discips_fragility, irules_fragility2, 
                                     pf_combos, pf_fragility_new, 
                                     pf_std_fragility, passfail, 
