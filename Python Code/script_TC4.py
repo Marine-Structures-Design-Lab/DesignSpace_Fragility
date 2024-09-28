@@ -376,7 +376,7 @@ while iters <= iters_max:
             # Check if discipline can veto proposal or if dominance forces it
             irules_new, pf, pf_std = \
                 merger.domDecision(rule_opinions, irules_discip, pf, pf_std)
-                
+            
             # Check if new rules are still being proposed
             if irules_new:
                 
