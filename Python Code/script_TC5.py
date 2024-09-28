@@ -32,6 +32,7 @@ from merge_constraints import mergeConstraints, getPerceptions
 from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
+from objective_optimizer import optimizeGradientFactor
 from exploration_amount import exploreSpace
 from get_constraints import getConstraints, getInequalities
 from create_key import createKey, createDict, createNumpy
@@ -87,7 +88,7 @@ problem_name = 'SenYang'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 400    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -195,8 +196,9 @@ temp_amount = 0
 # Initialize design change counter to 0
 change_counter = 0
 
-# Initialize a list of empty lists for data collection
+# Initialize empty lists for data collection
 Space_Remaining = [[] for _ in Discips]
+Gradient_Factor = []
 
 # Loop through each discipline
 for i in range(0,len(Discips)):
@@ -461,13 +463,57 @@ while iters <= iters_max:
                 
                 # Assess risk from fragility assessment
                 banned_rules, windreg, running_windfall, running_regret, risk,\
-                    irules_new, irules_fragility, break_loop = \
-                    fragnalysis.assessRisk(ris, iters, iters_max, 
-                                           exp_parameters, irules_new,
-                                           fragility_shift, banned_rules, 
-                                           windreg, wr, running_windfall, 
-                                           run_wind, running_regret, run_reg, 
-                                           risk)
+                    irules_new, irules_fragility, break_loop, net_wr, \
+                    final_combo = fragnalysis.assessRisk(ris, iters, iters_max, 
+                                    exp_parameters, irules_new, 
+                                    fragility_shift, banned_rules, windreg, wr, 
+                                    running_windfall, run_wind, running_regret, 
+                                    run_reg, risk)
+                
+                # Check if user wants to gauge objective space changes and if
+                ### no design spaces are fragile
+                if fragility_extensions['objective_changes'] and break_loop:
+                    
+                    # Indicate that objective change check is initiating
+                    print("Initiating objective space fragility check.")
+                    
+                    # Find added risk robustness for final rule combo
+                    ### NOTE: ONLY WORKS WITH basicCheck2 IN fragility_script
+                    risk_rob = \
+                        fragnalysis.assessRobustness(net_wr[final_combo])
+                    
+                    # Calculate pass-fail gradients and their magnitudes
+                    ### Returns arrays where each row represents the gradient
+                    ### vector of the most fragile design (sub)space at each
+                    ### remaining design point, and the vector indicates the
+                    ### direction of steepest ascent
+                    grads, grads_mag = fragnalysis.calculateGradients(risk_rob)
+                    
+                    # Make new fragility input rule list minus newest addition
+                    irules_fragility2 = [item for item in irules_fragility \
+                                         if item not in irules_new]
+                    
+                    # Determine gradient factor value that eliminates the added
+                    ### risk robustness
+                    gradient_factor = optimizeGradientFactor(Discips_fragility, 
+                                        irules_fragility2, pf_combos, 
+                                        pf_fragility, pf_std_fragility, 
+                                        passfail, passfail_std, 
+                                        fragility_extensions, total_points, 
+                                        grads_mag, fragility_type, iters, 
+                                        iters_max, exp_parameters, irules_new, 
+                                        fragility_shift, banned_rules, windreg, 
+                                        running_windfall, running_regret, risk, 
+                                        final_combo)
+                    
+                    # Store the gradient factor and its current time stamp
+                    Gradient_Factor.append({
+                        'iter': copy.deepcopy(iters),
+                        'gradient_factor': copy.deepcopy(gradient_factor)
+                    })
+                    
+                    # Indicate that objective change check is complete
+                    print("Completed objective space fragility check.")
                 
                 # Break fragility loop if fragility assessment passed
                 if break_loop: break
@@ -585,11 +631,23 @@ while iters <= iters_max:
     # Form pass-fail predictions for remaining design space with new points
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     pf_std = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
-    for i, discip in enumerate(Discips):
-        pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
-            getPerceptions(discip, gpr_params)
-        pf[None][i]['indices'] = copy.deepcopy(discip['space_remaining_ind'])
-        pf_std[None][i]['indices']=copy.deepcopy(discip['space_remaining_ind'])
+    if not fragility_extensions['interdependencies']:
+        for i, discip in enumerate(Discips):
+            pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
+                getPerceptions(discip, gpr_params)
+            pf[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
+            pf_std[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
+    else:
+        pf_none, pf_std_none = connectPerceptions(Discips)
+        for i, discip in enumerate(Discips):
+            pf[None][i]['non_reduced'] = copy.deepcopy(pf_none[i])
+            pf_std[None][i]['non_reduced'] = copy.deepcopy(pf_std_none[i])
+            pf[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
+            pf_std[None][i]['indices'] = \
+                copy.deepcopy(discip['space_remaining_ind'])
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
     passfail_std.append(copy.deepcopy(pf_std))
@@ -628,6 +686,15 @@ with h5py.File(space_remaining_file_path, 'w') as hdf_file:
             iter_group.create_dataset("space_remaining", 
                                       data=data_point['space_remaining'], 
                                       compression="gzip")
+
+# Write Gradient_Factor to an .hdf5 file
+gradient_factor_file_path = f"gradient_factor_{unique_identifier}.hdf5"
+with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
+    for i, data_point in enumerate(Gradient_Factor):
+        iter_group = hdf_file.create_group(f"Data_Point_{i}")
+        iter_group.attrs['iter'] = data_point['iter']
+        iter_group.create_dataset("gradient_factor", 
+                                  data=data_point['gradient_factor'])
 
 # Printing completion message to the redirected stdout
 print(f"Simulation completed. Space remaining data saved to "
