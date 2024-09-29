@@ -216,8 +216,18 @@ class checkFragility:
                     # Subtract windfall from regret
                     net_risk = dic2['regret'] - dic2['windfall']
                     
+                    # Check if net risk is infinite
+                    if np.isinf(net_risk):
+                        
+                        # Reassign risk information for discipline
+                        max_risk[rule][ind_dic] = {
+                            'value': net_risk,
+                            'threshold': 0.0,
+                            'sub-space': combo
+                        }
+                    
                     # Check if risk-to-threshold ratio is greater than maximum
-                    if net_risk / threshold > risk_threshold:
+                    elif net_risk / threshold > risk_threshold:
                         
                         # Reassign risk information for discipline
                         max_risk[rule][ind_dic] = {
