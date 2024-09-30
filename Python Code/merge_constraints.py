@@ -18,6 +18,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
 from scipy.optimize import fsolve
+from scipy.optimize import approx_fprime
 # import matplotlib.pyplot as plt
 import numpy as np
 import copy
@@ -412,6 +413,9 @@ def getPerceptions(discip, gpr_params):
     adjusted_std_devs : Numpy array
         Adjusted standard deviations associated with predicted passing or
         failing amounts
+    gradient_array
+    x_train
+    y_train
     """
     
     # Initialize data for training a GPR
@@ -455,8 +459,20 @@ def getPerceptions(discip, gpr_params):
     normalized_predictions, adjusted_std_devs = \
         normalizePredictions(pf_mean, pf_std)
     
+    # Initialize and empty array to store the gradients of each tested point
+    gradient_array = np.zeros((x_train_scaled.shape[0], 
+                               x_train_scaled.shape[1]))
+    
+    # Loop through each tested point
+    for i, point in enumerate(x_train_scaled):
+        
+        # Determine gradient with finite difference method
+        gradient_array[i, :] = approx_fprime(point, 
+            lambda x: gpr.predict(x.reshape(1, -1))[0], 1e-5)
+    
     # Return the normalized predicted data
-    return normalized_predictions, adjusted_std_devs
+    return normalized_predictions, adjusted_std_devs, gradient_array, x_train,\
+        y_train
 
 
 def getPredictions(discip, rule, pf_mean, pf_std):
@@ -650,7 +666,7 @@ class mergeConstraints:
         for i, discip in enumerate(self.D):
             
             # Get perceptions of feasibility in the non-reduced design space
-            pf_mean, pf_std = getPerceptions(discip, self.gpr_params)
+            pf_mean, pf_std, _, _, _ = getPerceptions(discip, self.gpr_params)
             
             # Loop through each new rule combination - rule is a tuple here!
             for j, rule in enumerate(rule_combos):

@@ -138,8 +138,8 @@ fragility_shift = 0.4  # Should be a positive float
 ### least 1 integer in there by default
 fragility_extensions = {
     "sub_spaces": [6], # Design sub-space dimensions to consider
-    "interdependencies": True,       # Consider design space interdependencies
-    "objective_changes": False         # Consider changes to req's and analyses
+    "interdependencies": False,       # Consider design space interdependencies
+    "objective_changes": True         # Consider changes to req's and analyses
 }
 
 # Indicate when and to what design space(s) a design change should occur
@@ -235,6 +235,9 @@ irules_discip = []
 # Initialize lists for windfall and regret calculations
 passfail = []
 passfail_std = []
+Grads = []
+X_explored = []
+Y_explored = []
 windreg = []
 running_windfall = []
 running_regret = []
@@ -482,13 +485,6 @@ while iters <= iters_max:
                     risk_rob = \
                         fragnalysis.assessRobustness(net_wr[final_combo])
                     
-                    # Calculate pass-fail gradients and their magnitudes
-                    ### Returns arrays where each row represents the gradient
-                    ### vector of the most fragile design (sub)space at each
-                    ### remaining design point, and the vector indicates the
-                    ### direction of steepest ascent
-                    grads, grads_mag = fragnalysis.calculateGradients(risk_rob)
-                    
                     # Make new fragility input rule list minus newest addition
                     irules_fragility2 = [item for item in irules_fragility \
                                          if item not in irules_new]
@@ -496,15 +492,14 @@ while iters <= iters_max:
                     # Determine gradient factor value that eliminates the added
                     ### risk robustness
                     gradient_factor = optimizeGradientFactor(Discips_fragility, 
-                                        irules_fragility2, pf_combos, 
-                                        pf_fragility, pf_std_fragility, 
-                                        passfail, passfail_std, 
-                                        fragility_extensions, total_points, 
-                                        grads_mag, fragility_type, iters, 
-                                        iters_max, exp_parameters, irules_new, 
-                                        fragility_shift, banned_rules, windreg, 
-                                        running_windfall, running_regret, risk, 
-                                        final_combo)
+                        irules_fragility, pf_combos, 
+                        pf_std_fragility, passfail, passfail_std, 
+                        fragility_extensions, total_points, fragility_type, 
+                        iters, iters_max, exp_parameters, irules_new, 
+                        fragility_shift, banned_rules, windreg, 
+                        running_windfall, running_regret, risk, final_combo, 
+                        Grads, X_explored, Y_explored, Space_Remaining, 
+                        gpr_params)
                     
                     # Store the gradient factor and its current time stamp
                     Gradient_Factor.append({
@@ -628,13 +623,24 @@ while iters <= iters_max:
     # Increase the time count
     iters += temp_amount
     
-    # Form pass-fail predictions for remaining design space with new points
+    # Initialize dictionaries for pass-fail information
     pf = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
     pf_std = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
+    
+    # Initialize a dictionary for capturing gradients at explored points
+    grads = {None: [None for _ in Discips]}
+    
+    # Initialize a dictionary for capturing explored points in each discipline
+    x_explored = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
+    y_explored = {None: [{'non_reduced': np.empty(0)} for _ in Discips]}
+    
+    # Form pass-fail predictions for remaining design space with new points
     if not fragility_extensions['interdependencies']:
         for i, discip in enumerate(Discips):
-            pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'] = \
-                getPerceptions(discip, gpr_params)
+            pf[None][i]['non_reduced'], pf_std[None][i]['non_reduced'], \
+                grads[None][i], x_explored[None][i]['non_reduced'], \
+                y_explored[None][i]['non_reduced'] = \
+                    getPerceptions(discip, gpr_params)
             pf[None][i]['indices'] = \
                 copy.deepcopy(discip['space_remaining_ind'])
             pf_std[None][i]['indices'] = \
@@ -648,10 +654,18 @@ while iters <= iters_max:
                 copy.deepcopy(discip['space_remaining_ind'])
             pf_std[None][i]['indices'] = \
                 copy.deepcopy(discip['space_remaining_ind'])
+    
+    # Append all relevant information to time history
     passfail.append(copy.deepcopy(pf))
     passfail[-1]['time'] = iters
     passfail_std.append(copy.deepcopy(pf_std))
     passfail_std[-1]['time'] = iters
+    Grads.append(copy.deepcopy(grads))
+    Grads[-1]['time'] = iters
+    X_explored.append(copy.deepcopy(x_explored))
+    X_explored[-1]['time'] = iters
+    Y_explored.append(copy.deepcopy(y_explored))
+    Y_explored[-1]['time'] = iters
     
     # Reset the just explore value to False
     just_explore = False

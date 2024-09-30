@@ -335,6 +335,29 @@ class fragilityCommands:
         return risk_robust
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     def calculateGradients(self, risk_robust):
             
         # Initialize a list of empty gradients for each discipline

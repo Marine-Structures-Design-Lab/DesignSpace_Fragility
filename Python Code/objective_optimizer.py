@@ -11,7 +11,10 @@ joeyvan@umich.edu
 LIBRARIES
 """
 from fragility_script import fragilityCommands
+from merge_constraints import getPerceptions
 from scipy.optimize import minimize
+import numpy as np
+import copy
 
 
 """
@@ -32,34 +35,88 @@ class BestGuessTracker:
 """
 SECONDARY FUNCTION
 """
-def calcAddedRiskRobustness(gradient_factor, pf_fragility, grads_mag,
-                            irules_fragility, irules_new, Discips_fragility,
-                            pf_combos, pf_std_fragility, passfail,
-                            passfail_std, fragility_extensions, total_points,
-                            fragility_type, iters, iters_max, exp_parameters,
-                            fragility_shift, banned_rules, windreg,
-                            running_windfall, running_regret, risk, 
+def calcAddedRiskRobustness(gradient_factor, Discips_fragility, 
+                            pf_combos, pf_std_fragility, Grads,
+                            fragility_extensions, total_points, X_explored, 
+                            Y_explored, passfail, passfail_std, 
+                            Space_Remaining, gpr_params, irules_fragility, 
+                            irules_new, fragility_type, iters, iters_max, 
+                            exp_parameters, fragility_shift, banned_rules, 
+                            windreg, running_windfall, running_regret, risk, 
                             final_combo, threshold_tracker = None, 
                             threshold = 1e-3):
     
-    # Initialize an empty pass-fail list for each discipline
-    pf_fragility_new = [None for _ in pf_fragility]
+    # Initialize lists for new passfail predictions
+    passfail_new = copy.deepcopy(passfail)
+    passfail_std_new = copy.deepcopy(passfail_std)
     
-    # Loop through each discipline's passfail values
-    for j, pf_discip in enumerate(pf_fragility):
+    # Update time history of passfail predictions
+    for i in range(0, len(passfail)):
         
-        # Decrease pf values by gradient factor times gradient magnitude
-        pf_fragility_new[j] = pf_discip - gradient_factor*grads_mag[j]
+        # Skip if None key does not exist in the dictionary
+        if None not in passfail[i]: continue
+        
+        # Gather current time iteration
+        iter_cur = passfail[i]['time']
+        
+        # Loop through each discipline
+        for j in range(0, len(passfail[i][None])):
+            
+            # Determine proper explored data key
+            for k in range(0, len(X_explored)):
+                if X_explored[k]['time'] == iter_cur:
+                    explored_ind = k
+            
+            # Determine the magnitude of the gradient of each explored point
+            grad_mag = np.linalg.norm(Grads[explored_ind][None][j], axis=1)
+            
+            # Update pass-fail predictions
+            Y_explored_new = Y_explored[explored_ind][None][j]['non_reduced'] \
+                - gradient_factor*grad_mag
+            
+            # Determine proper space remaining data key
+            for k in range(0, len(Space_Remaining[j])):
+                past_time = Space_Remaining[j][k]['iter']
+                if past_time < iter_cur:
+                    spacerem_ind = k
+                else:
+                    break
+            
+            # Place data with updated pass-fail training values in dictionary
+            diction = {
+                'tested_ins': X_explored[explored_ind][None][j]['non_reduced'],
+                'Pass_Amount': Y_explored_new,
+                'Fail_Amount': np.zeros(len(Y_explored_new)),
+                'space_remaining': Space_Remaining[j][spacerem_ind]\
+                    ['space_remaining'],
+                'ins': Discips_fragility[j]['ins']
+            }
+            
+            # Make new pass-fail predictions from updated training points
+            normalized_predictions, adjusted_std_devs, _, _, _ = \
+                getPerceptions(diction, gpr_params)
+            
+            # Place updated pass-fail predictions in proper new lists
+            passfail_new[i][None][j]['non_reduced'] = normalized_predictions
+            passfail_std_new[i][None][j]['non_reduced'] = adjusted_std_devs
     
     # Make new fragility input rule list minus newest addition
     irules_fragility2 = [item for item in irules_fragility \
                          if item not in irules_new]
     
-    # Initalize new fragility assessment object --- NEED TO USE THE SAME ORIGINAL TVE AND PROBABILITY VALUES in PFM OR EFM!!!
+    # Determine present non-reduced design space's updated predictions
+    pf_fragility_new = [None for _ in Discips_fragility]
+    for i in range(len(passfail_new) - 1, -1, -1):
+        if not None in passfail_new[i]: continue
+        for j in range(0, len(passfail_new[i][None])):
+            pf_fragility_new[j] = passfail_new[i][None][j]['non_reduced']
+        break
+    
+    # Initalize new fragility assessment object
     fragnalysis = fragilityCommands(Discips_fragility, irules_fragility2, 
                                     pf_combos, pf_fragility_new, 
-                                    pf_std_fragility, passfail, 
-                                    passfail_std, fragility_extensions, 
+                                    pf_std_fragility, passfail_new, 
+                                    passfail_std_new, fragility_extensions, 
                                     total_points)
     
     # Perform desired fragility assessment
@@ -96,12 +153,13 @@ def calcAddedRiskRobustness(gradient_factor, pf_fragility, grads_mag,
 MAIN FUNCTION
 """
 def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos, 
-                           pf_fragility, pf_std_fragility, passfail,
+                           pf_std_fragility, passfail,
                            passfail_std, fragility_extensions, total_points,
-                           grads_mag, fragility_type, iters, iters_max,
+                           fragility_type, iters, iters_max,
                            exp_parameters, irules_new, fragility_shift,
                            banned_rules, windreg, running_windfall, 
-                           running_regret, risk, final_combo, 
+                           running_regret, risk, final_combo, Grads,
+                           X_explored, Y_explored, Space_Remaining, gpr_params,
                            initial_guess = 0.0):
     
     # Initialize the best guess tracker
@@ -110,13 +168,14 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
     # Find the maximum gradient factor value
     result = minimize(calcAddedRiskRobustness,
                       initial_guess,
-                      args = (pf_fragility, grads_mag, irules_fragility, 
-                              irules_new, Discips_fragility, pf_combos, 
-                              pf_std_fragility, passfail, passfail_std, 
-                              fragility_extensions, total_points,
-                              fragility_type, iters, iters_max, 
-                              exp_parameters, fragility_shift, banned_rules, 
-                              windreg, running_windfall, running_regret, risk, 
+                      args = (Discips_fragility, pf_combos, 
+                              pf_std_fragility, Grads, fragility_extensions, 
+                              total_points, X_explored, Y_explored, passfail, 
+                              passfail_std, Space_Remaining, gpr_params, 
+                              irules_fragility, irules_new, fragility_type, 
+                              iters, iters_max, exp_parameters, 
+                              fragility_shift, banned_rules, windreg, 
+                              running_windfall, running_regret, risk, 
                               final_combo, tracker),
                       method='BFGS')
     
