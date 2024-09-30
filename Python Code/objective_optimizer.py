@@ -177,7 +177,8 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
                               fragility_shift, banned_rules, windreg, 
                               running_windfall, running_regret, risk, 
                               final_combo, tracker),
-                      method='BFGS')
+                      method='L-BFGS-B',
+                      bounds=[(0.0, np.inf)])
     
     # Check if the optimization was successful
     if result.success:
@@ -185,13 +186,15 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
     
     # Return best guess
     if tracker.best_guess is not None:
+        final_threshold = tracker.smallest_threshold
         print(f"Best guess found with smallest threshold: "
               f"{tracker.best_guess[0]} with smallest threshold: "
               f"{tracker.smallest_threshold}")
-        return tracker.best_guess[0]
+        return tracker.best_guess[0], final_threshold
     elif result.success:
+        final_threshold = tracker.smallest_threshold
         print(f"Optimal gradient factor: {optimal_gradient_factor}")
-        return optimal_gradient_factor
+        return optimal_gradient_factor, final_threshold
     else:
         print("Could not find any optimal gradient factor values.")
-        return 0.0
+        return 0.0, None
