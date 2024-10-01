@@ -245,6 +245,18 @@ class checkFragility:
                     
                     # Set fragile tracker to true for the rule
                     max_risk[rule]['fragile'] = True
+            
+            # Create a list of each discipline's risk values
+            risk_list = []
+            for key in max_risk[rule]:
+                if key == 'fragile': continue
+                risk_list.append(max_risk[rule][key]['value'])
+                
+            # Check if all added risk values are 0.0 because no space removed
+            if all(abs(val) < 1e-8 for val in risk_list):
+                
+                # Set fragile tracker to true for the rule
+                max_risk[rule]['fragile'] = True
         
         # Return results from the fragility assessment
         return max_risk

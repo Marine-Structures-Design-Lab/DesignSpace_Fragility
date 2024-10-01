@@ -43,8 +43,7 @@ def calcAddedRiskRobustness(gradient_factor, Discips_fragility,
                             irules_new, fragility_type, iters, iters_max, 
                             exp_parameters, fragility_shift, banned_rules, 
                             windreg, running_windfall, running_regret, risk, 
-                            final_combo, threshold_tracker = None, 
-                            threshold = 1e-3):
+                            final_combo, threshold_tracker = None):
     
     # Initialize lists for new passfail predictions
     passfail_new = copy.deepcopy(passfail)
@@ -139,13 +138,7 @@ def calcAddedRiskRobustness(gradient_factor, Discips_fragility,
     if threshold_tracker is not None:
         threshold_tracker.update(gradient_factor, smallest_threshold)
     
-    # Determine the absolute value of the smallest threshold
-    smallest_threshold = abs(smallest_threshold)
-    
-    # Return 0.0 to stop optimizer if difference is less than threshold
-    if smallest_threshold < threshold: return 0.0
-    
-    # Return the absolute value of the smallest difference
+    # Return the value of the smallest difference
     return smallest_threshold
 
 
@@ -153,48 +146,84 @@ def calcAddedRiskRobustness(gradient_factor, Discips_fragility,
 MAIN FUNCTION
 """
 def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos, 
-                           pf_std_fragility, passfail,
-                           passfail_std, fragility_extensions, total_points,
-                           fragility_type, iters, iters_max,
-                           exp_parameters, irules_new, fragility_shift,
-                           banned_rules, windreg, running_windfall, 
-                           running_regret, risk, final_combo, Grads,
-                           X_explored, Y_explored, Space_Remaining, gpr_params,
-                           initial_guess = 0.0):
+                           pf_std_fragility, passfail, passfail_std, 
+                           fragility_extensions, total_points, fragility_type, 
+                           iters, iters_max, exp_parameters, irules_new, 
+                           fragility_shift, banned_rules, windreg, 
+                           running_windfall, running_regret, risk, 
+                           final_combo, Grads, X_explored, Y_explored, 
+                           Space_Remaining, gpr_params, initial_guess=0.1,
+                           max_iter = 50, tol = 1e-2, ptol = 1e-5):
     
-    # Initialize the best guess tracker
+    # Initialize the best guess tracker and initial guess
     tracker = BestGuessTracker()
+    gradient_factor = initial_guess
     
-    # Find the maximum gradient factor value
-    result = minimize(calcAddedRiskRobustness,
-                      initial_guess,
-                      args = (Discips_fragility, pf_combos, 
-                              pf_std_fragility, Grads, fragility_extensions, 
-                              total_points, X_explored, Y_explored, passfail, 
-                              passfail_std, Space_Remaining, gpr_params, 
-                              irules_fragility, irules_new, fragility_type, 
-                              iters, iters_max, exp_parameters, 
-                              fragility_shift, banned_rules, windreg, 
-                              running_windfall, running_regret, risk, 
-                              final_combo, tracker),
-                      method='L-BFGS-B',
-                      bounds=[(0.0, np.inf)])
+    # Establish upper and lower guesses
+    gf_lower = 0.0
+    gf_upper = np.inf
     
-    # Check if the optimization was successful
-    if result.success:
-        optimal_gradient_factor = result.x[0]
+    # Create a list to track positive differences between risk and threshold
+    pos_diff = []
+    
+    # Loop through max iterations
+    for iteration in range(max_iter):
+        
+        # Print current gradient factor
+        print(f"Current gradient factor guess: {gradient_factor}")
+        
+        # Calculate the current objective value function
+        current_threshold = calcAddedRiskRobustness(gradient_factor, 
+            Discips_fragility, pf_combos, pf_std_fragility, Grads, 
+            fragility_extensions, total_points, X_explored, Y_explored, 
+            passfail, passfail_std, Space_Remaining, gpr_params, 
+            irules_fragility, irules_new, fragility_type, iters, iters_max, 
+            exp_parameters, fragility_shift, banned_rules, windreg, 
+            running_windfall, running_regret, risk, final_combo, tracker)
+        
+        # Print current threshold
+        print(f"Current difference between value and threshold: {current_threshold}")
+        
+        # Check convergence based on difference between risk and risk threshold
+        if abs(current_threshold) < tol:
+            print(f"Converged at iteration {iteration}")
+            break
+        
+        # Check convergence based on positive thresholds not changing
+        if len(pos_diff) > 1 and abs(pos_diff[-1] - pos_diff[-2]) < ptol:
+            print(f"Converged at iteration {iteration}")
+            break
+        
+        # Add to positive threshold list if threshold is positive
+        if current_threshold > 0: pos_diff.append(current_threshold)
+        
+        # Set new upper or lower gradient_factor bounds
+        if gradient_factor < gf_upper and current_threshold < 0:
+            
+            gf_upper = gradient_factor
+            
+        elif gradient_factor > gf_lower and current_threshold > 0:
+            
+            gf_lower = gradient_factor
+        
+        # Set new gradient factor
+        if not np.isinf(gf_upper):
+            
+            # Set gradient factor as the midpoint
+            gradient_factor = (gf_upper - gf_lower)/2 + gf_lower
+        
+        else:
+            
+            # Double the gradient factor
+            gradient_factor *= 2
     
     # Return best guess
     if tracker.best_guess is not None:
         final_threshold = tracker.smallest_threshold
         print(f"Best guess found with smallest threshold: "
-              f"{tracker.best_guess[0]} with smallest threshold: "
+              f"{tracker.best_guess} with smallest threshold: "
               f"{tracker.smallest_threshold}")
-        return tracker.best_guess[0], final_threshold
-    elif result.success:
-        final_threshold = tracker.smallest_threshold
-        print(f"Optimal gradient factor: {optimal_gradient_factor}")
-        return optimal_gradient_factor, final_threshold
+        return tracker.best_guess, final_threshold
     else:
-        print("Could not find any optimal gradient factor values.")
-        return 0.0, None
+        print(f"Final gradient factor: {gradient_factor}")
+        return gradient_factor, current_threshold
