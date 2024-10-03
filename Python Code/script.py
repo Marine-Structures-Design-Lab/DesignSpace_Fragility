@@ -491,8 +491,8 @@ while iters <= iters_max:
                     
                     # Determine gradient factor value that eliminates the added
                     ### risk robustness
-                    gradient_factor, threshold = optimizeGradientFactor(Discips_fragility, 
-                        irules_fragility, pf_combos, 
+                    gradient_factor, threshold = optimizeGradientFactor(
+                        Discips_fragility, irules_fragility, pf_combos, 
                         pf_std_fragility, passfail, passfail_std, 
                         fragility_extensions, total_points, fragility_type, 
                         iters, iters_max, exp_parameters, irules_new, 
