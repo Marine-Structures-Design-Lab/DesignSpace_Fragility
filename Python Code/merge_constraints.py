@@ -413,9 +413,12 @@ def getPerceptions(discip, gpr_params):
     adjusted_std_devs : Numpy array
         Adjusted standard deviations associated with predicted passing or
         failing amounts
-    gradient_array
-    x_train
-    y_train
+    gradient_array : Numpy array
+        Approximated pass-fail gradient array at each tested design point
+    x_train : Numpy array
+        Input coordinates of previously tested design points
+    y_train : Numpy array
+        Pass or Fail amounts of previously tested design points
     """
     
     # Initialize data for training a GPR

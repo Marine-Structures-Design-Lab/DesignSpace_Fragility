@@ -24,9 +24,26 @@ class BestGuessTracker:
     
     def __init__(self):
         self.best_guess = None
-        self.smallest_threshold = float('inf')  # Start with infinity
+        self.smallest_threshold = float('inf')
     
     def update(self, guess, threshold):
+        """
+        Description
+        -----------
+        Tracks the best guess gradient factor guess and its associated 
+        added risk robustness value.
+
+        Parameters
+        ----------
+        guess : Float
+            Current gradient factor value
+        threshold : Float
+            Associated added risk robustness value
+
+        Returns
+        -------
+        None.
+        """
         if threshold > 0 and threshold < self.smallest_threshold:
             self.smallest_threshold = threshold
             self.best_guess = guess
@@ -44,6 +61,73 @@ def calcAddedRiskRobustness(gradient_factor, Discips_fragility,
                             exp_parameters, fragility_shift, banned_rules, 
                             windreg, running_windfall, running_regret, risk, 
                             final_combo, threshold_tracker = None):
+    """
+    Description
+    -----------
+
+    Parameters
+    ----------
+    gradient_factor : TYPE
+        DESCRIPTION.
+    Discips_fragility : TYPE
+        DESCRIPTION.
+    pf_combos : TYPE
+        DESCRIPTION.
+    pf_std_fragility : TYPE
+        DESCRIPTION.
+    Grads : TYPE
+        DESCRIPTION.
+    fragility_extensions : TYPE
+        DESCRIPTION.
+    total_points : TYPE
+        DESCRIPTION.
+    X_explored : TYPE
+        DESCRIPTION.
+    Y_explored : TYPE
+        DESCRIPTION.
+    passfail : TYPE
+        DESCRIPTION.
+    passfail_std : TYPE
+        DESCRIPTION.
+    Space_Remaining : TYPE
+        DESCRIPTION.
+    gpr_params : TYPE
+        DESCRIPTION.
+    irules_fragility : TYPE
+        DESCRIPTION.
+    irules_new : TYPE
+        DESCRIPTION.
+    fragility_type : TYPE
+        DESCRIPTION.
+    iters : TYPE
+        DESCRIPTION.
+    iters_max : TYPE
+        DESCRIPTION.
+    exp_parameters : TYPE
+        DESCRIPTION.
+    fragility_shift : TYPE
+        DESCRIPTION.
+    banned_rules : TYPE
+        DESCRIPTION.
+    windreg : TYPE
+        DESCRIPTION.
+    running_windfall : TYPE
+        DESCRIPTION.
+    running_regret : TYPE
+        DESCRIPTION.
+    risk : TYPE
+        DESCRIPTION.
+    final_combo : TYPE
+        DESCRIPTION.
+    threshold_tracker : TYPE, optional
+        DESCRIPTION. The default is None.
+
+    Returns
+    -------
+    smallest_threshold : TYPE
+        DESCRIPTION.
+
+    """
     
     # Initialize lists for new passfail predictions
     passfail_new = copy.deepcopy(passfail)
@@ -182,7 +266,8 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
             running_windfall, running_regret, risk, final_combo, tracker)
         
         # Print current threshold
-        print(f"Current difference between value and threshold: {current_threshold}")
+        print(f"Current difference between value and threshold: "
+              f"{current_threshold}")
         
         # Check convergence based on difference between risk and risk threshold
         if abs(current_threshold) < tol:

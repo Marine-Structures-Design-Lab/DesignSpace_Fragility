@@ -281,7 +281,8 @@ class test_merge_constraints(unittest.TestCase):
         }
         
         # Execute the function on the first discipline
-        n_preds, n_stddevs = getPerceptions(self.Discip1, gpr_params)
+        n_preds, n_stddevs, g_array, x_train, y_train = \
+            getPerceptions(self.Discip1, gpr_params)
         
         # Gather max and min of the predictions
         max_pred = np.max(n_preds)
@@ -290,6 +291,11 @@ class test_merge_constraints(unittest.TestCase):
         # Ensure passfail predictions are being properly normalized
         self.assertAlmostEqual(max_pred, 1.0)
         self.assertAlmostEqual(min_pred, -1.0)
+        
+        # Ensure gradient array is the proper size
+        self.assertEqual(len(self.Discip1['ins']), g_array.shape[1])
+        self.assertEqual(self.Discip1['tested_ins'].shape[0],
+                         g_array.shape[0])
     
     
     def test_get_predictions(self):

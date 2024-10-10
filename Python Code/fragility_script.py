@@ -252,6 +252,9 @@ class fragilityCommands:
         net_wr : Dictionary
             Endured risk for space reduction and boolean indicating whether the
             maximum risk threshold has been exceeded
+        final_combo : Tuple
+            Final combination of input rules that a designer is moving forward
+            with as a space reduction
         """
         
         # Initialize a fragility check object
@@ -313,6 +316,24 @@ class fragilityCommands:
         
     
     def assessRobustness(self, net_wr):
+        """
+        Description
+        -----------
+        Determines the difference between the maximum added risk threshold and
+        the endured added risk.
+
+        Parameters
+        ----------
+        net_wr : Dictionary
+            Endured risk for space reduction and boolean indicating whether the
+            maximum risk threshold has been exceeded
+
+        Returns
+        -------
+        risk_robust : Dictionary
+            Added risk robustness for space reduction and subspace associated
+            with it
+        """
         
         # Initialize an empty list of dictionaries for disciplines
         risk_robust = [{} for _ in self.Df]
