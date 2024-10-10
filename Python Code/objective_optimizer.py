@@ -1,6 +1,8 @@
 """
 SUMMARY:
-
+Uses an iterative process to determine the gradient factor value that reduces
+the added risk robustness to zero when a proposed space reduction is not
+fragile.
 
 CREATOR:
 Joseph B. Van Houten
@@ -12,7 +14,6 @@ LIBRARIES
 """
 from fragility_script import fragilityCommands
 from merge_constraints import getPerceptions
-from scipy.optimize import minimize
 import numpy as np
 import copy
 
@@ -39,10 +40,6 @@ class BestGuessTracker:
             Current gradient factor value
         threshold : Float
             Associated added risk robustness value
-
-        Returns
-        -------
-        None.
         """
         if threshold > 0 and threshold < self.smallest_threshold:
             self.smallest_threshold = threshold
@@ -64,69 +61,87 @@ def calcAddedRiskRobustness(gradient_factor, Discips_fragility,
     """
     Description
     -----------
+    Executes a fragility assessment for the current gradient factor guess and
+    determines that guess's added risk robustness.
 
     Parameters
     ----------
-    gradient_factor : TYPE
-        DESCRIPTION.
-    Discips_fragility : TYPE
-        DESCRIPTION.
-    pf_combos : TYPE
-        DESCRIPTION.
-    pf_std_fragility : TYPE
-        DESCRIPTION.
-    Grads : TYPE
-        DESCRIPTION.
-    fragility_extensions : TYPE
-        DESCRIPTION.
-    total_points : TYPE
-        DESCRIPTION.
-    X_explored : TYPE
-        DESCRIPTION.
-    Y_explored : TYPE
-        DESCRIPTION.
-    passfail : TYPE
-        DESCRIPTION.
-    passfail_std : TYPE
-        DESCRIPTION.
-    Space_Remaining : TYPE
-        DESCRIPTION.
-    gpr_params : TYPE
-        DESCRIPTION.
-    irules_fragility : TYPE
-        DESCRIPTION.
-    irules_new : TYPE
-        DESCRIPTION.
-    fragility_type : TYPE
-        DESCRIPTION.
-    iters : TYPE
-        DESCRIPTION.
-    iters_max : TYPE
-        DESCRIPTION.
-    exp_parameters : TYPE
-        DESCRIPTION.
-    fragility_shift : TYPE
-        DESCRIPTION.
-    banned_rules : TYPE
-        DESCRIPTION.
-    windreg : TYPE
-        DESCRIPTION.
-    running_windfall : TYPE
-        DESCRIPTION.
-    running_regret : TYPE
-        DESCRIPTION.
-    risk : TYPE
-        DESCRIPTION.
-    final_combo : TYPE
-        DESCRIPTION.
-    threshold_tracker : TYPE, optional
-        DESCRIPTION. The default is None.
+    Discips_fragility : Dictionary
+        All information pertaining to each discipline at the beginning of
+        the newest space reduction cycle
+    pf_combos : Dictionary
+        Each discipline's pass-fail predictions for each design space of
+        each new rule combination being considered
+    pf_std_fragility : List
+        Each discipline's pass-fail standard deviations for the non-reduced
+        design space at the beginning of the space reduction cycle
+    Grads : List of dictionaries
+        Time history of each explored design point's gradient vector
+    fragility_extensions : Dictionary
+        Different extensions to the initial fragility framework extension
+        that a design manager wants to include in the assessment
+    total_points : Integer
+        An approximate total number of evenly spaced points the user
+        desires for tracking the space remaining in a discipline's design
+        space
+    X_explored : List of dictionaries
+        Time history of explored design points' x-training data
+    Y_explored : List of dictionaries
+        Time history of explored design points' y-training data (pass-fail)
+    passfail : List of dictionaries
+        History of each discipline's pass-fail predictions up to a certain
+        point in time
+    passfail_std : List of dictionaries
+        History of each discipline's pass-fail standard deviatiokns up to a
+        certain point in time
+    Space_Remaining : List of dictionaries
+        Time history of discretized space remaining
+    gpr_params : Dictionary
+        Parameters for GPR kernels
+    irules_fragility : List
+        Sympy and/or relationals detailing all of the new space reduction
+        rules of the current space reduction cycle
+    irules_new : List
+        Sympy relationals dictating the newest set of space reduction rules
+        being considered
+    fragility_type : String
+        Type of fragility assessment desired (e.g. PFM or EFM)
+    iters : Integer
+        Amount of time that has been spent exploring design spaces already
+    iters_max : Integer
+        Total time allotted to explore design spaces
+    exp_parameters : Numpy array
+        Various exponential function parameters dictating minimum space
+        reduction pace for each discipline
+    fragility_shift : Float
+        Amount to either translate the exponential function (basicCheck) or
+        set as a weighted coefficient (basicCheck2) for manipulating the
+        fragility threshold via the design manager
+    banned_rules : Set
+        Sympy relationals detailing the input rule(s) no longer being
+        considered for the current round of space reductions
+    windreg : List of dictionaries
+        Contains the complete history of gathered windfall and regret data
+        for each discipline's design space
+    running_windfall : List of dictionaries
+        Contains the complete history of gathered windfall totals for each
+        discipline's design space
+    running_regret : List of dictionaries
+        Contains the complete history of gathered regret totals for each
+        discipline's design space
+    risk : List of dictionaries
+        Contains the complete history of gathered risk data for each
+        discipline
+    final_combo : Tuple
+        Final combination of input rules that a designer is moving forward
+        with as a space reduction
+    threshold_tracker : Object, optional
+        Object for the BestGuessTracker The default is None.
 
     Returns
     -------
-    smallest_threshold : TYPE
-        DESCRIPTION.
-
+    smallest_threshold : Float
+        Added risk robustness value of the current gradient factor guess.
     """
     
     # Initialize lists for new passfail predictions
@@ -238,6 +253,101 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
                            final_combo, Grads, X_explored, Y_explored, 
                            Space_Remaining, gpr_params, initial_guess=0.1,
                            max_iter = 50, tol = 1e-2, ptol = 1e-5):
+    """
+    Description
+    -----------
+    Conducts a search for the gradient factor value that reduces the added risk
+    robustness to zero for a non-fragile space reduction.
+
+    Parameters
+    ----------
+    Discips_fragility : Dictionary
+        All information pertaining to each discipline at the beginning of
+        the newest space reduction cycle
+    irules_fragility : List
+        Sympy and/or relationals detailing all of the new space reduction
+        rules of the current space reduction cycle
+    pf_combos : Dictionary
+        Each discipline's pass-fail predictions for each design space of
+        each new rule combination being considered
+    pf_std_fragility : List
+        Each discipline's pass-fail standard deviations for the non-reduced
+        design space at the beginning of the space reduction cycle
+    passfail : List of dictionaries
+        History of each discipline's pass-fail predictions up to a certain
+        point in time
+    passfail_std : List of dictionaries
+        History of each discipline's pass-fail standard deviatiokns up to a
+        certain point in time
+    fragility_extensions : Dictionary
+        Different extensions to the initial fragility framework extension
+        that a design manager wants to include in the assessment
+    total_points : Integer
+        An approximate total number of evenly spaced points the user
+        desires for tracking the space remaining in a discipline's design
+        space
+    fragility_type : String
+        Type of fragility assessment desired (e.g. PFM or EFM)
+    iters : Integer
+        Amount of time that has been spent exploring design spaces already
+    iters_max : Integer
+        Total time allotted to explore design spaces
+    exp_parameters : Numpy array
+        Various exponential function parameters dictating minimum space
+        reduction pace for each discipline
+    irules_new : List
+        Sympy relationals dictating the newest set of space reduction rules
+        being considered
+    fragility_shift : Float
+        Amount to either translate the exponential function (basicCheck) or
+        set as a weighted coefficient (basicCheck2) for manipulating the
+        fragility threshold via the design manager
+    banned_rules : Set
+        Sympy relationals detailing the input rule(s) no longer being
+        considered for the current round of space reductions
+    windreg : List of dictionaries
+        Contains the complete history of gathered windfall and regret data
+        for each discipline's design space
+    running_windfall : List of dictionaries
+        Contains the complete history of gathered windfall totals for each
+        discipline's design space
+    running_regret : List of dictionaries
+        Contains the complete history of gathered regret totals for each
+        discipline's design space
+    risk : List of dictionaries
+        Contains the complete history of gathered risk data for each
+        discipline
+    final_combo : Tuple
+        Final combination of input rules that a designer is moving forward
+        with as a space reduction
+    Grads : List of dictionaries
+        Time history of each explored design point's gradient vector
+    X_explored : List of dictionaries
+        Time history of explored design points' x-training data
+    Y_explored : List of dictionaries
+        Time history of explored design points' y-training data (pass-fail)
+    Space_Remaining : List of dictionaries
+        Time history of discretized space remaining
+    gpr_params : Dictionary
+        Parameters for GPR kernels
+    initial_guess : Float, optional
+        Initial guess for the gradient factor value. The default is 0.1.
+    max_iter : Integer, optional
+        Maximum number of gradient factor guesses allowed. The default is 50.
+    tol : Float, optional
+        Maximum added risk robustness value indicating convergence. The default
+        is 1e-2.
+    ptol : Float, optional
+        Maximum difference between consecutive positive added risk robustness 
+        values indicating convergence. The default is 1e-5.
+
+    Returns
+    -------
+    gradient_factor : Float
+        Gradient factor value that reduces added risk robustness to zero
+    threshold : Float
+        Added risk robustness of associated gradient factor value
+    """
     
     # Initialize the best guess tracker and initial guess
     tracker = BestGuessTracker()
@@ -270,7 +380,7 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
               f"{current_threshold}")
         
         # Check convergence based on difference between risk and risk threshold
-        if abs(current_threshold) < tol:
+        if current_threshold < tol and current_threshold >= 0:
             print(f"Converged at iteration {iteration}")
             break
         
@@ -284,22 +394,16 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
         
         # Set new upper or lower gradient_factor bounds
         if gradient_factor < gf_upper and current_threshold < 0:
-            
             gf_upper = gradient_factor
-            
         elif gradient_factor > gf_lower and current_threshold > 0:
-            
             gf_lower = gradient_factor
         
-        # Set new gradient factor
+        # Set new gradient factor as the midpoint
         if not np.isinf(gf_upper):
-            
-            # Set gradient factor as the midpoint
             gradient_factor = (gf_upper - gf_lower)/2 + gf_lower
         
+        # Double the gradient factor
         else:
-            
-            # Double the gradient factor
             gradient_factor *= 2
     
     # Return best guess
@@ -312,3 +416,4 @@ def optimizeGradientFactor(Discips_fragility, irules_fragility, pf_combos,
     else:
         print(f"Final gradient factor: {gradient_factor}")
         return gradient_factor, current_threshold
+

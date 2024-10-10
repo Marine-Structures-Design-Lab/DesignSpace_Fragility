@@ -17,9 +17,6 @@ from windfall_regret import evalCompProb, calcWindRegret, quantRisk, \
     plotWindRegret
 from entropy_tracker import prepEntropy, evalEntropy
 from fragility_check import checkFragility
-from scipy.interpolate import Rbf
-from scipy.optimize import approx_fprime
-import numpy as np
 import copy
 
 

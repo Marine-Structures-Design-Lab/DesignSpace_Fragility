@@ -124,7 +124,7 @@ auto_accept = False     # True = yes, False = no
 # Decide if the fragility of proposed reductions is to be assessed and the 
 # shift in the exponential curve for determining maximum threshold
 fragility = True       # True = yes, False = no
-fragility_type = 'PFM' # PFM = Probability-based; EFM = Entropy-based
+fragility_type = 'EFM' # PFM = Probability-based; EFM = Entropy-based
 fragility_shift = 0.4  # Should be a positive float
 
 # Decide on which elements of the extended fragility framework to pursue
@@ -702,7 +702,7 @@ with h5py.File(space_remaining_file_path, 'w') as hdf_file:
                                       data=data_point['space_remaining'], 
                                       compression="gzip")
 
-# Write Gradient_Factor to an .hdf5 file
+# Write Gradient_Factor and Threshold_value to an .hdf5 file
 gradient_factor_file_path = f"gradient_factor_{unique_identifier}.hdf5"
 with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
     for i, data_point in enumerate(Gradient_Factor):
@@ -710,6 +710,8 @@ with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
         iter_group.attrs['iter'] = data_point['iter']
         iter_group.create_dataset("gradient_factor", 
                                   data=data_point['gradient_factor'])
+        iter_group.create_dataset("Threshold_value", 
+                                  data=data_point['Threshold_value'])
 
 # Printing completion message to the redirected stdout
 print(f"Simulation completed. Space remaining data saved to "
