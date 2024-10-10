@@ -88,7 +88,7 @@ problem_name = 'SenYang'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 400    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -138,8 +138,8 @@ fragility_shift = 0.4  # Should be a positive float
 ### least 1 integer in there by default
 fragility_extensions = {
     "sub_spaces": [6], # Design sub-space dimensions to consider
-    "interdependencies": True,       # Consider design space interdependencies
-    "objective_changes": False         # Consider changes to req's and analyses
+    "interdependencies": False,       # Consider design space interdependencies
+    "objective_changes": True         # Consider changes to req's and analyses
 }
 
 # Indicate when and to what design space(s) a design change should occur
@@ -491,8 +491,8 @@ while iters <= iters_max:
                     
                     # Determine gradient factor value that eliminates the added
                     ### risk robustness
-                    gradient_factor, threshold = optimizeGradientFactor(Discips_fragility, 
-                        irules_fragility, pf_combos, 
+                    gradient_factor, threshold = optimizeGradientFactor(
+                        Discips_fragility, irules_fragility, pf_combos, 
                         pf_std_fragility, passfail, passfail_std, 
                         fragility_extensions, total_points, fragility_type, 
                         iters, iters_max, exp_parameters, irules_new, 
@@ -702,7 +702,7 @@ with h5py.File(space_remaining_file_path, 'w') as hdf_file:
                                       data=data_point['space_remaining'], 
                                       compression="gzip")
 
-# Write Gradient_Factor to an .hdf5 file
+# Write Gradient_Factor and Threshold_value to an .hdf5 file
 gradient_factor_file_path = f"gradient_factor_{unique_identifier}.hdf5"
 with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
     for i, data_point in enumerate(Gradient_Factor):
@@ -710,6 +710,8 @@ with h5py.File(gradient_factor_file_path, 'w') as hdf_file:
         iter_group.attrs['iter'] = data_point['iter']
         iter_group.create_dataset("gradient_factor", 
                                   data=data_point['gradient_factor'])
+        iter_group.create_dataset("Threshold_value", 
+                                  data=data_point['Threshold_value'])
 
 # Printing completion message to the redirected stdout
 print(f"Simulation completed. Space remaining data saved to "
