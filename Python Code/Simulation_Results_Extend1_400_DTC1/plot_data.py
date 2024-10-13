@@ -279,6 +279,69 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker):
         plt.show()
 
 
+def plotProof(feas1_disciplines_data):
+    
+    # Initialize colors, line styles, and legend names
+    colors = ['crimson', 'goldenrod', 'teal']
+    line_styles = ['-', '--', ':']
+    data_groups = ['Hydrodynamics', 'Stability', 'Weights']
+    
+    # Initialize empty lists
+    x_values = [None for _ in range(0, len(feas1_disciplines_data))]
+    y_values = [None for _ in range(0, len(feas1_disciplines_data))]
+    
+    # Initialize figure
+    plt.figure(figsize=(10, 4.5))
+    
+    # Loop through each discipline
+    for ind, (key, value) in enumerate(feas1_disciplines_data.items()):
+        
+        # Determine the discipline index
+        discip_index = int(key.split('_')[1]) - 1
+        
+        # Gather the x data points
+        x_points = list(value['Test_Case_1'].keys())
+        
+        # Sort x data points
+        sorted_data_points = sorted(x_points)
+        
+        # Find maximum of sorted data
+        max_iteration = max(sorted_data_points)
+        
+        # Gather x and y data point percentages
+        x_values[ind] = [iteration / max_iteration * 100 \
+                    for iteration in sorted_data_points]
+        y_values[ind] = [value['Test_Case_1'][point] for \
+                    point in sorted_data_points]
+            
+        # Plot the data
+        plt.plot(x_values[ind], y_values[ind], label=data_groups[ind],
+                 color=colors[ind], linestyle=line_styles[ind], linewidth=2.5)
+    
+    # Plot legend
+    plt.legend(loc='upper left', fontsize=12)
+    
+    # Set x- and y-axis labels
+    plt.xlabel('Elapsed Project Time (%)', fontsize=14)
+    plt.ylabel('Feasible-to-Total Space Remaining (%)', fontsize=14)
+    
+    # Set x- and y-axis limits
+    plt.xlim([0, 100])
+    plt.ylim([0, 100])
+    
+    # Increase font size of the tick labels
+    plt.tick_params(axis='both', which='major', labelsize=12)
+    
+    # Plot gridlines
+    plt.grid(True)
+    
+    # Adjust layout to fit all elements within the figure
+    plt.tight_layout()
+    
+    # Show graph
+    plt.show()
+
+
 """
 SCRIPT
 """
@@ -316,12 +379,15 @@ for discip_key, discip_dict in all_disciplines_data.items():
             diversityext_data[discip_key][test_key]
 
 # Create line plots for Disciplines 1, 2, and 3
-plotDisciplines(all_disciplines_data, feas1_disciplines_data,
-                feas2_disciplines_data)
+# plotDisciplines(all_disciplines_data, feas1_disciplines_data,
+#                 feas2_disciplines_data)
 
-# Create diversity plots for each discipline
-plotDiversity(diversity_data, 'Discrepancy', '-', 
-              ['firebrick', 'darkorange', 'darkgreen', 'darkturquoise', 
-               'blueviolet'],
-              marker = ['o', 'd', '*', 'X', 'P'])
+# # Create diversity plots for each discipline
+# plotDiversity(diversity_data, 'Discrepancy', '-', 
+#               ['firebrick', 'darkorange', 'darkgreen', 'darkturquoise', 
+#                'blueviolet'],
+#               marker = ['o', 'd', '*', 'X', 'P'])
+
+# Create feasible-to-remaining space plot
+plotProof(feas1_disciplines_data)
 
