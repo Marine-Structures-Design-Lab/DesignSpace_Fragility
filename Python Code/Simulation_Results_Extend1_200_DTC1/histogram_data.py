@@ -56,6 +56,7 @@ if __name__ == "__main__":
     
     # Calculate bin midpoints for x-ticks
     bin_midpoints = (custom_bins[:-1] + custom_bins[1:]) / 2
+    adjusted_xticks = bin_midpoints + (2 * bar_width)
 
     # Loop through each coordinate (plot each coordinate's histogram once)
     for i in range(0, 6):
@@ -63,7 +64,7 @@ if __name__ == "__main__":
         # Initialize figure
         plt.figure(figsize=(7, 5))
 
-        # Plot histograms for all test cases on the same figure for this coordinate
+        # Loop through each test case
         for idx, test_case_name in enumerate(test_case_names):
             
             # Retrieve the actual test case data from globals
@@ -71,28 +72,44 @@ if __name__ == "__main__":
             
             # Initialize numpy arrays for stacking
             first_array = np.empty((0, 6))
-            last_array = np.empty((0, 6))
+            # last_array = np.empty((0, 6))
+            time_array = np.empty((0, 6))
             
             # Loop through each run
             for run in test_case.keys():
                 
+                # Loop through each instance data was collected
+                for index, instance in enumerate(test_case[run][0]):
+                    
+                    # Break if the instance's iteration is greater than cut-off
+                    if instance['iter'] > 107: break
+                    
+                    # Set new instance index
+                    instance_index = index
+                
                 # Stack the initial space remaining arrays
                 first_array = np.vstack((first_array, 
-                                         test_case[run][0][0]['space_remaining']))
+                    test_case[run][0][0]['space_remaining']))
                 
                 # Stack the last space remaining arrays
-                last_array = np.vstack((last_array,
-                                        test_case[run][0][-1]['space_remaining']))
+                # last_array = np.vstack((last_array,
+                #     test_case[run][0][-1]['space_remaining']))
+                
+                # Stack the space remaining arrays at the cut-off
+                time_array = np.vstack((time_array,
+                    test_case[run][0][instance_index]['space_remaining']))
             
             # Create histograms
-            first_hist, bins = np.histogram(first_array[:, i], bins=custom_bins)
-            last_hist, _ = np.histogram(last_array[:, i], bins=bins)
+            first_hist, bins = np.histogram(first_array[:, i],bins=custom_bins)
+            # last_hist, _ = np.histogram(last_array[:, i], bins=bins)
+            time_hist, _ = np.histogram(time_array[:, i], bins=bins)
             
             # Avoid division by zero errors
             first_hist = np.where(first_hist == 0, 1, first_hist)
             
             # Calculate bin percentages relative to first bins
-            percentage_hist = (last_hist / first_hist) * 100
+            # percentage_hist = (last_hist / first_hist) * 100
+            percentage_hist = (time_hist / first_hist) * 100
             
             # Compute the x-offset for each test case
             offset = idx * bar_width
@@ -110,7 +127,7 @@ if __name__ == "__main__":
         plt.ylabel('Designs Remaining (%)', fontsize=14)
         plt.ylim(0, 100)
         plt.grid(axis='y')
-        plt.xticks(bin_midpoints, np.round(bin_midpoints, 3), fontsize=12)
+        plt.xticks(adjusted_xticks, np.round(bin_midpoints, 3), fontsize=12)
         plt.yticks(fontsize=12)
         plt.legend(loc='upper left', fontsize=12)
         plt.tight_layout()
