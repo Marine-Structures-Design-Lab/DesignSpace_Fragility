@@ -113,11 +113,11 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     colors = ['firebrick', 'darkorange', 'darkgreen', 'darkturquoise', 
               'blueviolet']
     # line_styles = ['-', '--', ':', '-.', 'None', 'None']
-    line_styles = ['-', '--', ':']
+    line_styles = ['--', ':']
     # markers = ['', '', '', '', '*', '+']
     markers = ['o', 'd', '*', 'X', 'P']
     # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
-    data_groups = ['Total Space', 'Feasible', 'Feasible-to-Remaining']
+    data_groups = ['Feasible Space', 'Feasible-to-Remaining']
     custom_names = ["No fragility (TC1)", "Initial PFM (TC2)", 
                     "Initial EFM (TC3)", "Extended PFM (TC4)",
                     "Extended EFM (TC5)"]
@@ -142,19 +142,19 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         feas2_test_cases_data = feas2_disciplines_data.get(discipline, {})
         
         # Plot data for space remaining
-        color_idx = 0
-        color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
-                             colors, 0, markers)
+        # color_idx = 0
+        # color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
+        #                       colors, 0, markers)
         
         # Plot data for feasible-to-remaining space
         color_idx = 0
-        color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[1], 
+        color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[0], 
                               colors, 0, markers)
         
         # Plot data for feasible space remaining
         color_idx = 0
-        color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[2], 
-                             colors, 0, markers)
+        color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[1], 
+                              colors, 0, markers)
         
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left',
@@ -166,7 +166,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
-        plt.ylim([0, 100])
+        plt.ylim([0, 50])
         
         # Increase font size of the tick labels
         plt.tick_params(axis='both', which='major', labelsize=12)
@@ -264,7 +264,7 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker):
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
-        plt.ylim([0, 0.75])
+        plt.ylim([0, 0.8])
         
         # Increase font size of the tick labels
         plt.tick_params(axis='both', which='major', labelsize=12)
