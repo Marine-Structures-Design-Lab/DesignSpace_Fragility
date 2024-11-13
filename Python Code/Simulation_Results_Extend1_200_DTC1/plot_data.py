@@ -117,7 +117,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
     # markers = ['', '', '', '', '*', '+']
     markers = ['o', 'd', '*', 'X', 'P']
     # data_groups = ['Total Space', 'Feasible Space', 'Feasible-to-Remaining']
-    data_groups = ['Feasible Space', 'Feasible-to-Remaining']
+    data_groups = ['Feasible', 'Feasible-to-Remaining']
     custom_names = ["No fragility (TC1)", "Initial PFM (TC2)", 
                     "Initial EFM (TC3)", "Extended PFM (TC4)",
                     "Extended EFM (TC5)"]
@@ -166,7 +166,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         
         # Set x- and y-axis limits
         plt.xlim([0, 100])
-        plt.ylim([0, 50])
+        plt.ylim([0, 60])
         
         # Increase font size of the tick labels
         plt.tick_params(axis='both', which='major', labelsize=12)

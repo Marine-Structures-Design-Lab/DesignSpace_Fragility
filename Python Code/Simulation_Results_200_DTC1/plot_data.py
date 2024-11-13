@@ -188,7 +188,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         plt.ylim([0, 100])
         
         # Increase font size of the tick labels
-        plt.tick_params(axis='both', which='major', labelsize=12)
+        plt.tick_params(axis='both', which='major', labelsize=14)
         
         # Plot gridlines
         plt.grid(True)
@@ -280,13 +280,16 @@ def plotDiversity(discipline_data, data_type, linestyle, colors, marker):
         plt.ylim([0, 0.35])
         
         # Increase font size of the tick labels
-        plt.tick_params(axis='both', which='major', labelsize=12)
+        plt.tick_params(axis='both', which='major', labelsize=14)
         
         # Plot gridlines
         plt.grid(True)
         
         # Adjust layout to fit all elements within the figure
         plt.tight_layout()
+        
+        # Additional adjustment for less tight layout
+        plt.subplots_adjust(left=0.08, right=0.97, top=0.9, bottom=0.2)
         
         # Show graph
         plt.show()
