@@ -1,6 +1,6 @@
 """
 SUMMARY:
-Set up for SBD1 problem specifically!!!
+Set up for SenYang problem specifically!!!
 
 CREATOR:
 Joseph B. Van Houten
@@ -49,18 +49,6 @@ class changeDesign:
     # Changes to the analyses used to calculate output points from input points
     def Analyses(self):
         
-        # Create sympy input and output variables
-        x = sp.symbols('x1:7')
-        y = sp.symbols('y1:6')
-        
-        # Choose the translation value
-        t = 0.4
-        
-        # Change second discipline's function
-        self.D[1]['fcns'] = [
-            1.25*x[4] - 12.5*(x[2]-t)**3 + 6.25*(x[2]-t)**2 - y[1],
-            (x[3]**3 + x[4])**2 - y[2]
-        ]
         
         return self.D, self.In_Rules, self.Out_Rules
     
@@ -91,6 +79,9 @@ class changeDesign:
         
         # Return the discipline and rule information for the problem
         return self.D, self.In_Rules, self.Out_Rules
+    
+    
+    
     
     
     # Reevaluate ALL previously explored points and update results...
