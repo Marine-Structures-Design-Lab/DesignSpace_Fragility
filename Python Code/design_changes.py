@@ -63,16 +63,52 @@ class changeDesign:
     # Changes to objective space requirements
     def Reqs(self):
         
-        # Create sympy output variables
-        y = sp.symbols('y1:6')
+        def X(x_norm, index):
+            """
+            Description
+            -----------
+            Creates an expression that denormalizes an input variable.
+
+            Parameters
+            ----------
+            x_norm : Sympy variable
+                The normalized input variable.
+            index : Integer
+                Index of the particular input variable.
+
+            Returns
+            -------
+            x_denorm : Sympy expression
+                The denormalized input variable expression.
+            """
+            
+            # Define each design variable's upper and lower bounds
+            bounds = {
+                0: (195.2, 362.0), # Example bounds for x[0] --> Length
+                1: (10.3, 21.7),   # Example bounds for x[1] --> Draft
+                2: (13.1, 30.0),   # Example bounds for x[2] --> Depth
+                3: (0.63, 0.75),   # Example bounds for x[3] --> Block coeff.
+                4: (5.0, 60.0),    # Example bounds for x[4] --> Breadth
+                5: (14.0, 18.0)    # Example bounds for x[5] --> Speed
+            }
+            
+            # Assign proper upper and lower bounds based on design variable
+            lower, upper = bounds[index]
+            
+            # Denormalize the design variable
+            x_denorm = x_norm*(upper - lower) + lower
+            
+            # Return the denormalized design variable
+            return x_denorm
         
-        # Adjust the list of output rules
-        output_rules = [sp.Or(sp.And(y[0]>=0.0,y[0]<=0.4),\
-                              sp.And(y[0]>=1.2,y[0]<=1.6)),
-                        sp.And(y[1]>=0.5,y[1]<=0.7),
-                        sp.And(y[2]>=0.2,y[2]<=0.5),
-                        sp.And(y[3]>=0.0,y[3]<=0.5),
-                        sp.And(y[4]>=0.0,y[4]<=0.8)]
+        # Create sympy design and output variables
+        x = sp.symbols('x1:7') # L, T, D, C_B, B, V
+        y = sp.symbols('y1:4') # F_n, GM, DW
+        
+        # Adjust the list of output rules - ~50% FEASIBLE SPACE REDUCTION!
+        output_rules = [y[0] <= 0.292, y[1] - 0.092*X(x[4],4) >= 0.0, 
+                        sp.And(y[2] >= 94000, y[2] <= 190000),
+                        y[2] - (X(x[1],1)/0.45)**(1.0/0.31) >= 0.0]
         
         # Assign new output rules to the problem
         self.Out_Rules = output_rules

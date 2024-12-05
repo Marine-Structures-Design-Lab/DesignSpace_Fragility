@@ -88,7 +88,7 @@ problem_name = 'SenYang'
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 200    # Must be a positive integer!
+iters_max = 400    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -139,7 +139,7 @@ fragility_shift = 0.4  # Should be a positive float
 fragility_extensions = {
     "sub_spaces": [6], # Design sub-space dimensions to consider
     "interdependencies": False,       # Consider design space interdependencies
-    "objective_changes": True         # Consider changes to req's and analyses
+    "objective_changes": False         # Consider changes to req's and analyses
 }
 
 # Indicate when and to what design space(s) a design change should occur
