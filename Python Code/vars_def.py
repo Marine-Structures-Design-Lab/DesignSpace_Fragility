@@ -19,6 +19,49 @@ LIBRARIES
 """
 import sympy as sp
 
+
+"""
+FUNCTION
+"""
+def X(x_norm, index):
+    """
+    Description
+    -----------
+    Creates an expression that denormalizes an input variable.
+
+    Parameters
+    ----------
+    x_norm : Sympy variable
+        The normalized input variable.
+    index : Integer
+        Index of the particular input variable.
+
+    Returns
+    -------
+    x_denorm : Sympy expression
+        The denormalized input variable expression.
+    """
+    
+    # Define each design variable's upper and lower bounds
+    bounds = {
+        0: (195.2, 362.0), # Example bounds for x[0] --> Length
+        1: (10.3, 21.7),   # Example bounds for x[1] --> Draft
+        2: (13.1, 30.0),   # Example bounds for x[2] --> Depth
+        3: (0.63, 0.75),   # Example bounds for x[3] --> Block coeff.
+        4: (5.0, 60.0),    # Example bounds for x[4] --> Breadth
+        5: (14.0, 18.0)    # Example bounds for x[5] --> Speed
+    }
+    
+    # Assign proper upper and lower bounds based on design variable
+    lower, upper = bounds[index]
+    
+    # Denormalize the design variable
+    x_denorm = x_norm*(upper - lower) + lower
+    
+    # Return the denormalized design variable
+    return x_denorm
+
+
 """
 CLASS
 """
@@ -129,45 +172,6 @@ class setProblem:
             must abide by when determining if tested designs produce passing
             outputs in the objective space
         """
-        
-        def X(x_norm, index):
-            """
-            Description
-            -----------
-            Creates an expression that denormalizes an input variable.
-
-            Parameters
-            ----------
-            x_norm : Sympy variable
-                The normalized input variable.
-            index : Integer
-                Index of the particular input variable.
-
-            Returns
-            -------
-            x_denorm : Sympy expression
-                The denormalized input variable expression.
-            """
-            
-            # Define each design variable's upper and lower bounds
-            bounds = {
-                0: (195.2, 362.0), # Example bounds for x[0] --> Length
-                1: (10.3, 21.7),   # Example bounds for x[1] --> Draft
-                2: (13.1, 30.0),   # Example bounds for x[2] --> Depth
-                3: (0.63, 0.75),   # Example bounds for x[3] --> Block coeff.
-                4: (5.0, 60.0),    # Example bounds for x[4] --> Breadth
-                5: (14.0, 18.0)    # Example bounds for x[5] --> Speed
-            }
-            
-            # Assign proper upper and lower bounds based on design variable
-            lower, upper = bounds[index]
-            
-            # Denormalize the design variable
-            x_denorm = x_norm*(upper - lower) + lower
-            
-            # Return the denormalized design variable
-            return x_denorm
-        
         
         # Create sympy input and output variables
         ### REMINDER THAT THE "x" SYMBOLS REPRESENT NORMALIZED VALUES!
