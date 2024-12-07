@@ -126,14 +126,20 @@ def outputDiff(rule, i, d):
             # Determine difference between lhs and rhs of rule
             diff = abs(d['out_ineqs'][rule][i] - rule.rhs)
             
+            # Determine range of values seen by the calculated rule
+            range_array = d['out_ineqs'][rule]
+            if 'eliminated' in d:
+                range_array = np.concatenate((range_array, 
+                    d['eliminated']['out_ineqs'][rule]), axis=0)
+            
             # Check if calculated rule values have a range of 0.0
-            if math.isclose(np.ptp(d['out_ineqs'][rule]), 0.0):
+            if math.isclose(np.ptp(range_array), 0.0):
                 
                 # Return the non-normalized difference
                 return diff
             
             # Normalize difference w/range of all values seen by rule
-            ndiff = diff / np.ptp(d['out_ineqs'][rule])
+            ndiff = diff / np.ptp(range_array)
                 
             # Return normalized absolute difference of lhs and rhs
             return ndiff

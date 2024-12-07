@@ -82,13 +82,13 @@ USER INPUTS
 """
 # List the name of the problem on which the design team is working
 ### OPTIONS: SBD1, SenYang,...
-problem_name = 'SenYang'
+problem_name = 'SBD1'
 
 # Establish the allowed timeline for exploring the design problem
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 400    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
