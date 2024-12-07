@@ -145,8 +145,8 @@ fragility_extensions = {
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
 ### time for it to occur...times must be in ascending order!
-change_design = ['Reqs']  # Options: Inputs, Analyses, Outputs, Reqs
-change_time = [0.4]          # Fraction of elapsed time(s) before change occurs
+change_design = []  # Options: Inputs, Analyses, Outputs, Reqs
+change_time = []          # Fraction of elapsed time(s) before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -592,6 +592,7 @@ while iters <= iters_max:
         Discips[i]['out_ineqs'] = calcRules(Discips[i], 'out_ineqs', 
                                             'tested_outs', 'outs', 
                                             'tested_ins', 'ins')
+        
         
         # Create a key for passing and failing of outputs if it does not exist
         Discips[i] = createKey('pass?', Discips[i])

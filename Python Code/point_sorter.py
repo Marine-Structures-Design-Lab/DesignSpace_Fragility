@@ -103,8 +103,31 @@ def updatePoints(discipline, indices, keys):
     # Loop through each key
     for key in keys:
         
+        # Check if key is a dictionary
+        if isinstance(discipline[key], dict):
+            
+            # Loop through each key of the dictionary
+            for ineq_key, ineq_array in discipline[key].items():
+                
+                # Create an empty 1D array for the ineq_key if does not exist
+                discipline['eliminated'][key] = \
+                    createNumpy(ineq_key, discipline['eliminated'][key])
+                
+                # Take rows from array according to the indices
+                moved_values = np.take(ineq_array, indices, 
+                                       axis=0)
+                
+                # Delete rows from array according to the indices
+                discipline[key][ineq_key] = np.delete(ineq_array, indices, 
+                                                      axis=0)
+                
+                # Add the moved values to the array
+                discipline['eliminated'][key][ineq_key] = \
+                    np.concatenate((discipline['eliminated'][key][ineq_key],
+                                    moved_values), axis=0)
+                
         # Check if key is a list
-        if isinstance(discipline[key], list):
+        elif isinstance(discipline[key], list):
             
             # Sort the indices in descending order
             indices.sort(reverse=True)
@@ -125,9 +148,10 @@ def updatePoints(discipline, indices, keys):
         else:
             
             # Take rows from array according to the indices
-            moved_values = np.take(discipline[key], indices, axis=0)
+            moved_values = np.take(discipline[key], 
+                                   indices, axis=0)
             
-            # Delete froms from array according to the indices
+            # Delete rows from array according to the indices
             discipline[key] = np.delete(discipline[key], indices, axis=0)
             
             # Add the moved values to the array
@@ -172,6 +196,7 @@ def elimDicts(discipline):
                       'Pass_Amount',
                       'space_remaining',
                       'space_remaining_ind',
+                      'out_ineqs',
                       'tested_ins',
                       'tested_outs']
     
@@ -191,6 +216,11 @@ def elimDicts(discipline):
         elif key in ['space_remaining', 'tested_ins']:
             discipline['eliminated'] = createNumpy2(\
                 key, discipline['eliminated'], len(discipline['ins']))
+        
+        # Create a dictionary for the particular key
+        elif key == 'out_ineqs':
+            discipline['eliminated'] = createDict('out_ineqs', 
+                                                  discipline['eliminated'])
         
         # Create a 1D numpy vector for the remaining key(s)
         else:
@@ -234,7 +264,7 @@ def testPoints(discipline, var, rule):
     # Move indices with failing input information to eliminated dictionary
     discipline = updatePoints(discipline, tp_elim,\
                      ['tested_ins', 'tested_outs', 'Fail_Amount', \
-                      'Pass_Amount', 'pass?'])
+                      'Pass_Amount', 'pass?', 'out_ineqs'])
     
     # Gather indices of space remaining points that do not meet rule
     sr_elim = checkPoints(discipline, rule, var, 'space_remaining')
