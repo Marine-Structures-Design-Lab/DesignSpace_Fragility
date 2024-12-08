@@ -29,7 +29,7 @@ class test_merge_constraints(unittest.TestCase):
         
         # Initialize symbols
         x = sp.symbols('x1:5')
-        y = sp.symbols('y1:4')
+        self.y = sp.symbols('y1:4')
         
         # Create a discipline without eliminated data
         self.Discip1 = {
@@ -39,9 +39,10 @@ class test_merge_constraints(unittest.TestCase):
             "tested_outs": np.zeros((3,1)),
             "Fail_Amount": np.array([0.0, 0.5, 0.3]),
             "Pass_Amount": np.array([0.7, 0.0, 0.4]),
+            'out_ineqs': {self.y[0] > 0.1: np.array([0.3, 0.1, 0.0])},
             "pass?": [True, True, True],
             "ins": [x[0], x[1], x[2]],
-            "outs": [y[0]],
+            "outs": [self.y[0]],
             "space_remaining": np.array([[0.2, 0.2, 0.2],
                                          [0.5, 0.2, 0.5],
                                          [0.9, 0.9, 0.2],
@@ -60,9 +61,11 @@ class test_merge_constraints(unittest.TestCase):
             "tested_outs": np.zeros((4,2)),
             "Fail_Amount": np.array([0.1, 0.0, 0.8, 0.0]),
             "Pass_Amount": np.array([0.0, 0.2, 0.9, 0.0]),
+            'out_ineqs': {self.y[1] > 0.1: np.array([0.1, 0.2, 0.3, 0.4]),
+                          self.y[2] > 0.1: np.array([0.5, 0.6, 0.7, 0.8])},
             "pass?": [True, True, True, True],
             "ins": [x[1], x[2], x[3]],
-            "outs": [y[1], y[2]],
+            "outs": [self.y[1], self.y[2]],
             "space_remaining": np.array([[0.4, 0.4, 0.4],
                                          [0.5, 0.4, 0.5],
                                          [0.3, 0.3, 0.4],
@@ -76,6 +79,8 @@ class test_merge_constraints(unittest.TestCase):
                 "tested_outs": np.zeros((3,2)),
                 "Fail_Amount": np.array([0.0, 0.5, 0.3]),
                 "Pass_Amount": np.array([0.7, 0.0, 0.4]),
+                'out_ineqs': {self.y[1] > 0.1: np.array([0.9, 0.8, 0.7]),
+                              self.y[2] > 0.1: np.array([0.4, 0.3, 0.2])},
                 "pass?": [True, True, True],
                 "space_remaining": np.array([[0.1, 0.4, 0.4],
                                              [0.7, 0.7, 0.2]]),

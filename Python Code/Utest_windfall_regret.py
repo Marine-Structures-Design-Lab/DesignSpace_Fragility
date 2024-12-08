@@ -30,7 +30,7 @@ class test_windfall_regret(unittest.TestCase):
         
         # Initialize sympy input variables
         self.x = sp.symbols('x1:7')
-        y = sp.symbols('y1:6')
+        self.y = sp.symbols('y1:6')
         
         # Create set of input rules already adopted
         rule1 = self.x[0] < 0.5
@@ -60,10 +60,11 @@ class test_windfall_regret(unittest.TestCase):
              'tested_outs': np.zeros((10,1)),
              'Fail_Amount': np.zeros(10),
              'Pass_Amount': np.zeros(10),
+             'out_ineqs': {self.y[0] > 0.1: np.zeros(10)},
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
              'ins': [self.x[0], self.x[1], self.x[2]],
-             'outs': [y[0]]},
+             'outs': [self.y[0]]},
             {'space_remaining': np.array([[0.0, 0.0, 0.0],
                                           [1.0, 0.1, 0.0],
                                           [1.0, 0.2, 0.0],
@@ -80,10 +81,12 @@ class test_windfall_regret(unittest.TestCase):
              'tested_outs': np.zeros((10,2)),
              'Fail_Amount': np.zeros(10),
              'Pass_Amount': np.zeros(10),
+             'out_ineqs': {self.y[1] > 0.1: np.zeros(10),
+                           self.y[2] > 0.1: np.zeros(10)},
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
              'ins': [self.x[2], self.x[3], self.x[4]],
-             'outs': [y[1], y[2]]},
+             'outs': [self.y[1], self.y[2]]},
             {'space_remaining': np.array([[0.0, 0.6, 0.9],
                                           [0.1, 0.5, 1.0],
                                           [0.2, 0.0, 0.0],
@@ -100,10 +103,12 @@ class test_windfall_regret(unittest.TestCase):
              'tested_outs': np.zeros((10,2)),
              'Fail_Amount': np.zeros(10),
              'Pass_Amount': np.zeros(10),
+             'out_ineqs': {self.y[1] > 0.1: np.zeros(10),
+                           self.y[2] > 0.1: np.zeros(10)},
              'pass?': [False, False, False, False, False, False, False, False,
                        False, False],
              'ins': [self.x[0], self.x[4], self.x[5]],
-             'outs': [y[3], y[4]]}
+             'outs': [self.y[3], self.y[4]]}
         ]
     
     

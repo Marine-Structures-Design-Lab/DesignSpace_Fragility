@@ -34,6 +34,9 @@ class test_point_sorter(unittest.TestCase):
         self.Discips, self.Input_Rules, self.Output_Rules = \
             getattr(prob,'SBD1')()
         
+        # Initialize sympy variables
+        self.y = sp.symbols('y1:6')
+        
         # Create an array of tested input points
         self.Discips[0]['tested_ins'] = np.array([[0.1, 0.1, 0.1],
                                                   [1.0, 1.0, 1.0],
@@ -56,6 +59,11 @@ class test_point_sorter(unittest.TestCase):
         
         # Create a boolean list of pass/fail values
         self.Discips[0]['pass?'] = [True, False, True, False, True]
+        
+        # Create a dictionary for output inequalities
+        self.Discips[0]['out_ineqs'] = {
+            self.y[0] < 0.32: np.array([0.0, 0.1, 0.2, 0.3, 0.4])
+            }
         
         # Create an array of space remaining points (3x3x3)
         self.Discips[0]['space_remaining'], self.tp_actual, self.index_list = \
@@ -80,6 +88,8 @@ class test_point_sorter(unittest.TestCase):
         self.Discips[0]['eliminated'] = createNumpy('Fail_Amount', \
             self.Discips[0]['eliminated'])
         self.Discips[0]['eliminated'] = createNumpy('Pass_Amount', \
+            self.Discips[0]['eliminated'])
+        self.Discips[0]['eliminated'] = createDict('out_ineqs',
             self.Discips[0]['eliminated'])
         self.Discips[0]['eliminated'] = createNumpy2('space_remaining', \
             self.Discips[0]['eliminated'], len(self.Discips[0]['ins']))
@@ -117,7 +127,7 @@ class test_point_sorter(unittest.TestCase):
         # Execute the update points function for the provided indices
         self.Discips[0] = updatePoints(self.Discips[0], tp_elim, \
             ['tested_ins', 'tested_outs', 'Fail_Amount',
-             'Pass_Amount', 'pass?'])
+             'Pass_Amount', 'pass?', 'out_ineqs'])
         self.Discips[0] = updatePoints(self.Discips[0], sr_elim, \
             ['space_remaining', 'space_remaining_ind'])
             
@@ -128,6 +138,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.4]])
         array_FA = np.array([0.2, 0.4])
         array_PA = np.array([0.2, 0.4])
+        dict_outineqs = {self.y[0] < 0.32: np.array([0.2, 0.4])}
         list_p = [True, True]
         space_rem_ind = []
         array_sr = np.empty((0,3))
@@ -141,6 +152,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['out_ineqs'][self.y[0] < 0.32],
+             dict_outineqs[self.y[0] < 0.32])
         self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
         self.assertEqual(self.Discips[0]['eliminated']['space_remaining_ind'], 
                          space_rem_ind)
@@ -156,6 +170,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.3]])
         array_FA = np.array([0.0, 0.1, 0.3])
         array_PA = np.array([0.0, 0.1, 0.3])
+        dict_outineqs = {self.y[0] < 0.32: np.array([0.0, 0.1, 0.3])}
         list_p = [True, False, False]
         space_rem_ind = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                          16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
@@ -167,6 +182,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
         np.testing.assert_array_equal(self.Discips[0]['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['out_ineqs'][self.y[0] < 0.32],
+             dict_outineqs[self.y[0] < 0.32])
         self.assertEqual(self.Discips[0]['pass?'], list_p)
         self.assertEqual(self.Discips[0]['space_remaining_ind'], space_rem_ind)
         np.testing.assert_array_equal\
@@ -192,6 +210,7 @@ class test_point_sorter(unittest.TestCase):
         self.assertIn("pass?", self.Discips[1]['eliminated'])
         self.assertIn("tested_ins", self.Discips[1]['eliminated'])
         self.assertIn("tested_outs", self.Discips[1]['eliminated'])
+        self.assertIn("out_ineqs", self.Discips[1]['eliminated'])
         self.assertIn("space_remaining", self.Discips[1]['eliminated'])
         self.assertIn("space_remaining_ind", self.Discips[1]['eliminated'])
         
@@ -210,6 +229,7 @@ class test_point_sorter(unittest.TestCase):
         array_outs = np.array([[1.3]])
         array_FA = np.array([0.3])
         array_PA = np.array([0.3])
+        dict_outineqs = {self.y[0] < 0.32: np.array([0.3])}
         list_p = [False]
         list_sri = [0, 1, 2, 3, 4, 5, 6, 7, 8]
         array_sr = np.array([[0.0, 0.0, 0.0],
@@ -231,6 +251,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['out_ineqs'][self.y[0] < 0.32],
+             dict_outineqs[self.y[0] < 0.32])
         self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
         self.assertEqual(self.Discips[0]['eliminated']['space_remaining_ind'],
                          list_sri)
@@ -248,6 +271,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.4]])
         array_FA = np.array([0.0, 0.1, 0.2, 0.4])
         array_PA = np.array([0.0, 0.1, 0.2, 0.4])
+        dict_outineqs = {self.y[0] < 0.32: np.array([0.0, 0.1, 0.2, 0.4])}
         list_p = [True, False, True, True]
         list_sri = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
                     24, 25, 26]
@@ -276,6 +300,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
         np.testing.assert_array_equal(self.Discips[0]['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['out_ineqs'][self.y[0] < 0.32],
+             dict_outineqs[self.y[0] < 0.32])
         self.assertEqual(self.Discips[0]['pass?'], list_p)
         self.assertEqual(self.Discips[0]['space_remaining_ind'], list_sri)
         np.testing.assert_array_equal\
@@ -296,6 +323,9 @@ class test_point_sorter(unittest.TestCase):
                                                    [1.0, 1.0]])
         self.Discips[1]['Fail_Amount'] = np.array([0.0, 0.5, 1.0])
         self.Discips[1]['Pass_Amount'] = np.array([0.0, 0.5, 1.0])
+        self.Discips[1]['out_ineqs'] = {
+            self.y[1] > 0.1: np.array([0.0, 0.5, 1.0])
+        }
         self.Discips[1]['pass?'] = [True, False, True]
         self.Discips[1]['space_remaining'], tp_actual, \
             self.Discips[1]['space_remaining_ind'] = \
@@ -318,6 +348,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.1]])
         array_FA = np.array([0.3, 0.1])
         array_PA = np.array([0.3, 0.1])
+        dict_outineqs = {self.y[0] < 0.32: np.array([0.3, 0.1])}
         list_p = [False, False]
         list_sri = [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 17, 23, 26]
         array_sr = np.array([[0.0, 0.0, 0.0],
@@ -343,6 +374,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['eliminated']['Fail_Amount'], array_FA)
         np.testing.assert_array_equal\
             (self.Discips[0]['eliminated']['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['eliminated']['out_ineqs'][self.y[0] < 0.32],
+             dict_outineqs[self.y[0] < 0.32])
         self.assertEqual(self.Discips[0]['eliminated']['pass?'], list_p)
         self.assertEqual(self.Discips[0]['eliminated']['space_remaining_ind'],
                          list_sri)
@@ -358,6 +392,7 @@ class test_point_sorter(unittest.TestCase):
                                [1.4]])
         array_FA = np.array([0.0, 0.2, 0.4])
         array_PA = np.array([0.0, 0.2, 0.4])
+        dict_outineqs = {self.y[0] < 0.32: np.array([0.0, 0.2, 0.4])}
         list_p = [True, True, True]
         list_sri = [9, 10, 11, 12, 13, 15, 16, 18, 19, 20, 21, 22, 24, 25]
         array_sr = np.array([[0.5, 0.0, 0.0],
@@ -381,6 +416,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[0]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[0]['Fail_Amount'], array_FA)
         np.testing.assert_array_equal(self.Discips[0]['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[0]['out_ineqs'][self.y[0] < 0.32],
+             dict_outineqs[self.y[0] < 0.32])
         self.assertEqual(self.Discips[0]['pass?'], list_p)
         self.assertEqual(self.Discips[0]['space_remaining_ind'], list_sri)
         np.testing.assert_array_equal\
@@ -391,6 +429,7 @@ class test_point_sorter(unittest.TestCase):
         array_outs = np.array([[1.0, 1.0]])
         array_FA = np.array([1.0])
         array_PA = np.array([1.0])
+        dict_outineqs = {self.y[1] > 0.1: np.array([1.0])}
         list_p = [True]
         list_sri = [6, 7, 8, 15, 16, 17, 24, 25, 26]
         array_sr = np.array([[0.0, 1.0, 0.0],
@@ -412,6 +451,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[1]['eliminated']['Fail_Amount'], array_FA)
         np.testing.assert_array_equal\
             (self.Discips[1]['eliminated']['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['eliminated']['out_ineqs'][self.y[1] > 0.1],
+             dict_outineqs[self.y[1] > 0.1])
         self.assertEqual(self.Discips[1]['eliminated']['pass?'], list_p)
         self.assertEqual(self.Discips[1]['eliminated']['space_remaining_ind'],
                          list_sri)
@@ -425,6 +467,7 @@ class test_point_sorter(unittest.TestCase):
                                [0.5, 0.5]])
         array_FA = np.array([0.0, 0.5])
         array_PA = np.array([0.0, 0.5])
+        dict_outineqs = {self.y[1] > 0.1: np.array([0.0, 0.5])}
         list_p = [True, False]
         list_sri = [0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 
                     22, 23]
@@ -453,6 +496,9 @@ class test_point_sorter(unittest.TestCase):
             (self.Discips[1]['tested_outs'], array_outs)
         np.testing.assert_array_equal(self.Discips[1]['Fail_Amount'], array_FA)
         np.testing.assert_array_equal(self.Discips[1]['Pass_Amount'], array_PA)
+        np.testing.assert_array_equal\
+            (self.Discips[1]['out_ineqs'][self.y[1] > 0.1],
+             dict_outineqs[self.y[1] > 0.1])
         self.assertEqual(self.Discips[1]['pass?'], list_p)
         self.assertEqual(self.Discips[1]['space_remaining_ind'], list_sri)
         np.testing.assert_array_equal\
