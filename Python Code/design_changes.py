@@ -78,7 +78,8 @@ class changeDesign:
         return self.D, self.In_Rules, self.Out_Rules
     
     
-    # Reevaluate ALL previously explored points and update results for requirements change
+    # Reevaluate pass-fail amount of all previously explored points and update 
+    ### results for requirements change
     def reevaluatePoints(self):
         
         # Loop through each discipline
@@ -105,8 +106,6 @@ class changeDesign:
             # Calculate left-hand side of output rule inequality for each new point
             discip['out_ineqs'] = calcRules(discip, 'out_ineqs', 'tested_outs',
                                             'outs', 'tested_ins', 'ins')
-            
-            
             
             # Check whether the output points pass or fail
             outchk = checkOutput(discip, output_rules)

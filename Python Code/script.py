@@ -82,13 +82,13 @@ USER INPUTS
 """
 # List the name of the problem on which the design team is working
 ### OPTIONS: SBD1, SenYang,...
-problem_name = 'SBD1'
+problem_name = 'SenYang'
 
 # Establish the allowed timeline for exploring the design problem
 ### This value determines the number of time iterations that will be executed,
 ### but it does not necessarily mean each explored point tested will only take
 ### one iteration to complete.
-iters_max = 50    # Must be a positive integer!
+iters_max = 200    # Must be a positive integer!
 
 # Decide on the strategy for producing random input values
 ### OPTIONS: Uniform, LHS (eventually),...
@@ -145,8 +145,8 @@ fragility_extensions = {
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
 ### time for it to occur...times must be in ascending order!
-change_design = []  # Options: Inputs, Analyses, Outputs, Reqs
-change_time = []          # Fraction of elapsed time(s) before change occurs
+change_design = ['Reqs']  # Options: 'Inputs', 'Analyses', 'Outputs', 'Reqs'
+change_time = [0.4]          # Fraction of elapsed time(s) before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -285,7 +285,7 @@ while iters <= iters_max:
         # Call the proper method based on the type of design change
         Discips, Input_Rules, Output_Rules = getattr(change, change_type)()
         
-        # Reevaluate and update ALL previously explored points
+        # Reevaluate previously explored points
         Discips = change.reevaluatePoints()
         
         # Increase change counter by 1!
