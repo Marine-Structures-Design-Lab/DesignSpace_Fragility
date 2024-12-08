@@ -82,7 +82,7 @@ USER INPUTS
 """
 # List the name of the problem on which the design team is working
 ### OPTIONS: SBD1, SenYang,...
-problem_name = 'SBD1'
+problem_name = 'SenYang'
 
 # Establish the allowed timeline for exploring the design problem
 ### This value determines the number of time iterations that will be executed,
@@ -104,7 +104,7 @@ search_factor = 100
 ### space remaining in each discipline - more points will increase execution
 ### time of program but provide more accurate approximations of space remaining
 ### following any space reductions
-total_points = 10000
+total_points = 400000
 
 # Decide on the run time (iterations) for each discipline's analysis
 ### Important to make sure that the length of the list coincides with the
@@ -137,7 +137,7 @@ fragility_shift = 0.4  # Should be a positive float
 ### subspaces consisting of 2 design variables, and so on.  Needs to have at
 ### least 1 integer in there by default
 fragility_extensions = {
-    "sub_spaces": [3], # Design sub-space dimensions to consider
+    "sub_spaces": [6], # Design sub-space dimensions to consider
     "interdependencies": False,       # Consider design space interdependencies
     "objective_changes": False         # Consider changes to req's and analyses
 }
