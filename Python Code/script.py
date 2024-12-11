@@ -33,6 +33,7 @@ from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from objective_optimizer import optimizeGradientFactor
+from gf_decision import gfDecider
 from exploration_amount import exploreSpace
 from get_constraints import getConstraints, getInequalities
 from create_key import createKey, createDict, createNumpy
@@ -137,9 +138,20 @@ fragility_shift = 0.4  # Should be a positive float
 ### subspaces consisting of 2 design variables, and so on.  Needs to have at
 ### least 1 integer in there by default
 fragility_extensions = {
-    "sub_spaces": [3], # Design sub-space dimensions to consider
+    "sub_spaces": [6], # Design sub-space dimensions to consider
     "interdependencies": False,       # Consider design space interdependencies
-    "objective_changes": False         # Consider changes to req's and analyses
+    "objective_changes": True         # Consider changes to req's and analyses
+}
+
+# Determine what strategy to use for making gradient-factor based decisions
+### "coefficients" should consist of a list of the coefficients necessary to
+### define different equations
+### Fixed = [y-intercept]
+### Linear = [Slope, y-intercept]
+### Quadratic = [Parabola shape (a), vertex x-coord (h), vertex y-coord (k)]
+gf_decide = {
+    "strategy": "Fixed", # Options: Fixed, Linear, Quadratic
+    "coefficients": [0.3]
 }
 
 # Indicate when and to what design space(s) a design change should occur
@@ -187,7 +199,7 @@ COMMANDS
 """
 # Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
-Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
+Discips, Input_Rules, Output_Rules = getattr(prob, problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
@@ -507,6 +519,11 @@ while iters <= iters_max:
                         'gradient_factor': copy.deepcopy(gradient_factor),
                         'Threshold_value': copy.deepcopy(threshold)
                     })
+                    
+                    # Make a decision to implement or delay space reduction
+                    ### based on gradient factor strategy
+                    gradfact = gfDecider(gf_decide['coefficients'])
+                    break_loop = getattr(gradfact, gf_decide['strategy'])()
                     
                     # Indicate that objective change check is complete
                     print("Completed objective space fragility check.")

@@ -498,7 +498,7 @@ if __name__ == "__main__":
         }
     
     # Use ThreadPoolExecutor to parallelize the test case processing
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         
         # Submit each test case to be processed concurrently
         future_to_test_case = {

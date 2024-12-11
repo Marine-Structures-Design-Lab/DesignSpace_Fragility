@@ -38,14 +38,15 @@ def calcRules(Discip, dict_key1, dict_key2, dict_key3, dict_key4, dict_key5):
         Discipline's dictionary key from where variable values for calculating
         the rule values are to be gathered
     dict_key3 : String
-        Discipline's dictionary key where the variables pertaining to the rules
-        are located
+        Discipline's dictionary key where the output variables pertaining to 
+        the rules are located
     dict_key4 : String
         Discipline's dictionary key from where input values for calculating
         the rule values are to be gathered
     dict_key5 : String
+        Discipline's dictionary key where the design variables pertaining to
+        the rules are located
         
-
     Returns
     -------
     Discip[dict_key1] : Dictionary

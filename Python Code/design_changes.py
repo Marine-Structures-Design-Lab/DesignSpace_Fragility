@@ -85,7 +85,8 @@ class changeDesign:
         # Loop through each discipline
         for discip in self.D:
             
-            # Remove all of the pass-fail amount data
+            # Remove all of the pass-fail amount data (and create design and
+            ### output variable keys in eliminated key)
             discip['pass?'] = []
             discip['out_ineqs'] = {}
             discip['Fail_Amount'] = np.array([], dtype=float)
@@ -95,6 +96,8 @@ class changeDesign:
                 discip['eliminated']['out_ineqs'] = {}
                 discip['eliminated']['Fail_Amount'] = np.array([], dtype=float)
                 discip['eliminated']['Pass_Amount'] = np.array([], dtype=float)
+                discip['eliminated']['ins'] = discip['ins']
+                discip['eliminated']['outs'] = discip['outs']
                 
             # Determine current output value rules for the discipline to meet
             output_rules = getConstraints(discip['outs'] + discip['ins'], 
@@ -103,16 +106,30 @@ class changeDesign:
             # Gather any new inequalities of relevance to the discipline
             discip = getInequalities(discip, output_rules, 'out_ineqs')
             
-            # Calculate left-hand side of output rule inequality for each new point
+            # Add inequality to eliminated key if it exists
+            if 'eliminated' in discip:
+                discip['eliminated'] = getInequalities(discip['eliminated'], 
+                    output_rules, 'out_ineqs')
+            
+            # Calculate lhs of output rule inequality for each point
             discip['out_ineqs'] = calcRules(discip, 'out_ineqs', 'tested_outs',
                                             'outs', 'tested_ins', 'ins')
+            if 'eliminated' in discip:
+                discip['eliminated']['out_ineqs'] = \
+                    calcRules(discip['eliminated'], 'out_ineqs', 'tested_outs', 
+                              'outs', 'tested_ins', 'ins')
             
             # Check whether the output points pass or fail
-            outchk = checkOutput(discip, output_rules)
-            discip = outchk.basicCheck()
+            outchk1 = checkOutput(discip, output_rules)
+            discip = outchk1.basicCheck()
+            if 'eliminated' in discip:
+                outchk2 = checkOutput(discip['eliminated'])
+                discip['eliminated'] = outchk2.basicCheck()
             
             # Determine the extent to which points pass and fail
-            discip = outchk.rmsFail()
+            discip = outchk1.rmsFail()
+            if 'eliminated' in discip:
+                discip['eliminated'] = outchk2.rmsFail()
         
         # Return the update information for each discipline
         return self.D
