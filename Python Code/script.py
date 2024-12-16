@@ -522,7 +522,8 @@ while iters <= iters_max:
                     
                     # Make a decision to implement or delay space reduction
                     ### based on gradient factor strategy
-                    gradfact = gfDecider(gf_decide['coefficients'])
+                    gradfact = gfDecider(gf_decide['coefficients'], 
+                                         gradient_factor, iters, iters_max)
                     break_loop = getattr(gradfact, gf_decide['strategy'])()
                     
                     # Indicate that objective change check is complete
