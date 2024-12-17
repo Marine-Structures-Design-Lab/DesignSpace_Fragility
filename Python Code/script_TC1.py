@@ -33,6 +33,7 @@ from connect_perceptions import connectPerceptions
 from reduction_change import changeReduction
 from fragility_script import fragilityCommands
 from objective_optimizer import optimizeGradientFactor
+from gf_decision import gfDecider
 from exploration_amount import exploreSpace
 from get_constraints import getConstraints, getInequalities
 from create_key import createKey, createDict, createNumpy
@@ -142,11 +143,22 @@ fragility_extensions = {
     "objective_changes": False         # Consider changes to req's and analyses
 }
 
+# Determine what strategy to use for making gradient-factor based decisions
+### "coefficients" should consist of a list of the coefficients necessary to
+### define different equations
+### Fixed = [y-intercept]
+### Linear = [Slope, y-intercept]
+### Quadratic = [Parabola shape (a), vertex x-coord (h), vertex y-coord (k)]
+gf_decide = {
+    "strategy": "Fixed", # Options: Fixed, Linear, Quadratic
+    "coefficients": [0.3]
+}
+
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
 ### time for it to occur...times must be in ascending order!
-change_design = []  # Options: Inputs, Analyses, Outputs, Reqs
-change_time = []          # Fraction of elapsed time(s) before change occurs
+change_design = ['Reqs']  # Options: 'Inputs', 'Analyses', 'Outputs', 'Reqs'
+change_time = [0.4]          # Fraction of elapsed time(s) before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -187,7 +199,7 @@ COMMANDS
 """
 # Establish disciplines and initial rules for the design problem of interest
 prob = setProblem()
-Discips, Input_Rules, Output_Rules = getattr(prob,problem_name)()
+Discips, Input_Rules, Output_Rules = getattr(prob, problem_name)()
 
 # Establish a counting variable that keeps track of the amount of time passed
 iters = 0
@@ -285,8 +297,11 @@ while iters <= iters_max:
         # Call the proper method based on the type of design change
         Discips, Input_Rules, Output_Rules = getattr(change, change_type)()
         
-        # Reevaluate and update ALL previously explored points
-        Discips = change.reevaluatePoints()
+        # Check if design change involves requirements changes only
+        if change_type == 'Reqs':
+            
+            # Reevaluate previously explored points
+            Discips = change.reevaluatePoints()
         
         # Increase change counter by 1!
         change_counter += 1
@@ -507,6 +522,12 @@ while iters <= iters_max:
                         'gradient_factor': copy.deepcopy(gradient_factor),
                         'Threshold_value': copy.deepcopy(threshold)
                     })
+                    
+                    # Make a decision to implement or delay space reduction
+                    ### based on gradient factor strategy
+                    gradfact = gfDecider(gf_decide['coefficients'], 
+                                         gradient_factor, iters, iters_max)
+                    break_loop = getattr(gradfact, gf_decide['strategy'])()
                     
                     # Indicate that objective change check is complete
                     print("Completed objective space fragility check.")
