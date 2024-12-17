@@ -297,8 +297,11 @@ while iters <= iters_max:
         # Call the proper method based on the type of design change
         Discips, Input_Rules, Output_Rules = getattr(change, change_type)()
         
-        # Reevaluate previously explored points
-        Discips = change.reevaluatePoints()
+        # Check if design change involves requirements changes only
+        if change_type == 'Reqs':
+            
+            # Reevaluate previously explored points
+            Discips = change.reevaluatePoints()
         
         # Increase change counter by 1!
         change_counter += 1

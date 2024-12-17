@@ -1,6 +1,8 @@
 """
 SUMMARY:
-Set up for SenYang problem specifically!!!
+Initiates design changes of a user-specified type at a user-specified point in
+time for a design problem. NOTE: Currently set up specifically for the SenYang
+bulk carrier design problem.
 
 CREATOR:
 Joseph B. Van Houten
@@ -27,10 +29,14 @@ class changeDesign:
         """
         Parameters
         ----------
-        Discips : Dictionary
-            DESCRIPTION.
-        Output_Rules : 
-            DESCRIPTION
+        Discips : List of dictionaries
+            Information pertaining to each discipline
+        Input_Rules : List
+            Current list of design space rules that each discipline needs to 
+            abide by
+        Output_Rules : List
+            Current list of objectice space rules that each discipline needs to
+            adhere to
         """
         self.D = Discips
         self.In_Rules = Input_Rules
@@ -59,8 +65,23 @@ class changeDesign:
         return self.D, self.In_Rules, self.Out_Rules
     
     
-    # Changes to objective space requirements
     def Reqs(self):
+        """
+        Description
+        -----------
+        Establish new objective space requirements that need to be satisfied.
+
+        Returns
+        -------
+        Discips : List of dictionaries
+            Same information pertaining to each discipline
+        Input_Rules : List
+            Same list of design space rules that each discipline needs to abide
+            by
+        Output_Rules : List
+            New list of objectice space rules that each discipline needs to
+            adhere to
+        """
         
         # Create sympy design and output variables
         x = sp.symbols('x1:7') # L, T, D, C_B, B, V
@@ -78,9 +99,18 @@ class changeDesign:
         return self.D, self.In_Rules, self.Out_Rules
     
     
-    # Reevaluate pass-fail amount of all previously explored points and update 
-    ### results for requirements change
     def reevaluatePoints(self):
+        """
+        Description
+        -----------
+        Reevaluate the pass-fail amounts of all the previously explored design
+        points and update the results for the requirements change(s).
+
+        Returns
+        -------
+        Discips : List of dictionaries
+            New information pertaining to each discipline
+        """
         
         # Loop through each discipline
         for discip in self.D:
@@ -133,6 +163,4 @@ class changeDesign:
         
         # Return the update information for each discipline
         return self.D
-    
-    
-    
+
