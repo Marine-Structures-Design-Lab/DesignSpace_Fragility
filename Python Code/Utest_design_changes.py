@@ -15,6 +15,7 @@ from vars_def import setProblem, X
 import unittest
 import numpy as np
 import sympy as sp
+import copy
 
 
 """
@@ -153,18 +154,41 @@ class test_design_changes(unittest.TestCase):
                  }
             }
         ]
+            
+        # Create a copy of the disciplines' information
+        Discips = copy.deepcopy(self.Discips)
         
         # Initiate requirements changes
         change = changeDesign(self.Discips, self.Input_Rules, 
                               self.Output_Rules)
-        Discips, Input_Rules, Output_Rules = getattr(change, 'Reqs')()
+        self.Discips, self.Input_Rules, self.Output_Rules = \
+            getattr(change, 'Reqs')()
         
         # Reevaluate points
-        print(Output_Rules)
-        Discips = change.reevaluatePoints()
+        self.Discips = change.reevaluatePoints()
         
         # Check that Disciplines' dictionaries are properly update
-        np.testing.assert_array_equal()
+        for discip, s_discip in zip(Discips, self.Discips):
+            np.testing.assert_array_equal(discip['tested_ins'], 
+                                          s_discip['tested_ins'])
+            np.testing.assert_array_equal(discip['tested_outs'],
+                                          s_discip['tested_outs'])
+            np.testing.assert_array_equal(discip['eliminated']['tested_ins'],
+                                          s_discip['eliminated']['tested_ins'])
+            np.testing.assert_array_equal\
+                (discip['eliminated']['tested_outs'],
+                 s_discip['eliminated']['tested_outs'])
+            self.assertFalse(np.array_equal(discip['Fail_Amount'],
+                                            s_discip['Fail_Amount']))
+            self.assertFalse(np.array_equal(discip['Pass_Amount'],
+                                            s_discip['Pass_Amount']))
+            self.assertFalse(np.array_equal\
+                (discip['eliminated']['Fail_Amount'],
+                 s_discip['eliminated']['Fail_Amount']))
+            self.assertFalse(np.array_equal\
+                (discip['eliminated']['Pass_Amount'],
+                 s_discip['eliminated']['Pass_Amount']))
+                
 
 """
 SCRIPT

@@ -153,7 +153,7 @@ class changeDesign:
             outchk1 = checkOutput(discip, output_rules)
             discip = outchk1.basicCheck()
             if 'eliminated' in discip:
-                outchk2 = checkOutput(discip['eliminated'])
+                outchk2 = checkOutput(discip['eliminated'], output_rules)
                 discip['eliminated'] = outchk2.basicCheck()
             
             # Determine the extent to which points pass and fail
