@@ -39,21 +39,21 @@ os.chdir('./Test Case 3/Gradient_Factor')
 with open('load_data.py') as file:
     exec(file.read())
 
-# Change back to the original directory
-os.chdir(original_dir)
+# # Change back to the original directory
+# os.chdir(original_dir)
 
-# Read in the data from Test Case 4
-os.chdir('./Test Case 4/Gradient_Factor')
-with open('load_data.py') as file:
-    exec(file.read())
+# # Read in the data from Test Case 4
+# os.chdir('./Test Case 4/Gradient_Factor')
+# with open('load_data.py') as file:
+#     exec(file.read())
 
-# Change back to the original directory
-os.chdir(original_dir)
+# # Change back to the original directory
+# os.chdir(original_dir)
 
-# Read in the data from Test Case 5
-os.chdir('./Test Case 5/Gradient_Factor')
-with open('load_data.py') as file:
-    exec(file.read())
+# # Read in the data from Test Case 5
+# os.chdir('./Test Case 5/Gradient_Factor')
+# with open('load_data.py') as file:
+#     exec(file.read())
 
 # Change back to the original directory
 os.chdir(original_dir)
@@ -69,8 +69,8 @@ with open('Gradient_Factor_2.pkl', 'wb') as f:
 with open('Gradient_Factor_3.pkl', 'wb') as f:
     pickle.dump(Gradient_Factor_3, f)
 
-with open('Gradient_Factor_4.pkl', 'wb') as f:
-    pickle.dump(Gradient_Factor_4, f)
+# with open('Gradient_Factor_4.pkl', 'wb') as f:
+#     pickle.dump(Gradient_Factor_4, f)
 
-with open('Gradient_Factor_5.pkl', 'wb') as f:
-    pickle.dump(Gradient_Factor_5, f)
+# with open('Gradient_Factor_5.pkl', 'wb') as f:
+#     pickle.dump(Gradient_Factor_5, f)

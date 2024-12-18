@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=PostProcessing
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=5
-#SBATCH --mem=50g
-#SBATCH --time=96:00:00
+#SBATCH --cpus-per-task=3
+#SBATCH --mem=30g
+#SBATCH --time=72:00:00
 #SBATCH --account=mdcoll0
 #SBATCH --partition=standard
 #SBATCH --mail-type=BEGIN,END,FAIL

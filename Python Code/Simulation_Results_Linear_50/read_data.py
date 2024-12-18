@@ -36,29 +36,29 @@ READ DATA
 # Save the current directory's path
 original_dir = os.getcwd()
 
-# Read in the data from Test Case 1
-os.chdir('./Test Case 1/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
+# # Read in the data from Test Case 1
+# os.chdir('./Test Case 1/Space_Remaining')
+# with open('load_data.py') as file:
+#     exec(file.read())
 
-# Change back to the original directory
-os.chdir(original_dir)
+# # Change back to the original directory
+# os.chdir(original_dir)
 
-# Read in the data from Test Case 2
-os.chdir('./Test Case 2/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
+# # Read in the data from Test Case 2
+# os.chdir('./Test Case 2/Space_Remaining')
+# with open('load_data.py') as file:
+#     exec(file.read())
 
-# Change back to the original directory
-os.chdir(original_dir)
+# # Change back to the original directory
+# os.chdir(original_dir)
 
-# Read in the data from Test Case 3
-os.chdir('./Test Case 3/Space_Remaining')
-with open('load_data.py') as file:
-    exec(file.read())
+# # Read in the data from Test Case 3
+# os.chdir('./Test Case 3/Space_Remaining')
+# with open('load_data.py') as file:
+#     exec(file.read())
 
-# Change back to the original directory
-os.chdir(original_dir)
+# # Change back to the original directory
+# os.chdir(original_dir)
 
 # Read in the data from Test Case 4
 os.chdir('./Test Case 4/Space_Remaining')
@@ -98,7 +98,7 @@ for i in range(0, len(Discips)):
     Discips[i] = createKey('tested_ins', Discips[i])
     
     # Populate tested inputs with each initial space remaining array
-    Discips[i]['tested_ins'] = Test_Case_1['Run_1'][i][0]['space_remaining']
+    Discips[i]['tested_ins'] = Test_Case_4['Run_1'][i][0]['space_remaining']
     
     # Create a key for tested outputs of discipline if it does not exist
     Discips[i] = createKey('tested_outs', Discips[i])
@@ -126,14 +126,14 @@ SAVE DATA
 with open('Discips.pkl', 'wb') as f:
     pickle.dump(Discips, f)
 
-with open('Test_Case_1.pkl', 'wb') as f:
-    pickle.dump(Test_Case_1, f)
+# with open('Test_Case_1.pkl', 'wb') as f:
+#     pickle.dump(Test_Case_1, f)
 
-with open('Test_Case_2.pkl', 'wb') as f:
-    pickle.dump(Test_Case_2, f)
+# with open('Test_Case_2.pkl', 'wb') as f:
+#     pickle.dump(Test_Case_2, f)
 
-with open('Test_Case_3.pkl', 'wb') as f:
-    pickle.dump(Test_Case_3, f)
+# with open('Test_Case_3.pkl', 'wb') as f:
+#     pickle.dump(Test_Case_3, f)
 
 with open('Test_Case_4.pkl', 'wb') as f:
     pickle.dump(Test_Case_4, f)
