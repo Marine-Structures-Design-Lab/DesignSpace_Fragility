@@ -529,6 +529,10 @@ while iters <= iters_max:
                                          gradient_factor, iters, iters_max)
                     break_loop = getattr(gradfact, gf_decide['strategy'])()
                     
+                    # Add to banned rules if newest fragility assessment fails
+                    if not break_loop:
+                        banned_rules.update(final_combo)
+                    
                     # Indicate that objective change check is complete
                     print("Completed objective space fragility check.")
                 
