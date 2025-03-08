@@ -140,7 +140,7 @@ fragility_shift = 0.4  # Should be a positive float
 fragility_extensions = {
     "sub_spaces": [6], # Design sub-space dimensions to consider
     "interdependencies": False,       # Consider design space interdependencies
-    "objective_changes": True         # Consider changes to req's and analyses
+    "objective_changes": False         # Consider changes to req's and analyses
 }
 
 # Determine what strategy to use for making gradient-factor based decisions
@@ -150,15 +150,15 @@ fragility_extensions = {
 ### Linear = [Slope, y-intercept]
 ### Quadratic = [Parabola shape (a), vertex x-coord (h), vertex y-coord (k)]
 gf_decide = {
-    "strategy": "Fixed", # Options: Fixed, Linear, Quadratic
-    "coefficients": [0.0]
+    "strategy": "Linear", # Options: Fixed, Linear, Quadratic
+    "coefficients": [-0.6, 0.6]
 }
 
 # Indicate when and to what design space(s) a design change should occur
 ### Keep these in list form and have each design change type match up with a
-### time for it to occur...times must be in ascending order!
+### time for it to occur...amounts must be in ascending order!
 change_design = ['Reqs']  # Options: 'Inputs', 'Analyses', 'Outputs', 'Reqs'
-change_time = [0.4]          # Fraction of elapsed time(s) before change occurs
+change_amount = [0.4]     # Fraction of designs removed before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by
@@ -261,6 +261,9 @@ Discips_fragility = copy.deepcopy(Discips)
 # Initialize an empty set of banned rules
 banned_rules = {}
 
+# Initialize fraction of space remaining in each discipline
+space_rem = [1.0 for _ in Discips]
+
 # Begin the design exploration and reduction process with allotted timeline
 while iters <= iters_max:
     
@@ -285,8 +288,8 @@ while iters <= iters_max:
     irules_discip = []
     
     # Check if time has been reached for a design change to occur
-    if change_counter < len(change_time) and \
-        (iters/iters_max) > change_time[change_counter]:
+    if change_counter < len(change_amount) and \
+        any((1-val) >= change_amount[change_counter] for val in space_rem):
         
         # Set the change type
         change_type = change_design[change_counter]
