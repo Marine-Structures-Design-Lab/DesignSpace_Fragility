@@ -146,7 +146,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         color_idx = plotData(all_test_cases_data, 'All', line_styles[0], 
                               colors, 0, markers)
         
-        # Plot data for feasible-to-remaining space
+        # # Plot data for feasible-to-remaining space
         # color_idx = 0
         # color_idx = plotData(feas2_test_cases_data, 'Feas2', line_styles[0], 
         #                       colors, 0, markers)
@@ -154,7 +154,7 @@ def plotDisciplines(all_disciplines_data, feas1_disciplines_data,
         # # Plot data for feasible space remaining
         # color_idx = 0
         # color_idx = plotData(feas1_test_cases_data, 'Feas1', line_styles[1], 
-        #                      colors, 0, markers)
+        #                       colors, 0, markers)
         
         # Plot legend
         plt.legend(handles=color_handles+line_style_handles, loc='upper left',
