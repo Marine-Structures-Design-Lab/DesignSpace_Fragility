@@ -158,7 +158,7 @@ gf_decide = {
 ### Keep these in list form and have each design change type match up with a
 ### time for it to occur...amounts must be in ascending order!
 change_design = ['Reqs']  # Options: 'Inputs', 'Analyses', 'Outputs', 'Reqs'
-change_amount = [0.4]     # Fraction of designs removed before change occurs
+change_amount = [0.6]     # Fraction of designs removed before change occurs
 
 # Set initial values for creating and evaluating the suitability of partitions
 # (1st value) as well as the amount that each criteria should be increased by

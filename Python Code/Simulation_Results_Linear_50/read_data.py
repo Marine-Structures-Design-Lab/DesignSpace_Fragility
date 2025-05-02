@@ -87,8 +87,10 @@ Discips, Input_Rules, Output_Rules = prob.SenYang()
 # Adjust the list of output rules - ~50% FEASIBLE SPACE REDUCTION!
 x = sp.symbols('x1:7') # L, T, D, C_B, B, V
 y = sp.symbols('y1:4') # F_n, GM, DW
-Output_Rules = [y[0] <= 0.292, y[1] - 0.092*X(x[4],4) >= 0.0, 
-                sp.And(y[2] >= 94000, y[2] <= 190000),
+Output_Rules = [sp.And(y[0] > 0.292, y[0] <= 0.32),
+                sp.And(y[1] - 0.07*X(x[4],4) >= 0.0, 
+                       y[1] - 0.092*X(x[4],4) < 0.0),
+                sp.And(y[2] >= 3000, y[2] <= 160000),
                 y[2] - (X(x[1],1)/0.45)**(1.0/0.31) >= 0.0]
 
 # Loop through each discipline of the design problem
